@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=13" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -156,9 +156,12 @@
               <button type="button" class="chip-btn toggle-iast-btn" onclick="toggleIast()"
                       data-i18n-ru="🔤 Включить IAST"
                       data-i18n-en="🔤 Enable IAST">🔤 Включить IAST</button>
+              <button type="button" id="toggle-poster-mask-btn" class="chip-btn" onclick="togglePosterMaskMode()"
+                      data-i18n-ru="🟪 Закрыть часть слова ■"
+                      data-i18n-en="🟪 Cover Part of Word ■">🟪 Закрыть часть слова ■</button>
               <button type="button" id="toggle-labels-btn" class="chip-btn" onclick="toggleVocabLabels()"
-                      data-i18n-ru="🙈 Скрыть подписи (проверь себя)"
-                      data-i18n-en="🙈 Hide Labels (Test Yourself)">🙈 Скрыть подписи (проверь себя)</button>
+                      data-i18n-ru="🙈 Скрыть подписи"
+                      data-i18n-en="🙈 Hide Labels">🙈 Скрыть подписи</button>
               <a href="#ppp-practice" class="btn btn-primary" style="padding:0.45rem 1rem;font-size:0.85rem;"
                  data-i18n-ru="Перейти к играм (Practice) ↓"
                  data-i18n-en="Go to Practice Games ↓">Перейти к играм (Practice) ↓</a>
@@ -216,22 +219,24 @@
             </p>
           </div>
 
-          <!-- 7 Game Selector Buttons -->
+          <!-- 8 Game Selector Buttons -->
           <div class="practice-tabs" role="tablist">
             <button type="button" class="practice-tab-btn active" data-game="flashcards" onclick="selectPracticeGame('flashcards')"
                     data-i18n-ru="1. Flashcards (Карточки)" data-i18n-en="1. Flashcards">1. Flashcards (Карточки)</button>
+            <button type="button" class="practice-tab-btn" data-game="masked" onclick="selectPracticeGame('masked')"
+                    data-i18n-ru="2. Закрыто квадратом ■ (Угадай слово)" data-i18n-en="2. Covered Square ■ (Guess Word)">2. Закрыто квадратом ■ (Угадай слово)</button>
             <button type="button" class="practice-tab-btn" data-game="gaps" onclick="selectPracticeGame('gaps')"
-                    data-i18n-ru="2. Fill in the Gaps (Пропуски)" data-i18n-en="2. Fill in the Gaps">2. Fill in the Gaps (Пропуски)</button>
+                    data-i18n-ru="3. Fill in the Gaps (Пропуски)" data-i18n-en="3. Fill in the Gaps">3. Fill in the Gaps (Пропуски)</button>
             <button type="button" class="practice-tab-btn" data-game="picquiz" onclick="selectPracticeGame('picquiz')"
-                    data-i18n-ru="3. Picture Quiz (Картинка → Слово)" data-i18n-en="3. Picture Quiz">3. Picture Quiz (Картинка → Слово)</button>
+                    data-i18n-ru="4. Picture Quiz (Картинка → Слово)" data-i18n-en="4. Picture Quiz">4. Picture Quiz (Картинка → Слово)</button>
             <button type="button" class="practice-tab-btn" data-game="wordquiz" onclick="selectPracticeGame('wordquiz')"
-                    data-i18n-ru="4. Read &amp; Match (Слово → Картинка)" data-i18n-en="4. Word → Picture">4. Read &amp; Match (Слово → Картинка)</button>
+                    data-i18n-ru="5. Read &amp; Match (Слово → Картинка)" data-i18n-en="5. Word → Picture">5. Read &amp; Match (Слово → Картинка)</button>
             <button type="button" class="practice-tab-btn" data-game="match" onclick="selectPracticeGame('match')"
-                    data-i18n-ru="5. Match Pairs (Найди пары)" data-i18n-en="5. Match Pairs">5. Match Pairs (Найди пары)</button>
+                    data-i18n-ru="6. Match Pairs (Найди пары)" data-i18n-en="6. Match Pairs">6. Match Pairs (Найди пары)</button>
             <button type="button" class="practice-tab-btn" data-game="spelling" onclick="selectPracticeGame('spelling')"
-                    data-i18n-ru="6. Missing Letters (Буквы)" data-i18n-en="6. Missing Letters">6. Missing Letters (Буквы)</button>
+                    data-i18n-ru="7. Missing Letters (Буквы)" data-i18n-en="7. Missing Letters">7. Missing Letters (Буквы)</button>
             <button type="button" class="practice-tab-btn" data-game="truefalse" onclick="selectPracticeGame('truefalse')"
-                    data-i18n-ru="7. True / False (Да / Нет)" data-i18n-en="7. True / False">7. True / False (Да / Нет)</button>
+                    data-i18n-ru="8. आम् / न (Да / Нет)" data-i18n-en="8. आम् / न (True / False)">8. आम् / न (Да / Нет)</button>
           </div>
 
           <!-- Active Practice Game Arena -->
@@ -1079,7 +1084,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=12"></script>
-  <script src="app.js?v=12"></script>
+  <script src="lesson1.js?v=13"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

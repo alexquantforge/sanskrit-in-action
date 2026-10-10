@@ -5,6 +5,7 @@
  * - No grammatical gender mention or case endings (pure stems: नयन, नासिका, जिह्वा, कर्ण, शीर्ष, ललाट, भ्रू, ओष्ठ, कर, पाद, दन्त, अङ्गुली)
  * - No Russian or English word translations anywhere (100% Direct Method via illustrations & sound)
  * - IAST disabled by default, with a toggle button to enable/disable IAST
+ * - Includes dedicated "Covered by Square (■)" game where part of the word is hidden under a pink square and the learner guesses the whole word.
  */
 
 const bodyPartsVocab = [
@@ -13,6 +14,8 @@ const bodyPartsVocab = [
     deva: 'नयन',
     iast: 'nayana',
     ttsText: 'नयन',
+    maskedPrefix: 'नय',
+    maskedHidden: 'न',
     missingDisplay: 'न _ न',
     missingAnswer: 'य',
     missingChoices: ['य', 'व', 'प', 'म'],
@@ -30,6 +33,8 @@ const bodyPartsVocab = [
     deva: 'नासिका',
     iast: 'nāsikā',
     ttsText: 'नासिका',
+    maskedPrefix: 'नासि',
+    maskedHidden: 'का',
     missingDisplay: 'ना _ का',
     missingAnswer: 'सि',
     missingChoices: ['सि', 'शि', 'पि', 'ति'],
@@ -45,6 +50,8 @@ const bodyPartsVocab = [
     deva: 'जिह्वा',
     iast: 'jihvā',
     ttsText: 'जिह्वा',
+    maskedPrefix: 'जि',
+    maskedHidden: 'ह्वा',
     missingDisplay: 'जि _',
     missingAnswer: 'ह्वा',
     missingChoices: ['ह्वा', 'ह्मा', 'ह्या', 'ह्रा'],
@@ -60,6 +67,8 @@ const bodyPartsVocab = [
     deva: 'कर्ण',
     iast: 'karṇa',
     ttsText: 'कर्ण',
+    maskedPrefix: 'क',
+    maskedHidden: 'र्ण',
     missingDisplay: 'क _',
     missingAnswer: 'र्ण',
     missingChoices: ['र्ण', 'र्म', 'र्य', 'र्त'],
@@ -75,6 +84,8 @@ const bodyPartsVocab = [
     deva: 'शीर्ष',
     iast: 'śīrṣa',
     ttsText: 'शीर्ष',
+    maskedPrefix: 'शी',
+    maskedHidden: 'र्ष',
     missingDisplay: 'शी _',
     missingAnswer: 'र्ष',
     missingChoices: ['र्ष', 'र्स', 'र्श', 'र्ण'],
@@ -94,6 +105,8 @@ const bodyPartsVocab = [
     deva: 'ललाट',
     iast: 'lalāṭa',
     ttsText: 'ललाट',
+    maskedPrefix: 'लला',
+    maskedHidden: 'ट',
     missingDisplay: 'ल _ ट',
     missingAnswer: 'ला',
     missingChoices: ['ला', 'ली', 'लो', 'ले'],
@@ -111,7 +124,9 @@ const bodyPartsVocab = [
     deva: 'भ्रू',
     iast: 'bhrū',
     ttsText: 'भ्रू',
-    missingDisplay: '_ रूह् → भ्रू',
+    maskedPrefix: 'भ्र',
+    maskedHidden: 'ू',
+    missingDisplay: '_ → भ्रू',
     missingAnswer: 'भ्रू',
     missingChoices: ['भ्रू', 'भ्रि', 'भ्रा', 'भ्रे'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -127,6 +142,8 @@ const bodyPartsVocab = [
     deva: 'ओष्ठ',
     iast: 'oṣṭha',
     ttsText: 'ओष्ठ',
+    maskedPrefix: 'ओ',
+    maskedHidden: 'ष्ठ',
     missingDisplay: 'ओ _',
     missingAnswer: 'ष्ठ',
     missingChoices: ['ष्ठ', 'ष्ट', 'ष्ण', 'स्म'],
@@ -141,6 +158,8 @@ const bodyPartsVocab = [
     deva: 'कर',
     iast: 'kara',
     ttsText: 'कर',
+    maskedPrefix: 'क',
+    maskedHidden: 'र',
     missingDisplay: 'क _',
     missingAnswer: 'र',
     missingChoices: ['र', 'ल', 'न', 'म'],
@@ -154,6 +173,8 @@ const bodyPartsVocab = [
     deva: 'पाद',
     iast: 'pāda',
     ttsText: 'पाद',
+    maskedPrefix: 'पा',
+    maskedHidden: 'द',
     missingDisplay: 'पा _',
     missingAnswer: 'द',
     missingChoices: ['द', 'त', 'प', 'ब'],
@@ -167,6 +188,8 @@ const bodyPartsVocab = [
     deva: 'दन्त',
     iast: 'danta',
     ttsText: 'दन्त',
+    maskedPrefix: 'द',
+    maskedHidden: 'न्त',
     missingDisplay: 'द _ त',
     missingAnswer: 'न्',
     missingChoices: ['न्', 'म्', 'र्', 'ल्'],
@@ -180,6 +203,8 @@ const bodyPartsVocab = [
     deva: 'अङ्गुली',
     iast: 'aṅgulī',
     ttsText: 'अङ्गुली',
+    maskedPrefix: 'अङ्गु',
+    maskedHidden: 'ली',
     missingDisplay: 'अ _ ली',
     missingAnswer: 'ङ्गु',
     missingChoices: ['ङ्गु', 'म्बु', 'न्दु', 'ञ्जु'],
@@ -193,10 +218,20 @@ const bodyPartsVocab = [
 
 // Lesson 1 State
 let labelsHidden = false;
+let posterMaskedMode = false; // Whether the 12-card Presentation poster has pink squares covering word endings
+let posterRevealedIds = new Set();
 let iastHidden = true;
-let currentPracticeGame = 'flashcards'; // 'flashcards' | 'gaps' | 'picquiz' | 'wordquiz' | 'match' | 'spelling' | 'truefalse'
+let currentPracticeGame = 'flashcards'; // 'flashcards' | 'masked' | 'gaps' | 'picquiz' | 'wordquiz' | 'match' | 'spelling' | 'truefalse'
 let fcIndex = 0;
 let fcFlipped = false;
+
+// Masked Square Game State ("часть слова закрыта квадратом и надо отгадать все слово")
+let maskedModeView = 'card'; // 'card' (single flashcard + guess whole word) | 'grid' (all 12 cards with pink squares like the reference picture)
+let msIndex = 0;
+let msScore = 0;
+let msAnswered = false;
+let msGridRevealed = new Set();
+
 let gapIndex = 0;
 let gapScore = 0;
 let gapAnswered = false;
@@ -246,6 +281,18 @@ function speakSanskritWord(devaText) {
   }
 }
 
+// Helper to render a word with its second part covered by a pink square (like in the user's screenshot)
+function renderMaskedWordMarkup(item, isRevealed, fontSize = '1.65rem') {
+  if (isRevealed) {
+    return `<div class="vocab-deva" style="font-size:${fontSize};color:#15803d;">${item.deva}</div>`;
+  }
+  return `
+    <div class="masked-word-line" style="font-size:${fontSize};">
+      <span>${item.maskedPrefix}</span><span class="pink-mask-square">${item.maskedHidden}</span>
+    </div>
+  `;
+}
+
 // 1. Render Stage 1: PRESENTATION (3x4 Chart — pure Picture + Sanskrit, zero translations)
 function renderPresentationStage() {
   const gridEl = document.getElementById('lesson1-vocab-grid');
@@ -253,14 +300,21 @@ function renderPresentationStage() {
 
   gridEl.classList.toggle('labels-hidden', labelsHidden);
 
-  gridEl.innerHTML = bodyPartsVocab.map(item => `
-    <div class="vocab-item-card" onclick="speakSanskritWord('${item.ttsText}')">
-      <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${item.ttsText}')">🔊</button>
-      <div class="vocab-svg-box">${item.svg}</div>
-      <div class="vocab-deva">${item.deva}</div>
-      <div class="vocab-iast">${item.iast}</div>
-    </div>
-  `).join('');
+  gridEl.innerHTML = bodyPartsVocab.map(item => {
+    const isRev = posterRevealedIds.has(item.id);
+    const wordHtml = posterMaskedMode
+      ? renderMaskedWordMarkup(item, isRev, '1.55rem')
+      : `<div class="vocab-deva">${item.deva}</div>`;
+
+    return `
+      <div class="vocab-item-card" onclick="handlePosterCardClick('${item.id}', '${item.ttsText}')">
+        <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${item.ttsText}')">🔊</button>
+        <div class="vocab-svg-box">${item.svg}</div>
+        ${wordHtml}
+        <div class="vocab-iast">${item.iast}</div>
+      </div>
+    `;
+  }).join('');
 
   const toggleBtn = document.getElementById('toggle-labels-btn');
   if (toggleBtn) {
@@ -272,6 +326,37 @@ function renderPresentationStage() {
       toggleBtn.classList.remove('active');
     }
   }
+
+  const maskPosterBtn = document.getElementById('toggle-poster-mask-btn');
+  if (maskPosterBtn) {
+    if (posterMaskedMode) {
+      maskPosterBtn.innerText = currentLang === 'ru' ? '🟪 Показать слова целиком' : '🟪 Show Full Words';
+      maskPosterBtn.classList.add('active');
+    } else {
+      maskPosterBtn.innerText = currentLang === 'ru' ? '🟪 Закрыть часть слова ■' : '🟪 Cover Part of Word ■';
+      maskPosterBtn.classList.remove('active');
+    }
+  }
+}
+
+function handlePosterCardClick(itemId, ttsText) {
+  if (posterMaskedMode) {
+    if (posterRevealedIds.has(itemId)) {
+      posterRevealedIds.delete(itemId);
+    } else {
+      posterRevealedIds.add(itemId);
+      speakSanskritWord(ttsText);
+    }
+    renderPresentationStage();
+  } else {
+    speakSanskritWord(ttsText);
+  }
+}
+
+function togglePosterMaskMode() {
+  posterMaskedMode = !posterMaskedMode;
+  posterRevealedIds.clear();
+  renderPresentationStage();
 }
 
 function toggleVocabLabels() {
@@ -297,7 +382,7 @@ function toggleIast() {
   updateIastButtons();
 }
 
-// 2. Render Stage 2: PRACTICE (7 Simple ELT Games — zero translations)
+// 2. Render Stage 2: PRACTICE (ELT Games — zero translations)
 function selectPracticeGame(gameKey) {
   currentPracticeGame = gameKey;
   document.querySelectorAll('.practice-tab-btn[data-game]').forEach(btn => {
@@ -318,6 +403,8 @@ function renderPracticeArena() {
 
   if (currentPracticeGame === 'flashcards') {
     renderFlashcardsGame(arena);
+  } else if (currentPracticeGame === 'masked') {
+    renderMaskedSquareGame(arena);
   } else if (currentPracticeGame === 'gaps') {
     renderFillGapsGame(arena);
   } else if (currentPracticeGame === 'picquiz') {
@@ -386,7 +473,155 @@ function prevFlashcard() {
   renderPracticeArena();
 }
 
-// GAME 2: Fill in the Gaps (Visual Sequence Cloze — zero translation)
+// GAME 2: Masked Square Game ("часть слова закрыта квадратом и надо отгадать все слово")
+function setMaskedModeView(mode) {
+  maskedModeView = mode;
+  renderPracticeArena();
+}
+
+function renderMaskedSquareGame(arena) {
+  if (maskedModeView === 'grid') {
+    // 12-card poster grid with pink squares covering part of every word (just like the user's screenshot!)
+    const cardsHtml = bodyPartsVocab.map(item => {
+      const revealed = msGridRevealed.has(item.id);
+      return `
+        <div class="vocab-item-card" onclick="toggleMaskedGridCard('${item.id}', '${item.ttsText}')">
+          <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${item.ttsText}')">🔊</button>
+          <div class="vocab-svg-box">${item.svg}</div>
+          ${renderMaskedWordMarkup(item, revealed, '1.6rem')}
+          <div class="vocab-iast">${item.iast}</div>
+        </div>
+      `;
+    }).join('');
+
+    arena.innerHTML = `
+      <div class="game-top-bar">
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <button type="button" class="chip-btn" onclick="setMaskedModeView('card')">
+            1 / 12
+          </button>
+          <button type="button" class="chip-btn active" onclick="setMaskedModeView('grid')">
+            12 / 12 ■
+          </button>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <button type="button" class="chip-btn" onclick="resetMaskedGrid()">↺ ■</button>
+          <span class="game-score-pill">${msGridRevealed.size} / ${bodyPartsVocab.length}</span>
+        </div>
+      </div>
+
+      <div class="vocab-grid-12" style="margin-bottom:0;">
+        ${cardsHtml}
+      </div>
+    `;
+    return;
+  }
+
+  // Single-card mode: shows picture + word with pink square covering part of it -> guess the whole word!
+  const item = bodyPartsVocab[msIndex];
+  const distractors = [
+    bodyPartsVocab[(msIndex + 2) % bodyPartsVocab.length],
+    bodyPartsVocab[(msIndex + 5) % bodyPartsVocab.length],
+    bodyPartsVocab[(msIndex + 9) % bodyPartsVocab.length]
+  ];
+  const options = [item, ...distractors].sort((a, b) => a.id.localeCompare(b.id));
+
+  const optionsHtml = options.map(opt => `
+    <button type="button" class="quiz-opt-btn" id="ms-opt-${opt.id}" onclick="checkMaskedSquareAnswer('${opt.id}')">
+      <div style="font-family:var(--font-deva);font-size:1.55rem;font-weight:700;">${opt.deva}</div>
+      <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-saffron);">${opt.iast}</div>
+    </button>
+  `).join('');
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <button type="button" class="chip-btn active" onclick="setMaskedModeView('card')">
+          1 / 12
+        </button>
+        <button type="button" class="chip-btn" onclick="setMaskedModeView('grid')">
+          12 / 12 ■
+        </button>
+      </div>
+      <span class="game-score-pill">${msScore} · (${msIndex + 1}/${bodyPartsVocab.length})</span>
+    </div>
+
+    <div class="flashcard-box" style="min-height:220px;padding:1.5rem;margin-bottom:1rem;" onclick="revealCurrentMaskedCard()">
+      <div class="vocab-svg-box" style="width:125px;height:125px;margin-bottom:0.75rem;">${item.svg}</div>
+      <div id="ms-word-box">
+        ${renderMaskedWordMarkup(item, msAnswered, '2.35rem')}
+      </div>
+      <div class="vocab-iast" style="font-size:1rem;margin-top:0.25rem;">${ msAnswered ? item.iast : '' }</div>
+    </div>
+
+    <div class="quiz-options-grid">${optionsHtml}</div>
+    <div id="ms-feedback-msg" style="margin-top:1rem;text-align:center;"></div>
+  `;
+}
+
+function revealCurrentMaskedCard() {
+  const item = bodyPartsVocab[msIndex];
+  msAnswered = true;
+  speakSanskritWord(item.ttsText);
+  renderPracticeArena();
+  const feedbackEl = document.getElementById('ms-feedback-msg');
+  if (feedbackEl) {
+    feedbackEl.innerHTML = `
+      <button type="button" class="chip-btn active" onclick="nextMaskedSquareRound()">→</button>
+    `;
+  }
+}
+
+function checkMaskedSquareAnswer(chosenId) {
+  if (msAnswered) return;
+  const item = bodyPartsVocab[msIndex];
+  const btn = document.getElementById('ms-opt-' + chosenId);
+  const feedbackEl = document.getElementById('ms-feedback-msg');
+
+  if (chosenId === item.id) {
+    msAnswered = true;
+    msScore++;
+    if (btn) btn.classList.add('correct');
+    const wordBox = document.getElementById('ms-word-box');
+    if (wordBox) {
+      wordBox.innerHTML = renderMaskedWordMarkup(item, true, '2.35rem');
+    }
+    speakSanskritWord(item.ttsText);
+    if (feedbackEl) {
+      feedbackEl.innerHTML = `
+        <div style="color:#15803d;font-weight:700;font-family:var(--font-deva);font-size:1.35rem;margin-bottom:0.5rem;">
+          ✓ ${item.deva}<span class="iast-text" style="font-family:var(--font-mono);font-size:0.9rem;"> (${item.iast})</span>
+        </div>
+        <button type="button" class="chip-btn active" onclick="nextMaskedSquareRound()">→</button>
+      `;
+    }
+  } else {
+    if (btn) btn.classList.add('wrong');
+  }
+}
+
+function nextMaskedSquareRound() {
+  msIndex = (msIndex + 1) % bodyPartsVocab.length;
+  msAnswered = false;
+  renderPracticeArena();
+}
+
+function toggleMaskedGridCard(itemId, ttsText) {
+  if (msGridRevealed.has(itemId)) {
+    msGridRevealed.delete(itemId);
+  } else {
+    msGridRevealed.add(itemId);
+    speakSanskritWord(ttsText);
+  }
+  renderPracticeArena();
+}
+
+function resetMaskedGrid() {
+  msGridRevealed.clear();
+  renderPracticeArena();
+}
+
+// GAME 3: Fill in the Gaps (Visual Sequence Cloze — zero translation)
 function renderFillGapsGame(arena) {
   const prevItem = bodyPartsVocab[(gapIndex + bodyPartsVocab.length - 1) % bodyPartsVocab.length];
   const item = bodyPartsVocab[gapIndex];
@@ -409,7 +644,7 @@ function renderFillGapsGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">2. Fill in the Gaps</strong>
+        <strong style="font-size:1.05rem;">3. Fill in the Gaps</strong>
       </div>
       <span class="game-score-pill">${gapScore} · (${gapIndex + 1}/${bodyPartsVocab.length})</span>
     </div>
@@ -478,7 +713,7 @@ function nextGapRound() {
   renderPracticeArena();
 }
 
-// GAME 3: Picture Quiz (See Picture -> Pick Sanskrit Word)
+// GAME 4: Picture Quiz (See Picture -> Pick Sanskrit Word)
 function renderPictureQuizGame(arena) {
   const item = bodyPartsVocab[pqIndex];
   const distractors = [
@@ -498,7 +733,7 @@ function renderPictureQuizGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">3. Picture Quiz</strong>
+        <strong style="font-size:1.05rem;">4. Picture Quiz</strong>
       </div>
       <span class="game-score-pill">${pqScore} · (${pqIndex + 1}/${bodyPartsVocab.length})</span>
     </div>
@@ -542,7 +777,7 @@ function nextPicQuizRound() {
   renderPracticeArena();
 }
 
-// GAME 4: Word -> Picture Quiz (Read Sanskrit Word -> Click Picture)
+// GAME 5: Word -> Picture Quiz (Read Sanskrit Word -> Click Picture)
 function renderWordToPicQuizGame(arena) {
   const item = bodyPartsVocab[wqIndex];
   const distractors = [
@@ -561,7 +796,7 @@ function renderWordToPicQuizGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">4. Word → Picture</strong>
+        <strong style="font-size:1.05rem;">5. Word → Picture</strong>
       </div>
       <span class="game-score-pill">${wqScore} · (${wqIndex + 1}/${bodyPartsVocab.length})</span>
     </div>
@@ -607,7 +842,7 @@ function nextWordQuizRound() {
   renderPracticeArena();
 }
 
-// GAME 5: Match Pairs (4 Pictures + 4 Sanskrit Words = 8 tiles)
+// GAME 6: Match Pairs (4 Pictures + 4 Sanskrit Words = 8 tiles)
 function initMatchGame() {
   const subset = [...bodyPartsVocab].sort(() => Math.random() - 0.5).slice(0, 4);
   const tiles = [];
@@ -646,7 +881,7 @@ function renderMatchPairsGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">5. Match Pairs</strong>
+        <strong style="font-size:1.05rem;">6. Match Pairs</strong>
       </div>
       <span class="game-score-pill">${matchMatchedCount} / 4</span>
     </div>
@@ -687,7 +922,7 @@ function clickMatchTile(idx) {
   }
 }
 
-// GAME 6: Missing Syllable / Devanagari Spelling Drill (zero translations)
+// GAME 7: Missing Syllable / Devanagari Spelling Drill (zero translations)
 function renderSpellingGame(arena) {
   const item = bodyPartsVocab[spIndex];
 
@@ -700,7 +935,7 @@ function renderSpellingGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">6. Missing Letters</strong>
+        <strong style="font-size:1.05rem;">7. Missing Letters</strong>
       </div>
       <span class="game-score-pill">${spScore} · (${spIndex + 1}/${bodyPartsVocab.length})</span>
     </div>
@@ -750,7 +985,7 @@ function nextSpellingRound() {
   renderPracticeArena();
 }
 
-// GAME 7: True or False ("आम् / न" — zero translations)
+// GAME 8: True or False ("आम् / न" — zero translations)
 function prepareTrueFalseRound() {
   tfAnswered = false;
   tfIsTrue = Math.random() >= 0.45;
@@ -768,7 +1003,7 @@ function renderTrueFalseGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">7. आम् / न</strong>
+        <strong style="font-size:1.05rem;">8. आम् / न</strong>
       </div>
       <span class="game-score-pill">${tfScore}</span>
     </div>
