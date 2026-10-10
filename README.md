@@ -1,4 +1,4 @@
-# Sanskrit in Action
+# Sanskrit in Action with Alex Vijaya — Sanskrit in Action с Александром Виджая
 
 > **Sanskrit, the Cambridge way. Speaking from day one.**  
 > **Санскрит по-кембриджски. Говорим с первого дня.**
@@ -14,11 +14,11 @@
 
 ### Short Description (for GitHub "About" field)
 
-> Sanskrit the Cambridge way: communicative, task-based, CEFR A1–C2. 4 skills × 5 systems, śāstra-based texts, interactive games.
+> Sanskrit in Action with Alex Vijaya — Sanskrit the Cambridge way: communicative, task-based, CEFR A1–C2. 4 skills × 5 systems, śāstra-based texts, interactive games.
 
 ### About the Project
 
-**Sanskrit in Action** — learn Sanskrit the way Cambridge teaches modern languages: communicative approach, task-based learning (TBLT), and CEFR levels **A1–C2**.
+**Sanskrit in Action with Alex Vijaya** — learn Sanskrit the way Cambridge teaches modern languages: communicative approach, task-based learning (TBLT), and CEFR levels **A1–C2**.
 
 Instead of nineteenth-century grammar-translation drills where learners memorize endless declension charts before speaking a single word, **Sanskrit in Action** puts communication first. You solve real-life communicative tasks from lesson one while unlocking Pāṇini's grammatical system step by step as a tool for living speech and reading authentic śāstras.
 
@@ -83,11 +83,11 @@ sanskrit-in-action/
 
 ### Короткое описание (для поля «About» в GitHub)
 
-> Санскрит по-кембриджски: коммуникативный подход, task-based, CEFR A1–C2. 4 навыка × 5 систем, тексты на основе шастр, интерактивные игры.
+> Sanskrit in Action с Александром Виджая — санскрит по-кембриджски: коммуникативный подход, task-based, CEFR A1–C2. 4 навыка × 5 систем, тексты на основе шастр, интерактивные игры.
 
 ### О проекте
 
-**Sanskrit in Action** — интерактивная образовательная платформа для изучения санскрита по современным стандартам преподавания языков **Cambridge (CELTA / Delta)**: коммуникативный подход, обучение через задачи (*Task-Based Learning*) и прозрачная шкала уровней **CEFR A1–C2**.
+**Sanskrit in Action с Александром Виджая** — интерактивная образовательная платформа для изучения санскрита по современным стандартам преподавания языков **Cambridge (CELTA / Delta)**: коммуникативный подход, обучение через задачи (*Task-Based Learning*) и прозрачная шкала уровней **CEFR A1–C2**.
 
 * **4 навыка (4 Skills)** — аудирование (*śravaṇam*), говорение (*bhāṣaṇam*), чтение (*paṭhanam*), письмо (*lekhanam*). Говорить начинаете с первого занятия; грамматика — инструмент общения, а не наоборот.
 * **5 систем языка (5 Language Systems)** — CEFR-сетка, наполненная санскритом:

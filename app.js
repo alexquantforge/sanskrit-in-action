@@ -967,8 +967,8 @@ function setLanguage(lang) {
   currentLang = lang;
   document.documentElement.lang = lang;
   document.title = lang === 'ru'
-    ? 'Sanskrit in Action — Санскрит по-кембриджски (CEFR A1–C2 · 4 Навыка × 5 Систем)'
-    : 'Sanskrit in Action — Communicative Sanskrit (CEFR A1–C2 · 4 Skills × 5 Systems)';
+    ? 'Sanskrit in Action с Александром Виджая — Санскрит по-кембриджски (CEFR A1–C2)'
+    : 'Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2)';
 
   const emblem = document.getElementById('brand-emblem');
   if (emblem) {
