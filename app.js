@@ -924,8 +924,16 @@ function switchView(viewName, targetSectionId = null) {
   const detailsBtn = document.getElementById('tab-btn-details');
 
   if (viewName === 'details') {
-    if (homePane) homePane.classList.remove('active');
-    if (detailsPane) detailsPane.classList.add('active');
+    if (homePane) {
+      homePane.classList.remove('active');
+      homePane.style.display = 'none';
+      homePane.hidden = true;
+    }
+    if (detailsPane) {
+      detailsPane.classList.add('active');
+      detailsPane.style.display = 'block';
+      detailsPane.hidden = false;
+    }
     if (homeBtn) homeBtn.classList.remove('active');
     if (detailsBtn) detailsBtn.classList.add('active');
 
@@ -938,8 +946,16 @@ function switchView(viewName, targetSectionId = null) {
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
-    if (detailsPane) detailsPane.classList.remove('active');
-    if (homePane) homePane.classList.add('active');
+    if (detailsPane) {
+      detailsPane.classList.remove('active');
+      detailsPane.style.display = 'none';
+      detailsPane.hidden = true;
+    }
+    if (homePane) {
+      homePane.classList.add('active');
+      homePane.style.display = 'block';
+      homePane.hidden = false;
+    }
     if (detailsBtn) detailsBtn.classList.remove('active');
     if (homeBtn) homeBtn.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });

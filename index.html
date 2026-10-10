@@ -8,7 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=4" />
+  <style>
+    .view-pane { display: none; }
+    .view-pane.active { display: block; }
+  </style>
 </head>
 <body>
   <div class="top-accent-bar"></div>
@@ -91,7 +95,7 @@
     <!-- ===================================================================
          TAB 2: LEARN MORE / FULL DETAILS PAGE (ПОДРОБНЕЕ)
          =================================================================== -->
-    <div id="view-details" class="view-pane">
+    <div id="view-details" class="view-pane" style="display: none;" hidden>
       <!-- Sub-navigation inside the Learn More tab -->
       <div class="details-subnav">
         <div class="details-subnav-inner">
@@ -901,6 +905,6 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
