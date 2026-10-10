@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sanskrit in Action: learn Sanskrit the Cambridge way. Communicative, task-based, CEFR A1–C2, with śāstra-based texts and interactive games.">
+  <title>Sanskrit in Action</title>
+  <style>
+    :root {
+      --bg: #fbf7f0;
+      --ink: #2b2118;
+      --muted: #6b5d4f;
+      --accent: #b5561d;
+      --accent-soft: #f6e3d3;
+      --card: #ffffff;
+      --line: #e8dccd;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .deva {
+      font-family: "Noto Sans Devanagari", "Nirmala UI", "Mangal", serif;
+    }
+    header.hero {
+      padding: 4rem 1.5rem 3.5rem;
+      text-align: center;
+      background: linear-gradient(180deg, var(--accent-soft), var(--bg));
+      border-bottom: 1px solid var(--line);
+    }
+    .sa {
+      font-size: 2.2rem;
+      color: var(--accent);
+      margin: 0;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin: 0.3rem 0 0.8rem;
+      letter-spacing: -0.5px;
+    }
+    .tagline {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 40rem;
+      margin: 0 auto 1.8rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.4rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0.25rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost { border: 2px solid var(--accent); color: var(--accent); }
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+    section { margin-bottom: 3rem; }
+    h2 {
+      font-size: 1.7rem;
+      margin: 0 0 1rem;
+    }
+    .lead { font-size: 1.05rem; color: var(--muted); max-width: 46rem; }
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 1.2rem 1.3rem;
+    }
+    .card h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+    .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .levels {
+      display: grid;
+      gap: 0.75rem;
+    }
+    .level {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 1rem;
+      align-items: center;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 0.9rem 1.2rem;
+    }
+    .level strong {
+      font-size: 1.3rem;
+      color: var(--accent);
+    }
+    .level span { color: var(--muted); }
+    .why {
+      background: var(--card);
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
+      padding: 1rem 1.4rem;
+    }
+    .why ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+    .why li { margin-bottom: 0.4rem; }
+    .quote {
+      text-align: center;
+      font-size: 1.4rem;
+      padding: 2rem 1rem;
+      color: var(--accent);
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 2rem 1rem 3rem;
+      border-top: 1px solid var(--line);
+    }
+    footer a { color: var(--accent); }
+    .status {
+      display: inline-block;
+      font-size: 0.85rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 0.2rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <p class="sa deva" lang="sa">संस्कृतम् क्रियया</p>
+    <h1>Sanskrit in Action</h1>
+    <p class="tagline">Learn Sanskrit the Cambridge way: communicative, task-based, and grounded in authentic śāstric texts.</p>
+    <a class="btn btn-primary" href="#levels">See the levels</a>
+    <a class="btn btn-ghost" href="https://github.com/alexquantforge/sanskrit-in-action">View on GitHub</a>
+  </header>
+
+  <main>
+
+    <section>
+      <span class="status">Early version · lessons coming soon</span>
+      <h2>What is this site about?</h2>
+      <p class="lead">
+        Sanskrit in Action is an online course that teaches Sanskrit as a living language you can use.
+        Lessons are built on the methodology of Cambridge CELTA and DELTA and follow the CEFR levels from A1 to C2.
+        You start speaking from the first lesson. Grammar comes in as a tool for communication.
+      </p>
+    </section>
+
+    <section>
+      <h2>4 skills</h2>
+      <div class="grid">
+        <div class="card"><h3>Listening</h3><p>Understand dialogues, instructions and chanted texts.</p></div>
+        <div class="card"><h3>Speaking</h3><p>Hold short conversations, role-plays and simple stories.</p></div>
+        <div class="card"><h3>Reading</h3><p>Read graded texts, from simple sentences to śāstric prose and verse.</p></div>
+        <div class="card"><h3>Writing</h3><p>Write messages, descriptions and paragraphs in Devanāgarī.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>5 language systems</h2>
+      <div class="grid">
+        <div class="card"><h3>Pronunciation</h3><p>Varṇamālā, Vedic accent, sandhi at word boundaries.</p></div>
+        <div class="card"><h3>Grammar</h3><p>Vibhakti (cases), lakāra (tenses and moods), samāsa (compounds).</p></div>
+        <div class="card"><h3>Vocabulary</h3><p>Themed survival fields and dhātu (verb roots) as a word-building system.</p></div>
+        <div class="card"><h3>Functions</h3><p>Greeting, requesting, inviting, promising, telling a story.</p></div>
+        <div class="card"><h3>Discourse</h3><p>Connectives (ca, tu, eva…), order of ideas, prose and verse.</p></div>
+      </div>
+    </section>
+
+    <section id="levels">
+      <h2>Levels</h2>
+      <div class="levels">
+        <div class="level"><strong>A1</strong><span>Survival Sanskrit: pronounce the varṇamālā, introduce yourself, ask for water.</span></div>
+        <div class="level"><strong>A2</strong><span>Sandhi in practice, the aorist, short connected dialogues.</span></div>
+        <div class="level"><strong>B1</strong><span>Graded reading from the Hitopadeśa, retelling simple stories.</span></div>
+        <div class="level"><strong>B2–C2</strong><span>Pāṇinian analysis, Vedic accent, verse (chandas), the Bhagavadgītā.</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why this course is different</h2>
+      <div class="why">
+        <ul>
+          <li><strong>Communication first.</strong> Every lesson has a real task: ask, answer, describe, tell.</li>
+          <li><strong>Authentic sources.</strong> Texts from Pāṇini, the Panchatantra, the Hitopadeśa and the Bhagavadgītā, not artificial textbook sentences.</li>
+          <li><strong>Learning through play.</strong> A sandhi builder, a dialogue simulator, listening quests and skill tracks.</li>
+          <li><strong>Clear progress.</strong> "Can-do" goals for every level, so you always know what you are able to do.</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="quote">Sanskrit, the Cambridge way. Speaking from day one.</p>
+
+  </main>
+
+  <footer>
+    <p>Sanskrit in Action · an independent educational project · <a href="https://github.com/alexquantforge/sanskrit-in-action">source on GitHub</a></p>
+    <p>CELTA and DELTA are trademarks of Cambridge University Press &amp; Assessment. This site is not affiliated with or endorsed by Cambridge.</p>
+  </footer>
+
+</body>
+</html>
