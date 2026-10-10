@@ -205,7 +205,7 @@ const cefrLevelsData = {
       iast: 'Vāgarthāv iva sampṛktau vāgarthapratipattaye | Jagataḥ pitarau vande pārvatīparameśvarau ||',
       trans: {
         ru: '«Неразлучных, словно слово и смысл, ради постижения слова и смысла — родителей мира чту я, Парвати и Парамешвару.» (Калидаса, Рагхувамша 1.1).',
-        en: '“Inseparable as word and meaning, for the true grasp of word and meaning, I bow to the parents of the world, Pārvatī and Parameśvara.” (Kālidāsa).'
+        en: '“Inseparable as word and meaning, for the true grasp of word and meaning, I bow to the parents of the world, Pārvatī and Parameśvara.” (Kālidāsa, Raghuvaṃśa 1.1).'
       }
     }
   },
@@ -315,7 +315,7 @@ const sandhiPresets = [
     result: 'देवालयः',
     resultIast: 'devālayaḥ',
     sutra: 'अकः सवर्णे दीर्घः (Pāṇini 6.1.101)',
-    ruleName: { ru: 'Savarṇa-dīrgha (Слияние однородных гласных)', en: 'Savarṇa-dīrgha (Homorganic Vowel Lengthening)' },
+    ruleName: { ru: 'Savarṇa-dīrgha (Слияние однородных гласных)', en: 'Savarṇa-dīrgha · Homorganic Vowel Lengthening' },
     explanation: {
       ru: 'Краткий «a» на конце слова deva («божество») + долгий «ā» в начале ālayaḥ («обитель») сливаются в один долгий звук «ā» → devālayaḥ («храм»). В живой речи это убирает паузу между словами.',
       en: 'Short “a” at the end of deva (“deity”) + long “ā” at the start of ālayaḥ (“abode”) merge into a single long “ā” → devālayaḥ (“temple”). In speech, this creates smooth vocalic flow.'
@@ -329,7 +329,7 @@ const sandhiPresets = [
     result: 'सूर्योदयः',
     resultIast: 'sūryodayaḥ',
     sutra: 'आद्गुणः (Pāṇini 6.1.87)',
-    ruleName: { ru: 'Guṇa Sandhi (Ступень гуна: a + u → o)', en: 'Guṇa Sandhi (a + u → o)' },
+    ruleName: { ru: 'Guṇa Sandhi (Ступень гуна: a + u → o)', en: 'Guṇa Sandhi · Vowel Blending (a + u → o)' },
     explanation: {
       ru: 'Звук «a» (открытый) + «u» (губной) встречаются на границе слов и дают промежуточный гласный «o» → sūryodayaḥ («восход солнца»). Чистая акустическая физика голоса!',
       en: 'Open vowel “a” + rounded vowel “u” meet at the word boundary and blend into the mid-vowel “o” → sūryodayaḥ (“sunrise”). Pure articulatory phonetics in action!'
@@ -343,7 +343,7 @@ const sandhiPresets = [
     result: 'इत्युवाच',
     resultIast: 'ityuvāca',
     sutra: 'इको यणचि (Pāṇini 6.1.77)',
-    ruleName: { ru: 'Yaṇ Sandhi (Переход гласного в полугласный: i → y)', en: 'Yaṇ Sandhi (Semivowel Glide: i → y)' },
+    ruleName: { ru: 'Yaṇ Sandhi (Переход гласного в полугласный: i → y)', en: 'Yaṇ Sandhi · Semivowel Glide (i → y)' },
     explanation: {
       ru: 'Перед другим гласным («u») конечный звук «i» в слове iti («так») мгновенно превращается в скользящий «y» → ityuvāca («так сказал»). Встречается на каждой странице шастр.',
       en: 'Before a dissimilar vowel (“u”), final “i” in iti (“thus”) glides into the semivowel “y” → ityuvāca (“thus spoke”). Seen on every page of classical narratives.'
@@ -357,7 +357,7 @@ const sandhiPresets = [
     result: 'नमस्ते',
     resultIast: 'namaste',
     sutra: 'विसर्जनीयस्य सः (Pāṇini 8.3.34)',
-    ruleName: { ru: 'Visarga Sandhi (Переход придыхания ḥ → s перед t)', en: 'Visarga Sandhi (ḥ → s before dental t)' },
+    ruleName: { ru: 'Visarga Sandhi (Переход придыхания ḥ → s перед t)', en: 'Visarga Sandhi · Sibilant Transition (ḥ → s before t)' },
     explanation: {
       ru: 'Знакомое всем приветствие «Намасте» — это на самом деле сандхи двух слов: namaḥ («поклон/почтение») + te («тебе», дательный падеж). Перед зубным «t» висарга звучит как «s»!',
       en: 'The world-famous greeting “Namaste” is actually two words joined by sandhi: namaḥ (“salutation”) + te (“to you”, dative). Before dental “t”, visarga becomes “s”!'
@@ -371,7 +371,7 @@ const sandhiPresets = [
     result: 'तच्च',
     resultIast: 'tacca',
     sutra: 'स्तोः श्चुना श्चुः (Pāṇini 8.4.40)',
-    ruleName: { ru: 'Ścutva Sandhi (Палатализация согласного: t + c → cc)', en: 'Ścutva Sandhi (Palatal Assimilation: t + c → cc)' },
+    ruleName: { ru: 'Ścutva Sandhi (Палатализация согласного: t + c → cc)', en: 'Ścutva Sandhi · Palatal Assimilation (t + c → cc)' },
     explanation: {
       ru: 'Зубной «t» в слове tat («то») подстраивается под нёбный «c» в союзе ca («и»), превращаясь в двойной «cc» → tacca («и то»). Язык заранее занимает позицию для следующего звука.',
       en: 'Dental “t” in tat (“that”) assimilates to the point of articulation of palatal “c” in ca (“and”), yielding tacca (“and that”). Effortless articulatory economy.'
@@ -382,8 +382,8 @@ const sandhiPresets = [
 // 4. Samvada Simulator (Game 2 — Task-Based Dialogue)
 const dialogueSteps = [
   {
-    stepBadge: { ru: 'Шаг 1 из 3 · Прибытие в гурукулу (Функция: Приветствие и представление)', en: 'Step 1 of 3 · Arriving at the Gurukula (Function: Greeting & Intro)' },
-    npcSpeaker: { ru: 'Ачарья (Учитель):', en: 'Ācārya (Teacher):' },
+    stepBadge: { ru: 'Шаг 1 из 3 · Прибытие в гурукулу (Функция: Приветствие и представление)', en: 'Step 1 of 3 · Arriving at the Gurukula · Greeting & Intro' },
+    npcSpeaker: { ru: 'Ачарья (Учитель):', en: 'Ācārya · Teacher:' },
     npcDeva: 'हरिः ओम्! अत्र आश्रमे स्वागतम्। भवान् कः अस्ति? कुतः आगच्छति?',
     npcIast: 'Hariḥ Om! Atra āśrame svāgatam. Bhavān kaḥ asti? Kutaḥ āgacchati?',
     npcTrans: {
@@ -414,8 +414,8 @@ const dialogueSteps = [
     ]
   },
   {
-    stepBadge: { ru: 'Шаг 2 из 3 · Выражение цели визита (Функция: Запрос и намерение)', en: 'Step 2 of 3 · Stating Your Purpose (Function: Request & Intention)' },
-    npcSpeaker: { ru: 'Ачарья (Учитель):', en: 'Ācārya (Teacher):' },
+    stepBadge: { ru: 'Шаг 2 из 3 · Выражение цели визита (Функция: Запрос и намерение)', en: 'Step 2 of 3 · Stating Your Purpose · Request & Intention' },
+    npcSpeaker: { ru: 'Ачарья (Учитель):', en: 'Ācārya · Teacher:' },
     npcDeva: 'शोभनम्! उपविशतु। किमर्थं भवान् अत्र आगतवान्?',
     npcIast: 'Śobhanam! Upaviśatu. Kimarthaṃ bhavān atra āgatavān?',
     npcTrans: {
@@ -446,8 +446,8 @@ const dialogueSteps = [
     ]
   },
   {
-    stepBadge: { ru: 'Шаг 3 из 3 · Начало практики (Функция: Согласие и обязательство)', en: 'Step 3 of 3 · Starting Practice (Function: Agreement & Commitment)' },
-    npcSpeaker: { ru: 'Ачарья (Учитель):', en: 'Ācārya (Teacher):' },
+    stepBadge: { ru: 'Шаг 3 из 3 · Начало практики (Функция: Согласие и обязательство)', en: 'Step 3 of 3 · Starting Practice · Agreement & Commitment' },
+    npcSpeaker: { ru: 'Ачарья (Учитель):', en: 'Ācārya · Teacher:' },
     npcDeva: 'उत्तमम्! अद्य आरभ्य वयं प्रतिदिनं संस्कृतेन एव संवदामः। सज्जः वा?',
     npcIast: 'Uttamam! Adya ārabhya vayaṃ pratidinaṃ saṃskṛtena eva saṃvadāmaḥ. Sajjaḥ vā?',
     npcTrans: {
@@ -489,7 +489,7 @@ const dhatuForgeData = {
       lat: {
         wordDeva: 'करोति',
         wordIast: 'karoti',
-        type: { ru: 'laṭ lakāra (наст. время, 3 л. ед. ч.)', en: 'laṭ lakāra (Present 3rd sg.)' },
+        type: { ru: 'laṭ lakāra (наст. время, 3 л. ед. ч.)', en: 'laṭ lakāra · Present 3rd sg.' },
         wordMeaning: { ru: 'делает / создаёт', en: 'does / makes' },
         sentenceDeva: 'शिष्यः अभ्यासं करोति। (Śiṣyaḥ abhyāsaṃ karoti)',
         sentenceTrans: { ru: 'Ученик выполняет практику.', en: 'The student performs practice.' }
@@ -497,7 +497,7 @@ const dhatuForgeData = {
       ktva: {
         wordDeva: 'कृत्वा',
         wordIast: 'kṛtvā',
-        type: { ru: 'ktvā pratyaya (деепричастие сов. вида)', en: 'ktvā pratyaya (Gerund / "having done")' },
+        type: { ru: 'ktvā pratyaya (деепричастие сов. вида)', en: 'ktvā pratyaya · Gerund' },
         wordMeaning: { ru: 'сделав', en: 'having done' },
         sentenceDeva: 'कार्यं कृत्वा सः विश्राम्यति। (Kāryaṃ kṛtvā saḥ viśrāmyati)',
         sentenceTrans: { ru: 'Сделав дело, он отдыхает.', en: 'Having done the work, he rests.' }
@@ -505,7 +505,7 @@ const dhatuForgeData = {
       tavya: {
         wordDeva: 'कर्तव्यम्',
         wordIast: 'kartavyam',
-        type: { ru: 'tavya pratyaya (герундий долженствования)', en: 'tavya pratyaya (Gerundive / "ought to be done")' },
+        type: { ru: 'tavya pratyaya (герундий долженствования)', en: 'tavya pratyaya · Gerundive' },
         wordMeaning: { ru: 'то, что должно сделать / долг', en: 'what ought to be done / duty' },
         sentenceDeva: 'सत्यं वचनं कर्तव्यम्। (Satyaṃ vacanaṃ kartavyam)',
         sentenceTrans: { ru: 'Следует говорить правду.', en: 'Truthful speech ought to be practiced.' }
@@ -513,7 +513,7 @@ const dhatuForgeData = {
       tr: {
         wordDeva: 'कर्तृ (कर्ता)',
         wordIast: 'kartṛ (kartā)',
-        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya (Agent noun)' },
+        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya · Agent noun' },
         wordMeaning: { ru: 'деятель, творец, субъект действия', en: 'doer, maker, grammatical agent' },
         sentenceDeva: 'स्वतन्त्रः कर्ता। (Svatantraḥ kartā — Pāṇini 1.4.54)',
         sentenceTrans: { ru: 'Деятель (kartā) — тот, кто независим в действии.', en: 'The agent (kartā) is the independent initiator of action.' }
@@ -528,7 +528,7 @@ const dhatuForgeData = {
       lat: {
         wordDeva: 'गच्छति',
         wordIast: 'gacchati',
-        type: { ru: 'laṭ lakāra (наст. время, 3 л. ед. ч.)', en: 'laṭ lakāra (Present 3rd sg.)' },
+        type: { ru: 'laṭ lakāra (наст. время, 3 л. ед. ч.)', en: 'laṭ lakāra · Present 3rd sg.' },
         wordMeaning: { ru: 'идёт / направляется', en: 'goes / moves' },
         sentenceDeva: 'मित्रं आपणं गच्छति। (Mitraṃ āpaṇaṃ gacchati)',
         sentenceTrans: { ru: 'Друг идёт на рынок.', en: 'The friend goes to the market.' }
@@ -536,7 +536,7 @@ const dhatuForgeData = {
       ktva: {
         wordDeva: 'गत्वा',
         wordIast: 'gatvā',
-        type: { ru: 'ktvā pratyaya (деепричастие сов. вида)', en: 'ktvā pratyaya (Gerund / "having gone")' },
+        type: { ru: 'ktvā pratyaya (деепричастие сов. вида)', en: 'ktvā pratyaya · Gerund' },
         wordMeaning: { ru: 'пойдя / придя', en: 'having gone' },
         sentenceDeva: 'वनं गत्वा मुनिः ध्यायति। (Vanaṃ gatvā muniḥ dhyāyati)',
         sentenceTrans: { ru: 'Придя в лес, мудрец медитирует.', en: 'Having gone to the forest, the sage meditates.' }
@@ -544,7 +544,7 @@ const dhatuForgeData = {
       tavya: {
         wordDeva: 'गन्तव्यम्',
         wordIast: 'gantavyam',
-        type: { ru: 'tavya pratyaya (долженствование / цель пути)', en: 'tavya pratyaya (Gerundive / destination)' },
+        type: { ru: 'tavya pratyaya (долженствование / цель пути)', en: 'tavya pratyaya · Gerundive' },
         wordMeaning: { ru: 'нужно идти / пункт назначения', en: 'must go / destination' },
         sentenceDeva: 'अस्माभिः अग्रे गन्तव्यम्। (Asmābhiḥ agre gantavyam)',
         sentenceTrans: { ru: 'Нам следует двигаться вперёд.', en: 'We must move forward.' }
@@ -552,7 +552,7 @@ const dhatuForgeData = {
       tr: {
         wordDeva: 'गन्तृ (गन्ता)',
         wordIast: 'gantṛ (gantā)',
-        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya (Agent noun)' },
+        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya · Agent noun' },
         wordMeaning: { ru: 'идущий, путник', en: 'one who goes, traveler' },
         sentenceDeva: 'सः लक्ष्यस्य गन्ता भवति। (Saḥ lakṣyasya gantā bhavati)',
         sentenceTrans: { ru: 'Он становится тем, кто достигает цели.', en: 'He becomes the one who reaches the goal.' }
@@ -567,7 +567,7 @@ const dhatuForgeData = {
       lat: {
         wordDeva: 'वदति',
         wordIast: 'vadati',
-        type: { ru: 'laṭ lakāra (наст. время, 3 л. ед. ч.)', en: 'laṭ lakāra (Present 3rd sg.)' },
+        type: { ru: 'laṭ lakāra (наст. время, 3 л. ед. ч.)', en: 'laṭ lakāra · Present 3rd sg.' },
         wordMeaning: { ru: 'говорит', en: 'speaks' },
         sentenceDeva: 'सा स्पष्टं संस्कृतं वदति। (Sā spaṣṭaṃ saṃskṛtaṃ vadati)',
         sentenceTrans: { ru: 'Она ясно говорит на санскрите.', en: 'She speaks clear Sanskrit.' }
@@ -575,7 +575,7 @@ const dhatuForgeData = {
       ktva: {
         wordDeva: 'उदित्वा',
         wordIast: 'uditvā',
-        type: { ru: 'ktvā pratyaya (с редукцией samprasāraṇa v → u)', en: 'ktvā pratyaya (with samprasāraṇa v → u)' },
+        type: { ru: 'ktvā pratyaya (с редукцией samprasāraṇa v → u)', en: 'ktvā pratyaya · Samprasāraṇa v → u' },
         wordMeaning: { ru: 'сказав', en: 'having spoken' },
         sentenceDeva: 'इति उदित्वा सः तूष्णीं अभवत्। (Iti uditvā saḥ tūṣṇīṃ abhavat)',
         sentenceTrans: { ru: 'Сказав так, он замолчал.', en: 'Having spoken thus, he became silent.' }
@@ -583,7 +583,7 @@ const dhatuForgeData = {
       tavya: {
         wordDeva: 'वक्तव्यम्',
         wordIast: 'vaktavyam',
-        type: { ru: 'tavya pratyaya (долженствование)', en: 'tavya pratyaya (Gerundive)' },
+        type: { ru: 'tavya pratyaya (долженствование)', en: 'tavya pratyaya · Gerundive' },
         wordMeaning: { ru: 'следует сказать / тезис речи', en: 'ought to be spoken / statement' },
         sentenceDeva: 'प्रियं च सत्यं च वक्तव्यम्। (Priyaṃ ca satyaṃ ca vaktavyam)',
         sentenceTrans: { ru: 'Следует говорить то, что доброжелательно и правдиво.', en: 'One should speak what is both kind and true.' }
@@ -591,7 +591,7 @@ const dhatuForgeData = {
       tr: {
         wordDeva: 'वक्तृ (वक्ता)',
         wordIast: 'vaktṛ (vaktā)',
-        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya (Agent noun)' },
+        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya · Agent noun' },
         wordMeaning: { ru: 'оратор, говорящий', en: 'speaker, orator' },
         sentenceDeva: 'कुशलः वक्ता श्रोतृन् रञ्जयति। (Kuśalaḥ vaktā śrotṝn rañjayati)',
         sentenceTrans: { ru: 'Искусный оратор вдохновляет слушателей.', en: 'A skillful speaker delights the listeners.' }
@@ -606,7 +606,7 @@ const dhatuForgeData = {
       lat: {
         wordDeva: 'जानाति',
         wordIast: 'jānāti',
-        type: { ru: 'laṭ lakāra (9 класс kryādi, 3 л. ед. ч.)', en: 'laṭ lakāra (9th class kryādi, 3rd sg.)' },
+        type: { ru: 'laṭ lakāra (9 класс kryādi, 3 л. ед. ч.)', en: 'laṭ lakāra · 9th class kryādi, 3rd sg.' },
         wordMeaning: { ru: 'знает / понимает', en: 'knows / understands' },
         sentenceDeva: 'यः धातुं जानाति सः शब्दं जानाति। (Yaḥ dhātuṃ jānāti saḥ śabdaṃ jānāti)',
         sentenceTrans: { ru: 'Кто знает корень, тот понимает слово.', en: 'Whoever knows the root understands the word.' }
@@ -614,7 +614,7 @@ const dhatuForgeData = {
       ktva: {
         wordDeva: 'ज्ञात्वा',
         wordIast: 'jñātvā',
-        type: { ru: 'ktvā pratyaya (деепричастие)', en: 'ktvā pratyaya (Gerund)' },
+        type: { ru: 'ktvā pratyaya (деепричастие)', en: 'ktvā pratyaya · Gerund' },
         wordMeaning: { ru: 'узнав / познав', en: 'having known / understood' },
         sentenceDeva: 'अर्थं ज्ञात्वा श्लोकं पठ। (Arthaṃ jñātvā ślokaṃ paṭha)',
         sentenceTrans: { ru: 'Поняв смысл, читай шлоку.', en: 'Having understood the meaning, recite the verse.' }
@@ -622,7 +622,7 @@ const dhatuForgeData = {
       tavya: {
         wordDeva: 'ज्ञातव्यम्',
         wordIast: 'jñātavyam',
-        type: { ru: 'tavya pratyaya (долженствование)', en: 'tavya pratyaya (Gerundive)' },
+        type: { ru: 'tavya pratyaya (долженствование)', en: 'tavya pratyaya · Gerundive' },
         wordMeaning: { ru: 'подлежащее познанию / нужно знать', en: 'to be known / worth knowing' },
         sentenceDeva: 'तत्त्वम् अन्वेष्टव्यं ज्ञातव्यं च। (Tattvam anveṣṭavyaṃ jñātavyaṃ ca)',
         sentenceTrans: { ru: 'Истину следует искать и познавать.', en: 'Reality ought to be sought and understood.' }
@@ -630,7 +630,7 @@ const dhatuForgeData = {
       tr: {
         wordDeva: 'ज्ञातृ (ज्ञाता)',
         wordIast: 'jñātṛ (jñātā)',
-        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya (Agent noun)' },
+        type: { ru: 'tṛc pratyaya (имя деятеля)', en: 'tṛc pratyaya · Agent noun' },
         wordMeaning: { ru: 'знаток, познающий субъект', en: 'knower, expert' },
         sentenceDeva: 'सः शास्त्रस्य ज्ञाता अस्ति। (Saḥ śāstrasya jñātā asti)',
         sentenceTrans: { ru: 'Он — знаток шастры.', en: 'He is a knower of the śāstra.' }
@@ -653,20 +653,24 @@ function selectHeroOption(idx) {
   const feedbackEl = document.getElementById('hero-mpf-feedback');
   if (!feedbackEl) return;
 
+  const labelMeaning = currentLang === 'ru' ? '1. Meaning (Смысл)' : '1. Meaning';
+  const labelPronun = currentLang === 'ru' ? '2. Pronunciation (Звучание)' : '2. Pronunciation';
+  const labelForm = currentLang === 'ru' ? '3. Form (Форма)' : '3. Form';
+
   feedbackEl.innerHTML = `
     <div class="mpf-title">✓ CELTA Task Feedback · Meaning → Pronunciation → Form</div>
     <div>${item.feedback[currentLang]}</div>
     <div class="mpf-grid">
       <div class="mpf-chip">
-        <strong>1. Meaning (Смысл)</strong>
+        <strong>${labelMeaning}</strong>
         ${item.meaning[currentLang]}
       </div>
       <div class="mpf-chip">
-        <strong>2. Pronunciation</strong>
+        <strong>${labelPronun}</strong>
         ${item.pronun[currentLang]}
       </div>
       <div class="mpf-chip">
-        <strong>3. Form (Форма)</strong>
+        <strong>${labelForm}</strong>
         ${item.form[currentLang]}
       </div>
     </div>
@@ -798,10 +802,14 @@ function renderDialogueGame(selectedOptionIdx = null) {
       : (currentLang === 'ru' ? 'Начать диалог заново ↺' : 'Restart Dialogue ↺');
     const nextStepIdx = currentDialogueStep < dialogueSteps.length - 1 ? currentDialogueStep + 1 : 0;
 
+    const feedbackHeader = chosen.isBest
+      ? (currentLang === 'ru' ? '✓ Коммуникативная задача решена!' : '✓ Communicative Success!')
+      : (currentLang === 'ru' ? '💡 Методическая подсказка (CELTA Feedback):' : '💡 CELTA Pedagogical Feedback:');
+
     feedbackHtml = `
       <div class="game-explanation" style="margin-top:0.65rem;border-left:3px solid ${chosen.isBest ? 'var(--accent-cambridge)' : 'var(--accent-gold)'};">
         <div style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">
-          ${chosen.isBest ? '✓ Communicative Success!' : '💡 Методическая подсказка (CELTA Feedback):'}
+          ${feedbackHeader}
         </div>
         <div style="margin-bottom:0.55rem;">${chosen.feedback[currentLang]}</div>
         <button type="button" class="chip-btn active" onclick="setDialogueStep(${nextStepIdx})">${nextBtnLabel}</button>
@@ -850,16 +858,16 @@ function renderDhatuForge() {
     const r = dhatuForgeData[key];
     return `
       <button type="button" class="chip-btn ${key === selectedDhatu ? 'active' : ''}" onclick="setDhatu('${key}')">
-        ${r.rootDeva} (${r.rootIast})
+        ${r.rootDeva} · ${r.rootIast}
       </button>
     `;
   }).join('');
 
   const pratyayaList = [
-    { key: 'lat', label: '-ति (laṭ · действие)' },
-    { key: 'ktva', label: '-त्वा (ktvā · сделав)' },
-    { key: 'tavya', label: '-तव्य (tavya · долг)' },
-    { key: 'tr', label: '-तृ (tṛc · деятель)' }
+    { key: 'lat', label: currentLang === 'ru' ? '-ति (laṭ · действие)' : '-ति · laṭ · present action' },
+    { key: 'ktva', label: currentLang === 'ru' ? '-त्वा (ktvā · сделав)' : '-त्वा · ktvā · having done' },
+    { key: 'tavya', label: currentLang === 'ru' ? '-तव्य (tavya · долг)' : '-तव्य · tavya · must be done' },
+    { key: 'tr', label: currentLang === 'ru' ? '-तृ (tṛc · деятель)' : '-तृ · tṛc · agent noun' }
   ];
 
   const pratyayaButtons = pratyayaList.map(p => `
@@ -870,13 +878,13 @@ function renderDhatuForge() {
 
   stage.innerHTML = `
     <div style="font-size:0.75rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.3rem;">
-      ${currentLang === 'ru' ? '1. Выберите корень (Dhātu):' : '1. Choose a Root (Dhātu):'}
+      ${currentLang === 'ru' ? '1. Выберите корень (Dhātu):' : '1. Choose a Root · Dhātu:'}
       <span style="color:var(--accent-saffron);">${rootObj.meaning[currentLang]}</span>
     </div>
     <div class="preset-buttons" style="margin-bottom:0.65rem;">${rootsButtons}</div>
 
     <div style="font-size:0.75rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.3rem;">
-      ${currentLang === 'ru' ? '2. Добавьте суффикс (Pratyaya):' : '2. Apply a Suffix (Pratyaya):'}
+      ${currentLang === 'ru' ? '2. Добавьте суффикс (Pratyaya):' : '2. Apply a Suffix · Pratyaya:'}
     </div>
     <div class="preset-buttons" style="margin-bottom:0.75rem;">${pratyayaButtons}</div>
 
@@ -912,6 +920,14 @@ function setPratyaya(pratyayaKey) {
 function setLanguage(lang) {
   currentLang = lang;
   document.documentElement.lang = lang;
+  document.title = lang === 'ru'
+    ? 'Sanskrit in Action — Санскрит по-кембриджски (CEFR A1–C2 · 4 Навыка × 5 Систем)'
+    : 'Sanskrit in Action — Communicative Sanskrit (CEFR A1–C2 · 4 Skills × 5 Systems)';
+
+  const emblem = document.getElementById('brand-emblem');
+  if (emblem) {
+    emblem.title = lang === 'ru' ? emblem.getAttribute('data-title-ru') : emblem.getAttribute('data-title-en');
+  }
 
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);
