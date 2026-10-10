@@ -916,6 +916,36 @@ function setPratyaya(pratyayaKey) {
   renderDhatuForge();
 }
 
+// Switch between "Home" (Главная) and "Learn More" (Подробнее) tabs
+function switchView(viewName, targetSectionId = null) {
+  const homePane = document.getElementById('view-home');
+  const detailsPane = document.getElementById('view-details');
+  const homeBtn = document.getElementById('tab-btn-home');
+  const detailsBtn = document.getElementById('tab-btn-details');
+
+  if (viewName === 'details') {
+    if (homePane) homePane.classList.remove('active');
+    if (detailsPane) detailsPane.classList.add('active');
+    if (homeBtn) homeBtn.classList.remove('active');
+    if (detailsBtn) detailsBtn.classList.add('active');
+
+    if (targetSectionId) {
+      const targetEl = document.getElementById(targetSectionId);
+      if (targetEl) {
+        setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+        return;
+      }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    if (detailsPane) detailsPane.classList.remove('active');
+    if (homePane) homePane.classList.add('active');
+    if (detailsBtn) detailsBtn.classList.remove('active');
+    if (homeBtn) homeBtn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
 // Language Switcher (RU / EN)
 function setLanguage(lang) {
   currentLang = lang;
