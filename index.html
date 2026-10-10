@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=9" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -17,7 +17,7 @@
 <body>
   <div class="top-accent-bar"></div>
 
-  <!-- Header & Sticky Navigation with Main Tabs (Home / Lesson 1 / Learn More) -->
+  <!-- Header & Sticky Navigation with Main Tabs (Home / Learn More) -->
   <header class="site-header">
     <div class="nav-container">
       <a href="#top" class="brand" onclick="switchView('home'); return false;">
@@ -28,12 +28,10 @@
         </div>
       </a>
 
-      <!-- Three Primary Tabs: Главная (Home), Урок 1 (Lesson 1 PPP), Подробнее (Learn More) -->
+      <!-- Two Primary Tabs: Главная (Home) and Подробнее (Learn More) -->
       <div class="view-tabs" role="tablist" aria-label="Main site views">
         <button type="button" class="view-tab-btn active" id="tab-btn-home" data-view="home" onclick="switchView('home')"
                 data-i18n-ru="Главная" data-i18n-en="Home">Главная</button>
-        <button type="button" class="view-tab-btn" id="tab-btn-lesson1" data-view="lesson1" onclick="switchView('lesson1')"
-                data-i18n-ru="Урок 1: Части тела (PPP)" data-i18n-en="Lesson 1: Body Parts (PPP)">Урок 1: Части тела (PPP)</button>
         <button type="button" class="view-tab-btn" id="tab-btn-details" data-view="details" onclick="switchView('details')"
                 data-i18n-ru="Подробнее" data-i18n-en="Learn More">Подробнее</button>
       </div>
@@ -95,21 +93,42 @@
     </div>
 
     <!-- ===================================================================
-         TAB 2: LESSON 1 (PPP — VOCABULARY: PARTS OF THE BODY / ЧАСТИ ТЕЛА)
+         LESSONS VIEW (OPENED AFTER CLICKING "НАЧАТЬ УРОКИ / START LESSONS")
          =================================================================== -->
     <div id="view-lesson1" class="view-pane" style="display: none;" hidden>
-      <!-- Sticky PPP Stage Sub-bar -->
+      <!-- Course Lessons Switcher + PPP Stage Sub-bar -->
       <div class="ppp-nav-bar">
-        <div class="container ppp-steps-pills">
-          <a href="#ppp-presentation" class="ppp-step-pill p1"
-             data-i18n-ru="1. Presentation · 12 слов и картинок"
-             data-i18n-en="1. Presentation · 12 Illustrated Words">1. Presentation · 12 слов и картинок</a>
-          <a href="#ppp-practice" class="ppp-step-pill p2"
-             data-i18n-ru="2. Practice · 7 простых игр (Flashcards, Gaps, Quiz)"
-             data-i18n-en="2. Practice · 7 Simple ELT Games">2. Practice · 7 простых игр (Flashcards, Gaps, Quiz)</a>
-          <a href="#ppp-production" class="ppp-step-pill p3"
-             data-i18n-ru="3. Production · Свободная речь"
-             data-i18n-en="3. Production · Speak Aloud">3. Production · Свободная речь</a>
+        <div class="container">
+          <!-- Row 1: Lesson Selector (Lesson 1 + Future Lessons) & Back to Home -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;padding-bottom:0.65rem;margin-bottom:0.65rem;border-bottom:1px dashed var(--border-color);">
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+              <span class="mono" style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-right:0.25rem;"
+                    data-i18n-ru="Уроки курса:" data-i18n-en="Course Lessons:">Уроки курса:</span>
+              <button type="button" class="practice-tab-btn active" style="padding:0.38rem 0.9rem;font-size:0.82rem;"
+                      data-i18n-ru="Урок 1: Части тела (शरीरसम्बन्धि-शब्दाः)"
+                      data-i18n-en="Lesson 1: Parts of the Body (शरीरसम्बन्धि-शब्दाः)">Урок 1: Части тела (शरीरसम्बन्धि-शब्दाः)</button>
+              <button type="button" class="practice-tab-btn" disabled style="padding:0.38rem 0.85rem;font-size:0.8rem;opacity:0.55;cursor:not-allowed;"
+                      data-i18n-ru="Урок 2: Приветствие (скоро)"
+                      data-i18n-en="Lesson 2: Greetings (soon)">Урок 2: Приветствие (скоро)</button>
+              <button type="button" class="practice-tab-btn" disabled style="padding:0.38rem 0.85rem;font-size:0.8rem;opacity:0.55;cursor:not-allowed;"
+                      data-i18n-ru="Урок 3: Действия (скоро)"
+                      data-i18n-en="Lesson 3: Actions (soon)">Урок 3: Действия (скоро)</button>
+            </div>
+            <button type="button" class="chip-btn" onclick="switchView('home')"
+                    data-i18n-ru="← На главную" data-i18n-en="← Back to Home">← На главную</button>
+          </div>
+          <!-- Row 2: PPP Stages inside Lesson 1 -->
+          <div class="ppp-steps-pills">
+            <a href="#ppp-presentation" class="ppp-step-pill p1"
+               data-i18n-ru="1. Presentation · 12 слов и картинок"
+               data-i18n-en="1. Presentation · 12 Illustrated Words">1. Presentation · 12 слов и картинок</a>
+            <a href="#ppp-practice" class="ppp-step-pill p2"
+               data-i18n-ru="2. Practice · 7 простых игр (Flashcards, Gaps, Quiz)"
+               data-i18n-en="2. Practice · 7 Simple ELT Games">2. Practice · 7 простых игр (Flashcards, Gaps, Quiz)</a>
+            <a href="#ppp-production" class="ppp-step-pill p3"
+               data-i18n-ru="3. Production · Свободная речь"
+               data-i18n-en="3. Production · Speak Aloud">3. Production · Свободная речь</a>
+          </div>
         </div>
       </div>
 
@@ -1068,7 +1087,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=8"></script>
-  <script src="app.js?v=8"></script>
+  <script src="lesson1.js?v=9"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
