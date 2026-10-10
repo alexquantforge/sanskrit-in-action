@@ -1,28 +1,22 @@
 // Lesson 1 (PPP: Presentation -> Practice -> Production)
 // Topic: Vocabulary — शरीरसम्बन्धि-शब्दाः (Parts of the Body / Части тела)
+// Pure stem forms (no gender/case endings, zero mention of grammatical gender)
 
 const bodyPartsVocab = [
   {
-    id: 'nayanam',
-    deva: 'नयनम्',
-    iast: 'nayanam',
+    id: 'nayana',
+    deva: 'नयन',
+    iast: 'nayana',
+    ttsText: 'नयन',
     ru: 'глаз',
     en: 'eye',
-    genderRu: 'ср. р. (-म्)',
-    genderEn: 'neuter (-am)',
-    pronounceHintRu: 'на́-я-нам (все гласные краткие)',
-    pronounceHintEn: 'ná-ya-nam (all short vowels)',
-    sentenceDeva: 'एतत् मम नयनम् अस्ति।',
-    sentenceIast: 'Etat mama nayanam asti.',
-    sentenceRu: 'Это мой глаз.',
-    sentenceEn: 'This is my eye.',
-    gapDeva: 'अहं नेत्रेण पश्यामि — एतत् मम ___ अस्ति।',
-    gapHintRu: 'Я вижу им — это мой [глаз].',
-    gapHintEn: 'I see with it — this is my [eye].',
-    missingDisplay: 'न _ नम्',
+    pronounceHintRu: 'на́-я-на (все гласные краткие)',
+    pronounceHintEn: 'ná-ya-na (all short vowels)',
+    gapPromptRu: 'Орган зрения, которым мы видим мир: ___',
+    gapPromptEn: 'The organ of sight with which we see the world: ___',
+    missingDisplay: 'न _ न',
     missingAnswer: 'य',
     missingChoices: ['य', 'ग', 'प', 'त'],
-    category: 'face',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <path d="M12 52C24 32 76 32 88 52C76 72 24 72 12 52Z" fill="#FFFFFF" stroke="#14213D" stroke-width="3.5"/>
@@ -36,23 +30,16 @@ const bodyPartsVocab = [
     id: 'nasika',
     deva: 'नासिका',
     iast: 'nāsikā',
+    ttsText: 'नासिका',
     ru: 'нос',
     en: 'nose',
-    genderRu: 'ж. р. (-आ)',
-    genderEn: 'feminine (-ā)',
-    pronounceHintRu: 'на̄́-си-ка̄ (долгие «а̄» в 1-м и 3-м слогах)',
+    pronounceHintRu: 'на̄́-си-ка̄ (долгие «а̄» в первом и последнем слогах)',
     pronounceHintEn: 'nā́-si-kā (long ā in first and last syllables)',
-    sentenceDeva: 'एषा मम नासिका अस्ति।',
-    sentenceIast: 'Eṣā mama nāsikā asti.',
-    sentenceRu: 'Это мой нос.',
-    sentenceEn: 'This is my nose.',
-    gapDeva: 'अहं पुष्पस्य गन्धं जिघ्रामि — एषा मम ___ अस्ति।',
-    gapHintRu: 'Я вдыхаю аромат цветка — это мой [нос].',
-    gapHintEn: 'I smell the flower — this is my [nose].',
+    gapPromptRu: 'Мы дышим и чувствуем аромат цветов через ___',
+    gapPromptEn: 'We breathe and smell the fragrance of flowers through the ___',
     missingDisplay: 'ना _ का',
     missingAnswer: 'सि',
     missingChoices: ['सि', 'मि', 'लि', 'रि'],
-    category: 'face',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <path d="M45 18C45 35 36 56 28 66C24 71 28 79 37 78C43 77 46 81 50 81C54 81 57 77 63 78C72 79 76 71 72 66C64 56 55 35 55 18" fill="#F3C6A8" stroke="#14213D" stroke-width="3.2" stroke-linecap="round"/>
@@ -64,23 +51,16 @@ const bodyPartsVocab = [
     id: 'jihva',
     deva: 'जिह्वा',
     iast: 'jihvā',
+    ttsText: 'जिह्वा',
     ru: 'язык',
     en: 'tongue',
-    genderRu: 'ж. р. (-आ)',
-    genderEn: 'feminine (-ā)',
-    pronounceHintRu: 'джи́х-ва̄ (сочетание хв + долгое а̄)',
-    pronounceHintEn: 'jíh-vā (aspirated hv cluster + long ā)',
-    sentenceDeva: 'जिह्वा रसम् जानाति संस्कृतं च वदति।',
-    sentenceIast: 'Jihvā rasam jānāti saṃskṛtaṃ ca vadati.',
-    sentenceRu: 'Язык чувствует вкус и говорит на санскрите.',
-    sentenceEn: 'The tongue tastes flavor and speaks Sanskrit.',
-    gapDeva: 'मुखस्य अन्तः ___ अस्ति, तया अहं वदामि।',
-    gapHintRu: 'Внутри рта находится [язык], им я говорю.',
-    gapHintEn: 'Inside the mouth is the [tongue], with which I speak.',
+    pronounceHintRu: 'джи́х-ва̄ (сочетание хв + долгое а̄ на конце)',
+    pronounceHintEn: 'jíh-vā (aspirated hv cluster + final long ā)',
+    gapPromptRu: 'Орган речи и вкуса во рту человека: ___',
+    gapPromptEn: 'The organ of taste and speech inside the mouth: ___',
     missingDisplay: 'जि _',
     missingAnswer: 'ह्वा',
     missingChoices: ['ह्वा', 'त्वा', 'न्ना', 'म्मा'],
-    category: 'face',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <path d="M20 34C35 26 65 26 80 34C76 52 68 58 50 58C32 58 24 52 20 34Z" fill="#7F1D1D" stroke="#14213D" stroke-width="3"/>
@@ -89,26 +69,19 @@ const bodyPartsVocab = [
     </svg>`
   },
   {
-    id: 'karnam',
-    deva: 'कर्णम्',
-    iast: 'karṇam',
+    id: 'karna',
+    deva: 'कर्ण',
+    iast: 'karṇa',
+    ttsText: 'कर्ण',
     ru: 'ухо',
     en: 'ear',
-    genderRu: 'ср. р. (-म्) / м. р.',
-    genderEn: 'neuter (-am) / m.',
-    pronounceHintRu: 'ка́р-нам (ретрофлексное ṇ после r)',
-    pronounceHintEn: 'kár-ṇam (retroflex ṇ after r)',
-    sentenceDeva: 'एतत् मम कर्णम् अस्ति।',
-    sentenceIast: 'Etat mama karṇam asti.',
-    sentenceRu: 'Это моё ухо.',
-    sentenceEn: 'This is my ear.',
-    gapDeva: 'अहं श्लोकं शृणोमि — एतत् मम ___ अस्ति।',
-    gapHintRu: 'Я слушаю шлоку — это моё [ухо].',
-    gapHintEn: 'I hear the verse — this is my [ear].',
-    missingDisplay: 'क _ म्',
+    pronounceHintRu: 'ка́р-на (ретрофлексное ṇ после r)',
+    pronounceHintEn: 'kár-ṇa (retroflex ṇ after r)',
+    gapPromptRu: 'Орган слуха, которым мы слушаем речь и музыку: ___',
+    gapPromptEn: 'The organ of hearing with which we listen to speech and music: ___',
+    missingDisplay: 'क _',
     missingAnswer: 'र्ण',
     missingChoices: ['र्ण', 'र्म', 'र्थ', 'र्क'],
-    category: 'face',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <path d="M35 28C38 15 68 14 72 36C75 53 64 62 60 72C56 82 40 85 36 74C34 68 38 64 38 64" fill="#F3C6A8" stroke="#14213D" stroke-width="3.2" stroke-linecap="round"/>
@@ -117,26 +90,19 @@ const bodyPartsVocab = [
     </svg>`
   },
   {
-    id: 'shirsam',
-    deva: 'शीर्षम्',
-    iast: 'śīrṣam',
+    id: 'shirsha',
+    deva: 'शीर्ष',
+    iast: 'śīrṣa',
+    ttsText: 'शीर्ष',
     ru: 'голова',
     en: 'head',
-    genderRu: 'ср. р. (-म्)',
-    genderEn: 'neuter (-am)',
-    pronounceHintRu: 'шӣ́р-шам (долгое ӣ + ретрофлексное ṣ)',
-    pronounceHintEn: 'śī́r-ṣam (long ī + retroflex ṣ)',
-    sentenceDeva: 'एतत् मम शीर्षम् अस्ति।',
-    sentenceIast: 'Etat mama śīrṣam asti.',
-    sentenceRu: 'Это моя голова.',
-    sentenceEn: 'This is my head.',
-    gapDeva: 'शरीरस्य उपरि ___ अस्ति।',
-    gapHintRu: 'В верхней части тела находится [голова].',
-    gapHintEn: 'At the top of the body is the [head].',
-    missingDisplay: 'शी _ म्',
+    pronounceHintRu: 'шӣ́р-ша (долгое ӣ + ретрофлексное ṣ)',
+    pronounceHintEn: 'śī́r-ṣa (long ī + retroflex ṣ)',
+    gapPromptRu: 'Самая верхняя часть тела человека: ___',
+    gapPromptEn: 'The uppermost part of the human body: ___',
+    missingDisplay: 'शी _',
     missingAnswer: 'र्ष',
     missingChoices: ['र्ष', 'र्ण', 'र्म', 'र्व'],
-    category: 'head',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <ellipse cx="50" cy="48" rx="24" ry="30" fill="#F3C6A8" stroke="#14213D" stroke-width="3.2"/>
@@ -148,26 +114,19 @@ const bodyPartsVocab = [
     </svg>`
   },
   {
-    id: 'lalatah',
-    deva: 'ललाटः',
-    iast: 'lalāṭaḥ',
+    id: 'lalata',
+    deva: 'ललाट',
+    iast: 'lalāṭa',
+    ttsText: 'ललाट',
     ru: 'лоб',
     en: 'forehead',
-    genderRu: 'м. р. (-ः)',
-    genderEn: 'masculine (-aḥ)',
-    pronounceHintRu: 'ла-ла̄́-тах (долгое а̄ + ретрофлексное ṭ)',
-    pronounceHintEn: 'la-lā́-ṭaḥ (long ā + retroflex ṭ)',
-    sentenceDeva: 'अयं मम ललाटः अस्ति।',
-    sentenceIast: 'Ayaṃ mama lalāṭaḥ asti.',
-    sentenceRu: 'Это мой лоб.',
-    sentenceEn: 'This is my forehead.',
-    gapDeva: 'भ्रुवोः उपरि विस्तृतः ___ अस्ति।',
-    gapHintRu: 'Над бровями расположен широкий [лоб].',
-    gapHintEn: 'Above the eyebrows is the broad [forehead].',
-    missingDisplay: 'ल _ टः',
+    pronounceHintRu: 'ла-ла̄́-та (долгое а̄ во втором слоге + ретрофлексное ṭ)',
+    pronounceHintEn: 'la-lā́-ṭa (long ā in second syllable + retroflex ṭ)',
+    gapPromptRu: 'Верхняя часть лица над бровями и глазами: ___',
+    gapPromptEn: 'The upper part of the face above the eyebrows and eyes: ___',
+    missingDisplay: 'ल _ ट',
     missingAnswer: 'ला',
     missingChoices: ['ला', 'ली', 'लू', 'ले'],
-    category: 'head',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <path d="M24 78C24 40 30 20 50 20C70 20 76 40 76 78" fill="#F3C6A8" stroke="#14213D" stroke-width="3.2"/>
@@ -178,26 +137,19 @@ const bodyPartsVocab = [
     </svg>`
   },
   {
-    id: 'bhruh',
-    deva: 'भ्रूः',
-    iast: 'bhrūḥ',
+    id: 'bhru',
+    deva: 'भ्रू',
+    iast: 'bhrū',
+    ttsText: 'भ्रू',
     ru: 'бровь',
     en: 'eyebrow',
-    genderRu: 'ж. р. (-ऊः)',
-    genderEn: 'feminine (-ūḥ)',
-    pronounceHintRu: 'бхрӯх (придыхательное bh + долгое ӯ + висарга)',
-    pronounceHintEn: 'bhrūḥ (aspirated bh + long ū + visarga)',
-    sentenceDeva: 'इयं मम भ्रूः अस्ति।',
-    sentenceIast: 'Iyaṃ mama bhrūḥ asti.',
-    sentenceRu: 'Это моя бровь.',
-    sentenceEn: 'This is my eyebrow.',
-    gapDeva: 'नयनस्य उपरि धनुः इव ___ अस्ति।',
-    gapHintRu: 'Над глазом, словно дуга лука, находится [бровь].',
-    gapHintEn: 'Above the eye, arched like a bow, is the [eyebrow].',
-    missingDisplay: '_ ः',
-    missingAnswer: 'भ्रू',
-    missingChoices: ['भ्रू', 'भू', 'भ्र', 'ध्रू'],
-    category: 'face',
+    pronounceHintRu: 'бхрӯ (придыхательное bh + долгое ӯ; родственно рус. «бровь» и англ. brow!)',
+    pronounceHintEn: 'bhrū (aspirated bh + long ū; cognate with English brow!)',
+    gapPromptRu: 'Дуга из волосков прямо над глазом: ___',
+    gapPromptEn: 'The arch of hair directly above the eye: ___',
+    missingDisplay: 'भ् _',
+    missingAnswer: 'रू',
+    missingChoices: ['रू', 'री', 'रा', 'रे'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#FFFFFF"/>
       <path d="M22 40C38 28 64 28 78 38" stroke="#14213D" stroke-width="6" stroke-linecap="round"/>
@@ -208,26 +160,19 @@ const bodyPartsVocab = [
     </svg>`
   },
   {
-    id: 'osthau',
-    deva: 'ओष्ठौ',
-    iast: 'oṣṭhau',
-    ru: 'губы (две губы)',
-    en: 'lips (dual)',
-    genderRu: 'м. р. дв. ч. (-औ)',
-    genderEn: 'masculine dual (-au)',
-    pronounceHintRu: 'о́штхау (окончание -au означает парный предмет!)',
-    pronounceHintEn: 'óṣṭhau (-au ending marks a natural pair!)',
-    sentenceDeva: 'एतौ मम ओष्ठौ स्तः।',
-    sentenceIast: 'Etau mama oṣṭhau staḥ.',
-    sentenceRu: 'Это мои (две) губы.',
-    sentenceEn: 'These are my (two) lips.',
-    gapDeva: 'मम मुखे द्वौ ___ स्तः।',
-    gapHintRu: 'У меня на лице две [губы] (двойственное число на -ौ).',
-    gapHintEn: 'On my mouth are two [lips] (dual ending -au).',
+    id: 'ostha',
+    deva: 'ओष्ठ',
+    iast: 'oṣṭha',
+    ttsText: 'ओष्ठ',
+    ru: 'губы',
+    en: 'lips',
+    pronounceHintRu: 'о́-штха (долгий гласный «о» + ретрофлексное сочетание ṣṭh)',
+    pronounceHintEn: 'ó-ṣṭha (long vowel o + retroflex cluster ṣṭh)',
+    gapPromptRu: 'Когда мы улыбаемся или произносим звуки «п, б, м», смыкаются ___',
+    gapPromptEn: 'When we smile or pronounce labial sounds like p, b, m, we use the ___',
     missingDisplay: 'ओ _',
-    missingAnswer: 'ष्ठौ',
-    missingChoices: ['ष्ठौ', 'ष्टौ', 'ष्णौ', 'स्मौ'],
-    category: 'face',
+    missingAnswer: 'ष्ठ',
+    missingChoices: ['ष्ठ', 'ष्ट', 'ष्ण', 'स्म'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <path d="M16 50C26 36 42 36 50 43C58 36 74 36 84 50C68 53 32 53 16 50Z" fill="#E11D48" stroke="#14213D" stroke-width="3"/>
@@ -235,78 +180,57 @@ const bodyPartsVocab = [
     </svg>`
   },
   {
-    id: 'karah',
-    deva: 'करः',
-    iast: 'karaḥ',
-    ru: 'рука (кисть)',
+    id: 'kara',
+    deva: 'कर',
+    iast: 'kara',
+    ttsText: 'कर',
+    ru: 'рука',
     en: 'hand / arm',
-    genderRu: 'м. р. (-ः)',
-    genderEn: 'masculine (-aḥ)',
-    pronounceHintRu: 'ка́-рах (от корня √kṛ «делать» — то, чем делают!)',
-    pronounceHintEn: 'ká-raḥ (from √kṛ “to do” — the instrument of action!)',
-    sentenceDeva: 'अयं मम करः अस्ति। करेण अहं लिखामि।',
-    sentenceIast: 'Ayaṃ mama karaḥ asti. Kareṇa ahaṃ likhāmi.',
-    sentenceRu: 'Это моя рука. Рукой я пишу.',
-    sentenceEn: 'This is my hand. With my hand I write.',
-    gapDeva: 'अहं कार्यं करोमि — अयं मम ___ अस्ति।',
-    gapHintRu: 'Я делаю работу — это моя [рука] (от корня √kṛ).',
-    gapHintEn: 'I do work — this is my [hand] (from √kṛ).',
+    pronounceHintRu: 'ка́-ра (от корня √kṛ «делать» — то, чем делают!)',
+    pronounceHintEn: 'ká-ra (from √kṛ “to do” — the instrument of action!)',
+    gapPromptRu: 'Часть тела, которой мы пишем, держим предметы и трудимся: ___',
+    gapPromptEn: 'The part of the body with which we write, hold objects, and work: ___',
     missingDisplay: 'क _',
-    missingAnswer: 'रः',
-    missingChoices: ['रः', 'लः', 'नः', 'मः'],
-    category: 'limbs',
+    missingAnswer: 'र',
+    missingChoices: ['र', 'ल', 'न', 'म'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#FFFFFF"/>
       <path d="M42 88V54L30 42C27 39 31 35 35 38L42 45V22C42 18 47 18 47 22V40V16C47 12 53 12 53 16V40V19C53 15 58 15 58 19V42V26C58 22 63 22 63 26V56L58 88H42Z" fill="#F3C6A8" stroke="#14213D" stroke-width="2.8" stroke-linejoin="round"/>
     </svg>`
   },
   {
-    id: 'padah',
-    deva: 'पादः',
-    iast: 'pādaḥ',
-    ru: 'нога (стопа)',
+    id: 'pada',
+    deva: 'पाद',
+    iast: 'pāda',
+    ttsText: 'पाद',
+    ru: 'нога',
     en: 'foot / leg',
-    genderRu: 'м. р. (-ः)',
-    genderEn: 'masculine (-aḥ)',
-    pronounceHintRu: 'па̄́-дах (долгое а̄; родственно русскому «пеший», лат. ped-)',
-    pronounceHintEn: 'pā́-daḥ (long ā; cognate with Latin ped- / English foot)',
-    sentenceDeva: 'अयं मम पादः अस्ति। पादाभ्यां अहं चलामि।',
-    sentenceIast: 'Ayaṃ mama pādaḥ asti. Pādābhyāṃ ahaṃ calāmi.',
-    sentenceRu: 'Это моя нога. Ногами я хожу.',
-    sentenceEn: 'This is my foot. With my feet I walk.',
-    gapDeva: 'अहं मार्गे चलामि — अयं मम ___ अस्ति।',
-    gapHintRu: 'Я иду по дороге — это моя [нога / стопа].',
-    gapHintEn: 'I walk along the path — this is my [foot / leg].',
+    pronounceHintRu: 'па̄́-да (долгое а̄; родственно русскому «пеший», лат. ped-)',
+    pronounceHintEn: 'pā́-da (long ā; cognate with Latin ped- / English foot)',
+    gapPromptRu: 'Часть тела, благодаря которой мы стоим и шагаем по дороге: ___',
+    gapPromptEn: 'The part of the body with which we stand and walk along a path: ___',
     missingDisplay: 'पा _',
-    missingAnswer: 'दः',
-    missingChoices: ['दः', 'तः', 'पः', 'बः'],
-    category: 'limbs',
+    missingAnswer: 'द',
+    missingChoices: ['द', 'त', 'प', 'ब'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#FFFFFF"/>
       <path d="M44 16H62L58 64C58 72 64 78 56 82C46 86 26 84 26 77C26 72 38 69 42 62L44 16Z" fill="#F3C6A8" stroke="#14213D" stroke-width="3" stroke-linejoin="round"/>
     </svg>`
   },
   {
-    id: 'dantah',
-    deva: 'दन्तः',
-    iast: 'dantaḥ',
+    id: 'danta',
+    deva: 'दन्त',
+    iast: 'danta',
+    ttsText: 'दन्त',
     ru: 'зуб',
     en: 'tooth',
-    genderRu: 'м. р. (-ः)',
-    genderEn: 'masculine (-aḥ)',
-    pronounceHintRu: 'да́н-тах (родственно русскому «десна» и англ. dental!)',
-    pronounceHintEn: 'dán-taḥ (cognate with Latin dent- / English dental!)',
-    sentenceDeva: 'अयं श्वेतः दन्तः अस्ति।',
-    sentenceIast: 'Ayaṃ śvetaḥ dantaḥ asti.',
-    sentenceRu: 'Это белый зуб.',
-    sentenceEn: 'This is a white tooth.',
-    gapDeva: 'अहं फलम् खादामि — मुखे श्वेतः ___ अस्ति।',
-    gapHintRu: 'Я ем яблоко — во рту белый [зуб] (ср. dental).',
-    gapHintEn: 'I chew fruit — in the mouth is a white [tooth] (cf. dental).',
-    missingDisplay: 'द _ तः',
+    pronounceHintRu: 'да́н-та (родственно латинскому dent- и англ. dental!)',
+    pronounceHintEn: 'dán-ta (cognate with Latin dent- and English dental!)',
+    gapPromptRu: 'Ими мы откусываем и пережёвываем твёрдую пищу: ___',
+    gapPromptEn: 'With this white structure in the mouth we bite and chew food: ___',
+    missingDisplay: 'द _ त',
     missingAnswer: 'न्',
     missingChoices: ['न्', 'म्', 'र्', 'ल्'],
-    category: 'face',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#1E293B"/>
       <path d="M28 32C28 20 42 18 50 24C58 18 72 20 72 32C72 48 66 56 64 76C63 83 56 83 54 72C52 63 48 63 46 72C44 83 37 83 36 76C34 56 28 48 28 32Z" fill="#FFFBEB" stroke="#14213D" stroke-width="3"/>
@@ -316,23 +240,16 @@ const bodyPartsVocab = [
     id: 'anguli',
     deva: 'अङ्गुली',
     iast: 'aṅgulī',
+    ttsText: 'अङ्गुली',
     ru: 'палец',
     en: 'finger',
-    genderRu: 'ж. р. (-ई)',
-    genderEn: 'feminine (-ī)',
     pronounceHintRu: 'а́н-гу-лӣ (носовой ṅ перед g + долгое ӣ на конце)',
     pronounceHintEn: 'áṅ-gu-lī (velar nasal ṅ before g + final long ī)',
-    sentenceDeva: 'इयं मम अङ्गुली अस्ति।',
-    sentenceIast: 'Iyaṃ mama aṅgulī asti.',
-    sentenceRu: 'Это мой палец.',
-    sentenceEn: 'This is my finger.',
-    gapDeva: 'मम करे पञ्च अङ्गुल्यः सन्ति — इयं एका ___ अस्ति।',
-    gapHintRu: 'На моей руке пять пальцев — это один [палец].',
-    gapHintEn: 'On my hand are five fingers — this is one [finger].',
+    gapPromptRu: 'На каждой руке их пять, ими мы указываем и берём мелкие вещи: ___',
+    gapPromptEn: 'There are five of them on each hand, used for pointing and grasping: ___',
     missingDisplay: 'अ _ ली',
     missingAnswer: 'ङ्गु',
     missingChoices: ['ङ्गु', 'म्बु', 'न्दु', 'ञ्जु'],
-    category: 'limbs',
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
       <path d="M18 76L58 26C64 19 76 26 70 36L38 84Z" fill="#F3C6A8" stroke="#14213D" stroke-width="3" stroke-linejoin="round"/>
@@ -369,39 +286,49 @@ let matchTiles = [];
 let matchFirstIdx = null;
 let matchMatchedCount = 0;
 
-// Production state: track which of the 12 words the student has spoken/built
-let producedWordsSet = new Set(['nayanam']);
-let activeProdWordId = 'nayanam';
+// Production state: track which of the 12 words the student has spoken
+let producedWordsSet = new Set(['nayana']);
+let activeProdWordId = 'nayana';
 
-// Audio Speech Helper (Web Speech API)
+// Audio Speech Helper (Web Speech API — pronounces pure stem without case/gender endings)
 function speakSanskritWord(devaText, iastText) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
+    // Ensure final short 'a' in Sanskrit stems is articulated clearly by TTS
     const utter = new SpeechSynthesisUtterance(devaText);
-    utter.lang = 'hi-IN';
+    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    const saVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('sa'));
+    const hiVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('hi'));
+    if (saVoice) {
+      utter.voice = saVoice;
+      utter.lang = saVoice.lang;
+    } else if (hiVoice) {
+      utter.voice = hiVoice;
+      utter.lang = 'hi-IN';
+    } else {
+      utter.lang = 'hi-IN';
+    }
     utter.rate = 0.85;
     window.speechSynthesis.speak(utter);
   }
 }
 
-// 1. Render Stage 1: PRESENTATION (3x4 Chart + MPF Breakdown)
+// 1. Render Stage 1: PRESENTATION (3x4 Chart without any mention of gender)
 function renderPresentationStage() {
   const gridEl = document.getElementById('lesson1-vocab-grid');
   if (!gridEl) return;
 
   gridEl.classList.toggle('labels-hidden', labelsHidden);
 
-  gridEl.innerHTML = bodyPartsVocab.map((item, idx) => {
+  gridEl.innerHTML = bodyPartsVocab.map(item => {
     const meaning = currentLang === 'ru' ? item.ru : item.en;
-    const gender = currentLang === 'ru' ? item.genderRu : item.genderEn;
     return `
-      <div class="vocab-item-card" onclick="speakSanskritWord('${item.deva}', '${item.iast}')">
-        <button type="button" class="vocab-audio-btn" title="Listen" onclick="event.stopPropagation(); speakSanskritWord('${item.deva}', '${item.iast}')">🔊</button>
+      <div class="vocab-item-card" onclick="speakSanskritWord('${item.ttsText}', '${item.iast}')">
+        <button type="button" class="vocab-audio-btn" title="Listen" onclick="event.stopPropagation(); speakSanskritWord('${item.ttsText}', '${item.iast}')">🔊</button>
         <div class="vocab-svg-box">${item.svg}</div>
         <div class="vocab-deva">${item.deva}</div>
         <div class="vocab-iast">${item.iast}</div>
         <div class="vocab-meaning">${meaning}</div>
-        <span class="vocab-grammar-tag">${gender}</span>
       </div>
     `;
   }).join('');
@@ -463,7 +390,6 @@ function renderPracticeArena() {
 function renderFlashcardsGame(arena) {
   const item = bodyPartsVocab[fcIndex];
   const meaning = currentLang === 'ru' ? item.ru : item.en;
-  const gender = currentLang === 'ru' ? item.genderRu : item.genderEn;
   const hint = currentLang === 'ru' ? item.pronounceHintRu : item.pronounceHintEn;
 
   arena.innerHTML = `
@@ -487,7 +413,7 @@ function renderFlashcardsGame(arena) {
       ` : `
         <div class="vocab-deva" style="font-size:2.4rem;margin-bottom:0.25rem;">${item.deva}</div>
         <div class="vocab-iast" style="font-size:1.15rem;margin-bottom:0.4rem;">${item.iast}</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.4rem;">${meaning} · <span style="font-family:var(--font-mono);font-size:0.82rem;">${gender}</span></div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.4rem;">${meaning}</div>
         <div style="font-size:0.82rem;background:var(--bg-secondary);padding:0.45rem 0.85rem;border-radius:8px;color:var(--text-primary);">
           🗣 ${hint}
         </div>
@@ -497,7 +423,7 @@ function renderFlashcardsGame(arena) {
     <div style="display:flex;justify-content:center;gap:0.65rem;flex-wrap:wrap;">
       <button type="button" class="chip-btn" onclick="prevFlashcard()">← ${currentLang === 'ru' ? 'Назад' : 'Prev'}</button>
       <button type="button" class="chip-btn active" onclick="flipFlashcard()">↺ ${currentLang === 'ru' ? 'Перевернуть' : 'Flip Card'}</button>
-      <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.deva}', '${item.iast}')">🔊 ${currentLang === 'ru' ? 'Озвучить' : 'Listen'}</button>
+      <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.ttsText}', '${item.iast}')">🔊 ${currentLang === 'ru' ? 'Озвучить' : 'Listen'}</button>
       <button type="button" class="chip-btn" onclick="nextFlashcard()">${currentLang === 'ru' ? 'Дальше' : 'Next'} →</button>
     </div>
   `;
@@ -507,7 +433,7 @@ function flipFlashcard() {
   fcFlipped = !fcFlipped;
   if (fcFlipped) {
     const item = bodyPartsVocab[fcIndex];
-    speakSanskritWord(item.deva, item.iast);
+    speakSanskritWord(item.ttsText, item.iast);
   }
   renderPracticeArena();
 }
@@ -524,12 +450,11 @@ function prevFlashcard() {
   renderPracticeArena();
 }
 
-// GAME 2: Fill in the Gaps (Cloze Sentence Drill)
+// GAME 2: Fill in the Gaps (Meaning Cloze Drill without gender endings)
 function renderFillGapsGame(arena) {
   const item = bodyPartsVocab[gapIndex];
-  const hint = currentLang === 'ru' ? item.gapHintRu : item.gapHintEn;
+  const promptText = currentLang === 'ru' ? item.gapPromptRu : item.gapPromptEn;
 
-  // Build 4 deterministic options around gapIndex
   const distractors = [
     bodyPartsVocab[(gapIndex + 3) % bodyPartsVocab.length],
     bodyPartsVocab[(gapIndex + 6) % bodyPartsVocab.length],
@@ -553,7 +478,7 @@ function renderFillGapsGame(arena) {
       <div>
         <strong style="font-size:1.05rem;">${currentLang === 'ru' ? 'Игра 2: Fill in the Gaps (Вставь пропущенное слово)' : 'Game 2: Fill in the Gaps'}</strong>
         <div style="font-size:0.82rem;color:var(--text-secondary);">
-          ${currentLang === 'ru' ? 'Выберите подходящее по смыслу и роду слово, чтобы заполнить пропуск' : 'Choose the correct Sanskrit word to complete the sentence'}
+          ${currentLang === 'ru' ? 'Выберите подходящее по смыслу слово на санскрите, чтобы заполнить пропуск' : 'Choose the Sanskrit word that fits the definition to fill the gap'}
         </div>
       </div>
       <span class="game-score-pill">${currentLang === 'ru' ? 'Счёт:' : 'Score:'} ${gapScore} · (${gapIndex + 1}/${bodyPartsVocab.length})</span>
@@ -562,10 +487,9 @@ function renderFillGapsGame(arena) {
     <div style="display:flex;align-items:center;gap:1.25rem;background:var(--bg-primary);padding:1.25rem;border-radius:12px;border:1px solid var(--border-color);flex-wrap:wrap;justify-content:center;">
       <div class="vocab-svg-box" style="margin:0;width:95px;height:95px;">${item.svg}</div>
       <div style="flex:1;min-width:220px;">
-        <div style="font-family:var(--font-deva);font-size:1.5rem;font-weight:700;color:var(--text-primary);margin-bottom:0.3rem;" id="gap-sentence-display">
-          ${item.gapDeva}
+        <div style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin-bottom:0.3rem;" id="gap-sentence-display">
+          ${promptText}
         </div>
-        <div style="font-size:0.9rem;color:var(--text-secondary);">${hint}</div>
       </div>
     </div>
 
@@ -579,6 +503,7 @@ function checkGapAnswer(chosenId) {
   const item = bodyPartsVocab[gapIndex];
   const btn = document.getElementById('gap-opt-' + chosenId);
   const feedbackEl = document.getElementById('gap-feedback-msg');
+  const promptText = currentLang === 'ru' ? item.gapPromptRu : item.gapPromptEn;
 
   if (chosenId === item.id) {
     gapAnswered = true;
@@ -586,16 +511,16 @@ function checkGapAnswer(chosenId) {
     if (btn) btn.classList.add('correct');
     const sentenceEl = document.getElementById('gap-sentence-display');
     if (sentenceEl) {
-      sentenceEl.innerHTML = item.gapDeva.replace('___', `<span style="color:var(--accent-cambridge);text-decoration:underline;">${item.deva}</span>`);
+      sentenceEl.innerHTML = promptText.replace('___', `<span style="color:var(--accent-cambridge);font-family:var(--font-deva);font-size:1.35rem;text-decoration:underline;">${item.deva} (${item.iast})</span>`);
     }
-    speakSanskritWord(item.deva, item.iast);
+    speakSanskritWord(item.ttsText, item.iast);
     if (feedbackEl) {
       feedbackEl.innerHTML = `
         <div style="color:#15803d;font-weight:700;margin-bottom:0.5rem;">
           ✓ ${currentLang === 'ru' ? 'Верно!' : 'Correct!'} ${item.deva} (${item.iast})
         </div>
         <button type="button" class="chip-btn active" onclick="nextGapRound()">
-          ${currentLang === 'ru' ? 'Следующее предложение →' : 'Next Sentence →'}
+          ${currentLang === 'ru' ? 'Следующее задание →' : 'Next Question →'}
         </button>
       `;
     }
@@ -635,7 +560,7 @@ function renderPictureQuizGame(arena) {
       <div>
         <strong style="font-size:1.05rem;">${currentLang === 'ru' ? 'Игра 3: Picture Quiz (Угадай слово по картинке)' : 'Game 3: Picture Quiz'}</strong>
         <div style="font-size:0.82rem;color:var(--text-secondary);">
-          ${currentLang === 'ru' ? 'किम् एतत्? (Что это?) Выберите правильное санскритское название для картинки' : 'Kim etat? (What is this?) Pick the Sanskrit word matching the illustration'}
+          ${currentLang === 'ru' ? 'Выберите правильное санскритское слово для показанной картинки' : 'Pick the Sanskrit word matching the illustration'}
         </div>
       </div>
       <span class="game-score-pill">${currentLang === 'ru' ? 'Счёт:' : 'Score:'} ${pqScore} · (${pqIndex + 1}/${bodyPartsVocab.length})</span>
@@ -643,7 +568,6 @@ function renderPictureQuizGame(arena) {
 
     <div style="text-align:center;">
       <div class="vocab-svg-box" style="width:130px;height:130px;margin:0 auto 0.5rem;">${item.svg}</div>
-      <div style="font-family:var(--font-deva);font-size:1.2rem;color:var(--text-secondary);">किम् एतत्? (Kim etat?)</div>
     </div>
 
     <div class="quiz-options-grid">${optionsHtml}</div>
@@ -661,7 +585,7 @@ function checkPicQuizAnswer(chosenId) {
     pqAnswered = true;
     pqScore++;
     if (btn) btn.classList.add('correct');
-    speakSanskritWord(item.deva, item.iast);
+    speakSanskritWord(item.ttsText, item.iast);
     const meaning = currentLang === 'ru' ? item.ru : item.en;
     if (feedbackEl) {
       feedbackEl.innerHTML = `
@@ -714,7 +638,7 @@ function renderWordToPicQuizGame(arena) {
     <div style="text-align:center;padding:0.75rem;background:var(--bg-primary);border-radius:12px;border:1px solid var(--border-color);">
       <div class="vocab-deva" style="font-size:2.2rem;">${item.deva}</div>
       <div class="vocab-iast" style="font-size:1rem;">${item.iast}</div>
-      <button type="button" class="chip-btn" style="margin-top:0.35rem;" onclick="speakSanskritWord('${item.deva}', '${item.iast}')">🔊 ${currentLang === 'ru' ? 'Прослушать' : 'Listen'}</button>
+      <button type="button" class="chip-btn" style="margin-top:0.35rem;" onclick="speakSanskritWord('${item.ttsText}', '${item.iast}')">🔊 ${currentLang === 'ru' ? 'Прослушать' : 'Listen'}</button>
     </div>
 
     <div class="quiz-options-grid">${optionsHtml}</div>
@@ -732,7 +656,7 @@ function checkWordQuizAnswer(chosenId) {
     wqAnswered = true;
     wqScore++;
     if (btn) btn.classList.add('correct');
-    speakSanskritWord(item.deva, item.iast);
+    speakSanskritWord(item.ttsText, item.iast);
     const meaning = currentLang === 'ru' ? item.ru : item.en;
     if (feedbackEl) {
       feedbackEl.innerHTML = `
@@ -828,7 +752,7 @@ function clickMatchTile(idx) {
 
   if (matchFirstIdx === null) {
     matchFirstIdx = idx;
-    if (tile.type === 'word') speakSanskritWord(tile.item.deva, tile.item.iast);
+    if (tile.type === 'word') speakSanskritWord(tile.item.ttsText, tile.item.iast);
     renderPracticeArena();
   } else {
     const firstTile = matchTiles[matchFirstIdx];
@@ -836,7 +760,7 @@ function clickMatchTile(idx) {
       firstTile.matched = true;
       tile.matched = true;
       matchMatchedCount++;
-      speakSanskritWord(tile.item.deva, tile.item.iast);
+      speakSanskritWord(tile.item.ttsText, tile.item.iast);
     }
     matchFirstIdx = null;
     renderPracticeArena();
@@ -890,7 +814,7 @@ function checkSpellingAnswer(chosenSyllable, btnIdx) {
     if (btn) btn.classList.add('correct');
     const wordDisp = document.getElementById('sp-word-display');
     if (wordDisp) wordDisp.innerHTML = `<span style="color:var(--accent-cambridge);">${item.deva}</span>`;
-    speakSanskritWord(item.deva, item.iast);
+    speakSanskritWord(item.ttsText, item.iast);
     if (feedbackEl) {
       feedbackEl.innerHTML = `
         <div style="color:#15803d;font-weight:700;margin-bottom:0.5rem;">
@@ -912,7 +836,7 @@ function nextSpellingRound() {
   renderPracticeArena();
 }
 
-// GAME 7: True or False ("Kim etat ... asti? — Ām / Na")
+// GAME 7: True or False ("Ām / Na")
 function prepareTrueFalseRound() {
   tfAnswered = false;
   tfIsTrue = Math.random() >= 0.45;
@@ -940,8 +864,8 @@ function renderTrueFalseGame(arena) {
 
     <div style="text-align:center;background:var(--bg-primary);padding:1.35rem;border-radius:12px;border:1px solid var(--border-color);">
       <div class="vocab-svg-box" style="width:115px;height:115px;margin:0 auto 0.65rem;">${picItem.svg}</div>
-      <div style="font-family:var(--font-deva);font-size:1.65rem;font-weight:700;color:var(--text-primary);">
-        किम् एतत् <span style="color:var(--accent-saffron);">${wordItem.deva}</span> (${wordItem.iast})?
+      <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">
+        <span style="color:var(--accent-saffron);">${wordItem.deva}</span> (${wordItem.iast}) ?
       </div>
     </div>
 
@@ -975,7 +899,7 @@ function checkTrueFalse(userSaidTrue) {
     if (btn) btn.classList.add('wrong');
   }
 
-  speakSanskritWord(picItem.deva, picItem.iast);
+  speakSanskritWord(picItem.ttsText, picItem.iast);
   const meaning = currentLang === 'ru' ? picItem.ru : picItem.en;
 
   if (feedbackEl) {
@@ -997,13 +921,13 @@ function nextTrueFalseRound() {
   renderPracticeArena();
 }
 
-// 3. Render Stage 3: PRODUCTION ("Point & Speak" Sentence Builder)
+// 3. Render Stage 3: PRODUCTION ("Point & Speak Aloud" TPR Activity — zero gender mention)
 function selectProductionWord(wordId) {
   activeProdWordId = wordId;
   producedWordsSet.add(wordId);
   const item = bodyPartsVocab.find(w => w.id === wordId);
   if (item) {
-    speakSanskritWord(item.sentenceDeva, item.sentenceIast);
+    speakSanskritWord(item.ttsText, item.iast);
   }
   renderProductionStage();
 }
@@ -1024,17 +948,17 @@ function renderProductionStage() {
     `;
   }).join('');
 
-  const sentenceMeaning = currentLang === 'ru' ? activeItem.sentenceRu : activeItem.sentenceEn;
   const wordMeaning = currentLang === 'ru' ? activeItem.ru : activeItem.en;
+  const hint = currentLang === 'ru' ? activeItem.pronounceHintRu : activeItem.pronounceHintEn;
 
   container.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
       <div style="font-weight:700;color:var(--text-primary);">
         ${currentLang === 'ru'
-          ? 'Выберите любую часть тела, произнесите полную фразу вслух и соберите все 12 слов:'
-          : 'Click any body part, speak the full Sanskrit sentence aloud, and complete all 12 words:'}
+          ? 'Выберите любую часть тела, покажите её у себя и чётко назовите вслух на санскрите:'
+          : 'Click any body part, point to it on yourself, and speak the Sanskrit word aloud:'}
       </div>
-      <span class="game-score-pill">${producedWordsSet.size} / 12 ${currentLang === 'ru' ? 'фраз освоено' : 'sentences spoken'}</span>
+      <span class="game-score-pill">${producedWordsSet.size} / 12 ${currentLang === 'ru' ? 'слов названо' : 'words spoken'}</span>
     </div>
 
     <div class="preset-buttons" style="margin-bottom:1.25rem;">${chipsHtml}</div>
@@ -1042,20 +966,17 @@ function renderProductionStage() {
     <div style="display:flex;align-items:center;gap:1.5rem;background:var(--bg-primary);padding:1.5rem;border-radius:16px;border:1.5px solid var(--border-strong);flex-wrap:wrap;">
       <div class="vocab-svg-box" style="margin:0;width:120px;height:120px;">${activeItem.svg}</div>
       <div style="flex:1;min-width:240px;">
-        <div class="badge badge-cambridge" style="margin-bottom:0.5rem;">
-          ${activeItem.deva} · ${activeItem.iast} (${wordMeaning})
+        <div style="font-family:var(--font-deva);font-size:2.2rem;font-weight:700;color:var(--text-primary);margin-bottom:0.15rem;">
+          ${activeItem.deva}
         </div>
-        <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);margin-bottom:0.2rem;">
-          ${activeItem.sentenceDeva}
+        <div style="font-family:var(--font-mono);font-size:1.05rem;color:var(--accent-saffron);margin-bottom:0.35rem;">
+          ${activeItem.iast} — <strong>${wordMeaning}</strong>
         </div>
-        <div style="font-family:var(--font-mono);font-size:0.95rem;color:var(--accent-saffron);margin-bottom:0.35rem;">
-          ${activeItem.sentenceIast}
-        </div>
-        <div style="font-size:1rem;color:var(--text-secondary);margin-bottom:0.75rem;">
-          «${sentenceMeaning}»
+        <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0.85rem;">
+          🗣 ${hint}
         </div>
         <button type="button" class="btn btn-primary" style="padding:0.55rem 1.1rem;font-size:0.86rem;"
-                onclick="speakSanskritWord('${activeItem.sentenceDeva}', '${activeItem.sentenceIast}')">
+                onclick="speakSanskritWord('${activeItem.ttsText}', '${activeItem.iast}')">
           🔊 ${currentLang === 'ru' ? 'Прослушать и повторить вслух' : 'Listen & Repeat Aloud'}
         </button>
       </div>
