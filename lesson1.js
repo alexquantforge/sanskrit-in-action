@@ -260,7 +260,7 @@ const bodyPartsVocab = [
 
 // Lesson 1 State
 let labelsHidden = false;
-let iastHidden = false;
+let iastHidden = true;
 let currentPracticeGame = 'flashcards'; // 'flashcards' | 'gaps' | 'picquiz' | 'wordquiz' | 'match' | 'spelling' | 'truefalse'
 let fcIndex = 0;
 let fcFlipped = false;
@@ -356,10 +356,10 @@ function updateIastButtons() {
   document.querySelectorAll('.toggle-iast-btn').forEach(btn => {
     if (iastHidden) {
       btn.innerText = currentLang === 'ru' ? '🔤 Включить IAST' : '🔤 Enable IAST';
-      btn.classList.add('active');
+      btn.classList.remove('active');
     } else {
       btn.innerText = currentLang === 'ru' ? '🔤 Отключить IAST' : '🔤 Disable IAST';
-      btn.classList.remove('active');
+      btn.classList.add('active');
     }
   });
 }

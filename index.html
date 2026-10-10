@@ -8,13 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
   </style>
 </head>
-<body>
+<body class="hide-iast">
   <div class="top-accent-bar"></div>
 
   <!-- Header & Sticky Navigation with Main Tabs (Home / Learn More) -->
@@ -124,11 +124,11 @@
                data-i18n-en="3. Production">3. Production</a>
           </div>
 
-          <!-- Right: Disable / Enable IAST button -->
+          <!-- Right: Enable / Disable IAST button (IAST is disabled by default) -->
           <div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:nowrap;white-space:nowrap;">
             <button type="button" class="chip-btn toggle-iast-btn" style="padding:0.28rem 0.7rem;font-size:0.78rem;" onclick="toggleIast()"
-                    data-i18n-ru="🔤 Отключить IAST"
-                    data-i18n-en="🔤 Disable IAST">🔤 Отключить IAST</button>
+                    data-i18n-ru="🔤 Включить IAST"
+                    data-i18n-en="🔤 Enable IAST">🔤 Включить IAST</button>
           </div>
         </div>
       </div>
@@ -154,8 +154,8 @@
             <div class="vocab-poster-title">शरीरसम्बन्धि-शब्दाः</div>
             <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
               <button type="button" class="chip-btn toggle-iast-btn" onclick="toggleIast()"
-                      data-i18n-ru="🔤 Отключить IAST"
-                      data-i18n-en="🔤 Disable IAST">🔤 Отключить IAST</button>
+                      data-i18n-ru="🔤 Включить IAST"
+                      data-i18n-en="🔤 Enable IAST">🔤 Включить IAST</button>
               <button type="button" id="toggle-labels-btn" class="chip-btn" onclick="toggleVocabLabels()"
                       data-i18n-ru="🙈 Скрыть подписи (проверь себя)"
                       data-i18n-en="🙈 Hide Labels (Test Yourself)">🙈 Скрыть подписи (проверь себя)</button>
@@ -1091,7 +1091,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=10"></script>
-  <script src="app.js?v=10"></script>
+  <script src="lesson1.js?v=11"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
