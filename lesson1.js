@@ -517,21 +517,8 @@ function renderMaskedSquareGame(arena) {
     return;
   }
 
-  // Single-card mode: shows picture + word with pink square covering part of it -> guess the whole word!
+  // Single-card mode: shows picture + word with pink square covering part of it (NO 4 hint words at the bottom!)
   const item = bodyPartsVocab[msIndex];
-  const distractors = [
-    bodyPartsVocab[(msIndex + 2) % bodyPartsVocab.length],
-    bodyPartsVocab[(msIndex + 5) % bodyPartsVocab.length],
-    bodyPartsVocab[(msIndex + 9) % bodyPartsVocab.length]
-  ];
-  const options = [item, ...distractors].sort((a, b) => a.id.localeCompare(b.id));
-
-  const optionsHtml = options.map(opt => `
-    <button type="button" class="quiz-opt-btn" id="ms-opt-${opt.id}" onclick="checkMaskedSquareAnswer('${opt.id}')">
-      <div style="font-family:var(--font-deva);font-size:1.55rem;font-weight:700;">${opt.deva}</div>
-      <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-saffron);">${opt.iast}</div>
-    </button>
-  `).join('');
 
   arena.innerHTML = `
     <div class="game-top-bar">
@@ -543,61 +530,39 @@ function renderMaskedSquareGame(arena) {
           12 / 12 ■
         </button>
       </div>
-      <span class="game-score-pill">${msScore} · (${msIndex + 1}/${bodyPartsVocab.length})</span>
+      <span class="game-score-pill">${msIndex + 1} / ${bodyPartsVocab.length}</span>
     </div>
 
-    <div class="flashcard-box" style="min-height:220px;padding:1.5rem;margin-bottom:1rem;" onclick="revealCurrentMaskedCard()">
-      <div class="vocab-svg-box" style="width:125px;height:125px;margin-bottom:0.75rem;">${item.svg}</div>
+    <div class="flashcard-box" onclick="toggleCurrentMaskedCard()">
+      <div class="vocab-svg-box" style="width:140px;height:140px;margin-bottom:0.75rem;">${item.svg}</div>
       <div id="ms-word-box">
-        ${renderMaskedWordMarkup(item, msAnswered, '2.35rem')}
+        ${renderMaskedWordMarkup(item, msAnswered, '2.45rem')}
       </div>
-      <div class="vocab-iast" style="font-size:1rem;margin-top:0.25rem;">${ msAnswered ? item.iast : '' }</div>
+      <div class="vocab-iast" style="font-size:1.1rem;margin-top:0.25rem;">${ msAnswered ? item.iast : '' }</div>
     </div>
 
-    <div class="quiz-options-grid">${optionsHtml}</div>
-    <div id="ms-feedback-msg" style="margin-top:1rem;text-align:center;"></div>
+    <div style="display:flex;justify-content:center;gap:0.65rem;flex-wrap:wrap;">
+      <button type="button" class="chip-btn" onclick="prevMaskedSquareRound()">←</button>
+      <button type="button" class="chip-btn active" onclick="toggleCurrentMaskedCard()">↺</button>
+      <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.ttsText}')">🔊</button>
+      <button type="button" class="chip-btn" onclick="nextMaskedSquareRound()">→</button>
+    </div>
   `;
 }
 
-function revealCurrentMaskedCard() {
+function toggleCurrentMaskedCard() {
   const item = bodyPartsVocab[msIndex];
-  msAnswered = true;
-  speakSanskritWord(item.ttsText);
-  renderPracticeArena();
-  const feedbackEl = document.getElementById('ms-feedback-msg');
-  if (feedbackEl) {
-    feedbackEl.innerHTML = `
-      <button type="button" class="chip-btn active" onclick="nextMaskedSquareRound()">→</button>
-    `;
+  msAnswered = !msAnswered;
+  if (msAnswered) {
+    speakSanskritWord(item.ttsText);
   }
+  renderPracticeArena();
 }
 
-function checkMaskedSquareAnswer(chosenId) {
-  if (msAnswered) return;
-  const item = bodyPartsVocab[msIndex];
-  const btn = document.getElementById('ms-opt-' + chosenId);
-  const feedbackEl = document.getElementById('ms-feedback-msg');
-
-  if (chosenId === item.id) {
-    msAnswered = true;
-    msScore++;
-    if (btn) btn.classList.add('correct');
-    const wordBox = document.getElementById('ms-word-box');
-    if (wordBox) {
-      wordBox.innerHTML = renderMaskedWordMarkup(item, true, '2.35rem');
-    }
-    speakSanskritWord(item.ttsText);
-    if (feedbackEl) {
-      feedbackEl.innerHTML = `
-        <div style="color:#15803d;font-weight:700;font-family:var(--font-deva);font-size:1.35rem;margin-bottom:0.5rem;">
-          ✓ ${item.deva}<span class="iast-text" style="font-family:var(--font-mono);font-size:0.9rem;"> (${item.iast})</span>
-        </div>
-        <button type="button" class="chip-btn active" onclick="nextMaskedSquareRound()">→</button>
-      `;
-    }
-  } else {
-    if (btn) btn.classList.add('wrong');
-  }
+function prevMaskedSquareRound() {
+  msIndex = (msIndex - 1 + bodyPartsVocab.length) % bodyPartsVocab.length;
+  msAnswered = false;
+  renderPracticeArena();
 }
 
 function nextMaskedSquareRound() {
