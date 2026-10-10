@@ -1363,43 +1363,59 @@ section {
 .ppp-nav-bar {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
-  padding: 0.75rem 0;
-  position: sticky;
-  top: 63px;
-  z-index: 90;
+  padding: 0.45rem 0;
+}
+
+.ppp-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .ppp-steps-pills {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.65rem;
+  flex-wrap: nowrap;
+  gap: 0.4rem;
+  white-space: nowrap;
 }
 
 .ppp-step-pill {
   border: 1.5px solid var(--border-strong);
   background: var(--bg-card);
   color: var(--text-primary);
-  padding: 0.5rem 1.15rem;
+  padding: 0.3rem 0.78rem;
   border-radius: 999px;
   font-weight: 700;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.35rem;
+  white-space: nowrap;
 }
 
 .ppp-step-pill:hover {
   border-color: var(--accent-cambridge);
 }
 
-.ppp-step-pill.p1 { border-left: 4px solid var(--accent-cambridge); }
-.ppp-step-pill.p2 { border-left: 4px solid var(--accent-gold); }
-.ppp-step-pill.p3 { border-left: 4px solid var(--accent-saffron); }
+.ppp-step-pill.p1 { border-left: 3.5px solid var(--accent-cambridge); }
+.ppp-step-pill.p2 { border-left: 3.5px solid var(--accent-gold); }
+.ppp-step-pill.p3 { border-left: 3.5px solid var(--accent-saffron); }
+
+/* Global IAST Disable Mode */
+body.hide-iast .vocab-iast,
+body.hide-iast .iast-text,
+body.hide-iast .iast-inline,
+body.hide-iast .level-sample-iast {
+  display: none !important;
+}
 
 /* Poster Grid (3x4 Body Parts Chart like the reference image) */
 .vocab-toolbar {

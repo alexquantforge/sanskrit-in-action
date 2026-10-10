@@ -260,6 +260,7 @@ const bodyPartsVocab = [
 
 // Lesson 1 State
 let labelsHidden = false;
+let iastHidden = false;
 let currentPracticeGame = 'flashcards'; // 'flashcards' | 'gaps' | 'picquiz' | 'wordquiz' | 'match' | 'spelling' | 'truefalse'
 let fcIndex = 0;
 let fcFlipped = false;
@@ -348,6 +349,24 @@ function renderPresentationStage() {
 function toggleVocabLabels() {
   labelsHidden = !labelsHidden;
   renderPresentationStage();
+}
+
+function updateIastButtons() {
+  document.body.classList.toggle('hide-iast', iastHidden);
+  document.querySelectorAll('.toggle-iast-btn').forEach(btn => {
+    if (iastHidden) {
+      btn.innerText = currentLang === 'ru' ? '🔤 Включить IAST' : '🔤 Enable IAST';
+      btn.classList.add('active');
+    } else {
+      btn.innerText = currentLang === 'ru' ? '🔤 Отключить IAST' : '🔤 Disable IAST';
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function toggleIast() {
+  iastHidden = !iastHidden;
+  updateIastButtons();
 }
 
 // 2. Render Stage 2: PRACTICE (7 Simple ELT Games)
@@ -467,7 +486,7 @@ function renderFillGapsGame(arena) {
     return `
       <button type="button" class="quiz-opt-btn" id="gap-opt-${opt.id}" onclick="checkGapAnswer('${opt.id}')">
         <div style="font-family:var(--font-deva);font-size:1.35rem;font-weight:700;">${opt.deva}</div>
-        <div style="font-family:var(--font-mono);font-size:0.8rem;color:var(--accent-saffron);">${opt.iast}</div>
+        <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--accent-saffron);">${opt.iast}</div>
         <div style="font-size:0.78rem;color:var(--text-secondary);">${optMeaning}</div>
       </button>
     `;
@@ -511,13 +530,13 @@ function checkGapAnswer(chosenId) {
     if (btn) btn.classList.add('correct');
     const sentenceEl = document.getElementById('gap-sentence-display');
     if (sentenceEl) {
-      sentenceEl.innerHTML = promptText.replace('___', `<span style="color:var(--accent-cambridge);font-family:var(--font-deva);font-size:1.35rem;text-decoration:underline;">${item.deva} (${item.iast})</span>`);
+      sentenceEl.innerHTML = promptText.replace('___', `<span style="color:var(--accent-cambridge);font-family:var(--font-deva);font-size:1.35rem;text-decoration:underline;">${item.deva}<span class="iast-text"> (${item.iast})</span></span>`);
     }
     speakSanskritWord(item.ttsText, item.iast);
     if (feedbackEl) {
       feedbackEl.innerHTML = `
         <div style="color:#15803d;font-weight:700;margin-bottom:0.5rem;">
-          ✓ ${currentLang === 'ru' ? 'Верно!' : 'Correct!'} ${item.deva} (${item.iast})
+          ✓ ${currentLang === 'ru' ? 'Верно!' : 'Correct!'} ${item.deva}<span class="iast-text"> (${item.iast})</span>
         </div>
         <button type="button" class="chip-btn active" onclick="nextGapRound()">
           ${currentLang === 'ru' ? 'Следующее задание →' : 'Next Question →'}
@@ -551,7 +570,7 @@ function renderPictureQuizGame(arena) {
   const optionsHtml = options.map(opt => `
     <button type="button" class="quiz-opt-btn" id="pq-opt-${opt.id}" onclick="checkPicQuizAnswer('${opt.id}')">
       <div style="font-family:var(--font-deva);font-size:1.45rem;font-weight:700;">${opt.deva}</div>
-      <div style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-saffron);">${opt.iast}</div>
+      <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-saffron);">${opt.iast}</div>
     </button>
   `).join('');
 
@@ -590,7 +609,7 @@ function checkPicQuizAnswer(chosenId) {
     if (feedbackEl) {
       feedbackEl.innerHTML = `
         <div style="color:#15803d;font-weight:700;margin-bottom:0.5rem;">
-          ✓ ${currentLang === 'ru' ? 'Отлично!' : 'Spot on!'} ${item.deva} (${item.iast}) — ${meaning}
+          ✓ ${currentLang === 'ru' ? 'Отлично!' : 'Spot on!'} ${item.deva}<span class="iast-text"> (${item.iast})</span> — ${meaning}
         </div>
         <button type="button" class="chip-btn active" onclick="nextPicQuizRound()">
           ${currentLang === 'ru' ? 'Дальше →' : 'Next →'}
@@ -704,7 +723,7 @@ function renderMatchPairsGame(arena) {
     const content = t.type === 'pic'
       ? `<div class="vocab-svg-box" style="margin:0;width:68px;height:68px;">${t.item.svg}</div>`
       : `<div style="font-family:var(--font-deva);font-size:1.35rem;font-weight:700;">${t.item.deva}</div>
-         <div style="font-family:var(--font-mono);font-size:0.76rem;color:var(--accent-saffron);">${t.item.iast}</div>`;
+         <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.76rem;color:var(--accent-saffron);">${t.item.iast}</div>`;
 
     return `
       <div class="${classes.join(' ')}" onclick="clickMatchTile(${idx})">
@@ -794,7 +813,7 @@ function renderSpellingGame(arena) {
       <div style="font-family:var(--font-deva);font-size:2.3rem;font-weight:700;letter-spacing:0.06em;" id="sp-word-display">
         ${item.missingDisplay}
       </div>
-      <div style="font-size:0.9rem;color:var(--text-secondary);">${item.iast} — <strong>${meaning}</strong></div>
+      <div style="font-size:0.9rem;color:var(--text-secondary);"><span class="iast-text">${item.iast} — </span><strong>${meaning}</strong></div>
     </div>
 
     <div class="quiz-options-grid">${choicesHtml}</div>
@@ -818,7 +837,7 @@ function checkSpellingAnswer(chosenSyllable, btnIdx) {
     if (feedbackEl) {
       feedbackEl.innerHTML = `
         <div style="color:#15803d;font-weight:700;margin-bottom:0.5rem;">
-          ✓ ${item.deva} (${item.iast})
+          ✓ ${item.deva}<span class="iast-text"> (${item.iast})</span>
         </div>
         <button type="button" class="chip-btn active" onclick="nextSpellingRound()">
           ${currentLang === 'ru' ? 'Следующее слово →' : 'Next Word →'}
@@ -865,17 +884,17 @@ function renderTrueFalseGame(arena) {
     <div style="text-align:center;background:var(--bg-primary);padding:1.35rem;border-radius:12px;border:1px solid var(--border-color);">
       <div class="vocab-svg-box" style="width:115px;height:115px;margin:0 auto 0.65rem;">${picItem.svg}</div>
       <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">
-        <span style="color:var(--accent-saffron);">${wordItem.deva}</span> (${wordItem.iast}) ?
+        <span style="color:var(--accent-saffron);">${wordItem.deva}</span><span class="iast-text"> (${wordItem.iast})</span> ?
       </div>
     </div>
 
     <div class="quiz-options-grid">
       <button type="button" class="quiz-opt-btn" id="tf-btn-true" onclick="checkTrueFalse(true)">
-        <div style="font-family:var(--font-deva);font-size:1.45rem;font-weight:700;color:#15803d;">आम् (Ām)</div>
+        <div style="font-family:var(--font-deva);font-size:1.45rem;font-weight:700;color:#15803d;">आम्<span class="iast-text"> (Ām)</span></div>
         <div style="font-size:0.85rem;font-weight:700;">${currentLang === 'ru' ? 'Да, верно' : 'Yes, True'}</div>
       </button>
       <button type="button" class="quiz-opt-btn" id="tf-btn-false" onclick="checkTrueFalse(false)">
-        <div style="font-family:var(--font-deva);font-size:1.45rem;font-weight:700;color:#dc2626;">न (Na)</div>
+        <div style="font-family:var(--font-deva);font-size:1.45rem;font-weight:700;color:#dc2626;">न<span class="iast-text"> (Na)</span></div>
         <div style="font-size:0.85rem;font-weight:700;">${currentLang === 'ru' ? 'Нет, неверно' : 'No, False'}</div>
       </button>
     </div>
@@ -906,7 +925,7 @@ function checkTrueFalse(userSaidTrue) {
     feedbackEl.innerHTML = `
       <div style="font-weight:700;color:${isCorrect ? '#15803d' : '#dc2626'};margin-bottom:0.5rem;">
         ${isCorrect ? (currentLang === 'ru' ? '✓ Правильно!' : '✓ Correct!') : (currentLang === 'ru' ? '✕ Ошибка!' : '✕ Not quite!')}
-        ${currentLang === 'ru' ? 'На картинке:' : 'Shown in picture:'} <strong>${picItem.deva} (${picItem.iast}) — ${meaning}</strong>
+        ${currentLang === 'ru' ? 'На картинке:' : 'Shown in picture:'} <strong>${picItem.deva}<span class="iast-text"> (${picItem.iast})</span> — ${meaning}</strong>
       </div>
       <button type="button" class="chip-btn active" onclick="nextTrueFalseRound()">
         ${currentLang === 'ru' ? 'Следующий вопрос →' : 'Next Question →'}
@@ -943,7 +962,7 @@ function renderProductionStage() {
     return `
       <button type="button" class="chip-btn ${isCurrent ? 'active' : ''}" onclick="selectProductionWord('${w.id}')"
               style="${done && !isCurrent ? 'border-color:#16a34a;background:#f0fdf4;color:#15803d;' : ''}">
-        ${done ? '✓ ' : ''}${w.deva} (${w.iast})
+        ${done ? '✓ ' : ''}${w.deva}<span class="iast-text"> (${w.iast})</span>
       </button>
     `;
   }).join('');
@@ -970,7 +989,7 @@ function renderProductionStage() {
           ${activeItem.deva}
         </div>
         <div style="font-family:var(--font-mono);font-size:1.05rem;color:var(--accent-saffron);margin-bottom:0.35rem;">
-          ${activeItem.iast} — <strong>${wordMeaning}</strong>
+          <span class="iast-text">${activeItem.iast} — </span><strong>${wordMeaning}</strong>
         </div>
         <div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0.85rem;">
           🗣 ${hint}
@@ -986,6 +1005,7 @@ function renderProductionStage() {
 
 // Initialize / Refresh all Lesson 1 views when language changes
 function refreshLesson1() {
+  updateIastButtons();
   renderPresentationStage();
   renderPracticeArena();
   renderProductionStage();
