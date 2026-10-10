@@ -43,48 +43,99 @@
 
   <main id="top">
     <!-- ===================================================================
-         TAB 1: CONCISE HOME PAGE (ГЛАВНАЯ)
+         TAB 1: MINIMAL HOME PAGE (ГЛАВНАЯ — 2 АБЗАЦА + НАЧАТЬ УРОКИ)
          =================================================================== -->
     <div id="view-home" class="view-pane active">
-      <section class="home-hero">
+      <section class="home-minimal">
+        <div class="container">
+          <div class="home-minimal-box">
+            <div class="hero-badges">
+              <span class="badge badge-cambridge" data-i18n-ru="CELTA &amp; DELTA" data-i18n-en="CELTA &amp; DELTA">CELTA &amp; DELTA</span>
+              <span class="badge badge-saffron" data-i18n-ru="4 НАВЫКА × 5 СИСТЕМ" data-i18n-en="4 SKILLS × 5 SYSTEMS">4 НАВЫКА × 5 СИСТЕМ</span>
+              <span class="badge badge-gold">CEFR A1–C2</span>
+            </div>
+
+            <h1 class="hero-title"
+                data-i18n-ru="Санскрит по-кембриджски.<br><span class='highlight'>Говорим с первого дня.</span>"
+                data-i18n-en="Sanskrit, the Cambridge way.<br><span class='highlight'>Speaking from day one.</span>">
+              Санскрит по-кембриджски.<br><span class="highlight">Говорим с первого дня.</span>
+            </h1>
+
+            <div class="hero-sanskrit-motto">
+              <span class="deva-inline">संवादेन संस्कृतम् — क्रियायां भाषा</span>
+              <span class="iast-inline">saṃvādena saṃskṛtam — kriyāyāṃ bhāṣā</span>
+            </div>
+
+            <p class="home-paragraph"
+               data-i18n-ru="<strong>Sanskrit in Action</strong> — интерактивная платформа для изучения санскрита по стандартам <strong>Cambridge (CELTA / Delta)</strong>: коммуникативный подход, обучение через реальные задачи (<em>Task-Based Learning</em>) и прозрачная шкала уровней <strong>CEFR A1–C2</strong>. Здесь вы прокачиваете <strong>4 навыка</strong> (аудирование, говорение, чтение, письмо) и <strong>5 систем языка</strong> (произношение и сандхи, грамматика, лексика и корни <em>dhātu</em>, речевые функции, дискурс), начиная говорить уже на первом занятии."
+               data-i18n-en="<strong>Sanskrit in Action</strong> — an interactive platform for learning Sanskrit the way Cambridge teaches modern languages: communicative approach, <em>Task-Based Learning</em>, and <strong>CEFR levels A1–C2</strong>. You build all <strong>4 skills</strong> (Listening, Speaking, Reading, Writing) across the <strong>5 language systems</strong> (Pronunciation &amp; sandhi, Grammar, Vocabulary &amp; <em>dhātu</em> roots, Functions, Discourse), speaking from your very first lesson.">
+              <strong>Sanskrit in Action</strong> — интерактивная платформа для изучения санскрита по стандартам <strong>Cambridge (CELTA / Delta)</strong>: коммуникативный подход, обучение через реальные задачи (<em>Task-Based Learning</em>) и прозрачная шкала уровней <strong>CEFR A1–C2</strong>. Здесь вы прокачиваете <strong>4 навыка</strong> (аудирование, говорение, чтение, письмо) и <strong>5 систем языка</strong> (произношение и сандхи, грамматика, лексика и корни <em>dhātu</em>, речевые функции, дискурс), начиная говорить уже на первом занятии.
+            </p>
+
+            <p class="home-paragraph"
+               data-i18n-ru="Никакого искусственного «учебникового санскрита» и сухой зубрёжки: вся программа опирается на подлинные шастры (грамматика Панини как операционная система языка, «Панчатантра» и «Хитопадеша» для ступенчатого чтения, ведические гимны и «Бхагавадгита») и интерактивные игры, превращающие грамматику в увлекательный геймплей."
+               data-i18n-en="No artificial textbook Sanskrit or rote memorization: the entire curriculum is rooted in authentic śāstras (Pāṇini’s grammar as the operating system, <em>Pañcatantra</em> and <em>Hitopadeśa</em> for graded reading, Vedic hymns, and the <em>Bhagavadgītā</em>) combined with interactive games that turn grammar into gameplay.">
+              Никакого искусственного «учебникового санскрита» и сухой зубрёжки: вся программа опирается на подлинные шастры (грамматика Панини как операционная система языка, «Панчатантра» и «Хитопадеша» для ступенчатого чтения, ведические гимны и «Бхагавадгита») и интерактивные игры, превращающие грамматику в увлекательный геймплей.
+            </p>
+
+            <div class="home-minimal-actions">
+              <button type="button" class="btn btn-primary btn-lg" onclick="switchView('details', 'first-lesson')"
+                      data-i18n-ru="Начать уроки →"
+                      data-i18n-en="Start Lessons →">Начать уроки →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================================================================
+         TAB 2: LEARN MORE / FULL DETAILS PAGE (ПОДРОБНЕЕ)
+         =================================================================== -->
+    <div id="view-details" class="view-pane">
+      <!-- Sub-navigation inside the Learn More tab -->
+      <div class="details-subnav">
+        <div class="details-subnav-inner">
+          <ul class="subnav-links">
+            <li><a href="#first-lesson" data-i18n-ru="0. Пробный урок A1" data-i18n-en="0. Lesson 1 Demo">0. Пробный урок A1</a></li>
+            <li><a href="#method" data-i18n-ru="1. О методе CELTA/Delta" data-i18n-en="1. CELTA/Delta Method">1. О методе CELTA/Delta</a></li>
+            <li><a href="#matrix" data-i18n-ru="2. Матрица 4×5" data-i18n-en="2. 4×5 Matrix">2. Матрица 4×5</a></li>
+            <li><a href="#levels" data-i18n-ru="3. Уровни CEFR A1–C2" data-i18n-en="3. CEFR A1–C2">3. Уровни CEFR A1–C2</a></li>
+            <li><a href="#shastras" data-i18n-ru="4. Шастры" data-i18n-en="4. Śāstras">4. Шастры</a></li>
+            <li><a href="#playground" data-i18n-ru="5. Интерактивные игры" data-i18n-en="5. Interactive Games">5. Интерактивные игры</a></li>
+            <li><a href="#github-pages" data-i18n-ru="6. GitHub Pages" data-i18n-en="6. GitHub Pages">6. GitHub Pages</a></li>
+          </ul>
+          <button type="button" class="chip-btn" onclick="switchView('home')"
+                  data-i18n-ru="← На главную" data-i18n-en="← Back to Home">← На главную</button>
+        </div>
+      </div>
+
+      <!-- Section 0 (in Details): Lesson 1 Demo & 4 Pillars Overview -->
+      <section id="first-lesson" class="home-hero" style="border-bottom:1px solid var(--border-color);">
         <div class="container">
           <div class="hero-grid">
-            <!-- Left Column: Short & Clear Welcome -->
             <div>
-              <div class="hero-badges">
-                <span class="badge badge-cambridge" data-i18n-ru="CELTA &amp; DELTA" data-i18n-en="CELTA &amp; DELTA">CELTA &amp; DELTA</span>
-                <span class="badge badge-saffron" data-i18n-ru="4 НАВЫКА × 5 СИСТЕМ" data-i18n-en="4 SKILLS × 5 SYSTEMS">4 НАВЫКА × 5 СИСТЕМ</span>
-                <span class="badge badge-gold">CEFR A1–C2</span>
-              </div>
-
-              <h1 class="hero-title"
-                  data-i18n-ru="Санскрит по-кембриджски.<br><span class='highlight'>Говорим с первого дня.</span>"
-                  data-i18n-en="Sanskrit, the Cambridge way.<br><span class='highlight'>Speaking from day one.</span>">
-                Санскрит по-кембриджски.<br><span class="highlight">Говорим с первого дня.</span>
-              </h1>
-
-              <div class="hero-sanskrit-motto">
-                <span class="deva-inline">संवादेन संस्कृतम् — क्रियायां भाषा</span>
-                <span class="iast-inline">saṃvādena saṃskṛtam — kriyāyāṃ bhāṣā</span>
-              </div>
-
-              <p class="hero-lead"
-                 data-i18n-ru="<strong>Sanskrit in Action</strong> — сайт для изучения санскрита по стандартам <strong>Cambridge (CELTA / Delta)</strong>: коммуникативный подход, <em>Task-Based</em> обучение и уровни <strong>CEFR A1–C2</strong>. Вы начинаете говорить на первом уроке, а грамматика Панини и тексты шастр открываются через живое общение и интерактивные игры."
-                 data-i18n-en="<strong>Sanskrit in Action</strong> — learn Sanskrit the way Cambridge teaches modern languages: communicative approach, <em>Task-Based Learning</em>, and <strong>CEFR levels A1–C2</strong>. You start speaking in lesson one while unlocking Pāṇini’s grammar and authentic śāstras through communication and interactive games.">
-                <strong>Sanskrit in Action</strong> — сайт для изучения санскрита по стандартам <strong>Cambridge (CELTA / Delta)</strong>: коммуникативный подход, <em>Task-Based</em> обучение и уровни <strong>CEFR A1–C2</strong>. Вы начинаете говорить на первом уроке, а грамматика Панини и тексты шастр открываются через живое общение и интерактивные игры.
+              <div class="eyebrow" data-i18n-ru="ПРОБНЫЙ УРОК · ОБЗОР СИСТЕМЫ" data-i18n-en="TRIAL LESSON · SYSTEM OVERVIEW">ПРОБНЫЙ УРОК · ОБЗОР СИСТЕМЫ</div>
+              <h2 class="section-title" style="text-align:left;"
+                  data-i18n-ru="Попробуйте первый диалог (A1) и изучите устройство курса"
+                  data-i18n-en="Try Your First Dialogue (A1) &amp; Explore the Course Architecture">
+                Попробуйте первый диалог (A1) и изучите устройство курса
+              </h2>
+              <p class="section-desc" style="text-align:left;margin-bottom:1.5rem;"
+                 data-i18n-ru="Справа — мини-демо первого урока по стандарту Task-Based Learning: сначала вы выбираете живую реплику в ситуации общения, а затем видите разбор по формуле CELTA (Meaning → Pronunciation → Form)."
+                 data-i18n-en="On the right is a mini-demo of Lesson 1 using Task-Based Learning: first you choose a spoken response in a real scenario, and then inspect the CELTA breakdown (Meaning → Pronunciation → Form).">
+                Справа — мини-демо первого урока по стандарту Task-Based Learning: сначала вы выбираете живую реплику в ситуации общения, а затем видите разбор по формуле CELTA (Meaning → Pronunciation → Form).
               </p>
-
               <div class="hero-cta-group">
-                <button type="button" class="btn btn-primary" onclick="switchView('details')"
-                        data-i18n-ru="Подробнее о методе и системе →"
-                        data-i18n-en="Learn More About the Method →">Подробнее о методе и системе →</button>
-                <button type="button" class="btn btn-secondary" onclick="switchView('details', 'playground')"
-                        data-i18n-ru="Открыть интерактивные игры"
-                        data-i18n-en="Open Interactive Mini-Games">Открыть интерактивные игры</button>
+                <a href="#playground" class="btn btn-primary"
+                   data-i18n-ru="Перейти к 3 игровым тренажёрам ↓"
+                   data-i18n-en="Jump to 3 Interactive Game Labs ↓">Перейти к 3 игровым тренажёрам ↓</a>
+                <a href="#levels" class="btn btn-secondary"
+                   data-i18n-ru="Карта уровней A1–C2 ↓"
+                   data-i18n-en="CEFR A1–C2 Map ↓">Карта уровней A1–C2 ↓</a>
               </div>
             </div>
 
-            <!-- Right Column: Quick 30-Second Interactive Preview -->
+            <!-- Interactive First Lesson Card -->
             <div class="hero-card">
               <div class="hero-card-header">
                 <div class="hero-card-title">
@@ -127,7 +178,7 @@
             </div>
           </div>
 
-          <!-- Compact 4-Card Summary on Home Page -->
+          <!-- 4-Card Summary inside Details -->
           <div class="home-summary-grid">
             <div class="summary-card">
               <div>
@@ -138,8 +189,8 @@
                   Listening, Speaking, Reading, Writing. Живая речь и понимание на слух с первого занятия, а не только чтение со словарём.
                 </p>
               </div>
-              <button type="button" class="summary-link-btn" onclick="switchView('details', 'matrix')"
-                      data-i18n-ru="Смотреть матрицу →" data-i18n-en="View 4×5 Matrix →">Смотреть матрицу →</button>
+              <a href="#matrix" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="Смотреть матрицу ↓" data-i18n-en="View 4×5 Matrix ↓">Смотреть матрицу ↓</a>
             </div>
 
             <div class="summary-card">
@@ -151,8 +202,8 @@
                   Pronunciation, Grammar, Vocabulary, Functions, Discourse — каноническая сетка CEFR, наполненная санскритом (sandhi, vibhakti, lakāra, dhātu).
                 </p>
               </div>
-              <button type="button" class="summary-link-btn" onclick="switchView('details', 'levels')"
-                      data-i18n-ru="Уровни A1–C2 →" data-i18n-en="Explore A1–C2 Levels →">Уровни A1–C2 →</button>
+              <a href="#levels" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="Уровни A1–C2 ↓" data-i18n-en="Explore A1–C2 Levels ↓">Уровни A1–C2 ↓</a>
             </div>
 
             <div class="summary-card">
@@ -164,8 +215,8 @@
                   Никакого искусственного «учебникового санскрита»: грамматика Панини как ОС языка, «Панчатантра», «Хитопадеша», ведические гимны и «Бхагавадгита».
                 </p>
               </div>
-              <button type="button" class="summary-link-btn" onclick="switchView('details', 'shastras')"
-                      data-i18n-ru="О программе шастр →" data-i18n-en="See Śāstra Sources →">О программе шастр →</button>
+              <a href="#shastras" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="О программе шастр ↓" data-i18n-en="See Śāstra Sources ↓">О программе шастр ↓</a>
             </div>
 
             <div class="summary-card">
@@ -177,33 +228,12 @@
                   Играем, а не зубрим: конструктор сандхи, симулятор диалогов в гурукуле и кузница корней Панини превращают грамматику в геймплей.
                 </p>
               </div>
-              <button type="button" class="summary-link-btn" onclick="switchView('details', 'playground')"
-                      data-i18n-ru="Играть в тренажёры →" data-i18n-en="Play Interactive Labs →">Играть в тренажёры →</button>
+              <a href="#playground" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="Играть в тренажёры ↓" data-i18n-en="Play Interactive Labs ↓">Играть в тренажёры ↓</a>
             </div>
           </div>
         </div>
       </section>
-    </div>
-
-    <!-- ===================================================================
-         TAB 2: LEARN MORE / FULL DETAILS PAGE (ПОДРОБНЕЕ)
-         =================================================================== -->
-    <div id="view-details" class="view-pane">
-      <!-- Sub-navigation inside the Learn More tab -->
-      <div class="details-subnav">
-        <div class="details-subnav-inner">
-          <ul class="subnav-links">
-            <li><a href="#method" data-i18n-ru="1. О методе CELTA/Delta" data-i18n-en="1. CELTA/Delta Method">1. О методе CELTA/Delta</a></li>
-            <li><a href="#matrix" data-i18n-ru="2. Матрица 4×5" data-i18n-en="2. 4×5 Matrix">2. Матрица 4×5</a></li>
-            <li><a href="#levels" data-i18n-ru="3. Уровни CEFR A1–C2" data-i18n-en="3. CEFR A1–C2">3. Уровни CEFR A1–C2</a></li>
-            <li><a href="#shastras" data-i18n-ru="4. Шастры" data-i18n-en="4. Śāstras">4. Шастры</a></li>
-            <li><a href="#playground" data-i18n-ru="5. Интерактивные игры" data-i18n-en="5. Interactive Games">5. Интерактивные игры</a></li>
-            <li><a href="#github-pages" data-i18n-ru="6. GitHub Pages" data-i18n-en="6. GitHub Pages">6. GitHub Pages</a></li>
-          </ul>
-          <button type="button" class="chip-btn" onclick="switchView('home')"
-                  data-i18n-ru="← На главную" data-i18n-en="← Back to Home">← На главную</button>
-        </div>
-      </div>
 
       <!-- Section 1: Why Sanskrit in Action? (Cambridge Method vs Traditional) -->
       <section id="method">
