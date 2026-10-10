@@ -916,50 +916,41 @@ function setPratyaya(pratyayaKey) {
   renderDhatuForge();
 }
 
-// Switch between "Home" (Главная) and "Learn More" (Подробнее) tabs
+// Switch between "home" (Главная), "lesson1" (Урок 1 PPP), and "details" (Подробнее) tabs
 function switchView(viewName, targetSectionId = null) {
-  const homePane = document.getElementById('view-home');
-  const detailsPane = document.getElementById('view-details');
-  const homeBtn = document.getElementById('tab-btn-home');
-  const detailsBtn = document.getElementById('tab-btn-details');
+  const panes = {
+    home: document.getElementById('view-home'),
+    lesson1: document.getElementById('view-lesson1'),
+    details: document.getElementById('view-details')
+  };
+  const buttons = {
+    home: document.getElementById('tab-btn-home'),
+    lesson1: document.getElementById('tab-btn-lesson1'),
+    details: document.getElementById('tab-btn-details')
+  };
 
-  if (viewName === 'details') {
-    if (homePane) {
-      homePane.classList.remove('active');
-      homePane.style.display = 'none';
-      homePane.hidden = true;
+  Object.keys(panes).forEach(key => {
+    const pane = panes[key];
+    const btn = buttons[key];
+    const isActive = key === viewName;
+    if (pane) {
+      pane.classList.toggle('active', isActive);
+      pane.style.display = isActive ? 'block' : 'none';
+      pane.hidden = !isActive;
     }
-    if (detailsPane) {
-      detailsPane.classList.add('active');
-      detailsPane.style.display = 'block';
-      detailsPane.hidden = false;
+    if (btn) {
+      btn.classList.toggle('active', isActive);
     }
-    if (homeBtn) homeBtn.classList.remove('active');
-    if (detailsBtn) detailsBtn.classList.add('active');
+  });
 
-    if (targetSectionId) {
-      const targetEl = document.getElementById(targetSectionId);
-      if (targetEl) {
-        setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
-        return;
-      }
+  if (targetSectionId) {
+    const targetEl = document.getElementById(targetSectionId);
+    if (targetEl) {
+      setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 30);
+      return;
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  } else {
-    if (detailsPane) {
-      detailsPane.classList.remove('active');
-      detailsPane.style.display = 'none';
-      detailsPane.hidden = true;
-    }
-    if (homePane) {
-      homePane.classList.add('active');
-      homePane.style.display = 'block';
-      homePane.hidden = false;
-    }
-    if (detailsBtn) detailsBtn.classList.remove('active');
-    if (homeBtn) homeBtn.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Language Switcher (RU / EN)
@@ -992,6 +983,9 @@ function setLanguage(lang) {
   selectSandhiPreset(currentSandhiIndex);
   renderDialogueGame(null);
   renderDhatuForge();
+  if (typeof refreshLesson1 === 'function') {
+    refreshLesson1();
+  }
 }
 
 // Copy helper for GitHub Description snippets

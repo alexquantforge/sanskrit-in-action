@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=6" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -17,7 +17,7 @@
 <body>
   <div class="top-accent-bar"></div>
 
-  <!-- Header & Sticky Navigation with Main Tabs (Home / Learn More) -->
+  <!-- Header & Sticky Navigation with Main Tabs (Home / Lesson 1 / Learn More) -->
   <header class="site-header">
     <div class="nav-container">
       <a href="#top" class="brand" onclick="switchView('home'); return false;">
@@ -28,10 +28,12 @@
         </div>
       </a>
 
-      <!-- Two Primary Tabs: Главная (Home) & Подробнее (Learn More) -->
+      <!-- Three Primary Tabs: Главная (Home), Урок 1 (Lesson 1 PPP), Подробнее (Learn More) -->
       <div class="view-tabs" role="tablist" aria-label="Main site views">
         <button type="button" class="view-tab-btn active" id="tab-btn-home" data-view="home" onclick="switchView('home')"
                 data-i18n-ru="Главная" data-i18n-en="Home">Главная</button>
+        <button type="button" class="view-tab-btn" id="tab-btn-lesson1" data-view="lesson1" onclick="switchView('lesson1')"
+                data-i18n-ru="Урок 1: Части тела (PPP)" data-i18n-en="Lesson 1: Body Parts (PPP)">Урок 1: Части тела (PPP)</button>
         <button type="button" class="view-tab-btn" id="tab-btn-details" data-view="details" onclick="switchView('details')"
                 data-i18n-ru="Подробнее" data-i18n-en="Learn More">Подробнее</button>
       </div>
@@ -83,10 +85,170 @@
             </p>
 
             <div class="home-minimal-actions">
-              <button type="button" class="btn btn-primary btn-lg" onclick="switchView('details', 'first-lesson')"
+              <button type="button" class="btn btn-primary btn-lg" onclick="switchView('lesson1')"
                       data-i18n-ru="Начать уроки →"
                       data-i18n-en="Start Lessons →">Начать уроки →</button>
             </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================================================================
+         TAB 2: LESSON 1 (PPP — VOCABULARY: PARTS OF THE BODY / ЧАСТИ ТЕЛА)
+         =================================================================== -->
+    <div id="view-lesson1" class="view-pane" style="display: none;" hidden>
+      <!-- Sticky PPP Stage Sub-bar -->
+      <div class="ppp-nav-bar">
+        <div class="container ppp-steps-pills">
+          <a href="#ppp-presentation" class="ppp-step-pill p1"
+             data-i18n-ru="1. Presentation · 12 слов и картинок"
+             data-i18n-en="1. Presentation · 12 Illustrated Words">1. Presentation · 12 слов и картинок</a>
+          <a href="#ppp-practice" class="ppp-step-pill p2"
+             data-i18n-ru="2. Practice · 7 простых игр (Flashcards, Gaps, Quiz)"
+             data-i18n-en="2. Practice · 7 Simple ELT Games">2. Practice · 7 простых игр (Flashcards, Gaps, Quiz)</a>
+          <a href="#ppp-production" class="ppp-step-pill p3"
+             data-i18n-ru="3. Production · Свободная речь"
+             data-i18n-en="3. Production · Speak Aloud">3. Production · Свободная речь</a>
+        </div>
+      </div>
+
+      <!-- STAGE 1: PRESENTATION -->
+      <section id="ppp-presentation" style="padding-top:2.75rem;">
+        <div class="container">
+          <div class="section-header" style="margin-bottom:2rem;">
+            <div class="eyebrow" data-i18n-ru="УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
+            <h2 class="section-title"
+                data-i18n-ru="शरीरसम्बन्धि-शब्दाः — Части тела (Vocabulary A1)"
+                data-i18n-en="शरीरसम्बन्धि-शब्दाः — Parts of the Body (Vocabulary A1)">
+              शरीरसम्बन्धि-शब्दाः — Части тела (Vocabulary A1)
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="На стадии <strong>Presentation</strong> мы знакомимся с 12 словами через наглядные образы, звучание и форму (Meaning → Pronunciation → Form). Нажимайте на любую карточку, чтобы прослушать произношение, а затем скройте подписи, чтобы проверить себя!"
+               data-i18n-en="In the <strong>Presentation</strong> stage, we introduce the 12 target words through visual context, sound, and form (Meaning → Pronunciation → Form). Click any card to hear the pronunciation, then hide the labels to test your recall!">
+              На стадии <strong>Presentation</strong> мы знакомимся с 12 словами через наглядные образы, звучание и форму (Meaning → Pronunciation → Form). Нажимайте на любую карточку, чтобы прослушать произношение, а затем скройте подписи, чтобы проверить себя!
+            </p>
+          </div>
+
+          <div class="vocab-toolbar">
+            <div class="vocab-poster-title">शरीरसम्बन्धि-शब्दाः</div>
+            <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+              <button type="button" id="toggle-labels-btn" class="chip-btn" onclick="toggleVocabLabels()"
+                      data-i18n-ru="🙈 Скрыть подписи (проверь себя)"
+                      data-i18n-en="🙈 Hide Labels (Test Yourself)">🙈 Скрыть подписи (проверь себя)</button>
+              <a href="#ppp-practice" class="btn btn-primary" style="padding:0.45rem 1rem;font-size:0.85rem;"
+                 data-i18n-ru="Перейти к играм (Practice) ↓"
+                 data-i18n-en="Go to Practice Games ↓">Перейти к играм (Practice) ↓</a>
+            </div>
+          </div>
+
+          <!-- 3x4 Illustrated Vocabulary Grid -->
+          <div id="lesson1-vocab-grid" class="vocab-grid-12">
+            <!-- Populated by lesson1.js -->
+          </div>
+
+          <!-- CELTA MPF Form-Noticing Box -->
+          <div class="cycle-banner" style="padding:1.65rem 2rem;">
+            <span class="badge badge-gold" data-i18n-ru="CELTA MPF · КАК ЛЕГКО ЗАПОМНИТЬ ОКОНЧАНИЯ (FORM)" data-i18n-en="CELTA MPF · NOTICING WORD ENDINGS (FORM)">CELTA MPF · КАК ЛЕГКО ЗАПОМНИТЬ ОКОНЧАНИЯ (FORM)</span>
+            <div class="cycle-steps" style="margin-top:1rem;">
+              <div class="cycle-step">
+                <div class="cycle-step-num" data-i18n-ru="Средний род · -म् (-am)" data-i18n-en="Neuter · -म् (-am)">Средний род · -म् (-am)</div>
+                <h4>नयनम् · कर्णम् · शीर्षम्</h4>
+                <p data-i18n-ru="Слова с окончанием <strong>-म् (-am)</strong> отвечают на вопрос <em>किम् एतत्?</em> («Что это?») → <em>एतत् नयनम्</em> (глаз), <em>कर्णम्</em> (ухо), <em>शीर्षम्</em> (голова)."
+                   data-i18n-en="Words ending in <strong>-म् (-am)</strong> use the neuter pronoun <em>एतत् (etat)</em>: <em>nayanam</em> (eye), <em>karṇam</em> (ear), <em>śīrṣam</em> (head).">
+                  Слова с окончанием <strong>-म् (-am)</strong> отвечают на вопрос <em>किम् एतत्?</em> («Что это?») → <em>एतत् नयनम्</em> (глаз), <em>कर्णम्</em> (ухо), <em>शीर्षम्</em> (голова).
+                </p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num" data-i18n-ru="Мужской род · -ः (-aḥ)" data-i18n-en="Masculine · -ः (-aḥ)">Мужской род · -ः (-aḥ)</div>
+                <h4>ललाटः · करः · पादः · दन्तः</h4>
+                <p data-i18n-ru="Слова с висаргой <strong>-ः (-aḥ)</strong> — мужского рода (местоимение <em>अयम् / एषः</em>): <em>ललाटः</em> (лоб), <em>करः</em> (рука), <em>पादः</em> (нога), <em>दन्तः</em> (зуб)."
+                   data-i18n-en="Words ending in <strong>-ः (-aḥ)</strong> are masculine (pronoun <em>ayam / eṣaḥ</em>): <em>lalāṭaḥ</em> (forehead), <em>karaḥ</em> (hand), <em>pādaḥ</em> (foot), <em>dantaḥ</em> (tooth).">
+                  Слова с висаргой <strong>-ः (-aḥ)</strong> — мужского рода (местоимение <em>अयम् / एषः</em>): <em>ललाटः</em> (лоб), <em>करः</em> (рука), <em>पादः</em> (нога), <em>दन्तः</em> (зуб).
+                </p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num" data-i18n-ru="Женский род · -आ / -ई / -ऊः" data-i18n-en="Feminine · -ā / -ī / -ūḥ">Женский род · -आ / -ई / -ऊः</div>
+                <h4>नासिका · जिह्वा · अङ्गुली · भ्रूः</h4>
+                <p data-i18n-ru="Долгие гласные на конце указывают на женский род (местоимение <em>इयम् / एषा</em>): <em>नासिका</em> (нос), <em>जिह्वा</em> (язык), <em>अङ्गुली</em> (палец), <em>भ्रूः</em> (бровь)."
+                   data-i18n-en="Long final vowels mark the feminine (pronoun <em>iyam / eṣā</em>): <em>nāsikā</em> (nose), <em>jihvā</em> (tongue), <em>aṅgulī</em> (finger), <em>bhrūḥ</em> (eyebrow).">
+                  Долгие гласные на конце указывают на женский род (местоимение <em>इयम् / एषा</em>): <em>नासिका</em> (нос), <em>जिह्वा</em> (язык), <em>अङ्गुली</em> (палец), <em>भ्रूः</em> (бровь).
+                </p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num" data-i18n-ru="Двойственное число · -औ (-au)" data-i18n-en="Dual Number · -औ (-au)">Двойственное число · -औ (-au)</div>
+                <h4>ओष्ठौ (oṣṭhau)</h4>
+                <p data-i18n-ru="Окончание <strong>-औ (-au)</strong> сразу показывает пару предметов: <em>ओष्ठौ</em> — сразу обе губы (верхняя и нижняя)!"
+                   data-i18n-en="The ending <strong>-औ (-au)</strong> denotes a natural pair of two: <em>oṣṭhau</em> means both lips together!">
+                  Окончание <strong>-औ (-au)</strong> сразу показывает пару предметов: <em>ओष्ठौ</em> — сразу обе губы (верхняя и нижняя)!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 2: PRACTICE (7 SIMPLE ELT GAMES) -->
+      <section id="ppp-practice" class="section-alt">
+        <div class="container">
+          <div class="section-header" style="margin-bottom:2rem;">
+            <div class="eyebrow saffron" data-i18n-ru="STAGE 2: PRACTICE · 7 ПРОСТЫХ ИГР ДЛЯ ЗАПОМИНАНИЯ" data-i18n-en="STAGE 2: PRACTICE · 7 SIMPLE ELT GAMES">STAGE 2: PRACTICE · 7 ПРОСТЫХ ИГР ДЛЯ ЗАПОМИНАНИЯ</div>
+            <h2 class="section-title"
+                data-i18n-ru="Отработка лексики: Flashcards, Fill in the Gaps и ещё 5 быстрых игр"
+                data-i18n-en="Controlled Practice: Flashcards, Fill in the Gaps &amp; 5 More Quick Games">
+              Отработка лексики: Flashcards, Fill in the Gaps и ещё 5 быстрых игр
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="Переключайтесь между 7 классическими играми из практики CELTA — от простых флэш-карточек и угадывания по картинке до вставки пропущенных слов и парных карточек:"
+               data-i18n-en="Switch freely among 7 classic CELTA classroom games — from flashcards and picture quizzes to gap-fills, matching pairs, and spelling drills:">
+              Переключайтесь между 7 классическими играми из практики CELTA — от простых флэш-карточек и угадывания по картинке до вставки пропущенных слов и парных карточек:
+            </p>
+          </div>
+
+          <!-- 7 Game Selector Buttons -->
+          <div class="practice-tabs" role="tablist">
+            <button type="button" class="practice-tab-btn active" data-game="flashcards" onclick="selectPracticeGame('flashcards')"
+                    data-i18n-ru="1. Flashcards (Карточки)" data-i18n-en="1. Flashcards">1. Flashcards (Карточки)</button>
+            <button type="button" class="practice-tab-btn" data-game="gaps" onclick="selectPracticeGame('gaps')"
+                    data-i18n-ru="2. Fill in the Gaps (Пропуски)" data-i18n-en="2. Fill in the Gaps">2. Fill in the Gaps (Пропуски)</button>
+            <button type="button" class="practice-tab-btn" data-game="picquiz" onclick="selectPracticeGame('picquiz')"
+                    data-i18n-ru="3. Picture Quiz (Картинка → Слово)" data-i18n-en="3. Picture Quiz">3. Picture Quiz (Картинка → Слово)</button>
+            <button type="button" class="practice-tab-btn" data-game="wordquiz" onclick="selectPracticeGame('wordquiz')"
+                    data-i18n-ru="4. Read &amp; Match (Слово → Картинка)" data-i18n-en="4. Word → Picture">4. Read &amp; Match (Слово → Картинка)</button>
+            <button type="button" class="practice-tab-btn" data-game="match" onclick="selectPracticeGame('match')"
+                    data-i18n-ru="5. Match Pairs (Найди пары)" data-i18n-en="5. Match Pairs">5. Match Pairs (Найди пары)</button>
+            <button type="button" class="practice-tab-btn" data-game="spelling" onclick="selectPracticeGame('spelling')"
+                    data-i18n-ru="6. Missing Letters (Буквы)" data-i18n-en="6. Missing Letters">6. Missing Letters (Буквы)</button>
+            <button type="button" class="practice-tab-btn" data-game="truefalse" onclick="selectPracticeGame('truefalse')"
+                    data-i18n-ru="7. True / False (Да / Нет)" data-i18n-en="7. True / False">7. True / False (Да / Нет)</button>
+          </div>
+
+          <!-- Active Practice Game Arena -->
+          <div id="lesson1-practice-arena" class="practice-arena">
+            <!-- Populated by lesson1.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 3: PRODUCTION -->
+      <section id="ppp-production">
+        <div class="container">
+          <div class="section-header" style="margin-bottom:2rem;">
+            <div class="eyebrow gold" data-i18n-ru="STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ" data-i18n-en="STAGE 3: PRODUCTION · FREER SPEAKING">STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ</div>
+            <h2 class="section-title"
+                data-i18n-ru="Живая речь: назовите все 12 частей тела в полных предложениях"
+                data-i18n-en="Freer Production: Speak Full Sanskrit Sentences for All 12 Body Parts">
+              Живая речь: назовите все 12 частей тела в полных предложениях
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="Финальный этап урока по схеме <strong>PPP (Production)</strong>: укажите на часть тела у себя и произнесите полную фразу на санскрите вслух, соблюдая правильное указательное местоимение (<em>एतत् / अयम् / इयम् / एतौ</em>)!"
+               data-i18n-en="The final stage of the <strong>PPP</strong> cycle (<strong>Production</strong>): point to each part of your own body and speak the complete Sanskrit sentence aloud using the natural demonstrative pronoun (<em>etat / ayam / iyam / etau</em>)!">
+              Финальный этап урока по схеме <strong>PPP (Production)</strong>: укажите на часть тела у себя и произнесите полную фразу на санскрите вслух, соблюдая правильное указательное местоимение (<em>एतत् / अयम् / इयम् / एतौ</em>)!
+            </p>
+          </div>
+
+          <div id="lesson1-production-stage" class="practice-arena">
+            <!-- Populated by lesson1.js -->
           </div>
         </div>
       </section>
@@ -906,6 +1068,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="app.js?v=5"></script>
+  <script src="lesson1.js?v=6"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
