@@ -263,6 +263,12 @@ let memoryMatchedPairs = 0;
 let memoryMoves = 0;
 let memoryLock = false;
 
+// Spot the Wrong Label (3 Pictures, 1 Wrong Label, 12 Rounds) game state
+let wlIndex = 0;
+let wlScore = 0;
+let wlAnswered = false;
+let wlCards = [];
+
 // Production state: track which of the 12 words the student has spoken
 let producedWordsSet = new Set(['nayana']);
 let activeProdWordId = 'nayana';
@@ -401,6 +407,8 @@ function selectPracticeGame(gameKey) {
     initMatchGame();
   } else if (gameKey === 'memory') {
     if (memoryCards.length === 0) initMemoryGame();
+  } else if (gameKey === 'wronglabel') {
+    if (wlCards.length === 0) prepareWrongLabelRound();
   } else if (gameKey === 'truefalse') {
     prepareTrueFalseRound();
   }
@@ -425,6 +433,8 @@ function renderPracticeArena() {
     renderMatchPairsGame(arena);
   } else if (currentPracticeGame === 'memory') {
     renderMemoryGame(arena);
+  } else if (currentPracticeGame === 'wronglabel') {
+    renderWrongLabelGame(arena);
   } else if (currentPracticeGame === 'spelling') {
     renderSpellingGame(arena);
   } else if (currentPracticeGame === 'truefalse') {
@@ -1169,6 +1179,101 @@ function nextTrueFalseRound() {
   renderPracticeArena();
 }
 
+// GAME 10: Spot the Wrong Label (3 Pictures, 1 Wrongly Labeled — 12 rounds for all 12 words)
+function prepareWrongLabelRound() {
+  wlAnswered = false;
+  const n = bodyPartsVocab.length;
+  // Picture with the WRONG label (e.g., round 0: Eye picture नयन labeled with जिह्वा!)
+  const wrongPicItem = bodyPartsVocab[wlIndex];
+  const wrongLabelItem = bodyPartsVocab[(wlIndex + 2) % n];
+
+  // Two pictures with CORRECT labels
+  const correct1 = bodyPartsVocab[(wlIndex + 4) % n];
+  const correct2 = bodyPartsVocab[(wlIndex + 8) % n];
+
+  const rawCards = [
+    { picItem: wrongPicItem, labelItem: wrongLabelItem, isWrong: true },
+    { picItem: correct1, labelItem: correct1, isWrong: false },
+    { picItem: correct2, labelItem: correct2, isWrong: false }
+  ];
+
+  // Rotate position of the wrongly labeled card across rounds (0, 1, 2)
+  const shift = (wlIndex * 5 + 1) % 3;
+  wlCards = [
+    rawCards[shift % 3],
+    rawCards[(shift + 1) % 3],
+    rawCards[(shift + 2) % 3]
+  ];
+}
+
+function renderWrongLabelGame(arena) {
+  if (wlCards.length === 0) prepareWrongLabelRound();
+
+  const cardsHtml = wlCards.map((c, idx) => {
+    const showCorrection = wlAnswered && c.isWrong;
+    return `
+      <button type="button" class="quiz-opt-btn" id="wl-card-${idx}" onclick="checkWrongLabelCard(${idx})"
+              style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.picItem.svg}</div>
+        ${!showCorrection ? `
+          <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.labelItem.deva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.labelItem.iast}</div>
+        ` : `
+          <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.8;">${c.labelItem.deva}</div>
+          <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.picItem.deva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:#15803d;">${c.picItem.iast}</div>
+        `}
+      </button>
+    `;
+  }).join('');
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div>
+        <strong style="font-size:1.05rem;">3 🖼 → 1 ✕</strong>
+      </div>
+      <span class="game-score-pill">${wlScore} · (${wlIndex + 1}/${bodyPartsVocab.length})</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">
+      ${cardsHtml}
+    </div>
+
+    <div id="wl-feedback-msg" style="margin-top:1.15rem;text-align:center;"></div>
+  `;
+}
+
+function checkWrongLabelCard(idx) {
+  if (wlAnswered) return;
+  const chosen = wlCards[idx];
+  const btn = document.getElementById('wl-card-' + idx);
+  if (!chosen) return;
+
+  if (chosen.isWrong) {
+    wlAnswered = true;
+    wlScore++;
+    speakSanskritWord(chosen.picItem.ttsText);
+    renderPracticeArena();
+    const matchedBtn = document.getElementById('wl-card-' + idx);
+    if (matchedBtn) matchedBtn.classList.add('correct');
+    const feedbackEl = document.getElementById('wl-feedback-msg');
+    if (feedbackEl) {
+      feedbackEl.innerHTML = `
+        <button type="button" class="chip-btn active" onclick="nextWrongLabelRound()">→</button>
+      `;
+    }
+  } else {
+    if (btn) btn.classList.add('wrong');
+    speakSanskritWord(chosen.picItem.ttsText);
+  }
+}
+
+function nextWrongLabelRound() {
+  wlIndex = (wlIndex + 1) % bodyPartsVocab.length;
+  prepareWrongLabelRound();
+  renderPracticeArena();
+}
+
 // 3. Render Stage 3: PRODUCTION (Direct Picture + Sanskrit Word Aloud — zero translations)
 function selectProductionWord(wordId) {
   activeProdWordId = wordId;
@@ -1231,6 +1336,8 @@ function refreshLesson1() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initMatchGame();
+  initMemoryGame();
+  prepareWrongLabelRound();
   prepareTrueFalseRound();
   refreshLesson1();
 });
