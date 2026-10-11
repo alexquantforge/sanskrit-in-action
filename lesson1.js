@@ -663,6 +663,15 @@ function renderMaskedWordMarkup(item, isRevealed, fontSize = '1.65rem') {
   `;
 }
 
+// Teacher's Guide toggle for Presentation / Practice / Production stages
+function toggleTeacherGuide(stageKey) {
+  const box = document.getElementById('teacher-guide-' + stageKey);
+  const btn = document.getElementById('tg-btn-' + stageKey);
+  if (!box) return;
+  const isOpen = box.classList.toggle('open');
+  if (btn) btn.classList.toggle('active', isOpen);
+}
+
 // 1. Render Stage 1: PRESENTATION (4 CELTA Modes: 1. Step-by-Step [default], 2. Hotspots, 3. Audio-First, 4. Full Poster)
 function selectPresentationMode(mode) {
   currentPresentationMode = mode;

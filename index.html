@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=29" />
+  <link rel="stylesheet" href="styles.css?v=30" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -137,7 +137,11 @@
       <section id="ppp-presentation" style="padding-top:2rem;">
         <div class="container">
           <div class="section-header" style="margin-bottom:2rem;">
-            <div class="eyebrow" data-i18n-ru="УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
+            <div class="stage-eyebrow-row">
+              <div class="eyebrow" data-i18n-ru="УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
+              <button type="button" class="teacher-guide-btn" id="tg-btn-presentation" onclick="toggleTeacherGuide('presentation')"
+                      data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
+            </div>
             <h2 class="section-title"
                 data-i18n-ru="शरीरसम्बन्धि-शब्दाः — Части тела (Vocabulary A1)"
                 data-i18n-en="शरीरसम्बन्धि-शब्दाः — Parts of the Body (Vocabulary A1)">
@@ -148,6 +152,38 @@
                data-i18n-en="In the <strong>Presentation</strong> stage, we introduce the 12 target words through visual context, sound, and form (Meaning → Pronunciation → Form). Click any card to hear the pronunciation, then hide the labels to test your recall!">
               На стадии <strong>Presentation</strong> мы знакомимся с 12 словами через наглядные образы, звучание и форму (Meaning → Pronunciation → Form). Нажимайте на любую карточку, чтобы прослушать произношение, а затем скройте подписи, чтобы проверить себя!
             </p>
+          </div>
+
+          <!-- Teacher's Guide for Stage 1: Presentation -->
+          <div id="teacher-guide-presentation" class="teacher-guide-box">
+            <div class="teacher-guide-header">
+              <h3 data-i18n-ru="👩‍🏫 Инструкция для преподавателя · Stage 1: Presentation (10–12 мин)"
+                  data-i18n-en="👩‍🏫 Teacher's Guide · Stage 1: Presentation (10–12 min)">👩‍🏫 Инструкция для преподавателя · Stage 1: Presentation (10–12 мин)</h3>
+              <button type="button" class="chip-btn" onclick="toggleTeacherGuide('presentation')"
+                      data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ Закрыть</button>
+            </div>
+            <div class="teacher-guide-grid">
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>1. Цель и золотое правило CELTA (Direct Method):</strong><br/>Ввести 12 слов по формуле <strong>MPF (Meaning → Pronunciation → Form)</strong> строго без перевода на русский/английский. Значение передаётся только через картинку и жест на себе (приём <em>TPR — Total Physical Response</em>)."
+                   data-i18n-en="<strong>1. Stage Aim &amp; CELTA Direct Method Rule:</strong><br/>Introduce the 12 target words via <strong>MPF (Meaning → Pronunciation → Form)</strong> with zero translation. Convey meaning purely through the visual illustration and pointing to yourself (<em>TPR — Total Physical Response</em>).">
+                <strong>1. Цель и золотое правило CELTA (Direct Method):</strong><br/>Ввести 12 слов по формуле <strong>MPF (Meaning → Pronunciation → Form)</strong> строго без перевода на русский/английский. Значение передаётся только через картинку и жест на себе (приём <em>TPR — Total Physical Response</em>).
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>2. Шаг А — Режим «1. Пошагово (по 2 слова)» (5 мин):</strong><br/>Открывайте по 2 слова за раз (например, <code>शीर्ष · ललाट</code>). Сначала покажите жест на себе → нажмите <code>🔊</code> 2–3 раза → проведите <strong>Choral Drill</strong> (повторение хором всеми учениками), затем <strong>Individual Drill</strong> (по одному). Следите за долготой гласных (<code>नासिका, शीर्ष, भ्रू, पाद, अङ्गुली</code>) и чётким конечным <code>-a</code>."
+                   data-i18n-en="<strong>2. Step A — Mode 1: Step-by-Step (2 Words at a time, 5 min):</strong><br/>Present 2 words per step (e.g., <code>शीर्ष · ललाट</code>). First point on yourself → play <code>🔊</code> 2–3 times → run a <strong>Choral Drill</strong> (whole class) followed by <strong>Individual Drills</strong>. Monitor vowel length (<code>नासिका, शीर्ष, भ्रू, पाद, अङ्गुली</code>) and the final <code>-a</code>.">
+                <strong>2. Шаг А — Режим «1. Пошагово (по 2 слова)» (5 мин):</strong><br/>Открывайте по 2 слова за раз (например, <code>शीर्ष · ललाट</code>). Сначала покажите жест на себе → нажмите <code>🔊</code> 2–3 раза → проведите <strong>Choral Drill</strong> (повторение хором всеми учениками), затем <strong>Individual Drill</strong> (по одному). Следите за долготой гласных (<code>नासिका, शीर्ष, भ्रू, पाद, अङ्गुली</code>) и чётким конечным <code>-a</code>.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>3. Шаг Б — Режимы «2. Схема тела» и «3. Сначала звук 🔊» (4 мин):</strong><br/>Переключитесь на «2. Схема тела (Hotspots)»: называйте номер точки вразброс (например, №4 или №11) и просите ученика назвать слово до нажатия на кружок. В режиме «3. Сначала звук 🔊» ученики сначала повторяют слово на слух и лишь затем открывают написание в деванагари."
+                   data-i18n-en="<strong>3. Step B — Modes 2 (Hotspots) &amp; 3 (Audio-First) (4 min):</strong><br/>Switch to '2. Body Diagram (Hotspots)': call out marker numbers at random (e.g., #4 or #11) and elicit the word before clicking. In '3. Audio-First 🔊', students hear and repeat the word from the picture before revealing the Devanagari script.">
+                <strong>3. Шаг Б — Режимы «2. Схема тела» и «3. Сначала звук 🔊» (4 мин):</strong><br/>Переключитесь на «2. Схема тела (Hotspots)»: называйте номер точки вразброс (например, №4 или №11) и просите ученика назвать слово до нажатия на кружок. В режиме «3. Сначала звук 🔊» ученики сначала повторяют слово на слух и лишь затем открывают написание в деванагари.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>4. Шаг В — Проверка понимания и памяти (CCQs, 2 мин):</strong><br/>Откройте «4. Плакат (все 12 слов)», нажмите <code>🟪 Закрыть часть слова ■</code>, а затем <code>🙈 Скрыть подписи</code>. Указывайте на карточки в случайном порядке: если группа уверенно называет 9–10 слов из 12, переходите к стадии <strong>Practice</strong>."
+                   data-i18n-en="<strong>4. Step C — Concept &amp; Recall Check (CCQs, 2 min):</strong><br/>Open '4. Full Poster (All 12)', click <code>🟪 Cover Part of Word ■</code>, and then <code>🙈 Hide Labels</code>. Point to cards randomly: once learners can recall 9–10 out of 12 words, transition to <strong>Practice</strong>.">
+                <strong>4. Шаг В — Проверка понимания и памяти (CCQs, 2 мин):</strong><br/>Откройте «4. Плакат (все 12 слов)», нажмите <code>🟪 Закрыть часть слова ■</code>, а затем <code>🙈 Скрыть подписи</code>. Указывайте на карточки в случайном порядке: если группа уверенно называет 9–10 слов из 12, переходите к стадии <strong>Practice</strong>.
+              </div>
+            </div>
           </div>
 
           <!-- Presentation Mode Switcher (4 CELTA Modes, Step-by-Step default) -->
@@ -222,11 +258,15 @@
         </div>
       </section>
 
-      <!-- STAGE 2: PRACTICE (7 SIMPLE ELT GAMES) -->
+      <!-- STAGE 2: PRACTICE -->
       <section id="ppp-practice" class="section-alt">
         <div class="container">
           <div class="section-header" style="margin-bottom:2rem;">
-            <div class="eyebrow saffron" data-i18n-ru="STAGE 2: PRACTICE · ПРОСТЫЕ ИГРЫ ДЛЯ ЗАПОМИНАНИЯ" data-i18n-en="STAGE 2: PRACTICE · SIMPLE GAMES FOR MEMORIZATION">STAGE 2: PRACTICE · ПРОСТЫЕ ИГРЫ ДЛЯ ЗАПОМИНАНИЯ</div>
+            <div class="stage-eyebrow-row">
+              <div class="eyebrow saffron" data-i18n-ru="STAGE 2: PRACTICE · ПРОСТЫЕ ИГРЫ ДЛЯ ЗАПОМИНАНИЯ" data-i18n-en="STAGE 2: PRACTICE · SIMPLE GAMES FOR MEMORIZATION">STAGE 2: PRACTICE · ПРОСТЫЕ ИГРЫ ДЛЯ ЗАПОМИНАНИЯ</div>
+              <button type="button" class="teacher-guide-btn" id="tg-btn-practice" onclick="toggleTeacherGuide('practice')"
+                      data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
+            </div>
             <h2 class="section-title"
                 data-i18n-ru="Отработка лексики: Flashcards, Fill in the Gaps и другие быстрые игры"
                 data-i18n-en="Controlled Practice: Flashcards, Fill in the Gaps &amp; More Quick Games">
@@ -237,6 +277,38 @@
                data-i18n-en="Switch freely among classic CELTA classroom games — from flashcards and picture quizzes to gap-fills, matching pairs, and category drills:">
               Переключайтесь между классическими играми из практики CELTA — от простых флэш-карточек и угадывания по картинке до вставки пропущенных слогов и парных карточек:
             </p>
+          </div>
+
+          <!-- Teacher's Guide for Stage 2: Practice -->
+          <div id="teacher-guide-practice" class="teacher-guide-box">
+            <div class="teacher-guide-header">
+              <h3 data-i18n-ru="👩‍🏫 Инструкция для преподавателя · Stage 2: Practice (15–20 мин)"
+                  data-i18n-en="👩‍🏫 Teacher's Guide · Stage 2: Practice (15–20 min)">👩‍🏫 Инструкция для преподавателя · Stage 2: Practice (15–20 мин)</h3>
+              <button type="button" class="chip-btn" onclick="toggleTeacherGuide('practice')"
+                      data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ Закрыть</button>
+            </div>
+            <div class="teacher-guide-grid">
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>1. Цель этапа (Controlled Practice &amp; Accuracy):</strong><br/>Автоматизировать распознавание и точное написание всех 12 слов по принципу <strong>Scaffolding (от простого узнавания к полному воспроизведению по памяти)</strong>. Исправляйте ошибки сразу на месте (<em>On-the-spot correction</em>)."
+                   data-i18n-en="<strong>1. Stage Aim (Controlled Practice &amp; Accuracy):</strong><br/>Build instant recognition and accurate Devanagari spelling of all 12 words using <strong>Scaffolding (from recognition to full active recall)</strong>. Use immediate <em>on-the-spot error correction</em>.">
+                <strong>1. Цель этапа (Controlled Practice &amp; Accuracy):</strong><br/>Автоматизировать распознавание и точное написание всех 12 слов по принципу <strong>Scaffolding (от простого узнавания к полному воспроизведению по памяти)</strong>. Исправляйте ошибки сразу на месте (<em>On-the-spot correction</em>).
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>2. Волна 1 — Быстрое узнавание (Игры 4, 5, 8, 12 · 5 мин):</strong><br/>Начните с <strong>4. Picture Quiz</strong>, <strong>5. Read &amp; Match</strong> и <strong>12. आम् / न</strong> в высоком темпе (3–4 сек на ответ). Затем включите <strong>8. Где ошибка? (3 картинки)</strong> — ученики находят неверно подписанную картинку и называют правильное слово вслух."
+                   data-i18n-en="<strong>2. Wave 1 — Rapid Recognition (Games 4, 5, 8, 12 · 5 min):</strong><br/>Start with <strong>4. Picture Quiz</strong>, <strong>5. Word → Picture</strong>, and <strong>12. आम् / न</strong> at a brisk pace (3–4 sec per item). Then run <strong>8. Spot the Wrong Word (3 Pics)</strong> so students spot the mislabeled picture and say the true word aloud.">
+                <strong>2. Волна 1 — Быстрое узнавание (Игры 4, 5, 8, 12 · 5 мин):</strong><br/>Начните с <strong>4. Picture Quiz</strong>, <strong>5. Read &amp; Match</strong> и <strong>12. आम् / न</strong> в высоком темпе (3–4 сек на ответ). Затем включите <strong>8. Где ошибка? (3 картинки)</strong> — ученики находят неверно подписанную картинку и называют правильное слово вслух.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>3. Волна 2 — Внимание к буквам и слогам (Игры 3, 9, 11 · 5 мин):</strong><br/>Перейдите к <strong>9. Ошибка в 1 букве</strong> (зоркость к долготе гласных: <code>नसिका → नासिका</code>, <code>पद → पाद</code>), а затем к <strong>3. Fill in the Gaps</strong> и <strong>11. Missing Letters</strong>, где нужно выбрать правильный слог (согласная + гласная)."
+                   data-i18n-en="<strong>3. Wave 2 — Script &amp; Syllable Precision (Games 3, 9, 11 · 5 min):</strong><br/>Move to <strong>9. Spot the 1-Letter Typo</strong> (training sensitivity to vowel length: <code>नसिका → नासिका</code>, <code>पद → पाद</code>), followed by <strong>3. Fill in the Gaps</strong> and <strong>11. Missing Letters</strong> to drill consonant + vowel syllables.">
+                <strong>3. Волна 2 — Внимание к буквам и слогам (Игры 3, 9, 11 · 5 мин):</strong><br/>Перейдите к <strong>9. Ошибка в 1 букве</strong> (зоркость к долготе гласных: <code>नसिका → नासिका</code>, <code>पद → पाद</code>), а затем к <strong>3. Fill in the Gaps</strong> и <strong>11. Missing Letters</strong>, где нужно выбрать правильный слог (согласная + гласная).
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>4. Волна 3 — Память без подсказок (Игры 6, 7, 10 → 1, 2 · 6 мин):</strong><br/>Сыграйте в <strong>6. Match Pairs</strong>, <strong>7. Мемори</strong> и <strong>10. Категории (Выбери из 12)</strong> (анализ всех 12 слов без картинок). В финале проведите <strong>1. Закрыто квадратом ■</strong> и <strong>2. Flashcards</strong> до результата <code>10–12 из 12 правильно</code>."
+                   data-i18n-en="<strong>4. Wave 3 — Unprompted Recall (Games 6, 7, 10 → 1, 2 · 6 min):</strong><br/>Play <strong>6. Match Pairs</strong>, <strong>7. Classic Memory</strong>, and <strong>10. Categories (Pick from 12)</strong> (sorting all 12 words with no pictures). Finish with <strong>1. Covered Square ■</strong> and <strong>2. Flashcards</strong> until learners score <code>10–12 out of 12</code>.">
+                <strong>4. Волна 3 — Память без подсказок (Игры 6, 7, 10 → 1, 2 · 6 мин):</strong><br/>Сыграйте в <strong>6. Match Pairs</strong>, <strong>7. Мемори</strong> и <strong>10. Категории (Выбери из 12)</strong> (анализ всех 12 слов без картинок). В финале проведите <strong>1. Закрыто квадратом ■</strong> и <strong>2. Flashcards</strong> до результата <code>10–12 из 12 правильно</code>.
+              </div>
+            </div>
           </div>
 
           <!-- 9 Game Selector Buttons -->
@@ -278,7 +350,11 @@
       <section id="ppp-production">
         <div class="container">
           <div class="section-header" style="margin-bottom:2rem;">
-            <div class="eyebrow gold" data-i18n-ru="STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ" data-i18n-en="STAGE 3: PRODUCTION · FREER SPEAKING">STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ</div>
+            <div class="stage-eyebrow-row">
+              <div class="eyebrow gold" data-i18n-ru="STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ" data-i18n-en="STAGE 3: PRODUCTION · FREER SPEAKING">STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ</div>
+              <button type="button" class="teacher-guide-btn" id="tg-btn-production" onclick="toggleTeacherGuide('production')"
+                      data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
+            </div>
             <h2 class="section-title"
                 data-i18n-ru="Живая речь: покажите у себя и назовите вслух все 12 частей тела"
                 data-i18n-en="Freer Production: Point &amp; Name All 12 Body Parts Aloud">
@@ -289,6 +365,38 @@
                data-i18n-en="The final stage of the <strong>PPP</strong> cycle (<strong>Production</strong>): select each of the 12 body parts, point to it on yourself, and speak the Sanskrit stem word aloud!">
               Финальный этап урока по схеме <strong>PPP (Production)</strong>: выбирайте каждую из 12 частей тела, указывайте на неё у себя и уверенно произносите чистую основу слова на санскрите вслух!
             </p>
+          </div>
+
+          <!-- Teacher's Guide for Stage 3: Production -->
+          <div id="teacher-guide-production" class="teacher-guide-box">
+            <div class="teacher-guide-header">
+              <h3 data-i18n-ru="👩‍🏫 Инструкция для преподавателя · Stage 3: Production (10–15 мин)"
+                  data-i18n-en="👩‍🏫 Teacher's Guide · Stage 3: Production (10–15 min)">👩‍🏫 Инструкция для преподавателя · Stage 3: Production (10–15 мин)</h3>
+              <button type="button" class="chip-btn" onclick="toggleTeacherGuide('production')"
+                      data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ Закрыть</button>
+            </div>
+            <div class="teacher-guide-grid">
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>1. Цель этапа (Freer Production &amp; Fluency):</strong><br/>Вывести все 12 слов в свободную устную речь без опоры на шпаргалки. Главный принцип CELTA на этом этапе — <strong>максимум речи учеников (High STT) и минимум вмешательства учителя (Low TTT)</strong>."
+                   data-i18n-en="<strong>1. Stage Aim (Freer Production &amp; Fluency):</strong><br/>Activate all 12 words in spontaneous spoken interaction without written prompts. Follow the core CELTA principle: <strong>maximize Student Talking Time (High STT) and minimize Teacher Talking Time (Low TTT)</strong>.">
+                <strong>1. Цель этапа (Freer Production &amp; Fluency):</strong><br/>Вывести все 12 слов в свободную устную речь без опоры на шпаргалки. Главный принцип CELTA на этом этапе — <strong>максимум речи учеников (High STT) и минимум вмешательства учителя (Low TTT)</strong>.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>2. Активность А — «Живое зеркало» в парах (Pair TPR, 4 мин):</strong><br/>Ученики работают в парах (или 1-на-1 с преподавателем). <strong>Ученик А</strong> молча указывает на любую часть своего тела (например, на бровь или стопу), а <strong>Ученик Б</strong> мгновенно называет её на санскрите (<code>भ्रू!</code>, <code>पाद!</code>). Через 6 слов меняются ролями."
+                   data-i18n-en="<strong>2. Activity A — 'Living Mirror' in Pairs (Pair TPR, 4 min):</strong><br/>Students work in pairs (or 1-on-1 with the teacher). <strong>Partner A</strong> silently points to a body part on themselves (e.g., eyebrow or foot), and <strong>Partner B</strong> names it immediately in Sanskrit (<code>भ्रू!</code>, <code>पाद!</code>). Swap roles after 6 words.">
+                <strong>2. Активность А — «Живое зеркало» в парах (Pair TPR, 4 мин):</strong><br/>Ученики работают в парах (или 1-на-1 с преподавателем). <strong>Ученик А</strong> молча указывает на любую часть своего тела (например, на бровь или стопу), а <strong>Ученик Б</strong> мгновенно называет её на санскрите (<code>भ्रू!</code>, <code>पाद!</code>). Через 6 слов меняются ролями.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>3. Активность Б — «Ловушка ведущего» (Sanskrit Simon Says, 4 мин):</strong><br/>Ведущий быстро называет слово вслух (например, <code>कर्ण!</code>), но сам при этом намеренно касается <em>другой</em> части тела (например, носа). Ученики должны слушать ушами, коснуться правильной части тела и хором повторить <code>कर्ण!</code>."
+                   data-i18n-en="<strong>3. Activity B — 'Listen, Don't Copy!' (Sanskrit Simon Says, 4 min):</strong><br/>The leader calls out a word rapidly (e.g., <code>कर्ण!</code>) while deliberately touching a <em>different</em> body part (e.g., the nose). Learners must rely on their ears, touch the true body part, and repeat <code>कर्ण!</code> aloud.">
+                <strong>3. Активность Б — «Ловушка ведущего» (Sanskrit Simon Says, 4 мин):</strong><br/>Ведущий быстро называет слово вслух (например, <code>कर्ण!</code>), но сам при этом намеренно касается <em>другой</em> части тела (например, носа). Ученики должны слушать ушами, коснуться правильной части тела и хором повторить <code>कर्ण!</code>.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>4. Активность В — Индивидуальный зачёт 12/12 и разбор ошибок (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже, громко называя и отмечая все 12 слов до результата <code>12 из 12 правильно</code>. Не перебивайте ученика на полуслове — запишите неточности и проведите короткий разбор в самом конце (<em>Delayed Error Correction</em>)."
+                   data-i18n-en="<strong>4. Activity C — Individual 12/12 Check &amp; Delayed Feedback (4 min):</strong><br/>Each learner completes the checklist below aloud up to <code>12 out of 12 correct</code>. Avoid interrupting during fluency practice — note any pronunciation slips and review them briefly at the end (<em>Delayed Error Correction</em>).">
+                <strong>4. Активность В — Индивидуальный зачёт 12/12 и разбор ошибок (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже, громко называя и отмечая все 12 слов до результата <code>12 из 12 правильно</code>. Не перебивайте ученика на полуслове — запишите неточности и проведите короткий разбор в самом конце (<em>Delayed Error Correction</em>).
+              </div>
+            </div>
           </div>
 
           <div id="lesson1-production-stage" class="practice-arena">
@@ -1112,7 +1220,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=29"></script>
-  <script src="app.js?v=29"></script>
+  <script src="lesson1.js?v=30"></script>
+  <script src="app.js?v=30"></script>
 </body>
 </html>
