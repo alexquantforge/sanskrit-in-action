@@ -14,6 +14,8 @@ const bodyPartsVocab = [
     deva: 'नयन',
     iast: 'nayana',
     ttsText: 'नयना',
+    typoDeva: 'नयान',
+    typoIast: 'nayāna',
     maskedPrefix: 'नय',
     maskedHidden: 'न',
     missingDisplay: 'न _ न',
@@ -33,6 +35,8 @@ const bodyPartsVocab = [
     deva: 'नासिका',
     iast: 'nāsikā',
     ttsText: 'नासिका',
+    typoDeva: 'नसिका',
+    typoIast: 'nasikā',
     maskedPrefix: 'नासि',
     maskedHidden: 'का',
     missingDisplay: 'ना _ का',
@@ -50,6 +54,8 @@ const bodyPartsVocab = [
     deva: 'जिह्वा',
     iast: 'jihvā',
     ttsText: 'जिह्वा',
+    typoDeva: 'जिह्व',
+    typoIast: 'jihva',
     maskedPrefix: 'जि',
     maskedHidden: 'ह्वा',
     missingDisplay: 'जि _',
@@ -67,6 +73,8 @@ const bodyPartsVocab = [
     deva: 'कर्ण',
     iast: 'karṇa',
     ttsText: 'कर्णा',
+    typoDeva: 'कर्न',
+    typoIast: 'karna',
     maskedPrefix: 'क',
     maskedHidden: 'र्ण',
     missingDisplay: 'क _',
@@ -84,6 +92,8 @@ const bodyPartsVocab = [
     deva: 'शीर्ष',
     iast: 'śīrṣa',
     ttsText: 'शीर्षा',
+    typoDeva: 'शिर्ष',
+    typoIast: 'śirṣa',
     maskedPrefix: 'शी',
     maskedHidden: 'र्ष',
     missingDisplay: 'शी _',
@@ -105,6 +115,8 @@ const bodyPartsVocab = [
     deva: 'ललाट',
     iast: 'lalāṭa',
     ttsText: 'ललाटा',
+    typoDeva: 'ललट',
+    typoIast: 'lalaṭa',
     maskedPrefix: 'लला',
     maskedHidden: 'ट',
     missingDisplay: 'ल _ ट',
@@ -124,6 +136,8 @@ const bodyPartsVocab = [
     deva: 'भ्रू',
     iast: 'bhrū',
     ttsText: 'भ्रू',
+    typoDeva: 'भ्रु',
+    typoIast: 'bhru',
     maskedPrefix: 'भ्र',
     maskedHidden: 'ू',
     missingDisplay: '_ → भ्रू',
@@ -142,6 +156,8 @@ const bodyPartsVocab = [
     deva: 'ओष्ठ',
     iast: 'oṣṭha',
     ttsText: 'ओष्ठा',
+    typoDeva: 'ओष्ट',
+    typoIast: 'oṣṭa',
     maskedPrefix: 'ओ',
     maskedHidden: 'ष्ठ',
     missingDisplay: 'ओ _',
@@ -158,6 +174,8 @@ const bodyPartsVocab = [
     deva: 'कर',
     iast: 'kara',
     ttsText: 'करा',
+    typoDeva: 'कार',
+    typoIast: 'kāra',
     maskedPrefix: 'क',
     maskedHidden: 'र',
     missingDisplay: 'क _',
@@ -173,6 +191,8 @@ const bodyPartsVocab = [
     deva: 'पाद',
     iast: 'pāda',
     ttsText: 'पादा',
+    typoDeva: 'पद',
+    typoIast: 'pada',
     maskedPrefix: 'पा',
     maskedHidden: 'द',
     missingDisplay: 'पा _',
@@ -188,6 +208,8 @@ const bodyPartsVocab = [
     deva: 'दन्त',
     iast: 'danta',
     ttsText: 'दन्ता',
+    typoDeva: 'दान्त',
+    typoIast: 'dānta',
     maskedPrefix: 'द',
     maskedHidden: 'न्त',
     missingDisplay: 'द _ त',
@@ -203,6 +225,8 @@ const bodyPartsVocab = [
     deva: 'अङ्गुली',
     iast: 'aṅgulī',
     ttsText: 'अङ्गुली',
+    typoDeva: 'अङ्गुलि',
+    typoIast: 'aṅguli',
     maskedPrefix: 'अङ्गु',
     maskedHidden: 'ली',
     missingDisplay: 'अ _ ली',
@@ -268,6 +292,12 @@ let wlIndex = 0;
 let wlScore = 0;
 let wlAnswered = false;
 let wlCards = [];
+
+// Spot the Single-Letter Typo (3 Pictures, 1 Word has a 1-letter spelling error, 12 Rounds) game state
+let typoIndex = 0;
+let typoScore = 0;
+let typoAnswered = false;
+let typoCards = [];
 
 // Production state: track which of the 12 words the student has spoken
 let producedWordsSet = new Set(['nayana']);
@@ -409,6 +439,8 @@ function selectPracticeGame(gameKey) {
     if (memoryCards.length === 0) initMemoryGame();
   } else if (gameKey === 'wronglabel') {
     if (wlCards.length === 0) prepareWrongLabelRound();
+  } else if (gameKey === 'typo') {
+    if (typoCards.length === 0) prepareTypoRound();
   } else if (gameKey === 'truefalse') {
     prepareTrueFalseRound();
   }
@@ -435,6 +467,8 @@ function renderPracticeArena() {
     renderMemoryGame(arena);
   } else if (currentPracticeGame === 'wronglabel') {
     renderWrongLabelGame(arena);
+  } else if (currentPracticeGame === 'typo') {
+    renderTypoGame(arena);
   } else if (currentPracticeGame === 'spelling') {
     renderSpellingGame(arena);
   } else if (currentPracticeGame === 'truefalse') {
@@ -1274,6 +1308,96 @@ function nextWrongLabelRound() {
   renderPracticeArena();
 }
 
+// GAME 11: Spot the 1-Letter Spelling Mistake (3 Pictures, 1 has a 1-letter typo like नसिका instead of नासिका — 12 rounds)
+function prepareTypoRound() {
+  typoAnswered = false;
+  const n = bodyPartsVocab.length;
+  const typoItem = bodyPartsVocab[typoIndex];
+  const correct1 = bodyPartsVocab[(typoIndex + 3) % n];
+  const correct2 = bodyPartsVocab[(typoIndex + 7) % n];
+
+  const rawCards = [
+    { item: typoItem, displayedDeva: typoItem.typoDeva, displayedIast: typoItem.typoIast, hasTypo: true },
+    { item: correct1, displayedDeva: correct1.deva, displayedIast: correct1.iast, hasTypo: false },
+    { item: correct2, displayedDeva: correct2.deva, displayedIast: correct2.iast, hasTypo: false }
+  ];
+
+  const shift = (typoIndex * 7 + 2) % 3;
+  typoCards = [
+    rawCards[shift % 3],
+    rawCards[(shift + 1) % 3],
+    rawCards[(shift + 2) % 3]
+  ];
+}
+
+function renderTypoGame(arena) {
+  if (typoCards.length === 0) prepareTypoRound();
+
+  const cardsHtml = typoCards.map((c, idx) => {
+    const showCorrection = typoAnswered && c.hasTypo;
+    return `
+      <button type="button" class="quiz-opt-btn" id="typo-card-${idx}" onclick="checkTypoCard(${idx})"
+              style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.item.svg}</div>
+        ${!showCorrection ? `
+          <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.displayedDeva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.displayedIast}</div>
+        ` : `
+          <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">${c.displayedDeva}</div>
+          <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.item.deva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:#15803d;">${c.item.iast}</div>
+        `}
+      </button>
+    `;
+  }).join('');
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div>
+        <strong style="font-size:1.05rem;">3 🖼 → 1 आ/अ ✕</strong>
+      </div>
+      <span class="game-score-pill">${typoScore} · (${typoIndex + 1}/${bodyPartsVocab.length})</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">
+      ${cardsHtml}
+    </div>
+
+    <div id="typo-feedback-msg" style="margin-top:1.15rem;text-align:center;"></div>
+  `;
+}
+
+function checkTypoCard(idx) {
+  if (typoAnswered) return;
+  const chosen = typoCards[idx];
+  const btn = document.getElementById('typo-card-' + idx);
+  if (!chosen) return;
+
+  if (chosen.hasTypo) {
+    typoAnswered = true;
+    typoScore++;
+    speakSanskritWord(chosen.item.ttsText);
+    renderPracticeArena();
+    const matchedBtn = document.getElementById('typo-card-' + idx);
+    if (matchedBtn) matchedBtn.classList.add('correct');
+    const feedbackEl = document.getElementById('typo-feedback-msg');
+    if (feedbackEl) {
+      feedbackEl.innerHTML = `
+        <button type="button" class="chip-btn active" onclick="nextTypoRound()">→</button>
+      `;
+    }
+  } else {
+    if (btn) btn.classList.add('wrong');
+    speakSanskritWord(chosen.item.ttsText);
+  }
+}
+
+function nextTypoRound() {
+  typoIndex = (typoIndex + 1) % bodyPartsVocab.length;
+  prepareTypoRound();
+  renderPracticeArena();
+}
+
 // 3. Render Stage 3: PRODUCTION (Direct Picture + Sanskrit Word Aloud — zero translations)
 function selectProductionWord(wordId) {
   activeProdWordId = wordId;
@@ -1338,6 +1462,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMatchGame();
   initMemoryGame();
   prepareWrongLabelRound();
+  prepareTypoRound();
   prepareTrueFalseRound();
   refreshLesson1();
 });
