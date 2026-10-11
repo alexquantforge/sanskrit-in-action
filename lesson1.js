@@ -2460,6 +2460,7 @@ let prodSprintIndex = 0;
 let prodSprintScore = 0;
 let prodSprintDuration = 4;
 let prodSprintTimeLeft = 4;
+let prodSprintAutoTimer = true; // Default: 2nd option (Timer starts automatically)
 let prodSprintRunning = false;
 let prodSprintRevealed = false;
 let prodSprintFinished = false;
@@ -2518,15 +2519,34 @@ function selectProductionMode(mode) {
   document.querySelectorAll('.practice-tab-btn[data-prod-mode]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.prodMode === mode);
   });
-  renderProductionStage();
+  if (mode === 'sprint' && prodSprintAutoTimer && !prodSprintFinished && !prodSprintRevealed) {
+    startProdSprintTimer();
+  } else {
+    renderProductionStage();
+  }
 }
 
 // MODE 1: Speed Sprint ⏱ (See picture only -> Say word aloud before timer hits 0 -> Check with audio)
+function setProdSprintAutoTimer(isAuto) {
+  stopAllProductionTimers();
+  prodSprintAutoTimer = isAuto;
+  if (prodSprintAutoTimer && !prodSprintFinished && !prodSprintRevealed) {
+    startProdSprintTimer();
+  } else {
+    prodSprintTimeLeft = prodSprintDuration;
+    renderProductionStage();
+  }
+}
+
 function setProdSprintDuration(sec) {
   stopAllProductionTimers();
   prodSprintDuration = sec;
   prodSprintTimeLeft = sec;
-  renderProductionStage();
+  if (prodSprintAutoTimer && !prodSprintFinished && !prodSprintRevealed) {
+    startProdSprintTimer();
+  } else {
+    renderProductionStage();
+  }
 }
 
 function startProdSprintTimer() {
@@ -2560,12 +2580,17 @@ function gradeProdSprintCard(knewIt) {
   if (knewIt) prodSprintScore++;
   if (prodSprintIndex + 1 >= bodyPartsVocab.length) {
     prodSprintFinished = true;
+    renderProductionStage();
   } else {
     prodSprintIndex++;
     prodSprintRevealed = false;
     prodSprintTimeLeft = prodSprintDuration;
+    if (prodSprintAutoTimer) {
+      startProdSprintTimer();
+    } else {
+      renderProductionStage();
+    }
   }
-  renderProductionStage();
 }
 
 function restartProdSprint() {
@@ -2575,7 +2600,11 @@ function restartProdSprint() {
   prodSprintRevealed = false;
   prodSprintFinished = false;
   prodSprintTimeLeft = prodSprintDuration;
-  renderProductionStage();
+  if (prodSprintAutoTimer) {
+    startProdSprintTimer();
+  } else {
+    renderProductionStage();
+  }
 }
 
 function renderProdSprintMode(container) {
@@ -2587,6 +2616,8 @@ function renderProdSprintMode(container) {
 
   const item = bodyPartsVocab[prodSprintIndex];
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+  const manualModeLabel = currentLang === 'ru' ? '✋ Таймер вручную' : '✋ Manual Timer';
+  const autoModeLabel = currentLang === 'ru' ? '⚡ Авто-таймер' : '⚡ Auto Timer';
   const startTimerText = currentLang === 'ru'
     ? `▶ Запустить таймер (${prodSprintDuration} сек)`
     : `▶ Start Timer (${prodSprintDuration}s)`;
@@ -2598,7 +2629,13 @@ function renderProdSprintMode(container) {
   container.innerHTML = `
     <div class="game-top-bar">
       <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
-        <strong style="font-size:1.05rem;margin-right:0.3rem;">⏱</strong>
+        <button type="button" class="chip-btn ${!prodSprintAutoTimer ? 'active' : ''}" onclick="setProdSprintAutoTimer(false)">
+          ${manualModeLabel}
+        </button>
+        <button type="button" class="chip-btn ${prodSprintAutoTimer ? 'active' : ''}" onclick="setProdSprintAutoTimer(true)">
+          ${autoModeLabel}
+        </button>
+        <span style="color:var(--border-strong);margin:0 0.15rem;">|</span>
         <button type="button" class="chip-btn ${prodSprintDuration === 4 ? 'active' : ''}" onclick="setProdSprintDuration(4)">4s</button>
         <button type="button" class="chip-btn ${prodSprintDuration === 3 ? 'active' : ''}" onclick="setProdSprintDuration(3)">3s</button>
         <button type="button" class="chip-btn ${prodSprintDuration === 2 ? 'active' : ''}" onclick="setProdSprintDuration(2)">2s</button>
@@ -3089,4 +3126,22 @@ document.addEventListener('DOMContentLoaded', () => {
   prepareTypoRound();
   prepareTrueFalseRound();
   refreshLesson1();
+
+  const prodEl = document.getElementById('lesson1-production-stage');
+  if (prodEl && 'IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (currentProductionMode === 'sprint' && prodSprintAutoTimer && !prodSprintRunning && !prodSprintRevealed && !prodSprintFinished) {
+            startProdSprintTimer();
+          }
+        } else if (currentProductionMode === 'sprint' && prodSprintRunning) {
+          stopAllProductionTimers();
+          prodSprintTimeLeft = prodSprintDuration;
+          renderProductionStage();
+        }
+      });
+    }, { threshold: 0.35 });
+    obs.observe(prodEl);
+  }
 });
