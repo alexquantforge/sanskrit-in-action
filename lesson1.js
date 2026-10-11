@@ -404,18 +404,20 @@ const presentationSteps = [
 ];
 
 const hotspotPositions = [
-  { id: 'shirsha', num: 1, x: 180, y: 30 },
-  { id: 'lalata',  num: 2, x: 180, y: 68 },
-  { id: 'bhru',    num: 3, x: 142, y: 92 },
-  { id: 'nayana',  num: 4, x: 218, y: 112 },
-  { id: 'nasika',  num: 5, x: 180, y: 138 },
-  { id: 'karna',   num: 6, x: 96,  y: 132 },
-  { id: 'ostha',   num: 7, x: 142, y: 182 },
-  { id: 'danta',   num: 8, x: 180, y: 173 },
-  { id: 'jihva',   num: 9, x: 212, y: 192 },
-  { id: 'kara',    num: 10, x: 82, y: 295 },
-  { id: 'anguli',  num: 11, x: 46, y: 335 },
-  { id: 'pada',    num: 12, x: 235, y: 398 }
+  // Picture 1: Face & Head close-up (pins 2..9) — badges placed in margins with leader lines so pupils & features are never covered
+  { id: 'lalata',  num: 2, pic: 'face', x: 160, y: 24,  tx: 160, ty: 76 },
+  { id: 'bhru',    num: 3, pic: 'face', x: 56,  y: 86,  tx: 124, ty: 96 },
+  { id: 'nayana',  num: 4, pic: 'face', x: 266, y: 110, tx: 204, ty: 116 },
+  { id: 'nasika',  num: 5, pic: 'face', x: 266, y: 146, tx: 167, ty: 146 },
+  { id: 'karna',   num: 6, pic: 'face', x: 42,  y: 140, tx: 84,  ty: 140 },
+  { id: 'ostha',   num: 7, pic: 'face', x: 64,  y: 198, tx: 148, ty: 192 },
+  { id: 'danta',   num: 8, pic: 'face', x: 266, y: 180, tx: 170, ty: 178 },
+  { id: 'jihva',   num: 9, pic: 'face', x: 254, y: 218, tx: 163, ty: 186 },
+  // Picture 2: Full Standing Person with 2 Arms & 2 Legs (pins 1, 10, 11, 12)
+  { id: 'shirsha', num: 1,  pic: 'body', x: 246, y: 32,  tx: 176, ty: 32 },
+  { id: 'kara',    num: 10, pic: 'body', x: 46,  y: 118, tx: 88,  ty: 144 },
+  { id: 'anguli',  num: 11, pic: 'body', x: 46,  y: 176, tx: 71,  ty: 155 },
+  { id: 'pada',    num: 12, pic: 'body', x: 256, y: 232, tx: 198, ty: 238 }
 ];
 
 let labelsHidden = false;
@@ -760,31 +762,46 @@ function playCurrentStepAudio() {
   });
 }
 
+function renderHotspotPinGroupHtml(pos, activeId) {
+  const isCurrent = pos.id === activeId;
+  const item = bodyPartsVocab.find(w => w.id === pos.id);
+  const fill = isCurrent ? '#DC2626' : '#0F766E';
+  const r = isCurrent ? 13.5 : 11;
+  const stroke = isCurrent ? '#FEF08A' : '#FFFFFF';
+  const lineColor = isCurrent ? '#DC2626' : '#0F766E';
+
+  return `
+    <g style="cursor:pointer;" onclick="selectHotspotWord('${pos.id}')">
+      <line x1="${pos.x}" y1="${pos.y}" x2="${pos.tx}" y2="${pos.ty}" stroke="${lineColor}" stroke-width="${isCurrent ? '2.4' : '1.6'}" stroke-dasharray="${isCurrent ? 'none' : '3,2'}"/>
+      <circle cx="${pos.tx}" cy="${pos.ty}" r="${isCurrent ? '4.2' : '3'}" fill="${lineColor}" stroke="#FFFFFF" stroke-width="1.2"/>
+      ${isCurrent ? `<circle cx="${pos.x}" cy="${pos.y}" r="19" fill="rgba(220,38,38,0.2)"/>` : ''}
+      <circle cx="${pos.x}" cy="${pos.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2.2"/>
+      <text x="${pos.x}" y="${pos.y + 3.8}" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">${pos.num}</text>
+      <title>${item ? item.deva : ''}</title>
+    </g>
+  `;
+}
+
 function renderHotspotsPresentationHtml() {
+  const sortedPositions = [...hotspotPositions].sort((a, b) => a.num - b.num);
   const activeItem = bodyPartsVocab.find(w => w.id === activeHotspotId) || bodyPartsVocab[0];
   const activePos = hotspotPositions.find(p => p.id === activeItem.id) || hotspotPositions[0];
   const isRev = posterRevealedIds.has(activeItem.id);
   const wordHtml = posterMaskedMode
-    ? renderMaskedWordMarkup(activeItem, isRev, '2.35rem')
-    : `<div class="vocab-deva" style="font-size:2.35rem;">${activeItem.deva}</div>`;
+    ? renderMaskedWordMarkup(activeItem, isRev, '2.25rem')
+    : `<div class="vocab-deva" style="font-size:2.25rem;">${activeItem.deva}</div>`;
 
-  const pinsSvgHtml = hotspotPositions.map(pos => {
-    const isCurrent = pos.id === activeItem.id;
-    const item = bodyPartsVocab.find(w => w.id === pos.id);
-    const fill = isCurrent ? '#DC2626' : '#0F766E';
-    const r = isCurrent ? 14 : 11;
-    const stroke = isCurrent ? '#FEF08A' : '#FFFFFF';
-    return `
-      <g style="cursor:pointer;" onclick="selectHotspotWord('${pos.id}')">
-        ${isCurrent ? `<circle cx="${pos.x}" cy="${pos.y}" r="20" fill="rgba(220,38,38,0.22)"/>` : ''}
-        <circle cx="${pos.x}" cy="${pos.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>
-        <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">${pos.num}</text>
-        <title>${item ? item.deva : ''}</title>
-      </g>
-    `;
-  }).join('');
+  const facePinsHtml = hotspotPositions
+    .filter(p => p.pic === 'face')
+    .map(pos => renderHotspotPinGroupHtml(pos, activeItem.id))
+    .join('');
 
-  const chipsHtml = hotspotPositions.map(pos => {
+  const bodyPinsHtml = hotspotPositions
+    .filter(p => p.pic === 'body')
+    .map(pos => renderHotspotPinGroupHtml(pos, activeItem.id))
+    .join('');
+
+  const chipsHtml = sortedPositions.map(pos => {
     const item = bodyPartsVocab.find(w => w.id === pos.id);
     if (!item) return '';
     const isCurrent = item.id === activeItem.id;
@@ -796,8 +813,10 @@ function renderHotspotsPresentationHtml() {
   }).join('');
 
   const hintText = currentLang === 'ru'
-    ? 'Нажимайте на точки 1–12 на схеме тела или на кнопки справа:'
-    : 'Click markers 1–12 on the body diagram or the buttons on the right:';
+    ? 'Нажимайте на точки 1–12 на двух рисунках (Лицо и Человек в полный рост) или на кнопки справа:'
+    : 'Click markers 1–12 on the two diagrams (Face Close-Up & Full Person) or the buttons on the right:';
+  const faceCaption = currentLang === 'ru' ? '1. Лицо крупным планом (2–9)' : '1. Face Close-Up (2–9)';
+  const bodyCaption = currentLang === 'ru' ? '2. Человек в полный рост (1, 10–12)' : '2. Full Person (1, 10–12)';
 
   return `
     <div style="background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:18px;padding:1.5rem;margin-bottom:2rem;box-shadow:var(--shadow-sm);">
@@ -805,73 +824,127 @@ function renderHotspotsPresentationHtml() {
         ${hintText}
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;align-items:center;">
-        <!-- Interactive SVG Body & Head Diagram with 12 Hotspots -->
-        <div style="background:var(--bg-primary);border:1.5px solid var(--border-color);border-radius:16px;padding:0.75rem;text-align:center;">
-          <svg viewBox="0 0 360 430" style="width:100%;max-width:340px;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Soft background aura -->
-            <rect x="8" y="8" width="344" height="414" rx="16" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(255px, 1fr));gap:1.15rem;align-items:stretch;">
+        <!-- PICTURE 1: Face Close-Up (gently smiling, uncovered pupils) -->
+        <div style="background:var(--bg-primary);border:1.5px solid ${activePos.pic === 'face' ? 'var(--accent-cambridge)' : 'var(--border-color)'};border-radius:16px;padding:0.75rem;text-align:center;">
+          <div style="font-size:0.82rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.4rem;">${faceCaption}</div>
+          <svg viewBox="0 0 320 260" style="width:100%;max-width:310px;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="6" width="308" height="248" rx="14" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
 
-            <!-- Torso, Arm/Hand (kara + anguli) & Leg/Foot (pada) -->
-            <path d="M135 222C115 228 96 248 86 278L68 308C58 318 46 326 42 334C38 341 46 346 56 340L72 328L60 347C56 353 64 357 70 349L82 332L76 350C74 356 82 358 86 350L96 326C104 306 116 282 128 266L134 335L226 335L232 256C254 256 266 238 245 224Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.5" stroke-linejoin="round"/>
-            <!-- Tunic / Kurta -->
-            <path d="M126 222C146 234 214 234 234 222L242 325H118L126 222Z" fill="#0F766E" stroke="#14213D" stroke-width="2.5"/>
-            <!-- Legs & Foot (pada) -->
-            <path d="M145 325V395C145 404 132 408 126 408" stroke="#14213D" stroke-width="10" stroke-linecap="round"/>
-            <path d="M210 325V388C210 396 225 398 248 398C258 398 264 393 256 388C244 382 226 382 222 375V325" fill="#F4C7AB" stroke="#14213D" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Neck & Shoulders hint -->
+            <path d="M134 210V238H186V210" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4"/>
+            <path d="M108 246C122 232 198 232 212 246" fill="#0F766E" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
 
             <!-- Ears (karna) -->
-            <ellipse cx="102" cy="132" rx="12" ry="20" fill="#F4C7AB" stroke="#14213D" stroke-width="2.8"/>
-            <ellipse cx="258" cy="132" rx="12" ry="20" fill="#F4C7AB" stroke="#14213D" stroke-width="2.8"/>
+            <ellipse cx="90" cy="140" rx="11" ry="19" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+            <path d="M88 132C84 136 84 144 88 148" stroke="#14213D" stroke-width="1.8" stroke-linecap="round"/>
+            <ellipse cx="230" cy="140" rx="11" ry="19" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+            <path d="M232 132C236 136 236 144 232 148" stroke="#14213D" stroke-width="1.8" stroke-linecap="round"/>
 
-            <!-- Head Oval (shirsha / lalata) -->
-            <ellipse cx="180" cy="128" rx="74" ry="88" fill="#F4C7AB" stroke="#14213D" stroke-width="3"/>
-            <!-- Hair Crown (shirsha) -->
-            <path d="M106 114C106 60 140 36 180 36C220 36 254 60 254 114C238 82 212 72 180 72C148 72 122 82 106 114Z" fill="#1E293B" stroke="#14213D" stroke-width="2.5"/>
+            <!-- Head / Face Oval -->
+            <ellipse cx="160" cy="136" rx="68" ry="82" fill="#F4C7AB" stroke="#14213D" stroke-width="2.8"/>
+
+            <!-- Hair -->
+            <path d="M92 120C92 68 122 46 160 46C198 46 228 68 228 120C214 88 190 78 160 78C130 78 106 88 92 120Z" fill="#1E293B" stroke="#14213D" stroke-width="2.4"/>
 
             <!-- Eyebrows (bhru) -->
-            <path d="M126 96C138 88 156 88 166 95" stroke="#1E293B" stroke-width="4.5" stroke-linecap="round"/>
-            <path d="M194 95C204 88 222 88 234 96" stroke="#1E293B" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M114 100C125 92 141 92 150 98" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+            <path d="M170 98C179 92 195 92 206 100" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
 
-            <!-- Eyes (nayana) -->
-            <ellipse cx="146" cy="112" rx="16" ry="10" fill="#FFFFFF" stroke="#14213D" stroke-width="2.5"/>
-            <circle cx="146" cy="112" r="5.5" fill="#1D4ED8"/>
-            <ellipse cx="214" cy="112" rx="16" ry="10" fill="#FFFFFF" stroke="#14213D" stroke-width="2.5"/>
-            <circle cx="214" cy="112" r="5.5" fill="#1D4ED8"/>
+            <!-- Eyes (nayana) — pupils & irises 100% uncovered! -->
+            <ellipse cx="132" cy="116" rx="15" ry="9.5" fill="#FFFFFF" stroke="#14213D" stroke-width="2.4"/>
+            <circle cx="132" cy="116" r="5.5" fill="#1D4ED8"/>
+            <circle cx="132" cy="116" r="2.6" fill="#0F172A"/>
+            <circle cx="130" cy="114" r="1.3" fill="#FFFFFF"/>
+
+            <ellipse cx="188" cy="116" rx="15" ry="9.5" fill="#FFFFFF" stroke="#14213D" stroke-width="2.4"/>
+            <circle cx="188" cy="116" r="5.5" fill="#1D4ED8"/>
+            <circle cx="188" cy="116" r="2.6" fill="#0F172A"/>
+            <circle cx="186" cy="114" r="1.3" fill="#FFFFFF"/>
 
             <!-- Nose (nasika) -->
-            <path d="M180 108V142C173 146 168 144 168 140M180 142C187 146 192 144 192 140" stroke="#14213D" stroke-width="2.8" stroke-linecap="round"/>
+            <path d="M160 112V145C153 149 149 147 149 143M160 145C167 149 171 147 171 143" stroke="#14213D" stroke-width="2.5" stroke-linecap="round"/>
 
-            <!-- Open Smiling Mouth with Lips (ostha), Teeth (danta), and Tongue (jihva) -->
-            <path d="M144 168C162 160 198 160 216 168C210 194 150 194 144 168Z" fill="#7F1D1D" stroke="#14213D" stroke-width="2.6"/>
+            <!-- Gentle Smile Mouth with Lips (ostha), Teeth (danta), and Tongue (jihva) -->
+            <path d="M132 172C148 167 172 167 188 172C183 196 137 196 132 172Z" fill="#7F1D1D" stroke="#14213D" stroke-width="2.4"/>
             <!-- Upper Teeth (danta) -->
-            <path d="M152 168H208V176C194 178 166 178 152 176V168Z" fill="#FFFFFF" stroke="#14213D" stroke-width="1.6"/>
+            <path d="M139 172H181V179C170 181 150 181 139 179V172Z" fill="#FFFFFF" stroke="#14213D" stroke-width="1.5"/>
             <!-- Tongue (jihva) -->
-            <path d="M164 182C170 176 190 176 196 182C198 194 162 194 164 182Z" fill="#FB7185" stroke="#14213D" stroke-width="1.8"/>
-            <!-- Upper & Lower Lip outline (ostha) -->
-            <path d="M142 167C160 158 200 158 218 167" stroke="#E11D48" stroke-width="4" stroke-linecap="round"/>
+            <path d="M148 185C154 180 166 180 172 185C174 194 146 194 148 185Z" fill="#FB7185" stroke="#14213D" stroke-width="1.6"/>
+            <!-- Gently smiling lips (ostha) -->
+            <path d="M129 171C146 165 174 165 191 171" stroke="#E11D48" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M133 173C146 197 174 197 187 173" stroke="#E11D48" stroke-width="3.4" stroke-linecap="round"/>
 
-            <!-- 12 Interactive Hotspot Pins -->
-            ${pinsSvgHtml}
+            <!-- Face Hotspot Pins (2..9) -->
+            ${facePinsHtml}
           </svg>
         </div>
 
-        <!-- Active Hotspot Close-up Card & 12 Selector Chips -->
-        <div>
-          <div class="vocab-item-card" onclick="handlePosterCardClick('${activeItem.id}', '${activeItem.ttsText}')" style="padding:1.6rem 1.25rem;margin-bottom:1rem;">
-            <span class="game-score-pill" style="position:absolute;top:0.75rem;left:0.75rem;">#${activePos.num} / 12</span>
+        <!-- PICTURE 2: Full Standing Person (2 arms/hands, 2 legs/feet, smiling, uncovered pupils) -->
+        <div style="background:var(--bg-primary);border:1.5px solid ${activePos.pic === 'body' ? 'var(--accent-cambridge)' : 'var(--border-color)'};border-radius:16px;padding:0.75rem;text-align:center;">
+          <div style="font-size:0.82rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.4rem;">${bodyCaption}</div>
+          <svg viewBox="0 0 320 260" style="width:100%;max-width:310px;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="6" width="308" height="248" rx="14" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
+
+            <!-- Left Arm & Hand (kara) with Fingers (anguli) -->
+            <path d="M132 84L96 132L86 142" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M132 84L96 132L86 142" stroke="#14213D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="86" cy="144" r="8" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+            <!-- 5 Left Hand Fingers (anguli) -->
+            <path d="M80 139L70 135 M78 143L67 144 M79 147L69 154 M83 150L76 160 M89 150L86 160" stroke="#14213D" stroke-width="2.6" stroke-linecap="round"/>
+
+            <!-- Right Arm & Hand (2nd arm/hand) -->
+            <path d="M188 84L224 132L234 142" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M188 84L224 132L234 142" stroke="#14213D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="234" cy="144" r="8" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+            <!-- 5 Right Hand Fingers -->
+            <path d="M240 139L250 135 M242 143L253 144 M241 147L251 154 M237 150L244 160 M231 150L234 160" stroke="#14213D" stroke-width="2.6" stroke-linecap="round"/>
+
+            <!-- Left Leg & Foot (1st leg) -->
+            <path d="M145 158V228" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round"/>
+            <path d="M139 158V226M151 158V226" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M151 226C151 234 146 240 136 240H120C115 240 114 234 120 231L139 225Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4" stroke-linejoin="round"/>
+
+            <!-- Right Leg & Foot (2nd leg — pada) -->
+            <path d="M175 158V228" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round"/>
+            <path d="M169 158V226M181 158V226" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M169 226C169 234 174 240 184 240H202C207 240 208 234 202 231L181 225Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4" stroke-linejoin="round"/>
+
+            <!-- Tunic / Kurta & Shorts -->
+            <path d="M130 78C144 85 176 85 190 78L196 154H124L130 78Z" fill="#0F766E" stroke="#14213D" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M132 154H188L186 184H163L160 168L157 184H134L132 154Z" fill="#1E3A5F" stroke="#14213D" stroke-width="2.3" stroke-linejoin="round"/>
+
+            <!-- Neck & Head (shirsha) with uncovered eyes & gentle smile -->
+            <rect x="153" y="68" width="14" height="12" rx="4" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+            <ellipse cx="160" cy="46" rx="22" ry="25" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+            <path d="M138 42C138 25 148 18 160 18C172 18 182 25 182 42C176 32 168 29 160 29C152 29 144 32 138 42Z" fill="#1E293B" stroke="#14213D" stroke-width="2.2"/>
+            <!-- Uncovered Eyes with Pupils -->
+            <circle cx="152" cy="44" r="2.3" fill="#0F172A"/>
+            <circle cx="168" cy="44" r="2.3" fill="#0F172A"/>
+            <!-- Gentle Smile -->
+            <path d="M152 55C156 60 164 60 168 55" stroke="#14213D" stroke-width="2.2" stroke-linecap="round"/>
+
+            <!-- Body Hotspot Pins (1, 10, 11, 12) -->
+            ${bodyPinsHtml}
+          </svg>
+        </div>
+
+        <!-- Active Hotspot Close-up Card -->
+        <div style="display:flex;flex-direction:column;justify-content:space-between;">
+          <div class="vocab-item-card" onclick="handlePosterCardClick('${activeItem.id}', '${activeItem.ttsText}')" style="padding:1.35rem 1rem;margin-bottom:0.85rem;">
+            <span class="game-score-pill" style="position:absolute;top:0.65rem;left:0.65rem;">#${activePos.num} / 12</span>
             <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${activeItem.ttsText}')">🔊</button>
-            <div class="vocab-svg-box" style="width:125px;height:125px;margin-bottom:0.65rem;">${activeItem.svg}</div>
+            <div class="vocab-svg-box" style="width:112px;height:112px;margin-bottom:0.5rem;">${activeItem.svg}</div>
             ${wordHtml}
-            <div class="vocab-iast" style="font-size:1.05rem;">${activeItem.iast}</div>
-            <div style="display:flex;justify-content:center;gap:0.6rem;margin-top:0.9rem;" onclick="event.stopPropagation();">
+            <div class="vocab-iast" style="font-size:1rem;">${activeItem.iast}</div>
+            <div style="display:flex;justify-content:center;gap:0.6rem;margin-top:0.75rem;" onclick="event.stopPropagation();">
               <button type="button" class="chip-btn" onclick="stepHotspotWord(-1)">←</button>
               <button type="button" class="chip-btn active" onclick="speakSanskritWord('${activeItem.ttsText}')">🔊</button>
               <button type="button" class="chip-btn" onclick="stepHotspotWord(1)">→</button>
             </div>
           </div>
 
-          <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">
+          <div style="display:flex;flex-wrap:wrap;gap:0.4rem;">
             ${chipsHtml}
           </div>
         </div>
@@ -888,8 +961,9 @@ function selectHotspotWord(wordId) {
 }
 
 function stepHotspotWord(delta) {
-  const idx = hotspotPositions.findIndex(p => p.id === activeHotspotId);
-  const nextPos = hotspotPositions[(idx + delta + hotspotPositions.length) % hotspotPositions.length];
+  const ordered = [...hotspotPositions].sort((a, b) => a.num - b.num);
+  const idx = ordered.findIndex(p => p.id === activeHotspotId);
+  const nextPos = ordered[(idx + delta + ordered.length) % ordered.length];
   if (nextPos) selectHotspotWord(nextPos.id);
 }
 
