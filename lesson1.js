@@ -367,27 +367,39 @@ let audioFirstRevealedIds = new Set();
 const presentationSteps = [
   {
     num: 1,
-    titleRu: 'Шаг 1 из 4 · Верхняя часть головы',
-    titleEn: 'Step 1 of 4 · Upper Part of the Head',
-    wordIds: ['shirsha', 'lalata', 'bhru']
+    titleRu: 'Шаг 1 из 6 · शीर्ष · ललाट',
+    titleEn: 'Step 1 of 6 · शीर्ष · ललाट',
+    wordIds: ['shirsha', 'lalata']
   },
   {
     num: 2,
-    titleRu: 'Шаг 2 из 4 · Органы чувств на голове',
-    titleEn: 'Step 2 of 4 · Sense Organs on the Head',
-    wordIds: ['nayana', 'nasika', 'karna']
+    titleRu: 'Шаг 2 из 6 · भ्रू · नयन',
+    titleEn: 'Step 2 of 6 · भ्रू · नयन',
+    wordIds: ['bhru', 'nayana']
   },
   {
     num: 3,
-    titleRu: 'Шаг 3 из 4 · Область рта',
-    titleEn: 'Step 3 of 4 · Mouth Area',
-    wordIds: ['ostha', 'danta', 'jihva']
+    titleRu: 'Шаг 3 из 6 · नासिका · कर्ण',
+    titleEn: 'Step 3 of 6 · नासिका · कर्ण',
+    wordIds: ['nasika', 'karna']
   },
   {
     num: 4,
-    titleRu: 'Шаг 4 из 4 · Конечности',
-    titleEn: 'Step 4 of 4 · Limbs',
-    wordIds: ['kara', 'anguli', 'pada']
+    titleRu: 'Шаг 4 из 6 · ओष्ठ · जिह्वा',
+    titleEn: 'Step 4 of 6 · ओष्ठ · जिह्वा',
+    wordIds: ['ostha', 'jihva']
+  },
+  {
+    num: 5,
+    titleRu: 'Шаг 5 из 6 · दन्त · कर',
+    titleEn: 'Step 5 of 6 · दन्त · कर',
+    wordIds: ['danta', 'kara']
+  },
+  {
+    num: 6,
+    titleRu: 'Шаг 6 из 6 · अङ्गुली · पाद',
+    titleEn: 'Step 6 of 6 · अङ्गुली · पाद',
+    wordIds: ['anguli', 'pada']
   }
 ];
 
@@ -678,9 +690,9 @@ function renderVocabCardItemHtml(item, large = false) {
 function renderStepByStepPresentationHtml() {
   const step = presentationSteps[presStepIndex] || presentationSteps[0];
   const stepTitle = currentLang === 'ru' ? step.titleRu : step.titleEn;
-  const playAllLabel = currentLang === 'ru' ? '🔊 Прослушать все 3 слова' : '🔊 Listen to All 3 Words';
-  const prevLabel = currentLang === 'ru' ? '← Предыдущие 3' : '← Previous 3';
-  const nextLabel = currentLang === 'ru' ? 'Следующие 3 →' : 'Next 3 →';
+  const playAllLabel = currentLang === 'ru' ? '🔊 Прослушать оба слова' : '🔊 Listen to Both Words';
+  const prevLabel = currentLang === 'ru' ? '← Предыдущие 2' : '← Previous 2';
+  const nextLabel = currentLang === 'ru' ? 'Следующие 2 →' : 'Next 2 →';
 
   const stepTabsHtml = presentationSteps.map((s, idx) => {
     const wordsDeva = s.wordIds
@@ -716,7 +728,7 @@ function renderStepByStepPresentationHtml() {
         ${stepTabsHtml}
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:1.15rem;margin-bottom:1.25rem;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1.25rem;max-width:680px;margin:0 auto 1.25rem;">
         ${stepCardsHtml}
       </div>
 
