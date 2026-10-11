@@ -472,22 +472,22 @@ const categoriesData = [
     wordIds: ['nasika', 'jihva']
   },
   {
-    id: 'starts-vowel',
-    titleRu: 'Слова, начинающиеся с гласной буквы (अ, ओ)',
-    titleEn: 'Words Starting with a Vowel (अ, ओ)',
-    wordIds: ['ostha', 'anguli']
+    id: 'paired-head',
+    titleRu: 'Парные части на голове (правая и левая)',
+    titleEn: 'Paired Parts on the Head (Left & Right)',
+    wordIds: ['bhru', 'nayana', 'karna']
   },
   {
-    id: 'starts-na',
-    titleRu: 'Слова, начинающиеся с буквы «न» (n-)',
-    titleEn: 'Words Starting with "न" (n-)',
-    wordIds: ['nayana', 'nasika']
+    id: 'unpaired-head',
+    titleRu: 'Непарные (по одному) части головы и лица',
+    titleEn: 'Single (Unpaired) Parts of the Head & Face',
+    wordIds: ['shirsha', 'lalata', 'nasika', 'jihva']
   },
   {
-    id: 'starts-ka',
-    titleRu: 'Слова, начинающиеся с буквы «क» (k-)',
-    titleEn: 'Words Starting with "क" (k-)',
-    wordIds: ['karna', 'kara']
+    id: 'grasping-pointing',
+    titleRu: 'Чем мы берём, держим и указываем',
+    titleEn: 'What We Use for Holding, Touching & Pointing',
+    wordIds: ['kara', 'anguli']
   },
   {
     id: 'has-r',
