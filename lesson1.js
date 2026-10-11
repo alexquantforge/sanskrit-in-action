@@ -2460,7 +2460,8 @@ let prodSprintIndex = 0;
 let prodSprintScore = 0;
 let prodSprintDuration = 4;
 let prodSprintTimeLeft = 4;
-let prodSprintAutoTimer = true; // Default: 2nd option (Timer starts automatically)
+let prodSprintAutoTimer = true; // Default: 2nd option (Auto Timer)
+let prodSprintGameStarted = false; // Waits for the user to click "Включить таймер и начать игру"
 let prodSprintRunning = false;
 let prodSprintRevealed = false;
 let prodSprintFinished = false;
@@ -2519,21 +2520,17 @@ function selectProductionMode(mode) {
   document.querySelectorAll('.practice-tab-btn[data-prod-mode]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.prodMode === mode);
   });
-  if (mode === 'sprint' && prodSprintAutoTimer && !prodSprintFinished && !prodSprintRevealed) {
-    startProdSprintTimer();
-  } else {
-    renderProductionStage();
-  }
+  renderProductionStage();
 }
 
 // MODE 1: Speed Sprint ⏱ (See picture only -> Say word aloud before timer hits 0 -> Check with audio)
 function setProdSprintAutoTimer(isAuto) {
   stopAllProductionTimers();
   prodSprintAutoTimer = isAuto;
-  if (prodSprintAutoTimer && !prodSprintFinished && !prodSprintRevealed) {
+  prodSprintTimeLeft = prodSprintDuration;
+  if (prodSprintAutoTimer && prodSprintGameStarted && !prodSprintFinished && !prodSprintRevealed) {
     startProdSprintTimer();
   } else {
-    prodSprintTimeLeft = prodSprintDuration;
     renderProductionStage();
   }
 }
@@ -2542,15 +2539,21 @@ function setProdSprintDuration(sec) {
   stopAllProductionTimers();
   prodSprintDuration = sec;
   prodSprintTimeLeft = sec;
-  if (prodSprintAutoTimer && !prodSprintFinished && !prodSprintRevealed) {
+  if (prodSprintAutoTimer && prodSprintGameStarted && !prodSprintFinished && !prodSprintRevealed) {
     startProdSprintTimer();
   } else {
     renderProductionStage();
   }
 }
 
+function beginProdSprintGame() {
+  prodSprintGameStarted = true;
+  startProdSprintTimer();
+}
+
 function startProdSprintTimer() {
   stopAllProductionTimers();
+  prodSprintGameStarted = true;
   prodSprintRevealed = false;
   prodSprintTimeLeft = prodSprintDuration;
   prodSprintRunning = true;
@@ -2569,6 +2572,7 @@ function startProdSprintTimer() {
 
 function revealProdSprintCard() {
   stopAllProductionTimers();
+  prodSprintGameStarted = true;
   prodSprintRevealed = true;
   const item = bodyPartsVocab[prodSprintIndex];
   if (item) speakSanskritWord(item.ttsText);
@@ -2585,7 +2589,7 @@ function gradeProdSprintCard(knewIt) {
     prodSprintIndex++;
     prodSprintRevealed = false;
     prodSprintTimeLeft = prodSprintDuration;
-    if (prodSprintAutoTimer) {
+    if (prodSprintAutoTimer && prodSprintGameStarted) {
       startProdSprintTimer();
     } else {
       renderProductionStage();
@@ -2599,12 +2603,9 @@ function restartProdSprint() {
   prodSprintScore = 0;
   prodSprintRevealed = false;
   prodSprintFinished = false;
+  prodSprintGameStarted = false;
   prodSprintTimeLeft = prodSprintDuration;
-  if (prodSprintAutoTimer) {
-    startProdSprintTimer();
-  } else {
-    renderProductionStage();
-  }
+  renderProductionStage();
 }
 
 function renderProdSprintMode(container) {
@@ -2618,6 +2619,9 @@ function renderProdSprintMode(container) {
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
   const manualModeLabel = currentLang === 'ru' ? '✋ Таймер вручную' : '✋ Manual Timer';
   const autoModeLabel = currentLang === 'ru' ? '⚡ Авто-таймер' : '⚡ Auto Timer';
+  const enableGameAndTimerText = currentLang === 'ru'
+    ? `▶ Включить таймер и начать игру (${prodSprintDuration} сек)`
+    : `▶ Enable Timer & Start Game (${prodSprintDuration}s)`;
   const startTimerText = currentLang === 'ru'
     ? `▶ Запустить таймер (${prodSprintDuration} сек)`
     : `▶ Start Timer (${prodSprintDuration}s)`;
@@ -2658,7 +2662,9 @@ function renderProdSprintMode(container) {
         </div>
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
           ${!prodSprintRunning ? `
-            <button type="button" class="chip-btn active" onclick="startProdSprintTimer()">${startTimerText}</button>
+            <button type="button" class="btn btn-primary" style="padding:0.55rem 1.2rem;font-size:0.92rem;" onclick="beginProdSprintGame()">
+              ${prodSprintAutoTimer && !prodSprintGameStarted ? enableGameAndTimerText : startTimerText}
+            </button>
           ` : ''}
           <button type="button" class="chip-btn" onclick="revealProdSprintCard()">${revealNowText}</button>
         </div>
@@ -3126,22 +3132,4 @@ document.addEventListener('DOMContentLoaded', () => {
   prepareTypoRound();
   prepareTrueFalseRound();
   refreshLesson1();
-
-  const prodEl = document.getElementById('lesson1-production-stage');
-  if (prodEl && 'IntersectionObserver' in window) {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          if (currentProductionMode === 'sprint' && prodSprintAutoTimer && !prodSprintRunning && !prodSprintRevealed && !prodSprintFinished) {
-            startProdSprintTimer();
-          }
-        } else if (currentProductionMode === 'sprint' && prodSprintRunning) {
-          stopAllProductionTimers();
-          prodSprintTimeLeft = prodSprintDuration;
-          renderProductionStage();
-        }
-      });
-    }, { threshold: 0.35 });
-    obs.observe(prodEl);
-  }
 });
