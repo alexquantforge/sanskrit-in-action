@@ -245,59 +245,94 @@ let labelsHidden = false;
 let posterMaskedMode = false; // Whether the 12-card Presentation poster has pink squares covering word endings
 let posterRevealedIds = new Set();
 let iastHidden = true;
-let currentPracticeGame = 'flashcards'; // 'flashcards' | 'masked' | 'gaps' | 'picquiz' | 'wordquiz' | 'match' | 'spelling' | 'truefalse'
+let currentPracticeGame = 'flashcards';
+
+// Game 1: Flashcards state
 let fcIndex = 0;
 let fcFlipped = false;
+let fcScore = 0;
+let fcFinished = false;
 
-// Masked Square Game State ("часть слова закрыта квадратом и надо отгадать все слово")
-let maskedModeView = 'card'; // 'card' (single flashcard + guess whole word) | 'grid' (all 12 cards with pink squares like the reference picture)
+// Game 2: Masked Square Game State ("часть слова закрыта квадратом и надо отгадать все слово")
+let maskedModeView = 'card'; // 'card' | 'grid'
 let msIndex = 0;
 let msScore = 0;
 let msAnswered = false;
+let msFinished = false;
 let msGridRevealed = new Set();
 
+// Game 3: Fill in the Gaps state
 let gapIndex = 0;
 let gapScore = 0;
 let gapAnswered = false;
+let gapFirstTry = true;
+let gapFinished = false;
+
+// Game 4: Picture Quiz state
 let pqIndex = 0;
 let pqScore = 0;
 let pqAnswered = false;
+let pqFirstTry = true;
+let pqFinished = false;
+
+// Game 5: Word -> Picture Quiz state
 let wqIndex = 0;
 let wqScore = 0;
 let wqAnswered = false;
-let spIndex = 0;
-let spScore = 0;
-let spAnswered = false;
-let tfIndex = 0;
-let tfScore = 0;
-let tfIsTrue = true;
-let tfDisplayedWordIdx = 0;
-let tfAnswered = false;
+let wqFirstTry = true;
+let wqFinished = false;
 
-// Match game state
+// Game 6: Match Pairs (3 stages x 4 pairs = 12 pairs total) state
+let matchOrderedVocab = [];
+let matchStage = 0; // 0, 1, 2 (each stage has 4 pairs = 12 words total)
 let matchTiles = [];
 let matchFirstIdx = null;
 let matchMatchedCount = 0;
+let matchScore = 12;
+let matchFailedPairIds = new Set();
+let matchFinished = false;
 
-// Classic Memory (Face-down Pairs) game state
+// Game 7: Classic Memory (Face-down Pairs) state
 let memoryCards = [];
 let memoryPairGoal = 6; // 6 pairs (12 cards) or 12 pairs (24 cards)
 let memoryFlippedIndices = [];
 let memoryMatchedPairs = 0;
 let memoryMoves = 0;
+let memoryScore = 6;
+let memorySeenPairIds = new Set();
+let memoryFailedPairIds = new Set();
 let memoryLock = false;
 
-// Spot the Wrong Label (3 Pictures, 1 Wrong Label, 12 Rounds) game state
+// Game 8: Spot the Wrong Label (3 Pictures, 1 Wrong Label, 12 Rounds) state
 let wlIndex = 0;
 let wlScore = 0;
 let wlAnswered = false;
+let wlFirstTry = true;
+let wlFinished = false;
 let wlCards = [];
 
-// Spot the Single-Letter Typo (3 Pictures, 1 Word has a 1-letter spelling error, 12 Rounds) game state
+// Game 9: Spot the Single-Letter Typo (3 Pictures, 1 Word has a 1-letter spelling error, 12 Rounds) state
 let typoIndex = 0;
 let typoScore = 0;
 let typoAnswered = false;
+let typoFirstTry = true;
+let typoFinished = false;
 let typoCards = [];
+
+// Game 10: Spelling / Missing Letters state
+let spIndex = 0;
+let spScore = 0;
+let spAnswered = false;
+let spFirstTry = true;
+let spFinished = false;
+
+// Game 11: True or False ("आम् / न") state
+let tfIndex = 0;
+let tfScore = 0;
+let tfIsTrue = true;
+let tfDisplayedWordIdx = 0;
+let tfAnswered = false;
+let tfFinished = false;
 
 // Production state: track which of the 12 words the student has spoken
 let producedWordsSet = new Set(['nayana']);
@@ -323,6 +358,34 @@ function speakSanskritWord(devaText) {
     utter.rate = 0.85;
     window.speechSynthesis.speak(utter);
   }
+}
+
+// Unified Final Score Screen ("например 10 из 12 правильно и кнопка начать сначала")
+function renderFinalScoreScreen(arena, title, score, total, restartFnCall, extraLine = '') {
+  const scoreLabel = currentLang === 'ru'
+    ? `${score} из ${total} правильно`
+    : `${score} out of ${total} correct`;
+  const startOverLabel = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div><strong style="font-size:1.05rem;">${title}</strong></div>
+      <span class="game-score-pill">${score} / ${total}</span>
+    </div>
+    <div style="text-align:center;padding:2.5rem 1.5rem;background:var(--bg-primary);border-radius:16px;border:1.5px solid var(--border-strong);">
+      <div style="font-size:2.75rem;margin-bottom:0.5rem;">🏆</div>
+      <div style="font-size:1.6rem;font-weight:800;color:var(--text-primary);margin-bottom:0.35rem;">
+        ${scoreLabel}
+      </div>
+      ${extraLine ? `<div style="font-size:0.92rem;color:var(--text-secondary);margin-bottom:0.4rem;">${extraLine}</div>` : ''}
+      <div style="font-size:0.9rem;color:var(--accent-cambridge);font-weight:700;margin-bottom:1.35rem;">
+        ${Math.round((score / total) * 100)}%
+      </div>
+      <button type="button" class="btn btn-primary" onclick="${restartFnCall}">
+        ${startOverLabel}
+      </button>
+    </div>
+  `;
 }
 
 // Helper to render a word with its second part covered by a pink square (like in the user's screenshot)
@@ -433,15 +496,15 @@ function selectPracticeGame(gameKey) {
     btn.classList.toggle('active', btn.dataset.game === gameKey);
   });
 
-  if (gameKey === 'match') {
+  if (gameKey === 'match' && matchTiles.length === 0) {
     initMatchGame();
-  } else if (gameKey === 'memory') {
-    if (memoryCards.length === 0) initMemoryGame();
-  } else if (gameKey === 'wronglabel') {
-    if (wlCards.length === 0) prepareWrongLabelRound();
-  } else if (gameKey === 'typo') {
-    if (typoCards.length === 0) prepareTypoRound();
-  } else if (gameKey === 'truefalse') {
+  } else if (gameKey === 'memory' && memoryCards.length === 0) {
+    initMemoryGame();
+  } else if (gameKey === 'wronglabel' && wlCards.length === 0) {
+    prepareWrongLabelRound();
+  } else if (gameKey === 'typo' && typoCards.length === 0) {
+    prepareTypoRound();
+  } else if (gameKey === 'truefalse' && tfIndex === 0 && !tfAnswered && !tfFinished) {
     prepareTrueFalseRound();
   }
   renderPracticeArena();
@@ -476,16 +539,25 @@ function renderPracticeArena() {
   }
 }
 
-// GAME 1: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio)
+// GAME 1: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio + Self-Score)
 function renderFlashcardsGame(arena) {
+  if (fcFinished) {
+    renderFinalScoreScreen(arena, '1. Flashcards', fcScore, bodyPartsVocab.length, 'restartFlashcardsGame()');
+    return;
+  }
+
   const item = bodyPartsVocab[fcIndex];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
         <strong style="font-size:1.05rem;">1. Flashcards</strong>
       </div>
-      <span class="game-score-pill">${fcIndex + 1} / ${bodyPartsVocab.length}</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartFlashcardsGame()">${resetText}</button>
+        <span class="game-score-pill">${fcScore} · (${fcIndex + 1} / ${bodyPartsVocab.length})</span>
+      </div>
     </div>
 
     <div class="flashcard-box" onclick="flipFlashcard()">
@@ -500,10 +572,10 @@ function renderFlashcardsGame(arena) {
     </div>
 
     <div style="display:flex;justify-content:center;gap:0.65rem;flex-wrap:wrap;">
-      <button type="button" class="chip-btn" onclick="prevFlashcard()">←</button>
-      <button type="button" class="chip-btn active" onclick="flipFlashcard()">↺</button>
+      <button type="button" class="chip-btn" onclick="flipFlashcard()">↺</button>
       <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.ttsText}')">🔊</button>
-      <button type="button" class="chip-btn" onclick="nextFlashcard()">→</button>
+      <button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="gradeFlashcard(false)">✕</button>
+      <button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="gradeFlashcard(true)">✓</button>
     </div>
   `;
 }
@@ -517,15 +589,22 @@ function flipFlashcard() {
   renderPracticeArena();
 }
 
-function nextFlashcard() {
-  fcIndex = (fcIndex + 1) % bodyPartsVocab.length;
-  fcFlipped = false;
+function gradeFlashcard(knewIt) {
+  if (knewIt) fcScore++;
+  if (fcIndex + 1 >= bodyPartsVocab.length) {
+    fcFinished = true;
+  } else {
+    fcIndex++;
+    fcFlipped = false;
+  }
   renderPracticeArena();
 }
 
-function prevFlashcard() {
-  fcIndex = (fcIndex - 1 + bodyPartsVocab.length) % bodyPartsVocab.length;
+function restartFlashcardsGame() {
+  fcIndex = 0;
+  fcScore = 0;
   fcFlipped = false;
+  fcFinished = false;
   renderPracticeArena();
 }
 
@@ -536,8 +615,14 @@ function setMaskedModeView(mode) {
 }
 
 function renderMaskedSquareGame(arena) {
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+
   if (maskedModeView === 'grid') {
-    // 12-card poster grid with pink squares covering part of every word (just like the user's screenshot!)
+    if (msGridRevealed.size === bodyPartsVocab.length) {
+      renderFinalScoreScreen(arena, '2. ■ (12 / 12)', bodyPartsVocab.length, bodyPartsVocab.length, 'resetMaskedGrid()');
+      return;
+    }
+
     const cardsHtml = bodyPartsVocab.map(item => {
       const revealed = msGridRevealed.has(item.id);
       return `
@@ -553,15 +638,11 @@ function renderMaskedSquareGame(arena) {
     arena.innerHTML = `
       <div class="game-top-bar">
         <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-          <button type="button" class="chip-btn" onclick="setMaskedModeView('card')">
-            1 / 12
-          </button>
-          <button type="button" class="chip-btn active" onclick="setMaskedModeView('grid')">
-            12 / 12 ■
-          </button>
+          <button type="button" class="chip-btn" onclick="setMaskedModeView('card')">1 / 12</button>
+          <button type="button" class="chip-btn active" onclick="setMaskedModeView('grid')">12 / 12 ■</button>
         </div>
         <div style="display:flex;align-items:center;gap:0.5rem;">
-          <button type="button" class="chip-btn" onclick="resetMaskedGrid()">↺ ■</button>
+          <button type="button" class="chip-btn" onclick="resetMaskedGrid()">${resetText}</button>
           <span class="game-score-pill">${msGridRevealed.size} / ${bodyPartsVocab.length}</span>
         </div>
       </div>
@@ -573,20 +654,24 @@ function renderMaskedSquareGame(arena) {
     return;
   }
 
+  if (msFinished) {
+    renderFinalScoreScreen(arena, '2. ■', msScore, bodyPartsVocab.length, 'restartMaskedGame()');
+    return;
+  }
+
   // Single-card mode: shows picture + word with pink square covering part of it (NO 4 hint words at the bottom!)
   const item = bodyPartsVocab[msIndex];
 
   arena.innerHTML = `
     <div class="game-top-bar">
       <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-        <button type="button" class="chip-btn active" onclick="setMaskedModeView('card')">
-          1 / 12
-        </button>
-        <button type="button" class="chip-btn" onclick="setMaskedModeView('grid')">
-          12 / 12 ■
-        </button>
+        <button type="button" class="chip-btn active" onclick="setMaskedModeView('card')">1 / 12</button>
+        <button type="button" class="chip-btn" onclick="setMaskedModeView('grid')">12 / 12 ■</button>
       </div>
-      <span class="game-score-pill">${msIndex + 1} / ${bodyPartsVocab.length}</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartMaskedGame()">${resetText}</button>
+        <span class="game-score-pill">${msScore} · (${msIndex + 1} / ${bodyPartsVocab.length})</span>
+      </div>
     </div>
 
     <div class="flashcard-box" onclick="toggleCurrentMaskedCard()">
@@ -594,14 +679,14 @@ function renderMaskedSquareGame(arena) {
       <div id="ms-word-box">
         ${renderMaskedWordMarkup(item, msAnswered, '2.45rem')}
       </div>
-      <div class="vocab-iast" style="font-size:1.1rem;margin-top:0.25rem;">${ msAnswered ? item.iast : '' }</div>
+      <div class="vocab-iast" style="font-size:1.1rem;margin-top:0.25rem;">${msAnswered ? item.iast : ''}</div>
     </div>
 
     <div style="display:flex;justify-content:center;gap:0.65rem;flex-wrap:wrap;">
-      <button type="button" class="chip-btn" onclick="prevMaskedSquareRound()">←</button>
-      <button type="button" class="chip-btn active" onclick="toggleCurrentMaskedCard()">↺</button>
+      <button type="button" class="chip-btn" onclick="toggleCurrentMaskedCard()">↺</button>
       <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.ttsText}')">🔊</button>
-      <button type="button" class="chip-btn" onclick="nextMaskedSquareRound()">→</button>
+      <button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="gradeMaskedCard(false)">✕</button>
+      <button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="gradeMaskedCard(true)">✓</button>
     </div>
   `;
 }
@@ -615,15 +700,22 @@ function toggleCurrentMaskedCard() {
   renderPracticeArena();
 }
 
-function prevMaskedSquareRound() {
-  msIndex = (msIndex - 1 + bodyPartsVocab.length) % bodyPartsVocab.length;
-  msAnswered = false;
+function gradeMaskedCard(knewIt) {
+  if (knewIt) msScore++;
+  if (msIndex + 1 >= bodyPartsVocab.length) {
+    msFinished = true;
+  } else {
+    msIndex++;
+    msAnswered = false;
+  }
   renderPracticeArena();
 }
 
-function nextMaskedSquareRound() {
-  msIndex = (msIndex + 1) % bodyPartsVocab.length;
+function restartMaskedGame() {
+  msIndex = 0;
+  msScore = 0;
   msAnswered = false;
+  msFinished = false;
   renderPracticeArena();
 }
 
@@ -642,11 +734,17 @@ function resetMaskedGrid() {
   renderPracticeArena();
 }
 
-// GAME 3: Fill in the Gaps (Visual Sequence Cloze — zero translation)
+// GAME 3: Fill in the Gaps (Visual Sequence Cloze — 12 rounds + Final Score)
 function renderFillGapsGame(arena) {
+  if (gapFinished) {
+    renderFinalScoreScreen(arena, '3. Fill in the Gaps', gapScore, bodyPartsVocab.length, 'restartGapsGame()');
+    return;
+  }
+
   const prevItem = bodyPartsVocab[(gapIndex + bodyPartsVocab.length - 1) % bodyPartsVocab.length];
   const item = bodyPartsVocab[gapIndex];
   const nextItem = bodyPartsVocab[(gapIndex + 1) % bodyPartsVocab.length];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
   const distractors = [
     bodyPartsVocab[(gapIndex + 3) % bodyPartsVocab.length],
@@ -667,7 +765,10 @@ function renderFillGapsGame(arena) {
       <div>
         <strong style="font-size:1.05rem;">3. Fill in the Gaps</strong>
       </div>
-      <span class="game-score-pill">${gapScore} · (${gapIndex + 1}/${bodyPartsVocab.length})</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartGapsGame()">${resetText}</button>
+        <span class="game-score-pill">${gapScore} / ${bodyPartsVocab.length} · (${gapIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
     </div>
 
     <div style="display:flex;align-items:center;justify-content:center;gap:1rem;background:var(--bg-primary);padding:1.25rem;border-radius:12px;border:1px solid var(--border-color);flex-wrap:wrap;">
@@ -708,7 +809,7 @@ function checkGapAnswer(chosenId) {
 
   if (chosenId === item.id) {
     gapAnswered = true;
-    gapScore++;
+    if (gapFirstTry) gapScore++;
     if (btn) btn.classList.add('correct');
     const sentenceEl = document.getElementById('gap-sentence-display');
     if (sentenceEl) {
@@ -724,19 +825,40 @@ function checkGapAnswer(chosenId) {
       `;
     }
   } else {
+    gapFirstTry = false;
     if (btn) btn.classList.add('wrong');
   }
 }
 
 function nextGapRound() {
-  gapIndex = (gapIndex + 1) % bodyPartsVocab.length;
-  gapAnswered = false;
+  if (gapIndex + 1 >= bodyPartsVocab.length) {
+    gapFinished = true;
+  } else {
+    gapIndex++;
+    gapAnswered = false;
+    gapFirstTry = true;
+  }
   renderPracticeArena();
 }
 
-// GAME 4: Picture Quiz (See Picture -> Pick Sanskrit Word)
+function restartGapsGame() {
+  gapIndex = 0;
+  gapScore = 0;
+  gapAnswered = false;
+  gapFirstTry = true;
+  gapFinished = false;
+  renderPracticeArena();
+}
+
+// GAME 4: Picture Quiz (See Picture -> Pick Sanskrit Word — 12 rounds + Final Score)
 function renderPictureQuizGame(arena) {
+  if (pqFinished) {
+    renderFinalScoreScreen(arena, '4. Picture Quiz', pqScore, bodyPartsVocab.length, 'restartPicQuizGame()');
+    return;
+  }
+
   const item = bodyPartsVocab[pqIndex];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
   const distractors = [
     bodyPartsVocab[(pqIndex + 2) % bodyPartsVocab.length],
     bodyPartsVocab[(pqIndex + 5) % bodyPartsVocab.length],
@@ -756,7 +878,10 @@ function renderPictureQuizGame(arena) {
       <div>
         <strong style="font-size:1.05rem;">4. Picture Quiz</strong>
       </div>
-      <span class="game-score-pill">${pqScore} · (${pqIndex + 1}/${bodyPartsVocab.length})</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartPicQuizGame()">${resetText}</button>
+        <span class="game-score-pill">${pqScore} / ${bodyPartsVocab.length} · (${pqIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
     </div>
 
     <div style="text-align:center;">
@@ -776,7 +901,7 @@ function checkPicQuizAnswer(chosenId) {
 
   if (chosenId === item.id) {
     pqAnswered = true;
-    pqScore++;
+    if (pqFirstTry) pqScore++;
     if (btn) btn.classList.add('correct');
     speakSanskritWord(item.ttsText);
     if (feedbackEl) {
@@ -788,19 +913,40 @@ function checkPicQuizAnswer(chosenId) {
       `;
     }
   } else {
+    pqFirstTry = false;
     if (btn) btn.classList.add('wrong');
   }
 }
 
 function nextPicQuizRound() {
-  pqIndex = (pqIndex + 1) % bodyPartsVocab.length;
-  pqAnswered = false;
+  if (pqIndex + 1 >= bodyPartsVocab.length) {
+    pqFinished = true;
+  } else {
+    pqIndex++;
+    pqAnswered = false;
+    pqFirstTry = true;
+  }
   renderPracticeArena();
 }
 
-// GAME 5: Word -> Picture Quiz (Read Sanskrit Word -> Click Picture)
+function restartPicQuizGame() {
+  pqIndex = 0;
+  pqScore = 0;
+  pqAnswered = false;
+  pqFirstTry = true;
+  pqFinished = false;
+  renderPracticeArena();
+}
+
+// GAME 5: Word -> Picture Quiz (Read Sanskrit Word -> Click Picture — 12 rounds + Final Score)
 function renderWordToPicQuizGame(arena) {
+  if (wqFinished) {
+    renderFinalScoreScreen(arena, '5. Word → Picture', wqScore, bodyPartsVocab.length, 'restartWordQuizGame()');
+    return;
+  }
+
   const item = bodyPartsVocab[wqIndex];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
   const distractors = [
     bodyPartsVocab[(wqIndex + 1) % bodyPartsVocab.length],
     bodyPartsVocab[(wqIndex + 4) % bodyPartsVocab.length],
@@ -819,7 +965,10 @@ function renderWordToPicQuizGame(arena) {
       <div>
         <strong style="font-size:1.05rem;">5. Word → Picture</strong>
       </div>
-      <span class="game-score-pill">${wqScore} · (${wqIndex + 1}/${bodyPartsVocab.length})</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartWordQuizGame()">${resetText}</button>
+        <span class="game-score-pill">${wqScore} / ${bodyPartsVocab.length} · (${wqIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
     </div>
 
     <div style="text-align:center;padding:0.75rem;background:var(--bg-primary);border-radius:12px;border:1px solid var(--border-color);">
@@ -841,7 +990,7 @@ function checkWordQuizAnswer(chosenId) {
 
   if (chosenId === item.id) {
     wqAnswered = true;
-    wqScore++;
+    if (wqFirstTry) wqScore++;
     if (btn) btn.classList.add('correct');
     speakSanskritWord(item.ttsText);
     if (feedbackEl) {
@@ -853,19 +1002,43 @@ function checkWordQuizAnswer(chosenId) {
       `;
     }
   } else {
+    wqFirstTry = false;
     if (btn) btn.classList.add('wrong');
   }
 }
 
 function nextWordQuizRound() {
-  wqIndex = (wqIndex + 1) % bodyPartsVocab.length;
-  wqAnswered = false;
+  if (wqIndex + 1 >= bodyPartsVocab.length) {
+    wqFinished = true;
+  } else {
+    wqIndex++;
+    wqAnswered = false;
+    wqFirstTry = true;
+  }
   renderPracticeArena();
 }
 
-// GAME 6: Match Pairs (4 Pictures + 4 Sanskrit Words = 8 tiles)
+function restartWordQuizGame() {
+  wqIndex = 0;
+  wqScore = 0;
+  wqAnswered = false;
+  wqFirstTry = true;
+  wqFinished = false;
+  renderPracticeArena();
+}
+
+// GAME 6: Match Pairs (3 stages x 4 pairs = all 12 words, with Final Score out of 12)
 function initMatchGame() {
-  const subset = [...bodyPartsVocab].sort(() => Math.random() - 0.5).slice(0, 4);
+  matchOrderedVocab = [...bodyPartsVocab].sort(() => Math.random() - 0.5);
+  matchStage = 0;
+  matchScore = 12;
+  matchFailedPairIds = new Set();
+  matchFinished = false;
+  setupMatchStageBoard();
+}
+
+function setupMatchStageBoard() {
+  const subset = matchOrderedVocab.slice(matchStage * 4, (matchStage + 1) * 4);
   const tiles = [];
   subset.forEach(item => {
     tiles.push({ uid: 'pic-' + item.id, pairId: item.id, type: 'pic', item, matched: false });
@@ -877,7 +1050,16 @@ function initMatchGame() {
 }
 
 function renderMatchPairsGame(arena) {
-  if (matchTiles.length === 0) initMatchGame();
+  if (matchTiles.length === 0 && !matchFinished) initMatchGame();
+
+  if (matchFinished) {
+    const finalScore = Math.max(0, 12 - matchFailedPairIds.size);
+    renderFinalScoreScreen(arena, '6. Match Pairs', finalScore, 12, 'initMatchGame(); renderPracticeArena();');
+    return;
+  }
+
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+  const totalMatchedSoFar = matchStage * 4 + matchMatchedCount;
 
   const tilesHtml = matchTiles.map((t, idx) => {
     const isSelected = matchFirstIdx === idx;
@@ -897,23 +1079,18 @@ function renderMatchPairsGame(arena) {
     `;
   }).join('');
 
-  const allDone = matchMatchedCount === 4;
-
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">6. Match Pairs</strong>
+        <strong style="font-size:1.05rem;">6. Match Pairs (${matchStage + 1} / 3)</strong>
       </div>
-      <span class="game-score-pill">${matchMatchedCount} / 4</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="initMatchGame(); renderPracticeArena();">${resetText}</button>
+        <span class="game-score-pill">${totalMatchedSoFar} / 12</span>
+      </div>
     </div>
 
     <div class="match-grid">${tilesHtml}</div>
-
-    ${allDone ? `
-      <div style="margin-top:1.25rem;text-align:center;">
-        <button type="button" class="chip-btn active" onclick="initMatchGame(); renderPracticeArena();">↺</button>
-      </div>
-    ` : ''}
   `;
 }
 
@@ -937,9 +1114,22 @@ function clickMatchTile(idx) {
       tile.matched = true;
       matchMatchedCount++;
       speakSanskritWord(tile.item.ttsText);
+      matchFirstIdx = null;
+
+      if (matchMatchedCount === 4) {
+        if (matchStage + 1 >= 3) {
+          matchFinished = true;
+        } else {
+          matchStage++;
+          setupMatchStageBoard();
+        }
+      }
+      renderPracticeArena();
+    } else {
+      matchFailedPairIds.add(firstTile.pairId);
+      matchFirstIdx = null;
+      renderPracticeArena();
     }
-    matchFirstIdx = null;
-    renderPracticeArena();
   }
 }
 
@@ -961,11 +1151,23 @@ function initMemoryGame() {
   memoryFlippedIndices = [];
   memoryMatchedPairs = 0;
   memoryMoves = 0;
+  memorySeenPairIds = new Set();
+  memoryFailedPairIds = new Set();
   memoryLock = false;
 }
 
 function renderMemoryGame(arena) {
   if (memoryCards.length === 0) initMemoryGame();
+
+  const allDone = memoryMatchedPairs === memoryPairGoal;
+  if (allDone) {
+    const extraMovesText = currentLang === 'ru' ? `Ходов: ${memoryMoves}` : `Moves: ${memoryMoves}`;
+    const memScore = Math.max(1, memoryPairGoal - memoryFailedPairIds.size);
+    renderFinalScoreScreen(arena, '7. Memory', memScore, memoryPairGoal, 'initMemoryGame(); renderPracticeArena();', extraMovesText);
+    return;
+  }
+
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
   const cardsHtml = memoryCards.map((c, idx) => {
     const isVisible = c.flipped || c.matched;
@@ -994,12 +1196,10 @@ function renderMemoryGame(arena) {
     `;
   }).join('');
 
-  const allDone = memoryMatchedPairs === memoryPairGoal;
-
   arena.innerHTML = `
     <div class="game-top-bar">
       <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-        <strong style="font-size:1.05rem;margin-right:0.35rem;">Memory</strong>
+        <strong style="font-size:1.05rem;margin-right:0.35rem;">7. Memory</strong>
         <button type="button" class="chip-btn ${memoryPairGoal === 6 ? 'active' : ''}" onclick="setMemoryPairsCount(6)">
           6 × 2 (12)
         </button>
@@ -1008,18 +1208,12 @@ function renderMemoryGame(arena) {
         </button>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
-        <button type="button" class="chip-btn" onclick="initMemoryGame(); renderPracticeArena();">↺</button>
+        <button type="button" class="chip-btn" onclick="initMemoryGame(); renderPracticeArena();">${resetText}</button>
         <span class="game-score-pill">${memoryMatchedPairs} / ${memoryPairGoal} · (${memoryMoves})</span>
       </div>
     </div>
 
     <div class="memory-grid">${cardsHtml}</div>
-
-    ${allDone ? `
-      <div style="margin-top:1.25rem;text-align:center;">
-        <button type="button" class="chip-btn active" onclick="initMemoryGame(); renderPracticeArena();">↺</button>
-      </div>
-    ` : ''}
   `;
 }
 
@@ -1047,7 +1241,6 @@ function clickMemoryCard(idx) {
     const secondCard = memoryCards[secondIdx];
 
     if (firstCard.pairId === secondCard.pairId && firstCard.type !== secondCard.type) {
-      // Match! Keep both cards open
       firstCard.matched = true;
       secondCard.matched = true;
       memoryMatchedPairs++;
@@ -1055,7 +1248,12 @@ function clickMemoryCard(idx) {
       speakSanskritWord(firstCard.item.ttsText);
       renderPracticeArena();
     } else {
-      // Mismatch: show both cards briefly so the player remembers where they are, then flip back face-down
+      if (memorySeenPairIds.has(firstCard.pairId)) {
+        memoryFailedPairIds.add(firstCard.pairId);
+      }
+      memorySeenPairIds.add(firstCard.pairId);
+      memorySeenPairIds.add(secondCard.pairId);
+
       memoryLock = true;
       firstCard.mismatch = true;
       secondCard.mismatch = true;
@@ -1074,9 +1272,242 @@ function clickMemoryCard(idx) {
   }
 }
 
-// GAME 7: Missing Syllable / Devanagari Spelling Drill (zero translations)
+// GAME 8: Spot the Wrong Label (3 Pictures, 1 Wrongly Labeled — 12 rounds + Final Score)
+function prepareWrongLabelRound() {
+  wlAnswered = false;
+  wlFirstTry = true;
+  const n = bodyPartsVocab.length;
+  const wrongPicItem = bodyPartsVocab[wlIndex];
+  const wrongLabelItem = bodyPartsVocab[(wlIndex + 2) % n];
+  const correct1 = bodyPartsVocab[(wlIndex + 4) % n];
+  const correct2 = bodyPartsVocab[(wlIndex + 8) % n];
+
+  const rawCards = [
+    { picItem: wrongPicItem, labelItem: wrongLabelItem, isWrong: true },
+    { picItem: correct1, labelItem: correct1, isWrong: false },
+    { picItem: correct2, labelItem: correct2, isWrong: false }
+  ];
+
+  const shift = (wlIndex * 5 + 1) % 3;
+  wlCards = [
+    rawCards[shift % 3],
+    rawCards[(shift + 1) % 3],
+    rawCards[(shift + 2) % 3]
+  ];
+}
+
+function renderWrongLabelGame(arena) {
+  if (wlFinished) {
+    renderFinalScoreScreen(arena, '8. 3 🖼 → 1 ✕', wlScore, bodyPartsVocab.length, 'restartWrongLabelGame()');
+    return;
+  }
+
+  if (wlCards.length === 0) prepareWrongLabelRound();
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+
+  const cardsHtml = wlCards.map((c, idx) => {
+    const showCorrection = wlAnswered && c.isWrong;
+    return `
+      <button type="button" class="quiz-opt-btn" id="wl-card-${idx}" onclick="checkWrongLabelCard(${idx})"
+              style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.picItem.svg}</div>
+        ${!showCorrection ? `
+          <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.labelItem.deva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.labelItem.iast}</div>
+        ` : `
+          <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.8;">${c.labelItem.deva}</div>
+          <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.picItem.deva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:#15803d;">${c.picItem.iast}</div>
+        `}
+      </button>
+    `;
+  }).join('');
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div>
+        <strong style="font-size:1.05rem;">8. 3 🖼 → 1 ✕</strong>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartWrongLabelGame()">${resetText}</button>
+        <span class="game-score-pill">${wlScore} / ${bodyPartsVocab.length} · (${wlIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">
+      ${cardsHtml}
+    </div>
+
+    <div id="wl-feedback-msg" style="margin-top:1.15rem;text-align:center;"></div>
+  `;
+}
+
+function checkWrongLabelCard(idx) {
+  if (wlAnswered) return;
+  const chosen = wlCards[idx];
+  const btn = document.getElementById('wl-card-' + idx);
+  if (!chosen) return;
+
+  if (chosen.isWrong) {
+    wlAnswered = true;
+    if (wlFirstTry) wlScore++;
+    speakSanskritWord(chosen.picItem.ttsText);
+    renderPracticeArena();
+    const matchedBtn = document.getElementById('wl-card-' + idx);
+    if (matchedBtn) matchedBtn.classList.add('correct');
+    const feedbackEl = document.getElementById('wl-feedback-msg');
+    if (feedbackEl) {
+      feedbackEl.innerHTML = `
+        <button type="button" class="chip-btn active" onclick="nextWrongLabelRound()">→</button>
+      `;
+    }
+  } else {
+    wlFirstTry = false;
+    if (btn) btn.classList.add('wrong');
+    speakSanskritWord(chosen.picItem.ttsText);
+  }
+}
+
+function nextWrongLabelRound() {
+  if (wlIndex + 1 >= bodyPartsVocab.length) {
+    wlFinished = true;
+  } else {
+    wlIndex++;
+    prepareWrongLabelRound();
+  }
+  renderPracticeArena();
+}
+
+function restartWrongLabelGame() {
+  wlIndex = 0;
+  wlScore = 0;
+  wlFinished = false;
+  prepareWrongLabelRound();
+  renderPracticeArena();
+}
+
+// GAME 9: Spot the 1-Letter Spelling Mistake (3 Pictures, 1 has a 1-letter typo — 12 rounds + Final Score)
+function prepareTypoRound() {
+  typoAnswered = false;
+  typoFirstTry = true;
+  const n = bodyPartsVocab.length;
+  const typoItem = bodyPartsVocab[typoIndex];
+  const correct1 = bodyPartsVocab[(typoIndex + 3) % n];
+  const correct2 = bodyPartsVocab[(typoIndex + 7) % n];
+
+  const rawCards = [
+    { item: typoItem, displayedDeva: typoItem.typoDeva, displayedIast: typoItem.typoIast, hasTypo: true },
+    { item: correct1, displayedDeva: correct1.deva, displayedIast: correct1.iast, hasTypo: false },
+    { item: correct2, displayedDeva: correct2.deva, displayedIast: correct2.iast, hasTypo: false }
+  ];
+
+  const shift = (typoIndex * 7 + 2) % 3;
+  typoCards = [
+    rawCards[shift % 3],
+    rawCards[(shift + 1) % 3],
+    rawCards[(shift + 2) % 3]
+  ];
+}
+
+function renderTypoGame(arena) {
+  if (typoFinished) {
+    renderFinalScoreScreen(arena, '9. 3 🖼 → 1 आ/अ ✕', typoScore, bodyPartsVocab.length, 'restartTypoGame()');
+    return;
+  }
+
+  if (typoCards.length === 0) prepareTypoRound();
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+
+  const cardsHtml = typoCards.map((c, idx) => {
+    const showCorrection = typoAnswered && c.hasTypo;
+    return `
+      <button type="button" class="quiz-opt-btn" id="typo-card-${idx}" onclick="checkTypoCard(${idx})"
+              style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.item.svg}</div>
+        ${!showCorrection ? `
+          <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.displayedDeva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.displayedIast}</div>
+        ` : `
+          <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">${c.displayedDeva}</div>
+          <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.item.deva}</div>
+          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:#15803d;">${c.item.iast}</div>
+        `}
+      </button>
+    `;
+  }).join('');
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div>
+        <strong style="font-size:1.05rem;">9. 3 🖼 → 1 आ/अ ✕</strong>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartTypoGame()">${resetText}</button>
+        <span class="game-score-pill">${typoScore} / ${bodyPartsVocab.length} · (${typoIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">
+      ${cardsHtml}
+    </div>
+
+    <div id="typo-feedback-msg" style="margin-top:1.15rem;text-align:center;"></div>
+  `;
+}
+
+function checkTypoCard(idx) {
+  if (typoAnswered) return;
+  const chosen = typoCards[idx];
+  const btn = document.getElementById('typo-card-' + idx);
+  if (!chosen) return;
+
+  if (chosen.hasTypo) {
+    typoAnswered = true;
+    if (typoFirstTry) typoScore++;
+    speakSanskritWord(chosen.item.ttsText);
+    renderPracticeArena();
+    const matchedBtn = document.getElementById('typo-card-' + idx);
+    if (matchedBtn) matchedBtn.classList.add('correct');
+    const feedbackEl = document.getElementById('typo-feedback-msg');
+    if (feedbackEl) {
+      feedbackEl.innerHTML = `
+        <button type="button" class="chip-btn active" onclick="nextTypoRound()">→</button>
+      `;
+    }
+  } else {
+    typoFirstTry = false;
+    if (btn) btn.classList.add('wrong');
+    speakSanskritWord(chosen.item.ttsText);
+  }
+}
+
+function nextTypoRound() {
+  if (typoIndex + 1 >= bodyPartsVocab.length) {
+    typoFinished = true;
+  } else {
+    typoIndex++;
+    prepareTypoRound();
+  }
+  renderPracticeArena();
+}
+
+function restartTypoGame() {
+  typoIndex = 0;
+  typoScore = 0;
+  typoFinished = false;
+  prepareTypoRound();
+  renderPracticeArena();
+}
+
+// GAME 10: Missing Syllable / Devanagari Spelling Drill (12 rounds + Final Score)
 function renderSpellingGame(arena) {
+  if (spFinished) {
+    renderFinalScoreScreen(arena, '10. Missing Letters', spScore, bodyPartsVocab.length, 'restartSpellingGame()');
+    return;
+  }
+
   const item = bodyPartsVocab[spIndex];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
   const choicesHtml = item.missingChoices.map((ch, i) => `
     <button type="button" class="quiz-opt-btn" id="sp-opt-${i}" onclick="checkSpellingAnswer('${ch}', ${i})">
@@ -1087,9 +1518,12 @@ function renderSpellingGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">7. Missing Letters</strong>
+        <strong style="font-size:1.05rem;">10. Missing Letters</strong>
       </div>
-      <span class="game-score-pill">${spScore} · (${spIndex + 1}/${bodyPartsVocab.length})</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartSpellingGame()">${resetText}</button>
+        <span class="game-score-pill">${spScore} / ${bodyPartsVocab.length} · (${spIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
     </div>
 
     <div style="text-align:center;background:var(--bg-primary);padding:1.25rem;border-radius:12px;border:1px solid var(--border-color);">
@@ -1113,7 +1547,7 @@ function checkSpellingAnswer(chosenSyllable, btnIdx) {
 
   if (chosenSyllable === item.missingAnswer) {
     spAnswered = true;
-    spScore++;
+    if (spFirstTry) spScore++;
     if (btn) btn.classList.add('correct');
     const wordDisp = document.getElementById('sp-word-display');
     if (wordDisp) wordDisp.innerHTML = `<span style="color:var(--accent-cambridge);">${item.deva}</span>`;
@@ -1127,20 +1561,35 @@ function checkSpellingAnswer(chosenSyllable, btnIdx) {
       `;
     }
   } else {
+    spFirstTry = false;
     if (btn) btn.classList.add('wrong');
   }
 }
 
 function nextSpellingRound() {
-  spIndex = (spIndex + 1) % bodyPartsVocab.length;
-  spAnswered = false;
+  if (spIndex + 1 >= bodyPartsVocab.length) {
+    spFinished = true;
+  } else {
+    spIndex++;
+    spAnswered = false;
+    spFirstTry = true;
+  }
   renderPracticeArena();
 }
 
-// GAME 8: True or False ("आम् / न" — zero translations)
+function restartSpellingGame() {
+  spIndex = 0;
+  spScore = 0;
+  spAnswered = false;
+  spFirstTry = true;
+  spFinished = false;
+  renderPracticeArena();
+}
+
+// GAME 11: True or False ("आम् / न" — 12 rounds + Final Score)
 function prepareTrueFalseRound() {
   tfAnswered = false;
-  tfIsTrue = Math.random() >= 0.45;
+  tfIsTrue = (tfIndex % 2 === 0) ? (Math.random() >= 0.4) : (Math.random() >= 0.5);
   if (tfIsTrue) {
     tfDisplayedWordIdx = tfIndex;
   } else {
@@ -1149,15 +1598,24 @@ function prepareTrueFalseRound() {
 }
 
 function renderTrueFalseGame(arena) {
+  if (tfFinished) {
+    renderFinalScoreScreen(arena, '11. आम् / न', tfScore, bodyPartsVocab.length, 'restartTrueFalseGame()');
+    return;
+  }
+
   const picItem = bodyPartsVocab[tfIndex];
   const wordItem = bodyPartsVocab[tfDisplayedWordIdx];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">8. आम् / न</strong>
+        <strong style="font-size:1.05rem;">11. आम् / न</strong>
       </div>
-      <span class="game-score-pill">${tfScore}</span>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartTrueFalseGame()">${resetText}</button>
+        <span class="game-score-pill">${tfScore} / ${bodyPartsVocab.length} · (${tfIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
     </div>
 
     <div style="text-align:center;background:var(--bg-primary);padding:1.35rem;border-radius:12px;border:1px solid var(--border-color);">
@@ -1208,193 +1666,20 @@ function checkTrueFalse(userSaidTrue) {
 }
 
 function nextTrueFalseRound() {
-  tfIndex = (tfIndex + 1) % bodyPartsVocab.length;
+  if (tfIndex + 1 >= bodyPartsVocab.length) {
+    tfFinished = true;
+  } else {
+    tfIndex++;
+    prepareTrueFalseRound();
+  }
+  renderPracticeArena();
+}
+
+function restartTrueFalseGame() {
+  tfIndex = 0;
+  tfScore = 0;
+  tfFinished = false;
   prepareTrueFalseRound();
-  renderPracticeArena();
-}
-
-// GAME 10: Spot the Wrong Label (3 Pictures, 1 Wrongly Labeled — 12 rounds for all 12 words)
-function prepareWrongLabelRound() {
-  wlAnswered = false;
-  const n = bodyPartsVocab.length;
-  // Picture with the WRONG label (e.g., round 0: Eye picture नयन labeled with जिह्वा!)
-  const wrongPicItem = bodyPartsVocab[wlIndex];
-  const wrongLabelItem = bodyPartsVocab[(wlIndex + 2) % n];
-
-  // Two pictures with CORRECT labels
-  const correct1 = bodyPartsVocab[(wlIndex + 4) % n];
-  const correct2 = bodyPartsVocab[(wlIndex + 8) % n];
-
-  const rawCards = [
-    { picItem: wrongPicItem, labelItem: wrongLabelItem, isWrong: true },
-    { picItem: correct1, labelItem: correct1, isWrong: false },
-    { picItem: correct2, labelItem: correct2, isWrong: false }
-  ];
-
-  // Rotate position of the wrongly labeled card across rounds (0, 1, 2)
-  const shift = (wlIndex * 5 + 1) % 3;
-  wlCards = [
-    rawCards[shift % 3],
-    rawCards[(shift + 1) % 3],
-    rawCards[(shift + 2) % 3]
-  ];
-}
-
-function renderWrongLabelGame(arena) {
-  if (wlCards.length === 0) prepareWrongLabelRound();
-
-  const cardsHtml = wlCards.map((c, idx) => {
-    const showCorrection = wlAnswered && c.isWrong;
-    return `
-      <button type="button" class="quiz-opt-btn" id="wl-card-${idx}" onclick="checkWrongLabelCard(${idx})"
-              style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
-        <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.picItem.svg}</div>
-        ${!showCorrection ? `
-          <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.labelItem.deva}</div>
-          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.labelItem.iast}</div>
-        ` : `
-          <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.8;">${c.labelItem.deva}</div>
-          <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.picItem.deva}</div>
-          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:#15803d;">${c.picItem.iast}</div>
-        `}
-      </button>
-    `;
-  }).join('');
-
-  arena.innerHTML = `
-    <div class="game-top-bar">
-      <div>
-        <strong style="font-size:1.05rem;">3 🖼 → 1 ✕</strong>
-      </div>
-      <span class="game-score-pill">${wlScore} · (${wlIndex + 1}/${bodyPartsVocab.length})</span>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">
-      ${cardsHtml}
-    </div>
-
-    <div id="wl-feedback-msg" style="margin-top:1.15rem;text-align:center;"></div>
-  `;
-}
-
-function checkWrongLabelCard(idx) {
-  if (wlAnswered) return;
-  const chosen = wlCards[idx];
-  const btn = document.getElementById('wl-card-' + idx);
-  if (!chosen) return;
-
-  if (chosen.isWrong) {
-    wlAnswered = true;
-    wlScore++;
-    speakSanskritWord(chosen.picItem.ttsText);
-    renderPracticeArena();
-    const matchedBtn = document.getElementById('wl-card-' + idx);
-    if (matchedBtn) matchedBtn.classList.add('correct');
-    const feedbackEl = document.getElementById('wl-feedback-msg');
-    if (feedbackEl) {
-      feedbackEl.innerHTML = `
-        <button type="button" class="chip-btn active" onclick="nextWrongLabelRound()">→</button>
-      `;
-    }
-  } else {
-    if (btn) btn.classList.add('wrong');
-    speakSanskritWord(chosen.picItem.ttsText);
-  }
-}
-
-function nextWrongLabelRound() {
-  wlIndex = (wlIndex + 1) % bodyPartsVocab.length;
-  prepareWrongLabelRound();
-  renderPracticeArena();
-}
-
-// GAME 11: Spot the 1-Letter Spelling Mistake (3 Pictures, 1 has a 1-letter typo like नसिका instead of नासिका — 12 rounds)
-function prepareTypoRound() {
-  typoAnswered = false;
-  const n = bodyPartsVocab.length;
-  const typoItem = bodyPartsVocab[typoIndex];
-  const correct1 = bodyPartsVocab[(typoIndex + 3) % n];
-  const correct2 = bodyPartsVocab[(typoIndex + 7) % n];
-
-  const rawCards = [
-    { item: typoItem, displayedDeva: typoItem.typoDeva, displayedIast: typoItem.typoIast, hasTypo: true },
-    { item: correct1, displayedDeva: correct1.deva, displayedIast: correct1.iast, hasTypo: false },
-    { item: correct2, displayedDeva: correct2.deva, displayedIast: correct2.iast, hasTypo: false }
-  ];
-
-  const shift = (typoIndex * 7 + 2) % 3;
-  typoCards = [
-    rawCards[shift % 3],
-    rawCards[(shift + 1) % 3],
-    rawCards[(shift + 2) % 3]
-  ];
-}
-
-function renderTypoGame(arena) {
-  if (typoCards.length === 0) prepareTypoRound();
-
-  const cardsHtml = typoCards.map((c, idx) => {
-    const showCorrection = typoAnswered && c.hasTypo;
-    return `
-      <button type="button" class="quiz-opt-btn" id="typo-card-${idx}" onclick="checkTypoCard(${idx})"
-              style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
-        <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.item.svg}</div>
-        ${!showCorrection ? `
-          <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.displayedDeva}</div>
-          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.displayedIast}</div>
-        ` : `
-          <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">${c.displayedDeva}</div>
-          <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.item.deva}</div>
-          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:#15803d;">${c.item.iast}</div>
-        `}
-      </button>
-    `;
-  }).join('');
-
-  arena.innerHTML = `
-    <div class="game-top-bar">
-      <div>
-        <strong style="font-size:1.05rem;">3 🖼 → 1 आ/अ ✕</strong>
-      </div>
-      <span class="game-score-pill">${typoScore} · (${typoIndex + 1}/${bodyPartsVocab.length})</span>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">
-      ${cardsHtml}
-    </div>
-
-    <div id="typo-feedback-msg" style="margin-top:1.15rem;text-align:center;"></div>
-  `;
-}
-
-function checkTypoCard(idx) {
-  if (typoAnswered) return;
-  const chosen = typoCards[idx];
-  const btn = document.getElementById('typo-card-' + idx);
-  if (!chosen) return;
-
-  if (chosen.hasTypo) {
-    typoAnswered = true;
-    typoScore++;
-    speakSanskritWord(chosen.item.ttsText);
-    renderPracticeArena();
-    const matchedBtn = document.getElementById('typo-card-' + idx);
-    if (matchedBtn) matchedBtn.classList.add('correct');
-    const feedbackEl = document.getElementById('typo-feedback-msg');
-    if (feedbackEl) {
-      feedbackEl.innerHTML = `
-        <button type="button" class="chip-btn active" onclick="nextTypoRound()">→</button>
-      `;
-    }
-  } else {
-    if (btn) btn.classList.add('wrong');
-    speakSanskritWord(chosen.item.ttsText);
-  }
-}
-
-function nextTypoRound() {
-  typoIndex = (typoIndex + 1) % bodyPartsVocab.length;
-  prepareTypoRound();
   renderPracticeArena();
 }
 
@@ -1409,9 +1694,20 @@ function selectProductionWord(wordId) {
   renderProductionStage();
 }
 
+function restartProductionStage() {
+  producedWordsSet.clear();
+  activeProdWordId = 'nayana';
+  renderProductionStage();
+}
+
 function renderProductionStage() {
   const container = document.getElementById('lesson1-production-stage');
   if (!container) return;
+
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+  const scoreLabel = currentLang === 'ru'
+    ? `${producedWordsSet.size} из ${bodyPartsVocab.length} правильно`
+    : `${producedWordsSet.size} out of ${bodyPartsVocab.length} correct`;
 
   const activeItem = bodyPartsVocab.find(w => w.id === activeProdWordId) || bodyPartsVocab[0];
   const chipsHtml = bodyPartsVocab.map(w => {
@@ -1426,8 +1722,9 @@ function renderProductionStage() {
   }).join('');
 
   container.innerHTML = `
-    <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:0.85rem;">
-      <span class="game-score-pill">${producedWordsSet.size} / 12</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.85rem;">
+      <span class="game-score-pill">${scoreLabel}</span>
+      <button type="button" class="chip-btn" onclick="restartProductionStage()">${resetText}</button>
     </div>
 
     <div class="preset-buttons" style="margin-bottom:1.25rem;">${chipsHtml}</div>
