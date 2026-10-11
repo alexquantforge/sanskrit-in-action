@@ -2461,6 +2461,7 @@ let prodSprintScore = 0;
 let prodSprintDuration = 4;
 let prodSprintTimeLeft = 4;
 let prodSprintSubMode = 'auto'; // 'manual' | 'auto' | 'slideshow' (no text & no sound auto-advance)
+let prodSprintVisualMode = 'card'; // 'card' (isolated body part) | 'arrow' (Full Face or Full Person with arrow pointing to the target body part)
 let prodSprintGameStarted = false; // Waits for the user to click "Включить таймер и начать игру"
 let prodSprintRunning = false;
 let prodSprintRevealed = false;
@@ -2628,6 +2629,104 @@ function restartProdSprint() {
   renderProductionStage();
 }
 
+function setProdSprintVisualMode(vMode) {
+  prodSprintVisualMode = vMode;
+  renderProductionStage();
+}
+
+function renderSprintArrowDiagramHtml(wordId) {
+  const pos = hotspotPositions.find(p => p.id === wordId) || hotspotPositions[0];
+  // Calculate shortened line end so arrowhead tip lands cleanly at (pos.tx, pos.ty)
+  const dx = pos.tx - pos.x;
+  const dy = pos.ty - pos.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const endX = pos.tx - (dx / dist) * 6;
+  const endY = pos.ty - (dy / dist) * 6;
+
+  const arrowOverlaySvg = `
+    <defs>
+      <marker id="sprint-arrow-head" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#DC2626"/>
+      </marker>
+    </defs>
+    <!-- Glowing target ring on the exact body part -->
+    <circle cx="${pos.tx}" cy="${pos.ty}" r="11" fill="rgba(220,38,38,0.18)" stroke="#DC2626" stroke-width="2" stroke-dasharray="3,2"/>
+    <circle cx="${pos.tx}" cy="${pos.ty}" r="4" fill="#DC2626" stroke="#FFFFFF" stroke-width="1.4"/>
+    <!-- Bold white halo + red arrow shaft pointing to the body part -->
+    <line x1="${pos.x}" y1="${pos.y}" x2="${endX}" y2="${endY}" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>
+    <line x1="${pos.x}" y1="${pos.y}" x2="${endX}" y2="${endY}" stroke="#DC2626" stroke-width="3.6" stroke-linecap="round" marker-end="url(#sprint-arrow-head)"/>
+    <!-- Origin badge with '?' -->
+    <circle cx="${pos.x}" cy="${pos.y}" r="14" fill="#DC2626" stroke="#FEF08A" stroke-width="2.5"/>
+    <text x="${pos.x}" y="${pos.y + 4.5}" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800" font-family="Plus Jakarta Sans, sans-serif">?</text>
+  `;
+
+  if (pos.pic === 'face') {
+    return `
+      <div style="width:100%;max-width:290px;margin:0 auto 0.75rem;">
+        <svg viewBox="0 0 320 260" style="width:100%;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="6" width="308" height="248" rx="14" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
+          <path d="M134 210V238H186V210" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4"/>
+          <path d="M108 246C122 232 198 232 212 246" fill="#0F766E" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="90" cy="140" rx="11" ry="19" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+          <path d="M88 132C84 136 84 144 88 148" stroke="#14213D" stroke-width="1.8" stroke-linecap="round"/>
+          <ellipse cx="230" cy="140" rx="11" ry="19" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+          <path d="M232 132C236 136 236 144 232 148" stroke="#14213D" stroke-width="1.8" stroke-linecap="round"/>
+          <ellipse cx="160" cy="136" rx="68" ry="82" fill="#F4C7AB" stroke="#14213D" stroke-width="2.8"/>
+          <path d="M92 120C92 68 122 46 160 46C198 46 228 68 228 120C214 88 190 78 160 78C130 78 106 88 92 120Z" fill="#1E293B" stroke="#14213D" stroke-width="2.4"/>
+          <path d="M114 100C125 92 141 92 150 98" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+          <path d="M170 98C179 92 195 92 206 100" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+          <ellipse cx="132" cy="116" rx="15" ry="9.5" fill="#FFFFFF" stroke="#14213D" stroke-width="2.4"/>
+          <circle cx="132" cy="116" r="5.5" fill="#1D4ED8"/>
+          <circle cx="132" cy="116" r="2.6" fill="#0F172A"/>
+          <circle cx="130" cy="114" r="1.3" fill="#FFFFFF"/>
+          <ellipse cx="188" cy="116" rx="15" ry="9.5" fill="#FFFFFF" stroke="#14213D" stroke-width="2.4"/>
+          <circle cx="188" cy="116" r="5.5" fill="#1D4ED8"/>
+          <circle cx="188" cy="116" r="2.6" fill="#0F172A"/>
+          <circle cx="186" cy="114" r="1.3" fill="#FFFFFF"/>
+          <path d="M160 112V145C153 149 149 147 149 143M160 145C167 149 171 147 171 143" stroke="#14213D" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M132 172C148 167 172 167 188 172C183 196 137 196 132 172Z" fill="#7F1D1D" stroke="#14213D" stroke-width="2.4"/>
+          <path d="M139 172H181V179C170 181 150 181 139 179V172Z" fill="#FFFFFF" stroke="#14213D" stroke-width="1.5"/>
+          <path d="M148 185C154 180 166 180 172 185C174 194 146 194 148 185Z" fill="#FB7185" stroke="#14213D" stroke-width="1.6"/>
+          <path d="M129 171C146 165 174 165 191 171" stroke="#E11D48" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M133 173C146 197 174 197 187 173" stroke="#E11D48" stroke-width="3.4" stroke-linecap="round"/>
+          ${arrowOverlaySvg}
+        </svg>
+      </div>
+    `;
+  }
+
+  return `
+    <div style="width:100%;max-width:290px;margin:0 auto 0.75rem;">
+      <svg viewBox="0 0 320 260" style="width:100%;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="6" width="308" height="248" rx="14" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
+        <path d="M132 84L96 132L86 142" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M132 84L96 132L86 142" stroke="#14213D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="86" cy="144" r="8" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+        <path d="M80 139L70 135 M78 143L67 144 M79 147L69 154 M83 150L76 160 M89 150L86 160" stroke="#14213D" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M188 84L224 132L234 142" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M188 84L224 132L234 142" stroke="#14213D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="234" cy="144" r="8" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+        <path d="M240 139L250 135 M242 143L253 144 M241 147L251 154 M237 150L244 160 M231 150L234 160" stroke="#14213D" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M145 158V228" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round"/>
+        <path d="M139 158V226M151 158V226" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M151 226C151 234 146 240 136 240H120C115 240 114 234 120 231L139 225Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M175 158V228" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round"/>
+        <path d="M169 158V226M181 158V226" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M169 226C169 234 174 240 184 240H202C207 240 208 234 202 231L181 225Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M130 78C144 85 176 85 190 78L196 154H124L130 78Z" fill="#0F766E" stroke="#14213D" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M132 154H188L186 184H163L160 168L157 184H134L132 154Z" fill="#1E3A5F" stroke="#14213D" stroke-width="2.3" stroke-linejoin="round"/>
+        <rect x="153" y="68" width="14" height="12" rx="4" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+        <ellipse cx="160" cy="46" rx="22" ry="25" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+        <path d="M138 42C138 25 148 18 160 18C172 18 182 25 182 42C176 32 168 29 160 29C152 29 144 32 138 42Z" fill="#1E293B" stroke="#14213D" stroke-width="2.2"/>
+        <circle cx="152" cy="44" r="2.2" fill="#0F172A"/>
+        <circle cx="168" cy="44" r="2.2" fill="#0F172A"/>
+        <path d="M153 56C157 60 163 60 167 56" stroke="#E11D48" stroke-width="2.2" stroke-linecap="round"/>
+        ${arrowOverlaySvg}
+      </svg>
+    </div>
+  `;
+}
+
 function renderProdSprintMode(container) {
   if (prodSprintFinished) {
     const title = currentLang === 'ru' ? '1. Спринт на время ⏱' : '1. Speed Sprint ⏱';
@@ -2642,6 +2741,12 @@ function renderProdSprintMode(container) {
   const slideshowModeLabel = currentLang === 'ru'
     ? '⏩ Авто-смена картинок (без текста и звука)'
     : '⏩ Auto-Advance Pictures (No Text & No Sound)';
+  const visualCardLabel = currentLang === 'ru'
+    ? '🖼 Отдельная часть тела'
+    : '🖼 Isolated Body Part';
+  const visualArrowLabel = currentLang === 'ru'
+    ? '🏹 Стрелка на лице / человеке'
+    : '🏹 Arrow on Face / Full Person';
   const enableGameAndTimerText = currentLang === 'ru'
     ? `▶ Включить таймер и начать игру (${prodSprintDuration} сек)`
     : `▶ Enable Timer & Start Game (${prodSprintDuration}s)`;
@@ -2658,8 +2763,12 @@ function renderProdSprintMode(container) {
       ? 'Покажите эту часть тела у себя и назовите её вслух ДО окончания таймера:'
       : 'Point to this body part on yourself and say the Sanskrit word aloud BEFORE time runs out:');
 
+  const visualBoxHtml = prodSprintVisualMode === 'arrow'
+    ? renderSprintArrowDiagramHtml(item.id)
+    : `<div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">${item.svg}</div>`;
+
   container.innerHTML = `
-    <div class="game-top-bar">
+    <div class="game-top-bar" style="margin-bottom:0.6rem;">
       <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
         <button type="button" class="chip-btn ${prodSprintSubMode === 'manual' ? 'active' : ''}" onclick="setProdSprintSubMode('manual')">
           ${manualModeLabel}
@@ -2681,12 +2790,21 @@ function renderProdSprintMode(container) {
       </div>
     </div>
 
+    <div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.85rem;">
+      <button type="button" class="chip-btn ${prodSprintVisualMode === 'card' ? 'active' : ''}" onclick="setProdSprintVisualMode('card')">
+        ${visualCardLabel}
+      </button>
+      <button type="button" class="chip-btn ${prodSprintVisualMode === 'arrow' ? 'active' : ''}" onclick="setProdSprintVisualMode('arrow')">
+        ${visualArrowLabel}
+      </button>
+    </div>
+
     <div style="text-align:center;font-size:0.9rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.85rem;">
       ${promptText}
     </div>
 
     <div class="flashcard-box" style="cursor:default;">
-      <div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">${item.svg}</div>
+      ${visualBoxHtml}
       ${!prodSprintRevealed ? `
         <div style="font-size:2rem;font-weight:800;color:${prodSprintRunning ? '#dc2626' : 'var(--accent-cambridge)'};margin-bottom:0.65rem;">
           ⏱ ${prodSprintTimeLeft}s
