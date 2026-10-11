@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=26" />
+  <link rel="stylesheet" href="styles.css?v=27" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -148,6 +148,18 @@
                data-i18n-en="In the <strong>Presentation</strong> stage, we introduce the 12 target words through visual context, sound, and form (Meaning → Pronunciation → Form). Click any card to hear the pronunciation, then hide the labels to test your recall!">
               На стадии <strong>Presentation</strong> мы знакомимся с 12 словами через наглядные образы, звучание и форму (Meaning → Pronunciation → Form). Нажимайте на любую карточку, чтобы прослушать произношение, а затем скройте подписи, чтобы проверить себя!
             </p>
+          </div>
+
+          <!-- Presentation Mode Switcher (4 CELTA Modes, Step-by-Step default) -->
+          <div class="practice-tabs" role="tablist" style="margin-bottom:1.25rem;">
+            <button type="button" class="practice-tab-btn active" data-pres-mode="stepbystep" onclick="selectPresentationMode('stepbystep')"
+                    data-i18n-ru="1. Пошагово (по 3 слова)" data-i18n-en="1. Step-by-Step (3 Words)">1. Пошагово (по 3 слова)</button>
+            <button type="button" class="practice-tab-btn" data-pres-mode="hotspots" onclick="selectPresentationMode('hotspots')"
+                    data-i18n-ru="2. Схема тела (Hotspots)" data-i18n-en="2. Body Diagram (Hotspots)">2. Схема тела (Hotspots)</button>
+            <button type="button" class="practice-tab-btn" data-pres-mode="audiofirst" onclick="selectPresentationMode('audiofirst')"
+                    data-i18n-ru="3. Сначала звук 🔊 → потом буквы" data-i18n-en="3. Audio-First 🔊 → Text">3. Сначала звук 🔊 → потом буквы</button>
+            <button type="button" class="practice-tab-btn" data-pres-mode="poster" onclick="selectPresentationMode('poster')"
+                    data-i18n-ru="4. Плакат (все 12 слов)" data-i18n-en="4. Full Poster (All 12)">4. Плакат (все 12 слов)</button>
           </div>
 
           <div class="vocab-toolbar">
@@ -1100,7 +1112,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=26"></script>
-  <script src="app.js?v=26"></script>
+  <script src="lesson1.js?v=27"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>

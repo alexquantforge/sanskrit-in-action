@@ -358,6 +358,54 @@ const bodyPartsVocab = [
 ];
 
 // Lesson 1 State
+let currentPresentationMode = 'stepbystep'; // 'stepbystep' (default) | 'hotspots' | 'audiofirst' | 'poster'
+let presStepIndex = 0; // 0..3 for the 4 steps of 3 words
+let activeHotspotId = 'shirsha';
+let audioFirstHeardIds = new Set();
+let audioFirstRevealedIds = new Set();
+
+const presentationSteps = [
+  {
+    num: 1,
+    titleRu: 'Шаг 1 из 4 · Верхняя часть головы',
+    titleEn: 'Step 1 of 4 · Upper Part of the Head',
+    wordIds: ['shirsha', 'lalata', 'bhru']
+  },
+  {
+    num: 2,
+    titleRu: 'Шаг 2 из 4 · Органы чувств на голове',
+    titleEn: 'Step 2 of 4 · Sense Organs on the Head',
+    wordIds: ['nayana', 'nasika', 'karna']
+  },
+  {
+    num: 3,
+    titleRu: 'Шаг 3 из 4 · Область рта',
+    titleEn: 'Step 3 of 4 · Mouth Area',
+    wordIds: ['ostha', 'danta', 'jihva']
+  },
+  {
+    num: 4,
+    titleRu: 'Шаг 4 из 4 · Конечности',
+    titleEn: 'Step 4 of 4 · Limbs',
+    wordIds: ['kara', 'anguli', 'pada']
+  }
+];
+
+const hotspotPositions = [
+  { id: 'shirsha', num: 1, x: 180, y: 30 },
+  { id: 'lalata',  num: 2, x: 180, y: 68 },
+  { id: 'bhru',    num: 3, x: 142, y: 92 },
+  { id: 'nayana',  num: 4, x: 218, y: 112 },
+  { id: 'nasika',  num: 5, x: 180, y: 138 },
+  { id: 'karna',   num: 6, x: 96,  y: 132 },
+  { id: 'ostha',   num: 7, x: 142, y: 182 },
+  { id: 'danta',   num: 8, x: 180, y: 173 },
+  { id: 'jihva',   num: 9, x: 212, y: 192 },
+  { id: 'kara',    num: 10, x: 82, y: 295 },
+  { id: 'anguli',  num: 11, x: 46, y: 335 },
+  { id: 'pada',    num: 12, x: 235, y: 398 }
+];
+
 let labelsHidden = false;
 let posterMaskedMode = false; // Whether the 12-card Presentation poster has pink squares covering word endings
 let posterRevealedIds = new Set();
@@ -601,28 +649,332 @@ function renderMaskedWordMarkup(item, isRevealed, fontSize = '1.65rem') {
   `;
 }
 
-// 1. Render Stage 1: PRESENTATION (3x4 Chart — pure Picture + Sanskrit, zero translations)
+// 1. Render Stage 1: PRESENTATION (4 CELTA Modes: 1. Step-by-Step [default], 2. Hotspots, 3. Audio-First, 4. Full Poster)
+function selectPresentationMode(mode) {
+  currentPresentationMode = mode;
+  document.querySelectorAll('.practice-tab-btn[data-pres-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.presMode === mode);
+  });
+  renderPresentationStage();
+}
+
+function renderVocabCardItemHtml(item, large = false) {
+  const isRev = posterRevealedIds.has(item.id);
+  const devaFontSize = large ? '2.1rem' : '1.55rem';
+  const wordHtml = posterMaskedMode
+    ? renderMaskedWordMarkup(item, isRev, devaFontSize)
+    : `<div class="vocab-deva" style="${large ? 'font-size:2.1rem;' : ''}">${item.deva}</div>`;
+
+  return `
+    <div class="vocab-item-card" onclick="handlePosterCardClick('${item.id}', '${item.ttsText}')" style="${large ? 'padding:1.65rem 1.25rem;' : ''}">
+      <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${item.ttsText}')">🔊</button>
+      <div class="vocab-svg-box" style="${large ? 'width:118px;height:118px;' : ''}">${item.svg}</div>
+      ${wordHtml}
+      <div class="vocab-iast" style="${large ? 'font-size:0.98rem;' : ''}">${item.iast}</div>
+    </div>
+  `;
+}
+
+function renderStepByStepPresentationHtml() {
+  const step = presentationSteps[presStepIndex] || presentationSteps[0];
+  const stepTitle = currentLang === 'ru' ? step.titleRu : step.titleEn;
+  const playAllLabel = currentLang === 'ru' ? '🔊 Прослушать все 3 слова' : '🔊 Listen to All 3 Words';
+  const prevLabel = currentLang === 'ru' ? '← Предыдущие 3' : '← Previous 3';
+  const nextLabel = currentLang === 'ru' ? 'Следующие 3 →' : 'Next 3 →';
+
+  const stepTabsHtml = presentationSteps.map((s, idx) => {
+    const wordsDeva = s.wordIds
+      .map(id => bodyPartsVocab.find(w => w.id === id))
+      .filter(Boolean)
+      .map(w => w.deva)
+      .join(' · ');
+    return `
+      <button type="button" class="chip-btn ${idx === presStepIndex ? 'active' : ''}" onclick="setPresStep(${idx})">
+        ${s.num}. ${wordsDeva}
+      </button>
+    `;
+  }).join('');
+
+  const stepCardsHtml = step.wordIds
+    .map(id => bodyPartsVocab.find(w => w.id === id))
+    .filter(Boolean)
+    .map(item => renderVocabCardItemHtml(item, true))
+    .join('');
+
+  return `
+    <div style="background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:18px;padding:1.5rem;margin-bottom:2rem;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.15rem;padding-bottom:0.9rem;border-bottom:1px solid var(--border-color);">
+        <div>
+          <strong style="font-size:1.15rem;color:var(--text-primary);">${stepTitle}</strong>
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button type="button" class="chip-btn active" onclick="playCurrentStepAudio()">${playAllLabel}</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+        ${stepTabsHtml}
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:1.15rem;margin-bottom:1.25rem;">
+        ${stepCardsHtml}
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border-color);">
+        <button type="button" class="chip-btn" onclick="setPresStep(${(presStepIndex - 1 + presentationSteps.length) % presentationSteps.length})">
+          ${prevLabel}
+        </button>
+        <span class="game-score-pill">${presStepIndex + 1} / ${presentationSteps.length}</span>
+        <button type="button" class="chip-btn active" onclick="setPresStep(${(presStepIndex + 1) % presentationSteps.length})">
+          ${nextLabel}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function setPresStep(idx) {
+  presStepIndex = idx;
+  renderPresentationStage();
+}
+
+function playCurrentStepAudio() {
+  const step = presentationSteps[presStepIndex] || presentationSteps[0];
+  const items = step.wordIds.map(id => bodyPartsVocab.find(w => w.id === id)).filter(Boolean);
+  items.forEach((item, i) => {
+    setTimeout(() => {
+      speakSanskritWord(item.ttsText);
+    }, i * 1150);
+  });
+}
+
+function renderHotspotsPresentationHtml() {
+  const activeItem = bodyPartsVocab.find(w => w.id === activeHotspotId) || bodyPartsVocab[0];
+  const activePos = hotspotPositions.find(p => p.id === activeItem.id) || hotspotPositions[0];
+  const isRev = posterRevealedIds.has(activeItem.id);
+  const wordHtml = posterMaskedMode
+    ? renderMaskedWordMarkup(activeItem, isRev, '2.35rem')
+    : `<div class="vocab-deva" style="font-size:2.35rem;">${activeItem.deva}</div>`;
+
+  const pinsSvgHtml = hotspotPositions.map(pos => {
+    const isCurrent = pos.id === activeItem.id;
+    const item = bodyPartsVocab.find(w => w.id === pos.id);
+    const fill = isCurrent ? '#DC2626' : '#0F766E';
+    const r = isCurrent ? 14 : 11;
+    const stroke = isCurrent ? '#FEF08A' : '#FFFFFF';
+    return `
+      <g style="cursor:pointer;" onclick="selectHotspotWord('${pos.id}')">
+        ${isCurrent ? `<circle cx="${pos.x}" cy="${pos.y}" r="20" fill="rgba(220,38,38,0.22)"/>` : ''}
+        <circle cx="${pos.x}" cy="${pos.y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>
+        <text x="${pos.x}" y="${pos.y + 4}" text-anchor="middle" fill="#FFFFFF" font-size="10.5" font-weight="700" font-family="Plus Jakarta Sans, sans-serif">${pos.num}</text>
+        <title>${item ? item.deva : ''}</title>
+      </g>
+    `;
+  }).join('');
+
+  const chipsHtml = hotspotPositions.map(pos => {
+    const item = bodyPartsVocab.find(w => w.id === pos.id);
+    if (!item) return '';
+    const isCurrent = item.id === activeItem.id;
+    return `
+      <button type="button" class="chip-btn ${isCurrent ? 'active' : ''}" onclick="selectHotspotWord('${item.id}')">
+        ${pos.num}. ${item.deva}<span class="iast-text"> (${item.iast})</span>
+      </button>
+    `;
+  }).join('');
+
+  const hintText = currentLang === 'ru'
+    ? 'Нажимайте на точки 1–12 на схеме тела или на кнопки справа:'
+    : 'Click markers 1–12 on the body diagram or the buttons on the right:';
+
+  return `
+    <div style="background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:18px;padding:1.5rem;margin-bottom:2rem;box-shadow:var(--shadow-sm);">
+      <div style="margin-bottom:1rem;font-size:0.92rem;font-weight:600;color:var(--text-secondary);">
+        ${hintText}
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.5rem;align-items:center;">
+        <!-- Interactive SVG Body & Head Diagram with 12 Hotspots -->
+        <div style="background:var(--bg-primary);border:1.5px solid var(--border-color);border-radius:16px;padding:0.75rem;text-align:center;">
+          <svg viewBox="0 0 360 430" style="width:100%;max-width:340px;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Soft background aura -->
+            <rect x="8" y="8" width="344" height="414" rx="16" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
+
+            <!-- Torso, Arm/Hand (kara + anguli) & Leg/Foot (pada) -->
+            <path d="M135 222C115 228 96 248 86 278L68 308C58 318 46 326 42 334C38 341 46 346 56 340L72 328L60 347C56 353 64 357 70 349L82 332L76 350C74 356 82 358 86 350L96 326C104 306 116 282 128 266L134 335L226 335L232 256C254 256 266 238 245 224Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- Tunic / Kurta -->
+            <path d="M126 222C146 234 214 234 234 222L242 325H118L126 222Z" fill="#0F766E" stroke="#14213D" stroke-width="2.5"/>
+            <!-- Legs & Foot (pada) -->
+            <path d="M145 325V395C145 404 132 408 126 408" stroke="#14213D" stroke-width="10" stroke-linecap="round"/>
+            <path d="M210 325V388C210 396 225 398 248 398C258 398 264 393 256 388C244 382 226 382 222 375V325" fill="#F4C7AB" stroke="#14213D" stroke-width="2.5" stroke-linejoin="round"/>
+
+            <!-- Ears (karna) -->
+            <ellipse cx="102" cy="132" rx="12" ry="20" fill="#F4C7AB" stroke="#14213D" stroke-width="2.8"/>
+            <ellipse cx="258" cy="132" rx="12" ry="20" fill="#F4C7AB" stroke="#14213D" stroke-width="2.8"/>
+
+            <!-- Head Oval (shirsha / lalata) -->
+            <ellipse cx="180" cy="128" rx="74" ry="88" fill="#F4C7AB" stroke="#14213D" stroke-width="3"/>
+            <!-- Hair Crown (shirsha) -->
+            <path d="M106 114C106 60 140 36 180 36C220 36 254 60 254 114C238 82 212 72 180 72C148 72 122 82 106 114Z" fill="#1E293B" stroke="#14213D" stroke-width="2.5"/>
+
+            <!-- Eyebrows (bhru) -->
+            <path d="M126 96C138 88 156 88 166 95" stroke="#1E293B" stroke-width="4.5" stroke-linecap="round"/>
+            <path d="M194 95C204 88 222 88 234 96" stroke="#1E293B" stroke-width="4.5" stroke-linecap="round"/>
+
+            <!-- Eyes (nayana) -->
+            <ellipse cx="146" cy="112" rx="16" ry="10" fill="#FFFFFF" stroke="#14213D" stroke-width="2.5"/>
+            <circle cx="146" cy="112" r="5.5" fill="#1D4ED8"/>
+            <ellipse cx="214" cy="112" rx="16" ry="10" fill="#FFFFFF" stroke="#14213D" stroke-width="2.5"/>
+            <circle cx="214" cy="112" r="5.5" fill="#1D4ED8"/>
+
+            <!-- Nose (nasika) -->
+            <path d="M180 108V142C173 146 168 144 168 140M180 142C187 146 192 144 192 140" stroke="#14213D" stroke-width="2.8" stroke-linecap="round"/>
+
+            <!-- Open Smiling Mouth with Lips (ostha), Teeth (danta), and Tongue (jihva) -->
+            <path d="M144 168C162 160 198 160 216 168C210 194 150 194 144 168Z" fill="#7F1D1D" stroke="#14213D" stroke-width="2.6"/>
+            <!-- Upper Teeth (danta) -->
+            <path d="M152 168H208V176C194 178 166 178 152 176V168Z" fill="#FFFFFF" stroke="#14213D" stroke-width="1.6"/>
+            <!-- Tongue (jihva) -->
+            <path d="M164 182C170 176 190 176 196 182C198 194 162 194 164 182Z" fill="#FB7185" stroke="#14213D" stroke-width="1.8"/>
+            <!-- Upper & Lower Lip outline (ostha) -->
+            <path d="M142 167C160 158 200 158 218 167" stroke="#E11D48" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- 12 Interactive Hotspot Pins -->
+            ${pinsSvgHtml}
+          </svg>
+        </div>
+
+        <!-- Active Hotspot Close-up Card & 12 Selector Chips -->
+        <div>
+          <div class="vocab-item-card" onclick="handlePosterCardClick('${activeItem.id}', '${activeItem.ttsText}')" style="padding:1.6rem 1.25rem;margin-bottom:1rem;">
+            <span class="game-score-pill" style="position:absolute;top:0.75rem;left:0.75rem;">#${activePos.num} / 12</span>
+            <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${activeItem.ttsText}')">🔊</button>
+            <div class="vocab-svg-box" style="width:125px;height:125px;margin-bottom:0.65rem;">${activeItem.svg}</div>
+            ${wordHtml}
+            <div class="vocab-iast" style="font-size:1.05rem;">${activeItem.iast}</div>
+            <div style="display:flex;justify-content:center;gap:0.6rem;margin-top:0.9rem;" onclick="event.stopPropagation();">
+              <button type="button" class="chip-btn" onclick="stepHotspotWord(-1)">←</button>
+              <button type="button" class="chip-btn active" onclick="speakSanskritWord('${activeItem.ttsText}')">🔊</button>
+              <button type="button" class="chip-btn" onclick="stepHotspotWord(1)">→</button>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:0.45rem;">
+            ${chipsHtml}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function selectHotspotWord(wordId) {
+  activeHotspotId = wordId;
+  const item = bodyPartsVocab.find(w => w.id === wordId);
+  if (item) speakSanskritWord(item.ttsText);
+  renderPresentationStage();
+}
+
+function stepHotspotWord(delta) {
+  const idx = hotspotPositions.findIndex(p => p.id === activeHotspotId);
+  const nextPos = hotspotPositions[(idx + delta + hotspotPositions.length) % hotspotPositions.length];
+  if (nextPos) selectHotspotWord(nextPos.id);
+}
+
+function renderAudioFirstPresentationHtml() {
+  const instructionText = currentLang === 'ru'
+    ? 'Правило CELTA «Сначала ухо — потом глаз»: нажмите на карточку, чтобы сначала услышать и повторить слово, а вторым нажатием откройте буквы'
+    : 'CELTA Audio-First Rule: click a card once to hear & repeat the word from the picture, then click again to reveal the written form';
+  const revealAllLabel = currentLang === 'ru' ? '👁 Открыть все буквы' : '👁 Reveal All Letters';
+  const resetAllLabel = currentLang === 'ru' ? '↺ Снова скрыть буквы' : '↺ Hide All Letters';
+
+  const cardsHtml = bodyPartsVocab.map(item => {
+    const heard = audioFirstHeardIds.has(item.id);
+    const revealed = audioFirstRevealedIds.has(item.id);
+    const listenLabel = currentLang === 'ru' ? '🔊 1. Послушать' : '🔊 1. Listen';
+    const showTextLabel = currentLang === 'ru' ? '👁 2. Показать слово' : '👁 2. Show Word';
+
+    return `
+      <div class="vocab-item-card" onclick="handleAudioFirstCardClick('${item.id}', '${item.ttsText}')">
+        <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${item.ttsText}'); audioFirstHeardIds.add('${item.id}'); renderPresentationStage();">🔊</button>
+        <div class="vocab-svg-box">${item.svg}</div>
+        ${revealed ? `
+          <div class="vocab-deva" style="color:#15803d;">${item.deva}</div>
+          <div class="vocab-iast">${item.iast}</div>
+        ` : `
+          <div style="margin-top:0.35rem;">
+            <span class="chip-btn ${heard ? 'active' : ''}" style="font-size:0.8rem;padding:0.3rem 0.65rem;">
+              ${heard ? showTextLabel : listenLabel}
+            </span>
+          </div>
+        `}
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="margin-bottom:2rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:12px;padding:0.9rem 1.15rem;margin-bottom:1.15rem;">
+        <span style="font-size:0.9rem;font-weight:600;color:var(--text-secondary);">${instructionText}</span>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button type="button" class="chip-btn" onclick="revealAllAudioFirst()">${revealAllLabel}</button>
+          <button type="button" class="chip-btn" onclick="resetAudioFirst()">${resetAllLabel}</button>
+        </div>
+      </div>
+      <div class="vocab-grid-12" style="margin-bottom:0;">
+        ${cardsHtml}
+      </div>
+    </div>
+  `;
+}
+
+function handleAudioFirstCardClick(itemId, ttsText) {
+  speakSanskritWord(ttsText);
+  if (!audioFirstHeardIds.has(itemId)) {
+    audioFirstHeardIds.add(itemId);
+  } else {
+    audioFirstRevealedIds.add(itemId);
+  }
+  renderPresentationStage();
+}
+
+function revealAllAudioFirst() {
+  bodyPartsVocab.forEach(item => {
+    audioFirstHeardIds.add(item.id);
+    audioFirstRevealedIds.add(item.id);
+  });
+  renderPresentationStage();
+}
+
+function resetAudioFirst() {
+  audioFirstHeardIds.clear();
+  audioFirstRevealedIds.clear();
+  renderPresentationStage();
+}
+
 function renderPresentationStage() {
   const gridEl = document.getElementById('lesson1-vocab-grid');
   if (!gridEl) return;
 
   gridEl.classList.toggle('labels-hidden', labelsHidden);
 
-  gridEl.innerHTML = bodyPartsVocab.map(item => {
-    const isRev = posterRevealedIds.has(item.id);
-    const wordHtml = posterMaskedMode
-      ? renderMaskedWordMarkup(item, isRev, '1.55rem')
-      : `<div class="vocab-deva">${item.deva}</div>`;
+  document.querySelectorAll('.practice-tab-btn[data-pres-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.presMode === currentPresentationMode);
+  });
 
-    return `
-      <div class="vocab-item-card" onclick="handlePosterCardClick('${item.id}', '${item.ttsText}')">
-        <button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); speakSanskritWord('${item.ttsText}')">🔊</button>
-        <div class="vocab-svg-box">${item.svg}</div>
-        ${wordHtml}
-        <div class="vocab-iast">${item.iast}</div>
-      </div>
-    `;
-  }).join('');
+  if (currentPresentationMode === 'stepbystep') {
+    gridEl.classList.remove('vocab-grid-12');
+    gridEl.innerHTML = renderStepByStepPresentationHtml();
+  } else if (currentPresentationMode === 'hotspots') {
+    gridEl.classList.remove('vocab-grid-12');
+    gridEl.innerHTML = renderHotspotsPresentationHtml();
+  } else if (currentPresentationMode === 'audiofirst') {
+    gridEl.classList.remove('vocab-grid-12');
+    gridEl.innerHTML = renderAudioFirstPresentationHtml();
+  } else {
+    gridEl.classList.add('vocab-grid-12');
+    gridEl.innerHTML = bodyPartsVocab.map(item => renderVocabCardItemHtml(item, false)).join('');
+  }
 
   const toggleBtn = document.getElementById('toggle-labels-btn');
   if (toggleBtn) {
