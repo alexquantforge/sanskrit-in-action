@@ -2460,7 +2460,7 @@ let prodSprintIndex = 0;
 let prodSprintScore = 0;
 let prodSprintDuration = 4;
 let prodSprintTimeLeft = 4;
-let prodSprintAutoTimer = true; // Default: 2nd option (Auto Timer)
+let prodSprintSubMode = 'auto'; // 'manual' | 'auto' | 'slideshow' (no text & no sound auto-advance)
 let prodSprintGameStarted = false; // Waits for the user to click "Включить таймер и начать игру"
 let prodSprintRunning = false;
 let prodSprintRevealed = false;
@@ -2523,23 +2523,24 @@ function selectProductionMode(mode) {
   renderProductionStage();
 }
 
-// MODE 1: Speed Sprint ⏱ (See picture only -> Say word aloud before timer hits 0 -> Check with audio)
-function setProdSprintAutoTimer(isAuto) {
+// MODE 1: Speed Sprint ⏱ (See picture only -> Say word aloud before timer hits 0)
+function setProdSprintSubMode(subMode) {
   stopAllProductionTimers();
-  prodSprintAutoTimer = isAuto;
+  prodSprintSubMode = subMode;
+  prodSprintIndex = 0;
+  prodSprintScore = subMode === 'slideshow' ? bodyPartsVocab.length : 0;
+  prodSprintRevealed = false;
+  prodSprintFinished = false;
+  prodSprintGameStarted = false;
   prodSprintTimeLeft = prodSprintDuration;
-  if (prodSprintAutoTimer && prodSprintGameStarted && !prodSprintFinished && !prodSprintRevealed) {
-    startProdSprintTimer();
-  } else {
-    renderProductionStage();
-  }
+  renderProductionStage();
 }
 
 function setProdSprintDuration(sec) {
   stopAllProductionTimers();
   prodSprintDuration = sec;
   prodSprintTimeLeft = sec;
-  if (prodSprintAutoTimer && prodSprintGameStarted && !prodSprintFinished && !prodSprintRevealed) {
+  if (prodSprintSubMode !== 'manual' && prodSprintGameStarted && !prodSprintFinished && !prodSprintRevealed) {
     startProdSprintTimer();
   } else {
     renderProductionStage();
@@ -2549,6 +2550,11 @@ function setProdSprintDuration(sec) {
 function beginProdSprintGame() {
   prodSprintGameStarted = true;
   startProdSprintTimer();
+}
+
+function pauseProdSprintTimer() {
+  stopAllProductionTimers();
+  renderProductionStage();
 }
 
 function startProdSprintTimer() {
@@ -2562,8 +2568,22 @@ function startProdSprintTimer() {
   prodSprintTimerId = setInterval(() => {
     prodSprintTimeLeft--;
     if (prodSprintTimeLeft <= 0) {
-      stopAllProductionTimers();
-      revealProdSprintCard();
+      if (prodSprintSubMode === 'slideshow') {
+        // Pure picture slideshow: no text and no audio — immediately advance to the next picture!
+        if (prodSprintIndex + 1 >= bodyPartsVocab.length) {
+          stopAllProductionTimers();
+          prodSprintScore = bodyPartsVocab.length;
+          prodSprintFinished = true;
+          renderProductionStage();
+        } else {
+          prodSprintIndex++;
+          prodSprintTimeLeft = prodSprintDuration;
+          renderProductionStage();
+        }
+      } else {
+        stopAllProductionTimers();
+        revealProdSprintCard();
+      }
     } else {
       renderProductionStage();
     }
@@ -2589,7 +2609,7 @@ function gradeProdSprintCard(knewIt) {
     prodSprintIndex++;
     prodSprintRevealed = false;
     prodSprintTimeLeft = prodSprintDuration;
-    if (prodSprintAutoTimer && prodSprintGameStarted) {
+    if (prodSprintSubMode === 'auto' && prodSprintGameStarted) {
       startProdSprintTimer();
     } else {
       renderProductionStage();
@@ -2600,7 +2620,7 @@ function gradeProdSprintCard(knewIt) {
 function restartProdSprint() {
   stopAllProductionTimers();
   prodSprintIndex = 0;
-  prodSprintScore = 0;
+  prodSprintScore = prodSprintSubMode === 'slideshow' ? bodyPartsVocab.length : 0;
   prodSprintRevealed = false;
   prodSprintFinished = false;
   prodSprintGameStarted = false;
@@ -2619,25 +2639,36 @@ function renderProdSprintMode(container) {
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
   const manualModeLabel = currentLang === 'ru' ? '✋ Таймер вручную' : '✋ Manual Timer';
   const autoModeLabel = currentLang === 'ru' ? '⚡ Авто-таймер' : '⚡ Auto Timer';
+  const slideshowModeLabel = currentLang === 'ru'
+    ? '⏩ Авто-смена картинок (без текста и звука)'
+    : '⏩ Auto-Advance Pictures (No Text & No Sound)';
   const enableGameAndTimerText = currentLang === 'ru'
     ? `▶ Включить таймер и начать игру (${prodSprintDuration} сек)`
     : `▶ Enable Timer & Start Game (${prodSprintDuration}s)`;
   const startTimerText = currentLang === 'ru'
     ? `▶ Запустить таймер (${prodSprintDuration} сек)`
     : `▶ Start Timer (${prodSprintDuration}s)`;
+  const pauseText = currentLang === 'ru' ? '⏸ Пауза' : '⏸ Pause';
   const revealNowText = currentLang === 'ru' ? '🔊 Я назвал вслух! Проверить' : '🔊 I Said It! Check Answer';
-  const promptText = currentLang === 'ru'
-    ? 'Покажите эту часть тела у себя и назовите её вслух ДО окончания таймера:'
-    : 'Point to this body part on yourself and say the Sanskrit word aloud BEFORE time runs out:';
+  const promptText = prodSprintSubMode === 'slideshow'
+    ? (currentLang === 'ru'
+      ? `Картинки сменяют друг друга каждые ${prodSprintDuration} сек без текста и звука — успевайте называть все 12 слов вслух!`
+      : `Pictures advance automatically every ${prodSprintDuration}s with no text and no sound — say all 12 words aloud in time!`)
+    : (currentLang === 'ru'
+      ? 'Покажите эту часть тела у себя и назовите её вслух ДО окончания таймера:'
+      : 'Point to this body part on yourself and say the Sanskrit word aloud BEFORE time runs out:');
 
   container.innerHTML = `
     <div class="game-top-bar">
       <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
-        <button type="button" class="chip-btn ${!prodSprintAutoTimer ? 'active' : ''}" onclick="setProdSprintAutoTimer(false)">
+        <button type="button" class="chip-btn ${prodSprintSubMode === 'manual' ? 'active' : ''}" onclick="setProdSprintSubMode('manual')">
           ${manualModeLabel}
         </button>
-        <button type="button" class="chip-btn ${prodSprintAutoTimer ? 'active' : ''}" onclick="setProdSprintAutoTimer(true)">
+        <button type="button" class="chip-btn ${prodSprintSubMode === 'auto' ? 'active' : ''}" onclick="setProdSprintSubMode('auto')">
           ${autoModeLabel}
+        </button>
+        <button type="button" class="chip-btn ${prodSprintSubMode === 'slideshow' ? 'active' : ''}" onclick="setProdSprintSubMode('slideshow')">
+          ${slideshowModeLabel}
         </button>
         <span style="color:var(--border-strong);margin:0 0.15rem;">|</span>
         <button type="button" class="chip-btn ${prodSprintDuration === 4 ? 'active' : ''}" onclick="setProdSprintDuration(4)">4s</button>
@@ -2646,7 +2677,7 @@ function renderProdSprintMode(container) {
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <button type="button" class="chip-btn" onclick="restartProdSprint()">${resetText}</button>
-        <span class="game-score-pill">${prodSprintScore} / ${bodyPartsVocab.length} · (${prodSprintIndex + 1}/${bodyPartsVocab.length})</span>
+        <span class="game-score-pill">${prodSprintSubMode === 'slideshow' ? `${prodSprintIndex + 1} / ${bodyPartsVocab.length}` : `${prodSprintScore} / ${bodyPartsVocab.length} · (${prodSprintIndex + 1}/${bodyPartsVocab.length})`}</span>
       </div>
     </div>
 
@@ -2655,7 +2686,7 @@ function renderProdSprintMode(container) {
     </div>
 
     <div class="flashcard-box" style="cursor:default;">
-      <div class="vocab-svg-box" style="width:138px;height:138px;margin-bottom:0.75rem;">${item.svg}</div>
+      <div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">${item.svg}</div>
       ${!prodSprintRevealed ? `
         <div style="font-size:2rem;font-weight:800;color:${prodSprintRunning ? '#dc2626' : 'var(--accent-cambridge)'};margin-bottom:0.65rem;">
           ⏱ ${prodSprintTimeLeft}s
@@ -2663,10 +2694,14 @@ function renderProdSprintMode(container) {
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
           ${!prodSprintRunning ? `
             <button type="button" class="btn btn-primary" style="padding:0.55rem 1.2rem;font-size:0.92rem;" onclick="beginProdSprintGame()">
-              ${prodSprintAutoTimer && !prodSprintGameStarted ? enableGameAndTimerText : startTimerText}
+              ${prodSprintSubMode !== 'manual' && !prodSprintGameStarted ? enableGameAndTimerText : startTimerText}
             </button>
+          ` : `
+            <button type="button" class="chip-btn" onclick="pauseProdSprintTimer()">${pauseText}</button>
+          `}
+          ${prodSprintSubMode !== 'slideshow' ? `
+            <button type="button" class="chip-btn" onclick="revealProdSprintCard()">${revealNowText}</button>
           ` : ''}
-          <button type="button" class="chip-btn" onclick="revealProdSprintCard()">${revealNowText}</button>
         </div>
       ` : `
         <div class="vocab-deva" style="font-size:2.5rem;color:#15803d;margin-bottom:0.15rem;">${item.deva}</div>
