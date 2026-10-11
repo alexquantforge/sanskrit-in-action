@@ -362,7 +362,7 @@ let labelsHidden = false;
 let posterMaskedMode = false; // Whether the 12-card Presentation poster has pink squares covering word endings
 let posterRevealedIds = new Set();
 let iastHidden = true;
-let currentPracticeGame = 'flashcards';
+let currentPracticeGame = 'masked';
 
 // Game 1: Flashcards state
 let fcIndex = 0;
@@ -742,10 +742,10 @@ function renderPracticeArena() {
   }
 }
 
-// GAME 1: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio + Self-Score)
+// GAME 2: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio + Self-Score)
 function renderFlashcardsGame(arena) {
   if (fcFinished) {
-    renderFinalScoreScreen(arena, '1. Flashcards', fcScore, bodyPartsVocab.length, 'restartFlashcardsGame()');
+    renderFinalScoreScreen(arena, '2. Flashcards', fcScore, bodyPartsVocab.length, 'restartFlashcardsGame()');
     return;
   }
 
@@ -755,7 +755,7 @@ function renderFlashcardsGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">1. Flashcards</strong>
+        <strong style="font-size:1.05rem;">2. Flashcards</strong>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <button type="button" class="chip-btn" onclick="restartFlashcardsGame()">${resetText}</button>
@@ -822,7 +822,7 @@ function renderMaskedSquareGame(arena) {
 
   if (maskedModeView === 'grid') {
     if (msGridRevealed.size === bodyPartsVocab.length) {
-      renderFinalScoreScreen(arena, '2. ■ (12 / 12)', bodyPartsVocab.length, bodyPartsVocab.length, 'resetMaskedGrid()');
+      renderFinalScoreScreen(arena, '1. ■ (12 / 12)', bodyPartsVocab.length, bodyPartsVocab.length, 'resetMaskedGrid()');
       return;
     }
 
@@ -858,7 +858,7 @@ function renderMaskedSquareGame(arena) {
   }
 
   if (msFinished) {
-    renderFinalScoreScreen(arena, '2. ■', msScore, bodyPartsVocab.length, 'restartMaskedGame()');
+    renderFinalScoreScreen(arena, '1. ■', msScore, bodyPartsVocab.length, 'restartMaskedGame()');
     return;
   }
 
