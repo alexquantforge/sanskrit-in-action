@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=30" />
+  <link rel="stylesheet" href="styles.css?v=31" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -397,6 +397,18 @@
                 <strong>4. Активность В — Индивидуальный зачёт 12/12 и разбор ошибок (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже, громко называя и отмечая все 12 слов до результата <code>12 из 12 правильно</code>. Не перебивайте ученика на полуслове — запишите неточности и проведите короткий разбор в самом конце (<em>Delayed Error Correction</em>).
               </div>
             </div>
+          </div>
+
+          <!-- Production Mode Switcher (4 Communicative Production Formats) -->
+          <div class="practice-tabs" role="tablist">
+            <button type="button" class="practice-tab-btn active" data-prod-mode="sprint" onclick="selectProductionMode('sprint')"
+                    data-i18n-ru="1. Спринт на время ⏱ (Без текста)" data-i18n-en="1. Speed Sprint ⏱ (No Text)">1. Спринт на время ⏱ (Без текста)</button>
+            <button type="button" class="practice-tab-btn" data-prod-mode="mic" onclick="selectProductionMode('mic')"
+                    data-i18n-ru="2. Произнеси в микрофон 🎙" data-i18n-en="2. Speak into Microphone 🎙">2. Произнеси в микрофон 🎙</button>
+            <button type="button" class="practice-tab-btn" data-prod-mode="missingpart" onclick="selectProductionMode('missingpart')"
+                    data-i18n-ru="3. Что пропало на рисунке? ❓" data-i18n-en="3. What's Missing on the Portrait? ❓">3. Что пропало на рисунке? ❓</button>
+            <button type="button" class="practice-tab-btn" data-prod-mode="chant" onclick="selectProductionMode('chant')"
+                    data-i18n-ru="4. Ритм-чант и Чек-лист 12/12 ↑↓" data-i18n-en="4. TPR Chant &amp; Checklist 12/12 ↑↓">4. Ритм-чант и Чек-лист 12/12 ↑↓</button>
           </div>
 
           <div id="lesson1-production-stage" class="practice-arena">
@@ -1220,7 +1232,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=30"></script>
-  <script src="app.js?v=30"></script>
+  <script src="lesson1.js?v=31"></script>
+  <script src="app.js?v=31"></script>
 </body>
 </html>

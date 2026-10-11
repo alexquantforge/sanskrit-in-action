@@ -2452,7 +2452,497 @@ function restartTrueFalseGame() {
   renderPracticeArena();
 }
 
-// 3. Render Stage 3: PRODUCTION (Direct Picture + Sanskrit Word Aloud — zero translations)
+// 3. Render Stage 3: PRODUCTION (4 Communicative Production Formats: 1. Speed Sprint ⏱, 2. Microphone 🎙, 3. What's Missing? ❓, 4. TPR Chant ↑↓)
+let currentProductionMode = 'sprint'; // 'sprint' | 'mic' | 'missingpart' | 'chant'
+
+// Mode 1: Speed Sprint ⏱ state
+let prodSprintIndex = 0;
+let prodSprintScore = 0;
+let prodSprintDuration = 4;
+let prodSprintTimeLeft = 4;
+let prodSprintRunning = false;
+let prodSprintRevealed = false;
+let prodSprintFinished = false;
+let prodSprintTimerId = null;
+
+// Mode 2: Microphone Speech Recognition 🎙 state
+let prodMicIndex = 0;
+let prodMicScore = 0;
+let prodMicListening = false;
+let prodMicStatusMsg = '';
+let prodMicRevealed = false;
+let prodMicFinished = false;
+
+const speechAcceptMap = {
+  nayana:  ['नयन', 'नयना', 'नयान', 'नैना', 'nayana', 'nayan'],
+  nasika:  ['नासिका', 'नसिका', 'नासिक', 'nasika', 'naasika'],
+  jihva:   ['जिह्वा', 'जिह्व', 'जीभ', 'जिहवा', 'jihva', 'jihwa'],
+  karna:   ['कर्ण', 'कर्णा', 'करण', 'कान', 'karna', 'karan'],
+  shirsha: ['शीर्ष', 'शीर्षा', 'शिर्ष', 'shirsha', 'sheersha', 'sirsha'],
+  lalata:  ['ललाट', 'ललाटा', 'ललट', 'lalata', 'lalaat', 'lalat'],
+  bhru:    ['भ्रू', 'भ्रु', 'भ्रूः', 'भू', 'bhru', 'bhroo'],
+  ostha:   ['ओष्ठ', 'ओष्ठा', 'ओष्ट', 'ओठ', 'ostha', 'oshtha', 'oshth'],
+  kara:    ['कर', 'करा', 'कार', 'कल', 'kara', 'kar'],
+  pada:    ['पाद', 'पादा', 'पद', 'पदा', 'pada', 'paada', 'paad'],
+  danta:   ['दन्त', 'दन्ता', 'दंत', 'दंता', 'दान्त', 'danta', 'dant'],
+  anguli:  ['अङ्गुली', 'अंगुली', 'अङ्गुलि', 'अंगुलि', 'उंगली', 'anguli', 'angulee']
+};
+
+// Mode 3: What's Missing on the Portrait? ❓ state
+let prodMissingIndex = 0;
+let prodMissingScore = 0;
+let prodMissingRevealed = false;
+let prodMissingFinished = false;
+
+// Mode 4: TPR Chant ↑↓ & Checklist state
+let prodChantReverse = false;
+let prodChantPlaying = false;
+let prodChantTimerId = null;
+
+function stopAllProductionTimers() {
+  if (prodSprintTimerId) {
+    clearInterval(prodSprintTimerId);
+    prodSprintTimerId = null;
+  }
+  prodSprintRunning = false;
+  if (prodChantTimerId) {
+    clearInterval(prodChantTimerId);
+    prodChantTimerId = null;
+  }
+  prodChantPlaying = false;
+}
+
+function selectProductionMode(mode) {
+  stopAllProductionTimers();
+  currentProductionMode = mode;
+  document.querySelectorAll('.practice-tab-btn[data-prod-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.prodMode === mode);
+  });
+  renderProductionStage();
+}
+
+// MODE 1: Speed Sprint ⏱ (See picture only -> Say word aloud before timer hits 0 -> Check with audio)
+function setProdSprintDuration(sec) {
+  stopAllProductionTimers();
+  prodSprintDuration = sec;
+  prodSprintTimeLeft = sec;
+  renderProductionStage();
+}
+
+function startProdSprintTimer() {
+  stopAllProductionTimers();
+  prodSprintRevealed = false;
+  prodSprintTimeLeft = prodSprintDuration;
+  prodSprintRunning = true;
+  renderProductionStage();
+
+  prodSprintTimerId = setInterval(() => {
+    prodSprintTimeLeft--;
+    if (prodSprintTimeLeft <= 0) {
+      stopAllProductionTimers();
+      revealProdSprintCard();
+    } else {
+      renderProductionStage();
+    }
+  }, 1000);
+}
+
+function revealProdSprintCard() {
+  stopAllProductionTimers();
+  prodSprintRevealed = true;
+  const item = bodyPartsVocab[prodSprintIndex];
+  if (item) speakSanskritWord(item.ttsText);
+  renderProductionStage();
+}
+
+function gradeProdSprintCard(knewIt) {
+  stopAllProductionTimers();
+  if (knewIt) prodSprintScore++;
+  if (prodSprintIndex + 1 >= bodyPartsVocab.length) {
+    prodSprintFinished = true;
+  } else {
+    prodSprintIndex++;
+    prodSprintRevealed = false;
+    prodSprintTimeLeft = prodSprintDuration;
+  }
+  renderProductionStage();
+}
+
+function restartProdSprint() {
+  stopAllProductionTimers();
+  prodSprintIndex = 0;
+  prodSprintScore = 0;
+  prodSprintRevealed = false;
+  prodSprintFinished = false;
+  prodSprintTimeLeft = prodSprintDuration;
+  renderProductionStage();
+}
+
+function renderProdSprintMode(container) {
+  if (prodSprintFinished) {
+    const title = currentLang === 'ru' ? '1. Спринт на время ⏱' : '1. Speed Sprint ⏱';
+    renderFinalScoreScreen(container, title, prodSprintScore, bodyPartsVocab.length, 'restartProdSprint()');
+    return;
+  }
+
+  const item = bodyPartsVocab[prodSprintIndex];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+  const startTimerText = currentLang === 'ru'
+    ? `▶ Запустить таймер (${prodSprintDuration} сек)`
+    : `▶ Start Timer (${prodSprintDuration}s)`;
+  const revealNowText = currentLang === 'ru' ? '🔊 Я назвал вслух! Проверить' : '🔊 I Said It! Check Answer';
+  const promptText = currentLang === 'ru'
+    ? 'Покажите эту часть тела у себя и назовите её вслух ДО окончания таймера:'
+    : 'Point to this body part on yourself and say the Sanskrit word aloud BEFORE time runs out:';
+
+  container.innerHTML = `
+    <div class="game-top-bar">
+      <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
+        <strong style="font-size:1.05rem;margin-right:0.3rem;">⏱</strong>
+        <button type="button" class="chip-btn ${prodSprintDuration === 4 ? 'active' : ''}" onclick="setProdSprintDuration(4)">4s</button>
+        <button type="button" class="chip-btn ${prodSprintDuration === 3 ? 'active' : ''}" onclick="setProdSprintDuration(3)">3s</button>
+        <button type="button" class="chip-btn ${prodSprintDuration === 2 ? 'active' : ''}" onclick="setProdSprintDuration(2)">2s</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartProdSprint()">${resetText}</button>
+        <span class="game-score-pill">${prodSprintScore} / ${bodyPartsVocab.length} · (${prodSprintIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:0.9rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.85rem;">
+      ${promptText}
+    </div>
+
+    <div class="flashcard-box" style="cursor:default;">
+      <div class="vocab-svg-box" style="width:138px;height:138px;margin-bottom:0.75rem;">${item.svg}</div>
+      ${!prodSprintRevealed ? `
+        <div style="font-size:2rem;font-weight:800;color:${prodSprintRunning ? '#dc2626' : 'var(--accent-cambridge)'};margin-bottom:0.65rem;">
+          ⏱ ${prodSprintTimeLeft}s
+        </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">
+          ${!prodSprintRunning ? `
+            <button type="button" class="chip-btn active" onclick="startProdSprintTimer()">${startTimerText}</button>
+          ` : ''}
+          <button type="button" class="chip-btn" onclick="revealProdSprintCard()">${revealNowText}</button>
+        </div>
+      ` : `
+        <div class="vocab-deva" style="font-size:2.5rem;color:#15803d;margin-bottom:0.15rem;">${item.deva}</div>
+        <div class="vocab-iast" style="font-size:1.1rem;margin-bottom:0.85rem;">${item.iast}</div>
+        <div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">
+          <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.ttsText}')">🔊</button>
+          <button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="gradeProdSprintCard(false)">
+            ${currentLang === 'ru' ? '✕ Не успел / ошибся' : '✕ Missed'}
+          </button>
+          <button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="gradeProdSprintCard(true)">
+            ${currentLang === 'ru' ? '✓ Успел назвать верно!' : '✓ Said It in Time!'}
+          </button>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+// MODE 2: Speak into Microphone 🎙 (Speech Recognition + Self-Check Fallback)
+function startProdMicRecognition() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const item = bodyPartsVocab[prodMicIndex];
+  if (!item) return;
+
+  if (!SpeechRec) {
+    prodMicStatusMsg = currentLang === 'ru'
+      ? 'Браузер не поддерживает распознавание речи. Произнесите слово вслух и нажмите «🔊 Проверить звуком».'
+      : 'Speech recognition is not supported in this browser. Say the word aloud and click "🔊 Check with Audio".';
+    prodMicRevealed = true;
+    speakSanskritWord(item.ttsText);
+    renderProductionStage();
+    return;
+  }
+
+  try {
+    const rec = new SpeechRec();
+    rec.lang = 'hi-IN';
+    rec.interimResults = false;
+    rec.maxAlternatives = 5;
+    prodMicListening = true;
+    prodMicStatusMsg = currentLang === 'ru' ? '🎙 Слушаю... Произнесите слово на санскрите!' : '🎙 Listening... Speak the Sanskrit word aloud!';
+    renderProductionStage();
+
+    rec.onresult = (event) => {
+      prodMicListening = false;
+      const alts = [];
+      for (let i = 0; i < event.results[0].length; i++) {
+        alts.push(event.results[0][i].transcript.trim().toLowerCase());
+      }
+      const accepted = speechAcceptMap[item.id] || [item.deva, item.iast];
+      const matched = alts.some(t => accepted.some(acc => t.includes(acc.toLowerCase()) || acc.toLowerCase().includes(t)));
+      const heardDisplay = alts[0] || '';
+      prodMicRevealed = true;
+      speakSanskritWord(item.ttsText);
+      if (matched) {
+        prodMicStatusMsg = currentLang === 'ru'
+          ? `✓ Распознано: «${heardDisplay}» — отлично!`
+          : `✓ Recognized: "${heardDisplay}" — great job!`;
+      } else {
+        prodMicStatusMsg = currentLang === 'ru'
+          ? `Распознано: «${heardDisplay}». Сравните с эталоном 🔊 и отметьте ниже:`
+          : `Heard: "${heardDisplay}". Compare with the audio 🔊 and mark below:`;
+      }
+      renderProductionStage();
+    };
+
+    rec.onerror = () => {
+      prodMicListening = false;
+      prodMicRevealed = true;
+      prodMicStatusMsg = currentLang === 'ru'
+        ? 'Микрофон недоступен. Произнесите слово вслух и сверьте с эталоном 🔊:'
+        : 'Microphone unavailable. Speak the word aloud and check against the audio 🔊:';
+      speakSanskritWord(item.ttsText);
+      renderProductionStage();
+    };
+
+    rec.start();
+  } catch (e) {
+    prodMicListening = false;
+    prodMicRevealed = true;
+    speakSanskritWord(item.ttsText);
+    renderProductionStage();
+  }
+}
+
+function revealProdMicManual() {
+  const item = bodyPartsVocab[prodMicIndex];
+  prodMicRevealed = true;
+  if (item) speakSanskritWord(item.ttsText);
+  renderProductionStage();
+}
+
+function gradeProdMicCard(knewIt) {
+  if (knewIt) prodMicScore++;
+  if (prodMicIndex + 1 >= bodyPartsVocab.length) {
+    prodMicFinished = true;
+  } else {
+    prodMicIndex++;
+    prodMicRevealed = false;
+    prodMicStatusMsg = '';
+  }
+  renderProductionStage();
+}
+
+function restartProdMic() {
+  prodMicIndex = 0;
+  prodMicScore = 0;
+  prodMicListening = false;
+  prodMicRevealed = false;
+  prodMicStatusMsg = '';
+  prodMicFinished = false;
+  renderProductionStage();
+}
+
+function renderProdMicMode(container) {
+  if (prodMicFinished) {
+    const title = currentLang === 'ru' ? '2. Произнеси в микрофон 🎙' : '2. Speak into Microphone 🎙';
+    renderFinalScoreScreen(container, title, prodMicScore, bodyPartsVocab.length, 'restartProdMic()');
+    return;
+  }
+
+  const item = bodyPartsVocab[prodMicIndex];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+  const speakBtnText = prodMicListening
+    ? (currentLang === 'ru' ? '🎙 Слушаю...' : '🎙 Listening...')
+    : (currentLang === 'ru' ? '🎙 Нажать и сказать в микрофон' : '🎙 Click & Speak into Mic');
+  const manualCheckText = currentLang === 'ru' ? '🔊 Проверить звуком (без микрофона)' : '🔊 Check with Audio (No Mic)';
+
+  container.innerHTML = `
+    <div class="game-top-bar">
+      <div>
+        <strong style="font-size:1.05rem;">${currentLang === 'ru' ? '2. Произнеси в микрофон 🎙' : '2. Speak into Microphone 🎙'}</strong>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartProdMic()">${resetText}</button>
+        <span class="game-score-pill">${prodMicScore} / ${bodyPartsVocab.length} · (${prodMicIndex + 1}/${bodyPartsVocab.length})</span>
+      </div>
+    </div>
+
+    <div class="flashcard-box" style="cursor:default;">
+      <div class="vocab-svg-box" style="width:138px;height:138px;margin-bottom:0.75rem;">${item.svg}</div>
+
+      <div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;margin-bottom:0.75rem;">
+        <button type="button" class="chip-btn active" onclick="startProdMicRecognition()">${speakBtnText}</button>
+        <button type="button" class="chip-btn" onclick="revealProdMicManual()">${manualCheckText}</button>
+      </div>
+
+      ${prodMicStatusMsg ? `
+        <div style="font-size:0.88rem;font-weight:600;color:var(--accent-cambridge);margin-bottom:0.65rem;">
+          ${prodMicStatusMsg}
+        </div>
+      ` : ''}
+
+      ${prodMicRevealed ? `
+        <div class="vocab-deva" style="font-size:2.45rem;color:#15803d;margin-bottom:0.15rem;">${item.deva}</div>
+        <div class="vocab-iast" style="font-size:1.05rem;margin-bottom:0.8rem;">${item.iast}</div>
+        <div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">
+          <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.ttsText}')">🔊</button>
+          <button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="gradeProdMicCard(false)">
+            ${currentLang === 'ru' ? '✕ Ещё повторить' : '✕ Retry'}
+          </button>
+          <button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="gradeProdMicCard(true)">
+            ${currentLang === 'ru' ? '✓ Произнёс верно!' : '✓ Pronounced Correctly!'}
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+// MODE 3: What's Missing on the Portrait? ❓ (Spot the '?' marker on the face/body diagram and say the word aloud)
+function revealProdMissingCard() {
+  const ordered = [...hotspotPositions].sort((a, b) => a.num - b.num);
+  const pos = ordered[prodMissingIndex];
+  const item = pos ? bodyPartsVocab.find(w => w.id === pos.id) : null;
+  prodMissingRevealed = true;
+  if (item) speakSanskritWord(item.ttsText);
+  renderProductionStage();
+}
+
+function gradeProdMissingCard(knewIt) {
+  if (knewIt) prodMissingScore++;
+  if (prodMissingIndex + 1 >= hotspotPositions.length) {
+    prodMissingFinished = true;
+  } else {
+    prodMissingIndex++;
+    prodMissingRevealed = false;
+  }
+  renderProductionStage();
+}
+
+function restartProdMissing() {
+  prodMissingIndex = 0;
+  prodMissingScore = 0;
+  prodMissingRevealed = false;
+  prodMissingFinished = false;
+  renderProductionStage();
+}
+
+function renderProdMissingMode(container) {
+  if (prodMissingFinished) {
+    const title = currentLang === 'ru' ? '3. Что пропало на рисунке? ❓' : '3. What Is Missing? ❓';
+    renderFinalScoreScreen(container, title, prodMissingScore, hotspotPositions.length, 'restartProdMissing()');
+    return;
+  }
+
+  const ordered = [...hotspotPositions].sort((a, b) => a.num - b.num);
+  const pos = ordered[prodMissingIndex];
+  const item = bodyPartsVocab.find(w => w.id === pos.id) || bodyPartsVocab[0];
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+  const promptText = currentLang === 'ru'
+    ? 'Посмотрите, куда указывает красный знак «?» на рисунке, и назовите эту часть тела вслух:'
+    : 'Look where the red "?" marker points on the drawing and say that body part aloud in Sanskrit:';
+  const checkBtnText = currentLang === 'ru' ? '🔊 Я назвал вслух! Проверить ответ' : '🔊 I Said It! Reveal Answer';
+
+  const targetPinSvg = `
+    <g>
+      <line x1="${pos.x}" y1="${pos.y}" x2="${pos.tx}" y2="${pos.ty}" stroke="#DC2626" stroke-width="2.8"/>
+      <circle cx="${pos.tx}" cy="${pos.ty}" r="11" fill="#FEF08A" stroke="#DC2626" stroke-width="2.5" stroke-dasharray="3,2"/>
+      <circle cx="${pos.x}" cy="${pos.y}" r="15" fill="#DC2626" stroke="#FEF08A" stroke-width="2.5"/>
+      <text x="${pos.x}" y="${pos.y + 5}" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="800" font-family="Plus Jakarta Sans, sans-serif">?</text>
+    </g>
+  `;
+
+  const diagramSvg = pos.pic === 'face' ? `
+    <svg viewBox="0 0 320 260" style="width:100%;max-width:290px;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="308" height="248" rx="14" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
+      <path d="M134 210V238H186V210" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4"/>
+      <ellipse cx="90" cy="140" rx="11" ry="19" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+      <ellipse cx="230" cy="140" rx="11" ry="19" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+      <ellipse cx="160" cy="136" rx="68" ry="82" fill="#F4C7AB" stroke="#14213D" stroke-width="2.8"/>
+      <path d="M92 120C92 68 122 46 160 46C198 46 228 68 228 120C214 88 190 78 160 78C130 78 106 88 92 120Z" fill="#1E293B" stroke="#14213D" stroke-width="2.4"/>
+      <path d="M114 100C125 92 141 92 150 98" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+      <path d="M170 98C179 92 195 92 206 100" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+      <ellipse cx="132" cy="116" rx="15" ry="9.5" fill="#FFFFFF" stroke="#14213D" stroke-width="2.4"/>
+      <circle cx="132" cy="116" r="5.5" fill="#1D4ED8"/>
+      <circle cx="132" cy="116" r="2.6" fill="#0F172A"/>
+      <ellipse cx="188" cy="116" rx="15" ry="9.5" fill="#FFFFFF" stroke="#14213D" stroke-width="2.4"/>
+      <circle cx="188" cy="116" r="5.5" fill="#1D4ED8"/>
+      <circle cx="188" cy="116" r="2.6" fill="#0F172A"/>
+      <path d="M160 112V145C153 149 149 147 149 143M160 145C167 149 171 147 171 143" stroke="#14213D" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M132 172C148 167 172 167 188 172C183 196 137 196 132 172Z" fill="#7F1D1D" stroke="#14213D" stroke-width="2.4"/>
+      <path d="M139 172H181V179C170 181 150 181 139 179V172Z" fill="#FFFFFF" stroke="#14213D" stroke-width="1.5"/>
+      <path d="M148 185C154 180 166 180 172 185C174 194 146 194 148 185Z" fill="#FB7185" stroke="#14213D" stroke-width="1.6"/>
+      <path d="M129 171C146 165 174 165 191 171" stroke="#E11D48" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M133 173C146 197 174 197 187 173" stroke="#E11D48" stroke-width="3.4" stroke-linecap="round"/>
+      ${targetPinSvg}
+    </svg>
+  ` : `
+    <svg viewBox="0 0 320 260" style="width:100%;max-width:290px;height:auto;display:block;margin:0 auto;" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="308" height="248" rx="14" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>
+      <path d="M132 84L96 132L86 142" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M132 84L96 132L86 142" stroke="#14213D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="86" cy="144" r="8" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+      <path d="M80 139L70 135 M78 143L67 144 M79 147L69 154 M83 150L76 160 M89 150L86 160" stroke="#14213D" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M188 84L224 132L234 142" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M188 84L224 132L234 142" stroke="#14213D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="234" cy="144" r="8" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+      <path d="M240 139L250 135 M242 143L253 144 M241 147L251 154 M237 150L244 160 M231 150L234 160" stroke="#14213D" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M145 158V228" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round"/>
+      <path d="M139 158V226M151 158V226" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M151 226C151 234 146 240 136 240H120C115 240 114 234 120 231L139 225Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M175 158V228" stroke="#F4C7AB" stroke-width="13" stroke-linecap="round"/>
+      <path d="M169 158V226M181 158V226" stroke="#14213D" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M169 226C169 234 174 240 184 240H202C207 240 208 234 202 231L181 225Z" fill="#F4C7AB" stroke="#14213D" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M130 78C144 85 176 85 190 78L196 154H124L130 78Z" fill="#0F766E" stroke="#14213D" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M132 154H188L186 184H163L160 168L157 184H134L132 154Z" fill="#1E3A5F" stroke="#14213D" stroke-width="2.3" stroke-linejoin="round"/>
+      <rect x="153" y="68" width="14" height="12" rx="4" fill="#F4C7AB" stroke="#14213D" stroke-width="2.2"/>
+      <ellipse cx="160" cy="46" rx="22" ry="25" fill="#F4C7AB" stroke="#14213D" stroke-width="2.6"/>
+      <path d="M138 42C138 25 148 18 160 18C172 18 182 25 182 42C176 32 168 29 160 29C152 29 144 32 138 42Z" fill="#1E293B" stroke="#14213D" stroke-width="2.2"/>
+      <circle cx="152" cy="44" r="2.3" fill="#0F172A"/>
+      <circle cx="168" cy="44" r="2.3" fill="#0F172A"/>
+      <path d="M152 55C156 60 164 60 168 55" stroke="#14213D" stroke-width="2.2" stroke-linecap="round"/>
+      ${targetPinSvg}
+    </svg>
+  `;
+
+  container.innerHTML = `
+    <div class="game-top-bar">
+      <div>
+        <strong style="font-size:1.05rem;">${currentLang === 'ru' ? '3. Что под знаком «?»' : '3. Spot the "?" Part'}</strong>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartProdMissing()">${resetText}</button>
+        <span class="game-score-pill">${prodMissingScore} / ${ordered.length} · (${prodMissingIndex + 1}/${ordered.length})</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:0.9rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.85rem;">
+      ${promptText}
+    </div>
+
+    <div style="text-align:center;background:var(--bg-primary);padding:1.25rem;border-radius:16px;border:1.5px solid var(--border-strong);">
+      ${diagramSvg}
+
+      ${!prodMissingRevealed ? `
+        <div style="margin-top:1rem;">
+          <button type="button" class="chip-btn active" onclick="revealProdMissingCard()">${checkBtnText}</button>
+        </div>
+      ` : `
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-color);">
+          <div class="vocab-deva" style="font-size:2.35rem;color:#15803d;margin-bottom:0.15rem;">${item.deva}</div>
+          <div class="vocab-iast" style="font-size:1.05rem;margin-bottom:0.75rem;">${item.iast}</div>
+          <div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">
+            <button type="button" class="chip-btn" onclick="speakSanskritWord('${item.ttsText}')">🔊</button>
+            <button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="gradeProdMissingCard(false)">
+              ${currentLang === 'ru' ? '✕ Ошибся' : '✕ Missed'}
+            </button>
+            <button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="gradeProdMissingCard(true)">
+              ${currentLang === 'ru' ? '✓ Назвал верно!' : '✓ Said It Right!'}
+            </button>
+          </div>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+// MODE 4: TPR Chant ↑↓ & Full 12/12 Checklist
 function selectProductionWord(wordId) {
   activeProdWordId = wordId;
   producedWordsSet.add(wordId);
@@ -2463,23 +2953,66 @@ function selectProductionWord(wordId) {
   renderProductionStage();
 }
 
-function restartProductionStage() {
-  producedWordsSet.clear();
-  activeProdWordId = 'nayana';
+function toggleProdChantOrder() {
+  stopAllProductionTimers();
+  prodChantReverse = !prodChantReverse;
   renderProductionStage();
 }
 
-function renderProductionStage() {
-  const container = document.getElementById('lesson1-production-stage');
-  if (!container) return;
+function toggleProdAutoChant() {
+  if (prodChantPlaying) {
+    stopAllProductionTimers();
+    renderProductionStage();
+    return;
+  }
 
+  const orderedIds = hotspotPositions
+    .slice()
+    .sort((a, b) => prodChantReverse ? b.num - a.num : a.num - b.num)
+    .map(p => p.id);
+
+  let stepIdx = 0;
+  prodChantPlaying = true;
+  selectProductionWord(orderedIds[0]);
+
+  prodChantTimerId = setInterval(() => {
+    stepIdx++;
+    if (stepIdx >= orderedIds.length) {
+      stopAllProductionTimers();
+      renderProductionStage();
+    } else {
+      selectProductionWord(orderedIds[stepIdx]);
+    }
+  }, 1600);
+}
+
+function restartProductionStage() {
+  stopAllProductionTimers();
+  producedWordsSet.clear();
+  activeProdWordId = 'shirsha';
+  renderProductionStage();
+}
+
+function renderProdChantMode(container) {
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
   const scoreLabel = currentLang === 'ru'
     ? `${producedWordsSet.size} из ${bodyPartsVocab.length} правильно`
     : `${producedWordsSet.size} out of ${bodyPartsVocab.length} correct`;
+  const orderBtnText = prodChantReverse
+    ? (currentLang === 'ru' ? '↑ Снизу вверх (पाद → शीर्ष)' : '↑ Bottom-Up (पाद → शीर्ष)')
+    : (currentLang === 'ru' ? '↓ Сверху вниз (शीर्ष → पाद)' : '↓ Top-Down (शीर्ष → पाद)');
+  const autoChantText = prodChantPlaying
+    ? (currentLang === 'ru' ? '⏹ Стоп ритм' : '⏹ Stop Chant')
+    : (currentLang === 'ru' ? '▶ Авто-ритм 🔊 (все 12)' : '▶ Auto-Chant 🔊 (All 12)');
 
-  const activeItem = bodyPartsVocab.find(w => w.id === activeProdWordId) || bodyPartsVocab[0];
-  const chipsHtml = bodyPartsVocab.map(w => {
+  const orderedVocab = hotspotPositions
+    .slice()
+    .sort((a, b) => prodChantReverse ? b.num - a.num : a.num - b.num)
+    .map(pos => bodyPartsVocab.find(w => w.id === pos.id))
+    .filter(Boolean);
+
+  const activeItem = bodyPartsVocab.find(w => w.id === activeProdWordId) || orderedVocab[0];
+  const chipsHtml = orderedVocab.map(w => {
     const done = producedWordsSet.has(w.id);
     const isCurrent = w.id === activeProdWordId;
     return `
@@ -2491,9 +3024,15 @@ function renderProductionStage() {
   }).join('');
 
   container.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.85rem;">
-      <span class="game-score-pill">${scoreLabel}</span>
-      <button type="button" class="chip-btn" onclick="restartProductionStage()">${resetText}</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.95rem;">
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button type="button" class="chip-btn" onclick="toggleProdChantOrder()">${orderBtnText}</button>
+        <button type="button" class="chip-btn ${prodChantPlaying ? 'active' : ''}" onclick="toggleProdAutoChant()">${autoChantText}</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span class="game-score-pill">${scoreLabel}</span>
+        <button type="button" class="chip-btn" onclick="restartProductionStage()">${resetText}</button>
+      </div>
     </div>
 
     <div class="preset-buttons" style="margin-bottom:1.25rem;">${chipsHtml}</div>
@@ -2514,6 +3053,25 @@ function renderProductionStage() {
       </div>
     </div>
   `;
+}
+
+function renderProductionStage() {
+  const container = document.getElementById('lesson1-production-stage');
+  if (!container) return;
+
+  document.querySelectorAll('.practice-tab-btn[data-prod-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.prodMode === currentProductionMode);
+  });
+
+  if (currentProductionMode === 'sprint') {
+    renderProdSprintMode(container);
+  } else if (currentProductionMode === 'mic') {
+    renderProdMicMode(container);
+  } else if (currentProductionMode === 'missingpart') {
+    renderProdMissingMode(container);
+  } else {
+    renderProdChantMode(container);
+  }
 }
 
 // Initialize / Refresh all Lesson 1 views when language changes
