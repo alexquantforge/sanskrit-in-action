@@ -3101,7 +3101,29 @@ function renderProdChantMode(container) {
     `;
   }).join('');
 
+  const studentInstructionsHtml = currentLang === 'ru' ? `
+    <div style="background:#f0fdfa;border:1.5px solid var(--accent-cambridge);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.15rem;text-align:left;font-size:0.88rem;line-height:1.55;">
+      <div style="font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;font-size:0.94rem;">
+        🎓 Инструкция для ученика (упражнение «Ритм-чант и жест»):
+      </div>
+      <div><strong>1. В своём темпе:</strong> Нажимайте по порядку на кнопки слов ниже, <strong>касайтесь этой части тела на себе</strong> и громко повторяйте слово вслух.</div>
+      <div><strong>2. Под авто-ритм:</strong> Нажмите <strong>«▶ Авто-ритм 🔊 (все 12)»</strong> — карточки начнут переключаться сами каждые 1,6 сек. Успевайте в ритм касаться каждой части тела на себе и называть её вслух!</div>
+      <div><strong>3. Обратный порядок:</strong> Нажмите <strong>«↑ Снизу вверх (पाद → शीर्ष)»</strong> и пройдите всю цепочку наоборот — от стоп до макушки.</div>
+    </div>
+  ` : `
+    <div style="background:#f0fdfa;border:1.5px solid var(--accent-cambridge);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.15rem;text-align:left;font-size:0.88rem;line-height:1.55;">
+      <div style="font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;font-size:0.94rem;">
+        🎓 Student Instructions (TPR Rhythm Chant):
+      </div>
+      <div><strong>1. At Your Own Pace:</strong> Click each word button in order, <strong>touch that body part on yourself</strong>, and repeat the Sanskrit word aloud.</div>
+      <div><strong>2. With Auto-Chant:</strong> Click <strong>"▶ Auto-Chant 🔊 (All 12)"</strong> — the cards will advance every 1.6 seconds. Keep the rhythm by touching each body part on yourself and chanting the word aloud!</div>
+      <div><strong>3. Reverse Challenge:</strong> Switch to <strong>"↑ Bottom-Up (पाद → शीर्ष)"</strong> and chant the entire chain in reverse from feet to head.</div>
+    </div>
+  `;
+
   container.innerHTML = `
+    ${studentInstructionsHtml}
+
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.95rem;">
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
         <button type="button" class="chip-btn" onclick="toggleProdChantOrder()">${orderBtnText}</button>
