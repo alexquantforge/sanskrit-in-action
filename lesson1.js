@@ -237,8 +237,10 @@ const bodyPartsVocab = [
     missingChoices: ['ष्ठ', 'ष्ट', 'ष्ण', 'स्म'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
-      <path d="M16 50C26 36 42 36 50 43C58 36 74 36 84 50C68 53 32 53 16 50Z" fill="#E11D48" stroke="#14213D" stroke-width="3"/>
-      <path d="M16 50C30 70 70 70 84 50C66 53 34 53 16 50Z" fill="#FB7185" stroke="#14213D" stroke-width="3"/>
+      <path d="M16 47C26 34 42 34 50 40C58 34 74 34 84 47C68 50 32 50 16 47Z" fill="#FDA4AF" stroke="#14213D" stroke-width="2.6"/>
+      <path d="M16 47C30 68 70 68 84 47C66 50 34 50 16 47Z" fill="#E11D48" stroke="#14213D" stroke-width="3.2"/>
+      <path d="M36 56C45 60 55 60 64 56" stroke="#FFE4E6" stroke-width="2" stroke-linecap="round"/>
+      <path d="M50 86V65M44 71L50 64L56 71" stroke="#DC2626" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`
   },
   {
@@ -290,7 +292,10 @@ const bodyPartsVocab = [
     missingChoices: ['द', 'त', 'प', 'ब'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#FFFFFF"/>
-      <path d="M44 16H62L58 64C58 72 64 78 56 82C46 86 26 84 26 77C26 72 38 69 42 62L44 16Z" fill="#F3C6A8" stroke="#14213D" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M48 12C46 26 45 42 47 56C48 61 42 65 32 69C23 72 17 75 17 80C17 84 24 85 35 85C46 85 52 82 59 83C66 84 74 85 78 81C82 77 80 69 75 64C71 59 69 52 71 36C72 25 71 17 69 12" fill="#F3C6A8" stroke="#14213D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M62 60C60 64 62 68 66 68" stroke="#14213D" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M22 76C25 75 28 76 28 79" stroke="#14213D" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M24 84C24 81 26 79 28 79 M31 85C31 82 32 80 34 80 M37 85C37 82 38 81 40 81" stroke="#14213D" stroke-width="1.8" stroke-linecap="round"/>
     </svg>`
   },
   {
@@ -342,8 +347,12 @@ const bodyPartsVocab = [
     missingChoices: ['ङ्गु', 'म्बु', 'न्दु', 'ञ्जु'],
     svg: `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="100" height="100" rx="14" fill="#F8EFE6"/>
-      <path d="M18 76L58 26C64 19 76 26 70 36L38 84Z" fill="#F3C6A8" stroke="#14213D" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M18 76L33 58C35 55 37 53 39 50L50 36C52 33 55 30 58 26C64 19 76 26 70 36L59 51C57 54 54 57 52 60L38 84Z" fill="#F3C6A8" stroke="#14213D" stroke-width="3" stroke-linejoin="round"/>
       <ellipse cx="64" cy="29" rx="5" ry="6" transform="rotate(-38 64 29)" fill="#FDE2E4" stroke="#14213D" stroke-width="2"/>
+      <path d="M48 43C51 45 54 47 56 50" stroke="#14213D" stroke-width="2.1" stroke-linecap="round"/>
+      <path d="M46 46C49 48 51 49 53 52" stroke="#14213D" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/>
+      <path d="M35 59C39 61 42 64 45 67" stroke="#14213D" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M33 62C36 64 39 66 42 69" stroke="#14213D" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/>
     </svg>`
   }
 ];
