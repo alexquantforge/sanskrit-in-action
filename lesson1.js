@@ -427,7 +427,90 @@ let typoFirstTry = true;
 let typoFinished = false;
 let typoCards = [];
 
-// Game 10: Spelling / Missing Letters state
+// Game 10: Categories (Select matching words from all 12 text-only words — 12 categories)
+const categoriesData = [
+  {
+    id: 'sense-head',
+    titleRu: 'Органы чувств на голове',
+    titleEn: 'Sense Organs on the Head',
+    wordIds: ['nayana', 'nasika', 'karna']
+  },
+  {
+    id: 'upper-head',
+    titleRu: 'Верхняя часть головы',
+    titleEn: 'Upper Part of the Head',
+    wordIds: ['shirsha', 'lalata', 'bhru']
+  },
+  {
+    id: 'mouth-area',
+    titleRu: 'Область рта',
+    titleEn: 'Mouth Area',
+    wordIds: ['ostha', 'danta', 'jihva']
+  },
+  {
+    id: 'limbs',
+    titleRu: 'Конечности',
+    titleEn: 'Limbs',
+    wordIds: ['kara', 'anguli', 'pada']
+  },
+  {
+    id: 'long-a',
+    titleRu: 'Где встречается долгая гласная «ā» (ा)',
+    titleEn: 'Words with Long Vowel "ā" (ा)',
+    wordIds: ['nasika', 'jihva', 'lalata', 'pada']
+  },
+  {
+    id: 'long-i',
+    titleRu: 'Где встречается долгая гласная «ī» (ी)',
+    titleEn: 'Words with Long Vowel "ī" (ी)',
+    wordIds: ['shirsha', 'anguli']
+  },
+  {
+    id: 'short-i',
+    titleRu: 'Где встречается краткая гласная «i» (ि)',
+    titleEn: 'Words with Short Vowel "i" (ि)',
+    wordIds: ['nasika', 'jihva']
+  },
+  {
+    id: 'starts-vowel',
+    titleRu: 'Слова, начинающиеся с гласной буквы (अ, ओ)',
+    titleEn: 'Words Starting with a Vowel (अ, ओ)',
+    wordIds: ['ostha', 'anguli']
+  },
+  {
+    id: 'starts-na',
+    titleRu: 'Слова, начинающиеся с буквы «न» (n-)',
+    titleEn: 'Words Starting with "न" (n-)',
+    wordIds: ['nayana', 'nasika']
+  },
+  {
+    id: 'starts-ka',
+    titleRu: 'Слова, начинающиеся с буквы «क» (k-)',
+    titleEn: 'Words Starting with "क" (k-)',
+    wordIds: ['karna', 'kara']
+  },
+  {
+    id: 'has-r',
+    titleRu: 'Слова со звуком «r» (र / र् / ्र)',
+    titleEn: 'Words Containing the Sound "r" (र / र् / ्र)',
+    wordIds: ['karna', 'shirsha', 'bhru', 'kara']
+  },
+  {
+    id: 'only-short-a',
+    titleRu: 'Слова только с краткими гласными «a»',
+    titleEn: 'Words with Only Short "a" Vowels',
+    wordIds: ['nayana', 'karna', 'kara', 'danta']
+  }
+];
+let catIndex = 0;
+let catScore = 0;
+let catSelectedCorrectIds = new Set();
+let catWrongClickedIds = new Set();
+let catFirstTry = true;
+let catAnswered = false;
+let catFinished = false;
+
+// Game 11: Spelling / Missing Letters state
 let spIndex = 0;
 let spScore = 0;
 let spAnswered = false;
@@ -640,6 +723,8 @@ function renderPracticeArena() {
     renderWrongLabelGame(arena);
   } else if (currentPracticeGame === 'typo') {
     renderTypoGame(arena);
+  } else if (currentPracticeGame === 'categories') {
+    renderCategoriesGame(arena);
   } else if (currentPracticeGame === 'spelling') {
     renderSpellingGame(arena);
   } else if (currentPracticeGame === 'truefalse') {
@@ -1596,7 +1681,133 @@ function restartTypoGame() {
   renderPracticeArena();
 }
 
-// GAME 10: Missing Syllable / Devanagari Spelling Drill (12 rounds + Final Score)
+// GAME 10: Categories (Category Title Visible -> Select Matching Words from All 12 Text-Only Words without Pictures)
+function renderCategoriesGame(arena) {
+  if (catFinished) {
+    const title = currentLang === 'ru' ? '10. Категории (12 слов)' : '10. Categories (12 words)';
+    renderFinalScoreScreen(arena, title, catScore, categoriesData.length, 'restartCategoriesGame()');
+    return;
+  }
+
+  const currentCat = categoriesData[catIndex];
+  const catTitle = currentLang === 'ru' ? currentCat.titleRu : currentCat.titleEn;
+  const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
+  const neededCount = currentCat.wordIds.length;
+  const foundCount = catSelectedCorrectIds.size;
+  const pickHint = currentLang === 'ru'
+    ? `Выберите слова из 12 (${foundCount} / ${neededCount}):`
+    : `Select words out of 12 (${foundCount} / ${neededCount}):`;
+
+  const wordsGridHtml = bodyPartsVocab.map(item => {
+    const isSelectedCorrect = catSelectedCorrectIds.has(item.id);
+    const isClickedWrong = catWrongClickedIds.has(item.id);
+    const classes = ['quiz-opt-btn'];
+    if (isSelectedCorrect) classes.push('correct');
+    if (isClickedWrong) classes.push('wrong');
+
+    return `
+      <button type="button" class="${classes.join(' ')}" onclick="clickCategoryWord('${item.id}')"
+              style="padding:1rem 0.75rem;text-align:center;">
+        <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">
+          ${isSelectedCorrect ? '✓ ' : ''}${item.deva}
+        </div>
+        <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.86rem;color:var(--accent-saffron);margin-top:0.15rem;">
+          ${item.iast}
+        </div>
+      </button>
+    `;
+  }).join('');
+
+  const matchedWordsSummary = currentCat.wordIds
+    .map(id => bodyPartsVocab.find(w => w.id === id))
+    .filter(Boolean)
+    .map(w => `${w.deva}<span class="iast-text" style="font-family:var(--font-mono);font-size:0.9rem;"> (${w.iast})</span>`)
+    .join(' · ');
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div>
+        <strong style="font-size:1.05rem;">${currentLang === 'ru' ? '10. Категории' : '10. Categories'}</strong>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="restartCategoriesGame()">${resetText}</button>
+        <span class="game-score-pill">${catScore} / ${categoriesData.length} · (${catIndex + 1}/${categoriesData.length})</span>
+      </div>
+    </div>
+
+    <div style="text-align:center;background:var(--bg-primary);padding:1.35rem 1.25rem;border-radius:14px;border:2px solid var(--accent-cambridge);margin-bottom:1.15rem;">
+      <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-saffron);margin-bottom:0.35rem;">
+        ${currentLang === 'ru' ? 'КАТЕГОРИЯ' : 'CATEGORY'} ${catIndex + 1} / ${categoriesData.length}
+      </div>
+      <div style="font-size:1.45rem;font-weight:800;color:var(--text-primary);margin-bottom:0.35rem;">
+        ${catTitle}
+      </div>
+      <div style="font-size:0.9rem;color:var(--text-secondary);font-weight:600;">
+        ${pickHint}
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));gap:0.75rem;">
+      ${wordsGridHtml}
+    </div>
+
+    ${catAnswered ? `
+      <div style="margin-top:1.25rem;text-align:center;">
+        <div style="color:#15803d;font-weight:700;font-family:var(--font-deva);font-size:1.35rem;margin-bottom:0.6rem;">
+          ✓ ${matchedWordsSummary}
+        </div>
+        <button type="button" class="chip-btn active" onclick="nextCategoryRound()">→</button>
+      </div>
+    ` : ''}
+  `;
+}
+
+function clickCategoryWord(wordId) {
+  if (catAnswered) return;
+  const currentCat = categoriesData[catIndex];
+  const item = bodyPartsVocab.find(w => w.id === wordId);
+  if (!currentCat || !item) return;
+
+  if (currentCat.wordIds.includes(wordId)) {
+    catSelectedCorrectIds.add(wordId);
+    speakSanskritWord(item.ttsText);
+    if (catSelectedCorrectIds.size === currentCat.wordIds.length) {
+      catAnswered = true;
+      if (catFirstTry) catScore++;
+    }
+    renderPracticeArena();
+  } else {
+    catFirstTry = false;
+    catWrongClickedIds.add(wordId);
+    renderPracticeArena();
+  }
+}
+
+function nextCategoryRound() {
+  if (catIndex + 1 >= categoriesData.length) {
+    catFinished = true;
+  } else {
+    catIndex++;
+    catSelectedCorrectIds.clear();
+    catWrongClickedIds.clear();
+    catFirstTry = true;
+    catAnswered = false;
+  }
+  renderPracticeArena();
+}
+
+function restartCategoriesGame() {
+  catIndex = 0;
+  catScore = 0;
+  catSelectedCorrectIds.clear();
+  catWrongClickedIds.clear();
+  catFirstTry = true;
+  catAnswered = false;
+  catFinished = false;
+  renderPracticeArena();
+}
+
+// GAME 11: Missing Syllable / Devanagari Spelling Drill (12 rounds + Final Score)
 function renderSpellingGame(arena) {
   if (spFinished) {
     renderFinalScoreScreen(arena, '10. Missing Letters', spScore, bodyPartsVocab.length, 'restartSpellingGame()');

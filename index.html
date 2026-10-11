@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20" />
+  <link rel="stylesheet" href="styles.css?v=21" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -173,27 +173,35 @@
             <!-- Populated by lesson1.js -->
           </div>
 
-          <!-- Semantic Grouping by Body Zones (No gender mention, no word translations) -->
+          <!-- Semantic Grouping by Body Zones -->
           <div class="cycle-banner" style="padding:1.65rem 2rem;">
-            <span class="badge badge-gold" data-i18n-ru="CELTA LEXICAL GROUPING · 4 ГРУППЫ ДЛЯ ЗАПОМИНАНИЯ" data-i18n-en="CELTA LEXICAL GROUPING · 4 GROUPS FOR EASY RECALL">CELTA LEXICAL GROUPING · 4 ГРУППЫ ДЛЯ ЗАПОМИНАНИЯ</span>
+            <span class="badge badge-gold" data-i18n-ru="CELTA LEXICAL GROUPING · 4 КАТЕГОРИИ ДЛЯ ЗАПОМИНАНИЯ" data-i18n-en="CELTA LEXICAL GROUPING · 4 CATEGORIES FOR EASY RECALL">CELTA LEXICAL GROUPING · 4 КАТЕГОРИИ ДЛЯ ЗАПОМИНАНИЯ</span>
             <div class="cycle-steps" style="margin-top:1rem;">
               <div class="cycle-step">
                 <div class="cycle-step-num">1</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Верхняя часть головы" data-i18n-en="Upper Part of the Head">Верхняя часть головы</div>
                 <h4>शीर्ष · ललाट · भ्रू</h4>
                 <p class="iast-text"><em>śīrṣa · lalāṭa · bhrū</em></p>
               </div>
               <div class="cycle-step">
                 <div class="cycle-step-num">2</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Органы чувств на голове" data-i18n-en="Sense Organs on the Head">Органы чувств на голове</div>
                 <h4>नयन · नासिका · कर्ण</h4>
                 <p class="iast-text"><em>nayana · nāsikā · karṇa</em></p>
               </div>
               <div class="cycle-step">
                 <div class="cycle-step-num">3</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Область рта" data-i18n-en="Mouth Area">Область рта</div>
                 <h4>ओष्ठ · दन्त · जिह्वा</h4>
                 <p class="iast-text"><em>oṣṭha · danta · jihvā</em></p>
               </div>
               <div class="cycle-step">
                 <div class="cycle-step-num">4</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Конечности" data-i18n-en="Limbs">Конечности</div>
                 <h4>कर · अङ्गुली · पाद</h4>
                 <p class="iast-text"><em>kara · aṅgulī · pāda</em></p>
               </div>
@@ -239,10 +247,12 @@
                     data-i18n-ru="8. Где ошибка? (3 картинки)" data-i18n-en="8. Spot the Wrong Word (3 Pics)">8. Где ошибка? (3 картинки)</button>
             <button type="button" class="practice-tab-btn" data-game="typo" onclick="selectPracticeGame('typo')"
                     data-i18n-ru="9. Ошибка в 1 букве (3 картинки)" data-i18n-en="9. Spot the 1-Letter Typo (3 Pics)">9. Ошибка в 1 букве (3 картинки)</button>
+            <button type="button" class="practice-tab-btn" data-game="categories" onclick="selectPracticeGame('categories')"
+                    data-i18n-ru="10. Категории (Выбери из 12)" data-i18n-en="10. Categories (Pick from 12)">10. Категории (Выбери из 12)</button>
             <button type="button" class="practice-tab-btn" data-game="spelling" onclick="selectPracticeGame('spelling')"
-                    data-i18n-ru="10. Missing Letters (Буквы)" data-i18n-en="10. Missing Letters">10. Missing Letters (Буквы)</button>
+                    data-i18n-ru="11. Missing Letters (Буквы)" data-i18n-en="11. Missing Letters">11. Missing Letters (Буквы)</button>
             <button type="button" class="practice-tab-btn" data-game="truefalse" onclick="selectPracticeGame('truefalse')"
-                    data-i18n-ru="11. आम् / न (Да / Нет)" data-i18n-en="11. आम् / न (True / False)">11. आम् / न (Да / Нет)</button>
+                    data-i18n-ru="12. आम् / न (Да / Нет)" data-i18n-en="12. आम् / न (True / False)">12. आम् / न (Да / Нет)</button>
           </div>
 
           <!-- Active Practice Game Arena -->
@@ -1090,7 +1100,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=20"></script>
-  <script src="app.js?v=20"></script>
+  <script src="lesson1.js?v=21"></script>
+  <script src="app.js?v=21"></script>
 </body>
 </html>
