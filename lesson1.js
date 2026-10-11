@@ -18,6 +18,15 @@ const bodyPartsVocab = [
     typoIast: 'nayāna',
     maskedPrefix: 'नय',
     maskedHidden: 'न',
+    gapDeva: '_यन',
+    gapIast: '_yana',
+    gapAnswer: 'न',
+    gapChoices: [
+      { deva: 'न', iast: 'na' },
+      { deva: 'ना', iast: 'nā' },
+      { deva: 'म', iast: 'ma' },
+      { deva: 'प', iast: 'pa' }
+    ],
     missingDisplay: 'न _ न',
     missingAnswer: 'य',
     missingChoices: ['य', 'व', 'प', 'म'],
@@ -39,6 +48,15 @@ const bodyPartsVocab = [
     typoIast: 'nasikā',
     maskedPrefix: 'नासि',
     maskedHidden: 'का',
+    gapDeva: '_सिका',
+    gapIast: '_sikā',
+    gapAnswer: 'ना',
+    gapChoices: [
+      { deva: 'ना', iast: 'nā' },
+      { deva: 'न', iast: 'na' },
+      { deva: 'नी', iast: 'nī' },
+      { deva: 'मा', iast: 'mā' }
+    ],
     missingDisplay: 'ना _ का',
     missingAnswer: 'सि',
     missingChoices: ['सि', 'शि', 'पि', 'ति'],
@@ -58,6 +76,15 @@ const bodyPartsVocab = [
     typoIast: 'jihva',
     maskedPrefix: 'जि',
     maskedHidden: 'ह्वा',
+    gapDeva: '_ह्वा',
+    gapIast: '_hvā',
+    gapAnswer: 'जि',
+    gapChoices: [
+      { deva: 'जि', iast: 'ji' },
+      { deva: 'जी', iast: 'jī' },
+      { deva: 'जा', iast: 'jā' },
+      { deva: 'दि', iast: 'di' }
+    ],
     missingDisplay: 'जि _',
     missingAnswer: 'ह्वा',
     missingChoices: ['ह्वा', 'ह्मा', 'ह्या', 'ह्रा'],
@@ -77,6 +104,15 @@ const bodyPartsVocab = [
     typoIast: 'karna',
     maskedPrefix: 'क',
     maskedHidden: 'र्ण',
+    gapDeva: '_र्ण',
+    gapIast: '_rṇa',
+    gapAnswer: 'क',
+    gapChoices: [
+      { deva: 'क', iast: 'ka' },
+      { deva: 'का', iast: 'kā' },
+      { deva: 'ग', iast: 'ga' },
+      { deva: 'प', iast: 'pa' }
+    ],
     missingDisplay: 'क _',
     missingAnswer: 'र्ण',
     missingChoices: ['र्ण', 'र्म', 'र्य', 'र्त'],
@@ -96,6 +132,15 @@ const bodyPartsVocab = [
     typoIast: 'śirṣa',
     maskedPrefix: 'शी',
     maskedHidden: 'र्ष',
+    gapDeva: '_र्ष',
+    gapIast: '_rṣa',
+    gapAnswer: 'शी',
+    gapChoices: [
+      { deva: 'शी', iast: 'śī' },
+      { deva: 'शि', iast: 'śi' },
+      { deva: 'सी', iast: 'sī' },
+      { deva: 'शा', iast: 'śā' }
+    ],
     missingDisplay: 'शी _',
     missingAnswer: 'र्ष',
     missingChoices: ['र्ष', 'र्स', 'र्श', 'र्ण'],
@@ -119,6 +164,15 @@ const bodyPartsVocab = [
     typoIast: 'lalaṭa',
     maskedPrefix: 'लला',
     maskedHidden: 'ट',
+    gapDeva: 'ल_ट',
+    gapIast: 'la_ṭa',
+    gapAnswer: 'ला',
+    gapChoices: [
+      { deva: 'ला', iast: 'lā' },
+      { deva: 'ल', iast: 'la' },
+      { deva: 'ली', iast: 'lī' },
+      { deva: 'रा', iast: 'rā' }
+    ],
     missingDisplay: 'ल _ ट',
     missingAnswer: 'ला',
     missingChoices: ['ला', 'ली', 'लो', 'ले'],
@@ -140,6 +194,15 @@ const bodyPartsVocab = [
     typoIast: 'bhru',
     maskedPrefix: 'भ्र',
     maskedHidden: 'ू',
+    gapDeva: 'भ्_',
+    gapIast: 'bh_',
+    gapAnswer: 'रू',
+    gapChoices: [
+      { deva: 'रू', iast: 'rū' },
+      { deva: 'रु', iast: 'ru' },
+      { deva: 'री', iast: 'rī' },
+      { deva: 'रा', iast: 'rā' }
+    ],
     missingDisplay: '_ → भ्रू',
     missingAnswer: 'भ्रू',
     missingChoices: ['भ्रू', 'भ्रि', 'भ्रा', 'भ्रे'],
@@ -160,6 +223,15 @@ const bodyPartsVocab = [
     typoIast: 'oṣṭa',
     maskedPrefix: 'ओ',
     maskedHidden: 'ष्ठ',
+    gapDeva: 'ओ_',
+    gapIast: 'o_',
+    gapAnswer: 'ष्ठ',
+    gapChoices: [
+      { deva: 'ष्ठ', iast: 'ṣṭha' },
+      { deva: 'ष्ट', iast: 'ṣṭa' },
+      { deva: 'ष्ठा', iast: 'ṣṭhā' },
+      { deva: 'स्त', iast: 'sta' }
+    ],
     missingDisplay: 'ओ _',
     missingAnswer: 'ष्ठ',
     missingChoices: ['ष्ठ', 'ष्ट', 'ष्ण', 'स्म'],
@@ -178,6 +250,15 @@ const bodyPartsVocab = [
     typoIast: 'kāra',
     maskedPrefix: 'क',
     maskedHidden: 'र',
+    gapDeva: '_र',
+    gapIast: '_ra',
+    gapAnswer: 'क',
+    gapChoices: [
+      { deva: 'क', iast: 'ka' },
+      { deva: 'का', iast: 'kā' },
+      { deva: 'च', iast: 'ca' },
+      { deva: 'त', iast: 'ta' }
+    ],
     missingDisplay: 'क _',
     missingAnswer: 'र',
     missingChoices: ['र', 'ल', 'न', 'म'],
@@ -195,6 +276,15 @@ const bodyPartsVocab = [
     typoIast: 'pada',
     maskedPrefix: 'पा',
     maskedHidden: 'द',
+    gapDeva: '_द',
+    gapIast: '_da',
+    gapAnswer: 'पा',
+    gapChoices: [
+      { deva: 'पा', iast: 'pā' },
+      { deva: 'प', iast: 'pa' },
+      { deva: 'पी', iast: 'pī' },
+      { deva: 'बा', iast: 'bā' }
+    ],
     missingDisplay: 'पा _',
     missingAnswer: 'द',
     missingChoices: ['द', 'त', 'प', 'ब'],
@@ -212,6 +302,15 @@ const bodyPartsVocab = [
     typoIast: 'dānta',
     maskedPrefix: 'द',
     maskedHidden: 'न्त',
+    gapDeva: '_न्त',
+    gapIast: '_nta',
+    gapAnswer: 'द',
+    gapChoices: [
+      { deva: 'द', iast: 'da' },
+      { deva: 'दा', iast: 'dā' },
+      { deva: 'त', iast: 'ta' },
+      { deva: 'ध', iast: 'dha' }
+    ],
     missingDisplay: 'द _ त',
     missingAnswer: 'न्',
     missingChoices: ['न्', 'म्', 'र्', 'ल्'],
@@ -229,6 +328,15 @@ const bodyPartsVocab = [
     typoIast: 'aṅguli',
     maskedPrefix: 'अङ्गु',
     maskedHidden: 'ली',
+    gapDeva: 'अङ्गु_',
+    gapIast: 'aṅgu_',
+    gapAnswer: 'ली',
+    gapChoices: [
+      { deva: 'ली', iast: 'lī' },
+      { deva: 'लि', iast: 'li' },
+      { deva: 'ला', iast: 'lā' },
+      { deva: 'री', iast: 'rī' }
+    ],
     missingDisplay: 'अ _ ली',
     missingAnswer: 'ङ्गु',
     missingChoices: ['ङ्गु', 'म्बु', 'न्दु', 'ञ्जु'],
@@ -734,29 +842,24 @@ function resetMaskedGrid() {
   renderPracticeArena();
 }
 
-// GAME 3: Fill in the Gaps (Visual Sequence Cloze — 12 rounds + Final Score)
+// GAME 3: Fill in the Gaps (Missing Consonant + Vowel Syllable with Underscore, e.g. _यन -> न, _सिका -> ना, भ्_ -> रू, अङ्गु_ -> ली)
 function renderFillGapsGame(arena) {
   if (gapFinished) {
     renderFinalScoreScreen(arena, '3. Fill in the Gaps', gapScore, bodyPartsVocab.length, 'restartGapsGame()');
     return;
   }
 
-  const prevItem = bodyPartsVocab[(gapIndex + bodyPartsVocab.length - 1) % bodyPartsVocab.length];
   const item = bodyPartsVocab[gapIndex];
-  const nextItem = bodyPartsVocab[(gapIndex + 1) % bodyPartsVocab.length];
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
-  const distractors = [
-    bodyPartsVocab[(gapIndex + 3) % bodyPartsVocab.length],
-    bodyPartsVocab[(gapIndex + 6) % bodyPartsVocab.length],
-    bodyPartsVocab[(gapIndex + 9) % bodyPartsVocab.length]
-  ];
-  const options = [item, ...distractors].sort((a, b) => a.id.localeCompare(b.id));
+  // Deterministically rotate the 4 syllable choices so the correct option varies across positions 1..4
+  const shift = (gapIndex * 3 + 1) % item.gapChoices.length;
+  const options = item.gapChoices.map((_, i) => item.gapChoices[(i + shift) % item.gapChoices.length]);
 
-  const optionsHtml = options.map(opt => `
-    <button type="button" class="quiz-opt-btn" id="gap-opt-${opt.id}" onclick="checkGapAnswer('${opt.id}')">
-      <div style="font-family:var(--font-deva);font-size:1.5rem;font-weight:700;">${opt.deva}</div>
-      <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-saffron);">${opt.iast}</div>
+  const optionsHtml = options.map((opt, idx) => `
+    <button type="button" class="quiz-opt-btn" id="gap-opt-${idx}" onclick="checkGapAnswer('${opt.deva}', ${idx})">
+      <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;">${opt.deva}</div>
+      <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.9rem;color:var(--accent-saffron);">${opt.iast}</div>
     </button>
   `).join('');
 
@@ -771,28 +874,15 @@ function renderFillGapsGame(arena) {
       </div>
     </div>
 
-    <div style="display:flex;align-items:center;justify-content:center;gap:1rem;background:var(--bg-primary);padding:1.25rem;border-radius:12px;border:1px solid var(--border-color);flex-wrap:wrap;">
-      <div style="text-align:center;opacity:0.75;">
-        <div class="vocab-svg-box" style="margin:0 auto 0.35rem;width:76px;height:76px;">${prevItem.svg}</div>
-        <div style="font-family:var(--font-deva);font-size:1.2rem;font-weight:700;">${prevItem.deva}</div>
-        <div class="vocab-iast" style="font-size:0.75rem;">${prevItem.iast}</div>
-      </div>
-
-      <div style="font-size:1.3rem;color:var(--text-muted);">→</div>
-
-      <div style="text-align:center;padding:0.65rem 1rem;background:var(--bg-card);border:2px dashed var(--accent-cambridge);border-radius:12px;">
-        <div class="vocab-svg-box" style="margin:0 auto 0.35rem;width:96px;height:96px;">${item.svg}</div>
-        <div id="gap-sentence-display" style="font-family:var(--font-deva);font-size:1.5rem;font-weight:700;color:var(--accent-cambridge);">
-          ___
+    <div style="text-align:center;background:var(--bg-primary);padding:1.35rem;border-radius:12px;border:1px solid var(--border-color);">
+      <div class="vocab-svg-box" style="margin:0 auto 0.6rem;width:115px;height:115px;">${item.svg}</div>
+      <div id="gap-sentence-display">
+        <div style="font-family:var(--font-deva);font-size:2.4rem;font-weight:700;color:var(--text-primary);letter-spacing:0.04em;">
+          ${item.gapDeva}
         </div>
-      </div>
-
-      <div style="font-size:1.3rem;color:var(--text-muted);">→</div>
-
-      <div style="text-align:center;opacity:0.75;">
-        <div class="vocab-svg-box" style="margin:0 auto 0.35rem;width:76px;height:76px;">${nextItem.svg}</div>
-        <div style="font-family:var(--font-deva);font-size:1.2rem;font-weight:700;">${nextItem.deva}</div>
-        <div class="vocab-iast" style="font-size:0.75rem;">${nextItem.iast}</div>
+        <div class="vocab-iast" style="font-family:var(--font-mono);font-size:1.1rem;color:var(--accent-saffron);margin-top:0.2rem;">
+          ${item.gapIast}
+        </div>
       </div>
     </div>
 
@@ -801,19 +891,26 @@ function renderFillGapsGame(arena) {
   `;
 }
 
-function checkGapAnswer(chosenId) {
+function checkGapAnswer(chosenSyllable, btnIdx) {
   if (gapAnswered) return;
   const item = bodyPartsVocab[gapIndex];
-  const btn = document.getElementById('gap-opt-' + chosenId);
+  const btn = document.getElementById('gap-opt-' + btnIdx);
   const feedbackEl = document.getElementById('gap-feedback-msg');
 
-  if (chosenId === item.id) {
+  if (chosenSyllable === item.gapAnswer) {
     gapAnswered = true;
     if (gapFirstTry) gapScore++;
     if (btn) btn.classList.add('correct');
     const sentenceEl = document.getElementById('gap-sentence-display');
     if (sentenceEl) {
-      sentenceEl.innerHTML = `${item.deva}<span class="iast-text" style="font-size:0.85rem;font-family:var(--font-mono);display:block;">${item.iast}</span>`;
+      sentenceEl.innerHTML = `
+        <div style="font-family:var(--font-deva);font-size:2.4rem;font-weight:700;color:#15803d;">
+          ${item.deva}
+        </div>
+        <div class="vocab-iast" style="font-family:var(--font-mono);font-size:1.1rem;color:#15803d;margin-top:0.2rem;">
+          ${item.iast}
+        </div>
+      `;
     }
     speakSanskritWord(item.ttsText);
     if (feedbackEl) {
