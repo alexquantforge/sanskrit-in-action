@@ -472,21 +472,22 @@ const categoriesData = [
     wordIds: ['nasika', 'jihva']
   },
   {
-    id: 'paired-head',
-    titleRu: 'Парные части на голове (правая и левая)',
-    titleEn: 'Paired Parts on the Head (Left & Right)',
-    wordIds: ['bhru', 'nayana', 'karna']
+    id: 'paired',
+    titleRu: 'Парные',
+    titleEn: 'Paired',
+    wordIds: ['nayana', 'karna', 'bhru', 'kara', 'pada'],
+    bonusWordIds: ['ostha']
   },
   {
-    id: 'unpaired-head',
-    titleRu: 'Непарные (по одному) части головы и лица',
-    titleEn: 'Single (Unpaired) Parts of the Head & Face',
+    id: 'unpaired',
+    titleRu: 'Непарные',
+    titleEn: 'Unpaired',
     wordIds: ['shirsha', 'lalata', 'nasika', 'jihva']
   },
   {
     id: 'grasping-pointing',
-    titleRu: 'Чем мы берём, держим и указываем',
-    titleEn: 'What We Use for Holding, Touching & Pointing',
+    titleRu: 'Чем мы берём что-то, держим что-то или указываем на что-то',
+    titleEn: 'What We Use to Take, Hold, or Point at Something',
     wordIds: ['kara', 'anguli']
   },
   {
@@ -1768,10 +1769,14 @@ function clickCategoryWord(wordId) {
   const item = bodyPartsVocab.find(w => w.id === wordId);
   if (!currentCat || !item) return;
 
-  if (currentCat.wordIds.includes(wordId)) {
+  const isPrimary = currentCat.wordIds.includes(wordId);
+  const isBonus = Array.isArray(currentCat.bonusWordIds) && currentCat.bonusWordIds.includes(wordId);
+
+  if (isPrimary || isBonus) {
     catSelectedCorrectIds.add(wordId);
     speakSanskritWord(item.ttsText);
-    if (catSelectedCorrectIds.size === currentCat.wordIds.length) {
+    const allPrimarySelected = currentCat.wordIds.every(id => catSelectedCorrectIds.has(id));
+    if (allPrimarySelected || catSelectedCorrectIds.size >= currentCat.wordIds.length) {
       catAnswered = true;
       if (catFirstTry) catScore++;
     }
