@@ -255,6 +255,14 @@ let matchTiles = [];
 let matchFirstIdx = null;
 let matchMatchedCount = 0;
 
+// Classic Memory (Face-down Pairs) game state
+let memoryCards = [];
+let memoryPairGoal = 6; // 6 pairs (12 cards) or 12 pairs (24 cards)
+let memoryFlippedIndices = [];
+let memoryMatchedPairs = 0;
+let memoryMoves = 0;
+let memoryLock = false;
+
 // Production state: track which of the 12 words the student has spoken
 let producedWordsSet = new Set(['nayana']);
 let activeProdWordId = 'nayana';
@@ -391,6 +399,8 @@ function selectPracticeGame(gameKey) {
 
   if (gameKey === 'match') {
     initMatchGame();
+  } else if (gameKey === 'memory') {
+    if (memoryCards.length === 0) initMemoryGame();
   } else if (gameKey === 'truefalse') {
     prepareTrueFalseRound();
   }
@@ -413,6 +423,8 @@ function renderPracticeArena() {
     renderWordToPicQuizGame(arena);
   } else if (currentPracticeGame === 'match') {
     renderMatchPairsGame(arena);
+  } else if (currentPracticeGame === 'memory') {
+    renderMemoryGame(arena);
   } else if (currentPracticeGame === 'spelling') {
     renderSpellingGame(arena);
   } else if (currentPracticeGame === 'truefalse') {
@@ -884,6 +896,137 @@ function clickMatchTile(idx) {
     }
     matchFirstIdx = null;
     renderPracticeArena();
+  }
+}
+
+// GAME 7: Classic Memory (Все карточки лежат рубашкой вверх: переворачиваем по 2 карточки — картинка + слово)
+function setMemoryPairsCount(pairsCount) {
+  memoryPairGoal = pairsCount;
+  initMemoryGame();
+  renderPracticeArena();
+}
+
+function initMemoryGame() {
+  const subset = [...bodyPartsVocab].sort(() => Math.random() - 0.5).slice(0, memoryPairGoal);
+  const deck = [];
+  subset.forEach(item => {
+    deck.push({ uid: 'mem-pic-' + item.id, pairId: item.id, type: 'pic', item, flipped: false, matched: false, mismatch: false });
+    deck.push({ uid: 'mem-word-' + item.id, pairId: item.id, type: 'word', item, flipped: false, matched: false, mismatch: false });
+  });
+  memoryCards = deck.sort(() => Math.random() - 0.5);
+  memoryFlippedIndices = [];
+  memoryMatchedPairs = 0;
+  memoryMoves = 0;
+  memoryLock = false;
+}
+
+function renderMemoryGame(arena) {
+  if (memoryCards.length === 0) initMemoryGame();
+
+  const cardsHtml = memoryCards.map((c, idx) => {
+    const isVisible = c.flipped || c.matched;
+    const classes = ['memory-card'];
+    if (!isVisible) classes.push('face-down');
+    if (c.flipped && !c.matched) classes.push('flipped');
+    if (c.mismatch) classes.push('mismatch');
+    if (c.matched) classes.push('matched');
+
+    let innerContent = '';
+    if (!isVisible) {
+      innerContent = `<div class="memory-card-back-emblem">सं</div>`;
+    } else if (c.type === 'pic') {
+      innerContent = `<div class="vocab-svg-box" style="margin:0;width:74px;height:74px;">${c.item.svg}</div>`;
+    } else {
+      innerContent = `
+        <div style="font-family:var(--font-deva);font-size:1.55rem;font-weight:700;color:var(--text-primary);">${c.item.deva}</div>
+        <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.78rem;color:var(--accent-saffron);">${c.item.iast}</div>
+      `;
+    }
+
+    return `
+      <div class="${classes.join(' ')}" onclick="clickMemoryCard(${idx})">
+        ${innerContent}
+      </div>
+    `;
+  }).join('');
+
+  const allDone = memoryMatchedPairs === memoryPairGoal;
+
+  arena.innerHTML = `
+    <div class="game-top-bar">
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <strong style="font-size:1.05rem;margin-right:0.35rem;">Memory</strong>
+        <button type="button" class="chip-btn ${memoryPairGoal === 6 ? 'active' : ''}" onclick="setMemoryPairsCount(6)">
+          6 × 2 (12)
+        </button>
+        <button type="button" class="chip-btn ${memoryPairGoal === 12 ? 'active' : ''}" onclick="setMemoryPairsCount(12)">
+          12 × 2 (24)
+        </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <button type="button" class="chip-btn" onclick="initMemoryGame(); renderPracticeArena();">↺</button>
+        <span class="game-score-pill">${memoryMatchedPairs} / ${memoryPairGoal} · (${memoryMoves})</span>
+      </div>
+    </div>
+
+    <div class="memory-grid">${cardsHtml}</div>
+
+    ${allDone ? `
+      <div style="margin-top:1.25rem;text-align:center;">
+        <button type="button" class="chip-btn active" onclick="initMemoryGame(); renderPracticeArena();">↺</button>
+      </div>
+    ` : ''}
+  `;
+}
+
+function clickMemoryCard(idx) {
+  if (memoryLock) return;
+  const card = memoryCards[idx];
+  if (!card || card.flipped || card.matched) return;
+
+  card.flipped = true;
+  memoryFlippedIndices.push(idx);
+
+  if (card.type === 'word') {
+    speakSanskritWord(card.item.ttsText);
+  }
+
+  if (memoryFlippedIndices.length === 1) {
+    renderPracticeArena();
+    return;
+  }
+
+  if (memoryFlippedIndices.length === 2) {
+    memoryMoves++;
+    const [firstIdx, secondIdx] = memoryFlippedIndices;
+    const firstCard = memoryCards[firstIdx];
+    const secondCard = memoryCards[secondIdx];
+
+    if (firstCard.pairId === secondCard.pairId && firstCard.type !== secondCard.type) {
+      // Match! Keep both cards open
+      firstCard.matched = true;
+      secondCard.matched = true;
+      memoryMatchedPairs++;
+      memoryFlippedIndices = [];
+      speakSanskritWord(firstCard.item.ttsText);
+      renderPracticeArena();
+    } else {
+      // Mismatch: show both cards briefly so the player remembers where they are, then flip back face-down
+      memoryLock = true;
+      firstCard.mismatch = true;
+      secondCard.mismatch = true;
+      renderPracticeArena();
+
+      setTimeout(() => {
+        firstCard.flipped = false;
+        secondCard.flipped = false;
+        firstCard.mismatch = false;
+        secondCard.mismatch = false;
+        memoryFlippedIndices = [];
+        memoryLock = false;
+        renderPracticeArena();
+      }, 850);
+    }
   }
 }
 
