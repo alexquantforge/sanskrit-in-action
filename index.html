@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2 · 4 Skills × 5 Systems)</title>
+  <meta name="description" content="Sanskrit in Action with Alex Vijaya — Sanskrit the Cambridge way: communicative, task-based, CEFR A1–C2. 4 skills × 5 systems, śāstra-based texts, interactive games." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=36" />
+  <style>
+    .view-pane { display: none; }
+    .view-pane.active { display: block; }
+  </style>
+</head>
+<body class="hide-iast">
+  <div class="top-accent-bar"></div>
+
+  <!-- Header & Sticky Navigation with Main Tabs (Home / Learn More) -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="#top" class="brand" onclick="switchView('home'); return false;">
+        <div class="brand-emblem" id="brand-emblem" title="Saṃvāda — Living Dialogue" data-title-ru="Saṃvāda — Живой диалог" data-title-en="Saṃvāda — Living Dialogue">सं</div>
+        <div class="brand-text">
+          <span class="brand-title" data-i18n-ru="Sanskrit in Action с Алексом Виджая" data-i18n-en="Sanskrit in Action with Alex Vijaya">Sanskrit in Action с Алексом Виджая</span>
+          <span class="brand-subtitle" data-i18n-ru="Кембриджская методика · CEFR A1–C2" data-i18n-en="Cambridge ELT Method · CEFR A1–C2">Кембриджская методика · CEFR A1–C2</span>
+        </div>
+      </a>
+
+      <!-- Two Primary Tabs: Главная (Home) and Подробнее (Learn More) -->
+      <div class="view-tabs" role="tablist" aria-label="Main site views">
+        <button type="button" class="view-tab-btn active" id="tab-btn-home" data-view="home" onclick="switchView('home')"
+                data-i18n-ru="Главная" data-i18n-en="Home">Главная</button>
+        <button type="button" class="view-tab-btn" id="tab-btn-details" data-view="details" onclick="switchView('details')"
+                data-i18n-ru="Подробнее" data-i18n-en="Learn More">Подробнее</button>
+      </div>
+
+      <div class="nav-actions">
+        <div class="lang-switch" role="group" aria-label="Language switcher">
+          <button type="button" class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+          <button type="button" class="lang-btn" data-lang="en" onclick="setLanguage('en')">EN</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- ===================================================================
+         TAB 1: MINIMAL HOME PAGE (ГЛАВНАЯ — 2 АБЗАЦА + НАЧАТЬ УРОКИ)
+         =================================================================== -->
+    <div id="view-home" class="view-pane active">
+      <section class="home-minimal">
+        <div class="container">
+          <div class="home-minimal-box">
+            <div class="hero-badges">
+              <span class="badge badge-cambridge" data-i18n-ru="CELTA &amp; DELTA" data-i18n-en="CELTA &amp; DELTA">CELTA &amp; DELTA</span>
+              <span class="badge badge-saffron" data-i18n-ru="4 НАВЫКА × 5 СИСТЕМ" data-i18n-en="4 SKILLS × 5 SYSTEMS">4 НАВЫКА × 5 СИСТЕМ</span>
+              <span class="badge badge-gold">CEFR A1–C2</span>
+            </div>
+
+            <h1 class="hero-title"
+                data-i18n-ru="Sanskrit in Action<br>с Алексом Виджая<br><span class='highlight'>Говорим с первого дня.</span>"
+                data-i18n-en="Sanskrit in Action<br>with Alex Vijaya<br><span class='highlight'>Speaking from day one.</span>">
+              Sanskrit in Action<br>с Алексом Виджая<br><span class="highlight">Говорим с первого дня.</span>
+            </h1>
+
+            <div class="hero-sanskrit-motto">
+              <span class="deva-inline">संवादेन संस्कृतम् — क्रियायां भाषा</span>
+              <span class="iast-inline">saṃvādena saṃskṛtam — kriyāyāṃ bhāṣā</span>
+            </div>
+
+            <p class="home-paragraph"
+               data-i18n-ru="<strong>Sanskrit in Action с Алексом Виджая</strong> — интерактивная платформа для изучения санскрита по стандартам <strong>Cambridge (CELTA / Delta)</strong>: коммуникативный подход, обучение через реальные задачи (<em>Task-Based Learning</em>) и прозрачная шкала уровней <strong>CEFR A1–C2</strong>. Здесь вы прокачиваете <strong>4 навыка</strong> (аудирование, говорение, чтение, письмо) и <strong>5 систем языка</strong> (произношение и сандхи, грамматика, лексика и корни <em>dhātu</em>, речевые функции, дискурс), начиная говорить уже на первом занятии."
+               data-i18n-en="<strong>Sanskrit in Action with Alex Vijaya</strong> — an interactive platform for learning Sanskrit the way Cambridge teaches modern languages: communicative approach, <em>Task-Based Learning</em>, and <strong>CEFR levels A1–C2</strong>. You build all <strong>4 skills</strong> (Listening, Speaking, Reading, Writing) across the <strong>5 language systems</strong> (Pronunciation &amp; sandhi, Grammar, Vocabulary &amp; <em>dhātu</em> roots, Functions, Discourse), speaking from your very first lesson.">
+              <strong>Sanskrit in Action с Алексом Виджая</strong> — интерактивная платформа для изучения санскрита по стандартам <strong>Cambridge (CELTA / Delta)</strong>: коммуникативный подход, обучение через реальные задачи (<em>Task-Based Learning</em>) и прозрачная шкала уровней <strong>CEFR A1–C2</strong>. Здесь вы прокачиваете <strong>4 навыка</strong> (аудирование, говорение, чтение, письмо) и <strong>5 систем языка</strong> (произношение и сандхи, грамматика, лексика и корни <em>dhātu</em>, речевые функции, дискурс), начиная говорить уже на первом занятии.
+            </p>
+
+            <p class="home-paragraph"
+               data-i18n-ru="Никакого искусственного «учебникового санскрита» и сухой зубрёжки: вся программа опирается на подлинные шастры (грамматика Панини как операционная система языка, «Панчатантра» и «Хитопадеша» для ступенчатого чтения, ведические гимны и «Бхагавадгита») и интерактивные игры, превращающие грамматику в увлекательный геймплей."
+               data-i18n-en="No artificial textbook Sanskrit or rote memorization: the entire curriculum is rooted in authentic śāstras (Pāṇini’s grammar as the operating system, <em>Pañcatantra</em> and <em>Hitopadeśa</em> for graded reading, Vedic hymns, and the <em>Bhagavadgītā</em>) combined with interactive games that turn grammar into gameplay.">
+              Никакого искусственного «учебникового санскрита» и сухой зубрёжки: вся программа опирается на подлинные шастры (грамматика Панини как операционная система языка, «Панчатантра» и «Хитопадеша» для ступенчатого чтения, ведические гимны и «Бхагавадгита») и интерактивные игры, превращающие грамматику в увлекательный геймплей.
+            </p>
+
+            <div class="home-minimal-actions">
+              <button type="button" class="btn btn-primary btn-lg" onclick="switchView('lesson1')"
+                      data-i18n-ru="Начать уроки →"
+                      data-i18n-en="Start Lessons →">Начать уроки →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================================================================
+         LESSONS VIEW (OPENED AFTER CLICKING "НАЧАТЬ УРОКИ / START LESSONS")
+         =================================================================== -->
+    <div id="view-lesson1" class="view-pane" style="display: none;" hidden>
+      <!-- Single-line Compact Lesson & PPP Bar -->
+      <div class="ppp-nav-bar">
+        <div class="container ppp-top-row">
+          <!-- Left: Back to Home + Lesson Selector -->
+          <div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:nowrap;white-space:nowrap;">
+            <button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView('home')"
+                    data-i18n-ru="← На главную" data-i18n-en="← Home">← На главную</button>
+            <span class="practice-tab-btn active" style="padding:0.28rem 0.7rem;font-size:0.78rem;cursor:default;"
+                  data-i18n-ru="Урок 1: Части тела"
+                  data-i18n-en="Lesson 1: Body Parts">Урок 1: Части тела</span>
+            <span class="practice-tab-btn" style="padding:0.28rem 0.65rem;font-size:0.76rem;opacity:0.5;cursor:not-allowed;"
+                  data-i18n-ru="Урок 2 (скоро)"
+                  data-i18n-en="Lesson 2 (soon)">Урок 2 (скоро)</span>
+          </div>
+
+          <!-- Center: 1. Presentation · 2. Practice · 3. Production strictly on ONE line -->
+          <div class="ppp-steps-pills">
+            <a href="#ppp-presentation" class="ppp-step-pill p1"
+               data-i18n-ru="1. Presentation"
+               data-i18n-en="1. Presentation">1. Presentation</a>
+            <a href="#ppp-practice" class="ppp-step-pill p2"
+               data-i18n-ru="2. Practice"
+               data-i18n-en="2. Practice">2. Practice</a>
+            <a href="#ppp-production" class="ppp-step-pill p3"
+               data-i18n-ru="3. Production"
+               data-i18n-en="3. Production">3. Production</a>
+          </div>
+
+          <!-- Right: Enable / Disable IAST button (IAST is disabled by default) -->
+          <div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:nowrap;white-space:nowrap;">
+            <button type="button" class="chip-btn toggle-iast-btn" style="padding:0.28rem 0.7rem;font-size:0.78rem;" onclick="toggleIast()"
+                    data-i18n-ru="🔤 Включить IAST"
+                    data-i18n-en="🔤 Enable IAST">🔤 Включить IAST</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAGE 1: PRESENTATION -->
+      <section id="ppp-presentation" style="padding-top:2rem;">
+        <div class="container">
+          <div class="section-header" style="margin-bottom:2rem;">
+            <div class="stage-eyebrow-row">
+              <div class="eyebrow" data-i18n-ru="УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
+              <button type="button" class="teacher-guide-btn" id="tg-btn-presentation" onclick="toggleTeacherGuide('presentation')"
+                      data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
+            </div>
+            <h2 class="section-title"
+                data-i18n-ru="शरीरसम्बन्धि-शब्दाः — Части тела (Vocabulary A1)"
+                data-i18n-en="शरीरसम्बन्धि-शब्दाः — Parts of the Body (Vocabulary A1)">
+              शरीरसम्बन्धि-शब्दाः — Части тела (Vocabulary A1)
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="На стадии <strong>Presentation</strong> мы знакомимся с 12 словами через наглядные образы, звучание и форму (Meaning → Pronunciation → Form). Нажимайте на любую карточку, чтобы прослушать произношение, а затем скройте подписи, чтобы проверить себя!"
+               data-i18n-en="In the <strong>Presentation</strong> stage, we introduce the 12 target words through visual context, sound, and form (Meaning → Pronunciation → Form). Click any card to hear the pronunciation, then hide the labels to test your recall!">
+              На стадии <strong>Presentation</strong> мы знакомимся с 12 словами через наглядные образы, звучание и форму (Meaning → Pronunciation → Form). Нажимайте на любую карточку, чтобы прослушать произношение, а затем скройте подписи, чтобы проверить себя!
+            </p>
+          </div>
+
+          <!-- Teacher's Guide for Stage 1: Presentation -->
+          <div id="teacher-guide-presentation" class="teacher-guide-box">
+            <div class="teacher-guide-header">
+              <h3 data-i18n-ru="👩‍🏫 Инструкция для преподавателя · Stage 1: Presentation (10–12 мин)"
+                  data-i18n-en="👩‍🏫 Teacher's Guide · Stage 1: Presentation (10–12 min)">👩‍🏫 Инструкция для преподавателя · Stage 1: Presentation (10–12 мин)</h3>
+              <button type="button" class="chip-btn" onclick="toggleTeacherGuide('presentation')"
+                      data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ Закрыть</button>
+            </div>
+            <div class="teacher-guide-grid">
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>1. Цель и золотое правило CELTA (Direct Method):</strong><br/>Ввести 12 слов по формуле <strong>MPF (Meaning → Pronunciation → Form)</strong> строго без перевода на русский/английский. Значение передаётся только через картинку и жест на себе (приём <em>TPR — Total Physical Response</em>)."
+                   data-i18n-en="<strong>1. Stage Aim &amp; CELTA Direct Method Rule:</strong><br/>Introduce the 12 target words via <strong>MPF (Meaning → Pronunciation → Form)</strong> with zero translation. Convey meaning purely through the visual illustration and pointing to yourself (<em>TPR — Total Physical Response</em>).">
+                <strong>1. Цель и золотое правило CELTA (Direct Method):</strong><br/>Ввести 12 слов по формуле <strong>MPF (Meaning → Pronunciation → Form)</strong> строго без перевода на русский/английский. Значение передаётся только через картинку и жест на себе (приём <em>TPR — Total Physical Response</em>).
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>2. Шаг А — Режим «1. Пошагово (по 2 слова)» (5 мин):</strong><br/>Открывайте по 2 слова за раз (например, <code>शीर्ष · ललाट</code>). Сначала покажите жест на себе → нажмите <code>🔊</code> 2–3 раза → проведите <strong>Choral Drill</strong> (повторение хором всеми учениками), затем <strong>Individual Drill</strong> (по одному). Следите за долготой гласных (<code>नासिका, शीर्ष, भ्रू, पाद, अङ्गुली</code>) и чётким конечным <code>-a</code>."
+                   data-i18n-en="<strong>2. Step A — Mode 1: Step-by-Step (2 Words at a time, 5 min):</strong><br/>Present 2 words per step (e.g., <code>शीर्ष · ललाट</code>). First point on yourself → play <code>🔊</code> 2–3 times → run a <strong>Choral Drill</strong> (whole class) followed by <strong>Individual Drills</strong>. Monitor vowel length (<code>नासिका, शीर्ष, भ्रू, पाद, अङ्गुली</code>) and the final <code>-a</code>.">
+                <strong>2. Шаг А — Режим «1. Пошагово (по 2 слова)» (5 мин):</strong><br/>Открывайте по 2 слова за раз (например, <code>शीर्ष · ललाट</code>). Сначала покажите жест на себе → нажмите <code>🔊</code> 2–3 раза → проведите <strong>Choral Drill</strong> (повторение хором всеми учениками), затем <strong>Individual Drill</strong> (по одному). Следите за долготой гласных (<code>नासिका, शीर्ष, भ्रू, पाद, अङ्गुली</code>) и чётким конечным <code>-a</code>.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>3. Шаг Б — Режимы «2. Схема тела» и «3. Сначала звук 🔊» (4 мин):</strong><br/>Переключитесь на «2. Схема тела (Hotspots)»: называйте номер точки вразброс (например, №4 или №11) и просите ученика назвать слово до нажатия на кружок. В режиме «3. Сначала звук 🔊» ученики сначала повторяют слово на слух и лишь затем открывают написание в деванагари."
+                   data-i18n-en="<strong>3. Step B — Modes 2 (Hotspots) &amp; 3 (Audio-First) (4 min):</strong><br/>Switch to '2. Body Diagram (Hotspots)': call out marker numbers at random (e.g., #4 or #11) and elicit the word before clicking. In '3. Audio-First 🔊', students hear and repeat the word from the picture before revealing the Devanagari script.">
+                <strong>3. Шаг Б — Режимы «2. Схема тела» и «3. Сначала звук 🔊» (4 мин):</strong><br/>Переключитесь на «2. Схема тела (Hotspots)»: называйте номер точки вразброс (например, №4 или №11) и просите ученика назвать слово до нажатия на кружок. В режиме «3. Сначала звук 🔊» ученики сначала повторяют слово на слух и лишь затем открывают написание в деванагари.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>4. Шаг В — Проверка понимания и памяти (CCQs, 2 мин):</strong><br/>Откройте «4. Плакат (все 12 слов)», нажмите <code>🟪 Закрыть часть слова ■</code>, а затем <code>🙈 Скрыть подписи</code>. Указывайте на карточки в случайном порядке: если группа уверенно называет 9–10 слов из 12, переходите к стадии <strong>Practice</strong>."
+                   data-i18n-en="<strong>4. Step C — Concept &amp; Recall Check (CCQs, 2 min):</strong><br/>Open '4. Full Poster (All 12)', click <code>🟪 Cover Part of Word ■</code>, and then <code>🙈 Hide Labels</code>. Point to cards randomly: once learners can recall 9–10 out of 12 words, transition to <strong>Practice</strong>.">
+                <strong>4. Шаг В — Проверка понимания и памяти (CCQs, 2 мин):</strong><br/>Откройте «4. Плакат (все 12 слов)», нажмите <code>🟪 Закрыть часть слова ■</code>, а затем <code>🙈 Скрыть подписи</code>. Указывайте на карточки в случайном порядке: если группа уверенно называет 9–10 слов из 12, переходите к стадии <strong>Practice</strong>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Presentation Mode Switcher (4 CELTA Modes, Step-by-Step default) -->
+          <div class="practice-tabs" role="tablist" style="margin-bottom:1.25rem;">
+            <button type="button" class="practice-tab-btn active" data-pres-mode="stepbystep" onclick="selectPresentationMode('stepbystep')"
+                    data-i18n-ru="1. Пошагово (по 2 слова)" data-i18n-en="1. Step-by-Step (2 Words)">1. Пошагово (по 2 слова)</button>
+            <button type="button" class="practice-tab-btn" data-pres-mode="hotspots" onclick="selectPresentationMode('hotspots')"
+                    data-i18n-ru="2. Схема тела (Hotspots)" data-i18n-en="2. Body Diagram (Hotspots)">2. Схема тела (Hotspots)</button>
+            <button type="button" class="practice-tab-btn" data-pres-mode="audiofirst" onclick="selectPresentationMode('audiofirst')"
+                    data-i18n-ru="3. Сначала звук 🔊 → потом буквы" data-i18n-en="3. Audio-First 🔊 → Text">3. Сначала звук 🔊 → потом буквы</button>
+            <button type="button" class="practice-tab-btn" data-pres-mode="poster" onclick="selectPresentationMode('poster')"
+                    data-i18n-ru="4. Плакат (все 12 слов)" data-i18n-en="4. Full Poster (All 12)">4. Плакат (все 12 слов)</button>
+          </div>
+
+          <div class="vocab-toolbar">
+            <div class="vocab-poster-title">शरीरसम्बन्धि-शब्दाः</div>
+            <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
+              <button type="button" class="chip-btn toggle-iast-btn" onclick="toggleIast()"
+                      data-i18n-ru="🔤 Включить IAST"
+                      data-i18n-en="🔤 Enable IAST">🔤 Включить IAST</button>
+              <button type="button" id="toggle-poster-mask-btn" class="chip-btn" onclick="togglePosterMaskMode()"
+                      data-i18n-ru="🟪 Закрыть часть слова ■"
+                      data-i18n-en="🟪 Cover Part of Word ■">🟪 Закрыть часть слова ■</button>
+              <button type="button" id="toggle-labels-btn" class="chip-btn" onclick="toggleVocabLabels()"
+                      data-i18n-ru="🙈 Скрыть подписи"
+                      data-i18n-en="🙈 Hide Labels">🙈 Скрыть подписи</button>
+              <a href="#ppp-practice" class="btn btn-primary" style="padding:0.45rem 1rem;font-size:0.85rem;"
+                 data-i18n-ru="Перейти к играм (Practice) ↓"
+                 data-i18n-en="Go to Practice Games ↓">Перейти к играм (Practice) ↓</a>
+            </div>
+          </div>
+
+          <!-- 3x4 Illustrated Vocabulary Grid -->
+          <div id="lesson1-vocab-grid" class="vocab-grid-12">
+            <!-- Populated by lesson1.js -->
+          </div>
+
+          <!-- Semantic Grouping by Body Zones -->
+          <div class="cycle-banner" style="padding:1.65rem 2rem;">
+            <span class="badge badge-gold" data-i18n-ru="CELTA LEXICAL GROUPING · 4 КАТЕГОРИИ ДЛЯ ЗАПОМИНАНИЯ" data-i18n-en="CELTA LEXICAL GROUPING · 4 CATEGORIES FOR EASY RECALL">CELTA LEXICAL GROUPING · 4 КАТЕГОРИИ ДЛЯ ЗАПОМИНАНИЯ</span>
+            <div class="cycle-steps" style="margin-top:1rem;">
+              <div class="cycle-step">
+                <div class="cycle-step-num">1</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Верхняя часть головы" data-i18n-en="Upper Part of the Head">Верхняя часть головы</div>
+                <h4>शीर्ष · ललाट · भ्रू</h4>
+                <p class="iast-text"><em>śīrṣa · lalāṭa · bhrū</em></p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num">2</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Органы чувств на голове" data-i18n-en="Sense Organs on the Head">Органы чувств на голове</div>
+                <h4>नयन · नासिका · कर्ण</h4>
+                <p class="iast-text"><em>nayana · nāsikā · karṇa</em></p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num">3</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Область рта" data-i18n-en="Mouth Area">Область рта</div>
+                <h4>ओष्ठ · दन्त · जिह्वा</h4>
+                <p class="iast-text"><em>oṣṭha · danta · jihvā</em></p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num">4</div>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"
+                     data-i18n-ru="Конечности" data-i18n-en="Limbs">Конечности</div>
+                <h4>कर · अङ्गुली · पाद</h4>
+                <p class="iast-text"><em>kara · aṅgulī · pāda</em></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 2: PRACTICE -->
+      <section id="ppp-practice" class="section-alt">
+        <div class="container">
+          <div class="section-header" style="margin-bottom:2rem;">
+            <div class="stage-eyebrow-row">
+              <div class="eyebrow saffron" data-i18n-ru="STAGE 2: PRACTICE · ПРОСТЫЕ ИГРЫ ДЛЯ ЗАПОМИНАНИЯ" data-i18n-en="STAGE 2: PRACTICE · SIMPLE GAMES FOR MEMORIZATION">STAGE 2: PRACTICE · ПРОСТЫЕ ИГРЫ ДЛЯ ЗАПОМИНАНИЯ</div>
+              <button type="button" class="teacher-guide-btn" id="tg-btn-practice" onclick="toggleTeacherGuide('practice')"
+                      data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
+            </div>
+            <h2 class="section-title"
+                data-i18n-ru="Отработка лексики: Flashcards, Fill in the Gaps и другие быстрые игры"
+                data-i18n-en="Controlled Practice: Flashcards, Fill in the Gaps &amp; More Quick Games">
+              Отработка лексики: Flashcards, Fill in the Gaps и другие быстрые игры
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="Переключайтесь между классическими играми из практики CELTA — от простых флэш-карточек и угадывания по картинке до вставки пропущенных слогов и парных карточек:"
+               data-i18n-en="Switch freely among classic CELTA classroom games — from flashcards and picture quizzes to gap-fills, matching pairs, and category drills:">
+              Переключайтесь между классическими играми из практики CELTA — от простых флэш-карточек и угадывания по картинке до вставки пропущенных слогов и парных карточек:
+            </p>
+          </div>
+
+          <!-- Teacher's Guide for Stage 2: Practice -->
+          <div id="teacher-guide-practice" class="teacher-guide-box">
+            <div class="teacher-guide-header">
+              <h3 data-i18n-ru="👩‍🏫 Инструкция для преподавателя · Stage 2: Practice (15–20 мин)"
+                  data-i18n-en="👩‍🏫 Teacher's Guide · Stage 2: Practice (15–20 min)">👩‍🏫 Инструкция для преподавателя · Stage 2: Practice (15–20 мин)</h3>
+              <button type="button" class="chip-btn" onclick="toggleTeacherGuide('practice')"
+                      data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ Закрыть</button>
+            </div>
+            <div class="teacher-guide-grid">
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>1. Цель этапа (Controlled Practice &amp; Accuracy):</strong><br/>Автоматизировать распознавание и точное написание всех 12 слов по принципу <strong>Scaffolding (от простого узнавания к полному воспроизведению по памяти)</strong>. Исправляйте ошибки сразу на месте (<em>On-the-spot correction</em>)."
+                   data-i18n-en="<strong>1. Stage Aim (Controlled Practice &amp; Accuracy):</strong><br/>Build instant recognition and accurate Devanagari spelling of all 12 words using <strong>Scaffolding (from recognition to full active recall)</strong>. Use immediate <em>on-the-spot error correction</em>.">
+                <strong>1. Цель этапа (Controlled Practice &amp; Accuracy):</strong><br/>Автоматизировать распознавание и точное написание всех 12 слов по принципу <strong>Scaffolding (от простого узнавания к полному воспроизведению по памяти)</strong>. Исправляйте ошибки сразу на месте (<em>On-the-spot correction</em>).
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>2. Волна 1 — Быстрое узнавание (Игры 4, 5, 8, 12 · 5 мин):</strong><br/>Начните с <strong>4. Picture Quiz</strong>, <strong>5. Read &amp; Match</strong> и <strong>12. आम् / न</strong> в высоком темпе (3–4 сек на ответ). Затем включите <strong>8. Где ошибка? (3 картинки)</strong> — ученики находят неверно подписанную картинку и называют правильное слово вслух."
+                   data-i18n-en="<strong>2. Wave 1 — Rapid Recognition (Games 4, 5, 8, 12 · 5 min):</strong><br/>Start with <strong>4. Picture Quiz</strong>, <strong>5. Word → Picture</strong>, and <strong>12. आम् / न</strong> at a brisk pace (3–4 sec per item). Then run <strong>8. Spot the Wrong Word (3 Pics)</strong> so students spot the mislabeled picture and say the true word aloud.">
+                <strong>2. Волна 1 — Быстрое узнавание (Игры 4, 5, 8, 12 · 5 мин):</strong><br/>Начните с <strong>4. Picture Quiz</strong>, <strong>5. Read &amp; Match</strong> и <strong>12. आम् / न</strong> в высоком темпе (3–4 сек на ответ). Затем включите <strong>8. Где ошибка? (3 картинки)</strong> — ученики находят неверно подписанную картинку и называют правильное слово вслух.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>3. Волна 2 — Внимание к буквам и слогам (Игры 3, 9, 11 · 5 мин):</strong><br/>Перейдите к <strong>9. Ошибка в 1 букве</strong> (зоркость к долготе гласных: <code>नसिका → नासिका</code>, <code>पद → पाद</code>), а затем к <strong>3. Fill in the Gaps</strong> и <strong>11. Missing Letters</strong>, где нужно выбрать правильный слог (согласная + гласная)."
+                   data-i18n-en="<strong>3. Wave 2 — Script &amp; Syllable Precision (Games 3, 9, 11 · 5 min):</strong><br/>Move to <strong>9. Spot the 1-Letter Typo</strong> (training sensitivity to vowel length: <code>नसिका → नासिका</code>, <code>पद → पाद</code>), followed by <strong>3. Fill in the Gaps</strong> and <strong>11. Missing Letters</strong> to drill consonant + vowel syllables.">
+                <strong>3. Волна 2 — Внимание к буквам и слогам (Игры 3, 9, 11 · 5 мин):</strong><br/>Перейдите к <strong>9. Ошибка в 1 букве</strong> (зоркость к долготе гласных: <code>नसिका → नासिका</code>, <code>पद → पाद</code>), а затем к <strong>3. Fill in the Gaps</strong> и <strong>11. Missing Letters</strong>, где нужно выбрать правильный слог (согласная + гласная).
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>4. Волна 3 — Память без подсказок (Игры 6, 7, 10 → 1, 2 · 6 мин):</strong><br/>Сыграйте в <strong>6. Match Pairs</strong>, <strong>7. Мемори</strong> и <strong>10. Категории (Выбери из 12)</strong> (анализ всех 12 слов без картинок). В финале проведите <strong>1. Закрыто квадратом ■</strong> и <strong>2. Flashcards</strong> до результата <code>10–12 из 12 правильно</code>."
+                   data-i18n-en="<strong>4. Wave 3 — Unprompted Recall (Games 6, 7, 10 → 1, 2 · 6 min):</strong><br/>Play <strong>6. Match Pairs</strong>, <strong>7. Classic Memory</strong>, and <strong>10. Categories (Pick from 12)</strong> (sorting all 12 words with no pictures). Finish with <strong>1. Covered Square ■</strong> and <strong>2. Flashcards</strong> until learners score <code>10–12 out of 12</code>.">
+                <strong>4. Волна 3 — Память без подсказок (Игры 6, 7, 10 → 1, 2 · 6 мин):</strong><br/>Сыграйте в <strong>6. Match Pairs</strong>, <strong>7. Мемори</strong> и <strong>10. Категории (Выбери из 12)</strong> (анализ всех 12 слов без картинок). В финале проведите <strong>1. Закрыто квадратом ■</strong> и <strong>2. Flashcards</strong> до результата <code>10–12 из 12 правильно</code>.
+              </div>
+            </div>
+          </div>
+
+          <!-- 9 Game Selector Buttons -->
+          <div class="practice-tabs" role="tablist">
+            <button type="button" class="practice-tab-btn active" data-game="masked" onclick="selectPracticeGame('masked')"
+                    data-i18n-ru="1. Закрыто квадратом ■ (Угадай слово)" data-i18n-en="1. Covered Square ■ (Guess Word)">1. Закрыто квадратом ■ (Угадай слово)</button>
+            <button type="button" class="practice-tab-btn" data-game="flashcards" onclick="selectPracticeGame('flashcards')"
+                    data-i18n-ru="2. Flashcards (Карточки)" data-i18n-en="2. Flashcards">2. Flashcards (Карточки)</button>
+            <button type="button" class="practice-tab-btn" data-game="gaps" onclick="selectPracticeGame('gaps')"
+                    data-i18n-ru="3. Fill in the Gaps (Пропуски)" data-i18n-en="3. Fill in the Gaps">3. Fill in the Gaps (Пропуски)</button>
+            <button type="button" class="practice-tab-btn" data-game="picquiz" onclick="selectPracticeGame('picquiz')"
+                    data-i18n-ru="4. Picture Quiz (Картинка → Слово)" data-i18n-en="4. Picture Quiz">4. Picture Quiz (Картинка → Слово)</button>
+            <button type="button" class="practice-tab-btn" data-game="wordquiz" onclick="selectPracticeGame('wordquiz')"
+                    data-i18n-ru="5. Read &amp; Match (Слово → Картинка)" data-i18n-en="5. Word → Picture">5. Read &amp; Match (Слово → Картинка)</button>
+            <button type="button" class="practice-tab-btn" data-game="match" onclick="selectPracticeGame('match')"
+                    data-i18n-ru="6. Match Pairs (Найди пары)" data-i18n-en="6. Match Pairs">6. Match Pairs (Найди пары)</button>
+            <button type="button" class="practice-tab-btn" data-game="memory" onclick="selectPracticeGame('memory')"
+                    data-i18n-ru="7. Классическое «Мемори» (Memory)" data-i18n-en="7. Classic Memory (Pairs)">7. Классическое «Мемори» (Memory)</button>
+            <button type="button" class="practice-tab-btn" data-game="wronglabel" onclick="selectPracticeGame('wronglabel')"
+                    data-i18n-ru="8. Где ошибка? (3 картинки)" data-i18n-en="8. Spot the Wrong Word (3 Pics)">8. Где ошибка? (3 картинки)</button>
+            <button type="button" class="practice-tab-btn" data-game="typo" onclick="selectPracticeGame('typo')"
+                    data-i18n-ru="9. Ошибка в 1 букве (3 картинки)" data-i18n-en="9. Spot the 1-Letter Typo (3 Pics)">9. Ошибка в 1 букве (3 картинки)</button>
+            <button type="button" class="practice-tab-btn" data-game="categories" onclick="selectPracticeGame('categories')"
+                    data-i18n-ru="10. Категории (Выбери из 12)" data-i18n-en="10. Categories (Pick from 12)">10. Категории (Выбери из 12)</button>
+            <button type="button" class="practice-tab-btn" data-game="spelling" onclick="selectPracticeGame('spelling')"
+                    data-i18n-ru="11. Missing Letters (Буквы)" data-i18n-en="11. Missing Letters">11. Missing Letters (Буквы)</button>
+            <button type="button" class="practice-tab-btn" data-game="truefalse" onclick="selectPracticeGame('truefalse')"
+                    data-i18n-ru="12. आम् / न (Да / Нет)" data-i18n-en="12. आम् / न (True / False)">12. आम् / न (Да / Нет)</button>
+          </div>
+
+          <!-- Active Practice Game Arena -->
+          <div id="lesson1-practice-arena" class="practice-arena">
+            <!-- Populated by lesson1.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- STAGE 3: PRODUCTION -->
+      <section id="ppp-production">
+        <div class="container">
+          <div class="section-header" style="margin-bottom:2rem;">
+            <div class="stage-eyebrow-row">
+              <div class="eyebrow gold" data-i18n-ru="STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ" data-i18n-en="STAGE 3: PRODUCTION · FREER SPEAKING">STAGE 3: PRODUCTION · СВОБОДНАЯ РЕЧЬ</div>
+              <button type="button" class="teacher-guide-btn" id="tg-btn-production" onclick="toggleTeacherGuide('production')"
+                      data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
+            </div>
+            <h2 class="section-title"
+                data-i18n-ru="Живая речь: покажите у себя и назовите вслух все 12 частей тела"
+                data-i18n-en="Freer Production: Point &amp; Name All 12 Body Parts Aloud">
+              Живая речь: покажите у себя и назовите вслух все 12 частей тела
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="Финальный этап урока по схеме <strong>PPP (Production)</strong>: выбирайте каждую из 12 частей тела, указывайте на неё у себя и уверенно произносите чистую основу слова на санскрите вслух!"
+               data-i18n-en="The final stage of the <strong>PPP</strong> cycle (<strong>Production</strong>): select each of the 12 body parts, point to it on yourself, and speak the Sanskrit stem word aloud!">
+              Финальный этап урока по схеме <strong>PPP (Production)</strong>: выбирайте каждую из 12 частей тела, указывайте на неё у себя и уверенно произносите чистую основу слова на санскрите вслух!
+            </p>
+          </div>
+
+          <!-- Teacher's Guide for Stage 3: Production -->
+          <div id="teacher-guide-production" class="teacher-guide-box">
+            <div class="teacher-guide-header">
+              <h3 data-i18n-ru="👩‍🏫 Инструкция для преподавателя · Stage 3: Production (10–15 мин)"
+                  data-i18n-en="👩‍🏫 Teacher's Guide · Stage 3: Production (10–15 min)">👩‍🏫 Инструкция для преподавателя · Stage 3: Production (10–15 мин)</h3>
+              <button type="button" class="chip-btn" onclick="toggleTeacherGuide('production')"
+                      data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ Закрыть</button>
+            </div>
+            <div class="teacher-guide-grid">
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>1. Цель этапа (Freer Production &amp; Fluency):</strong><br/>Вывести все 12 слов в свободную устную речь без опоры на шпаргалки. Главный принцип CELTA на этом этапе — <strong>максимум речи учеников (High STT) и минимум вмешательства учителя (Low TTT)</strong>."
+                   data-i18n-en="<strong>1. Stage Aim (Freer Production &amp; Fluency):</strong><br/>Activate all 12 words in spontaneous spoken interaction without written prompts. Follow the core CELTA principle: <strong>maximize Student Talking Time (High STT) and minimize Teacher Talking Time (Low TTT)</strong>.">
+                <strong>1. Цель этапа (Freer Production &amp; Fluency):</strong><br/>Вывести все 12 слов в свободную устную речь без опоры на шпаргалки. Главный принцип CELTA на этом этапе — <strong>максимум речи учеников (High STT) и минимум вмешательства учителя (Low TTT)</strong>.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>2. Активность А — «Живое зеркало» в парах (Pair TPR, 4 мин):</strong><br/>Ученики работают в парах (или 1-на-1 с преподавателем). <strong>Ученик А</strong> молча указывает на любую часть своего тела (например, на бровь или стопу), а <strong>Ученик Б</strong> мгновенно называет её на санскрите (<code>भ्रू!</code>, <code>पाद!</code>). Через 6 слов меняются ролями."
+                   data-i18n-en="<strong>2. Activity A — 'Living Mirror' in Pairs (Pair TPR, 4 min):</strong><br/>Students work in pairs (or 1-on-1 with the teacher). <strong>Partner A</strong> silently points to a body part on themselves (e.g., eyebrow or foot), and <strong>Partner B</strong> names it immediately in Sanskrit (<code>भ्रू!</code>, <code>पाद!</code>). Swap roles after 6 words.">
+                <strong>2. Активность А — «Живое зеркало» в парах (Pair TPR, 4 мин):</strong><br/>Ученики работают в парах (или 1-на-1 с преподавателем). <strong>Ученик А</strong> молча указывает на любую часть своего тела (например, на бровь или стопу), а <strong>Ученик Б</strong> мгновенно называет её на санскрите (<code>भ्रू!</code>, <code>पाद!</code>). Через 6 слов меняются ролями.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>3. Активность Б — «Ловушка ведущего» (Sanskrit Simon Says, 4 мин):</strong><br/>Ведущий быстро называет слово вслух (например, <code>कर्ण!</code>), но сам при этом намеренно касается <em>другой</em> части тела (например, носа). Ученики должны слушать ушами, коснуться правильной части тела и хором повторить <code>कर्ण!</code>."
+                   data-i18n-en="<strong>3. Activity B — 'Listen, Don't Copy!' (Sanskrit Simon Says, 4 min):</strong><br/>The leader calls out a word rapidly (e.g., <code>कर्ण!</code>) while deliberately touching a <em>different</em> body part (e.g., the nose). Learners must rely on their ears, touch the true body part, and repeat <code>कर्ण!</code> aloud.">
+                <strong>3. Активность Б — «Ловушка ведущего» (Sanskrit Simon Says, 4 мин):</strong><br/>Ведущий быстро называет слово вслух (например, <code>कर्ण!</code>), но сам при этом намеренно касается <em>другой</em> части тела (например, носа). Ученики должны слушать ушами, коснуться правильной части тела и хором повторить <code>कर्ण!</code>.
+              </div>
+              <div class="teacher-guide-step"
+                   data-i18n-ru="<strong>4. Активность В — Индивидуальный зачёт 12/12 и разбор ошибок (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже, громко называя и отмечая все 12 слов до результата <code>12 из 12 правильно</code>. Не перебивайте ученика на полуслове — запишите неточности и проведите короткий разбор в самом конце (<em>Delayed Error Correction</em>)."
+                   data-i18n-en="<strong>4. Activity C — Individual 12/12 Check &amp; Delayed Feedback (4 min):</strong><br/>Each learner completes the checklist below aloud up to <code>12 out of 12 correct</code>. Avoid interrupting during fluency practice — note any pronunciation slips and review them briefly at the end (<em>Delayed Error Correction</em>).">
+                <strong>4. Активность В — Индивидуальный зачёт 12/12 и разбор ошибок (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже, громко называя и отмечая все 12 слов до результата <code>12 из 12 правильно</code>. Не перебивайте ученика на полуслове — запишите неточности и проведите короткий разбор в самом конце (<em>Delayed Error Correction</em>).
+              </div>
+            </div>
+          </div>
+
+          <!-- Production Mode Switcher (4 Communicative Production Formats) -->
+          <div class="practice-tabs" role="tablist">
+            <button type="button" class="practice-tab-btn active" data-prod-mode="sprint" onclick="selectProductionMode('sprint')"
+                    data-i18n-ru="1. Спринт на время ⏱ (Без текста)" data-i18n-en="1. Speed Sprint ⏱ (No Text)">1. Спринт на время ⏱ (Без текста)</button>
+            <button type="button" class="practice-tab-btn" data-prod-mode="mic" onclick="selectProductionMode('mic')"
+                    data-i18n-ru="2. Произнеси в микрофон 🎙" data-i18n-en="2. Speak into Microphone 🎙">2. Произнеси в микрофон 🎙</button>
+            <button type="button" class="practice-tab-btn" data-prod-mode="missingpart" onclick="selectProductionMode('missingpart')"
+                    data-i18n-ru="3. Что пропало на рисунке? ❓" data-i18n-en="3. What's Missing on the Portrait? ❓">3. Что пропало на рисунке? ❓</button>
+            <button type="button" class="practice-tab-btn" data-prod-mode="chant" onclick="selectProductionMode('chant')"
+                    data-i18n-ru="4. Ритм-чант и Чек-лист 12/12 ↑↓" data-i18n-en="4. TPR Chant &amp; Checklist 12/12 ↑↓">4. Ритм-чант и Чек-лист 12/12 ↑↓</button>
+          </div>
+
+          <div id="lesson1-production-stage" class="practice-arena">
+            <!-- Populated by lesson1.js -->
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================================================================
+         TAB 2: LEARN MORE / FULL DETAILS PAGE (ПОДРОБНЕЕ)
+         =================================================================== -->
+    <div id="view-details" class="view-pane" style="display: none;" hidden>
+      <!-- Sub-navigation inside the Learn More tab -->
+      <div class="details-subnav">
+        <div class="details-subnav-inner">
+          <ul class="subnav-links">
+            <li><a href="#first-lesson" data-i18n-ru="0. Пробный урок A1" data-i18n-en="0. Lesson 1 Demo">0. Пробный урок A1</a></li>
+            <li><a href="#method" data-i18n-ru="1. О методе CELTA/Delta" data-i18n-en="1. CELTA/Delta Method">1. О методе CELTA/Delta</a></li>
+            <li><a href="#matrix" data-i18n-ru="2. Матрица 4×5" data-i18n-en="2. 4×5 Matrix">2. Матрица 4×5</a></li>
+            <li><a href="#levels" data-i18n-ru="3. Уровни CEFR A1–C2" data-i18n-en="3. CEFR A1–C2">3. Уровни CEFR A1–C2</a></li>
+            <li><a href="#shastras" data-i18n-ru="4. Шастры" data-i18n-en="4. Śāstras">4. Шастры</a></li>
+            <li><a href="#playground" data-i18n-ru="5. Интерактивные игры" data-i18n-en="5. Interactive Games">5. Интерактивные игры</a></li>
+            <li><a href="#github-pages" data-i18n-ru="6. GitHub Pages" data-i18n-en="6. GitHub Pages">6. GitHub Pages</a></li>
+          </ul>
+          <button type="button" class="chip-btn" onclick="switchView('home')"
+                  data-i18n-ru="← На главную" data-i18n-en="← Back to Home">← На главную</button>
+        </div>
+      </div>
+
+      <!-- Section 0 (in Details): Lesson 1 Demo & 4 Pillars Overview -->
+      <section id="first-lesson" class="home-hero" style="border-bottom:1px solid var(--border-color);">
+        <div class="container">
+          <div class="hero-grid">
+            <div>
+              <div class="eyebrow" data-i18n-ru="ПРОБНЫЙ УРОК · ОБЗОР СИСТЕМЫ" data-i18n-en="TRIAL LESSON · SYSTEM OVERVIEW">ПРОБНЫЙ УРОК · ОБЗОР СИСТЕМЫ</div>
+              <h2 class="section-title" style="text-align:left;"
+                  data-i18n-ru="Попробуйте первый диалог (A1) и изучите устройство курса"
+                  data-i18n-en="Try Your First Dialogue (A1) &amp; Explore the Course Architecture">
+                Попробуйте первый диалог (A1) и изучите устройство курса
+              </h2>
+              <p class="section-desc" style="text-align:left;margin-bottom:1.5rem;"
+                 data-i18n-ru="Справа — мини-демо первого урока по стандарту Task-Based Learning: сначала вы выбираете живую реплику в ситуации общения, а затем видите разбор по формуле CELTA (Meaning → Pronunciation → Form)."
+                 data-i18n-en="On the right is a mini-demo of Lesson 1 using Task-Based Learning: first you choose a spoken response in a real scenario, and then inspect the CELTA breakdown (Meaning → Pronunciation → Form).">
+                Справа — мини-демо первого урока по стандарту Task-Based Learning: сначала вы выбираете живую реплику в ситуации общения, а затем видите разбор по формуле CELTA (Meaning → Pronunciation → Form).
+              </p>
+              <div class="hero-cta-group">
+                <a href="#playground" class="btn btn-primary"
+                   data-i18n-ru="Перейти к 3 игровым тренажёрам ↓"
+                   data-i18n-en="Jump to 3 Interactive Game Labs ↓">Перейти к 3 игровым тренажёрам ↓</a>
+                <a href="#levels" class="btn btn-secondary"
+                   data-i18n-ru="Карта уровней A1–C2 ↓"
+                   data-i18n-en="CEFR A1–C2 Map ↓">Карта уровней A1–C2 ↓</a>
+              </div>
+            </div>
+
+            <!-- Interactive First Lesson Card -->
+            <div class="hero-card">
+              <div class="hero-card-header">
+                <div class="hero-card-title">
+                  <span class="live-dot"></span>
+                  <span data-i18n-ru="Урок №1 за 30 секунд · Демо (A1)" data-i18n-en="Lesson 1 in 30 Seconds · Demo (A1)">Урок №1 за 30 секунд · Демо (A1)</span>
+                </div>
+                <span class="badge badge-cambridge">TBLT · MPF</span>
+              </div>
+
+              <div class="dialogue-bubble">
+                <div class="speaker-tag" data-i18n-ru="Ситуация: Встреча в Варанаси" data-i18n-en="Scenario: Greeting in Vārāṇasī">Ситуация: Встреча в Варанаси</div>
+                <div class="sanskrit-line">हरिः ओम्! स्वागतम्। भवतः नाम किम्?</div>
+                <div class="translit-line">Hariḥ Om! Svāgatam. Bhavataḥ nāma kim?</div>
+                <div class="meaning-line" data-i18n-ru="«Хари Ом! Добро пожаловать. Как вас зовут?»" data-i18n-en="“Hari Om! Welcome. What is your name?”">«Хари Ом! Добро пожаловать. Как вас зовут?»</div>
+              </div>
+
+              <div class="task-prompt-label"
+                   data-i18n-ru="Выберите ответ на санскрите:"
+                   data-i18n-en="Choose your response in Sanskrit:">
+                Выберите ответ на санскрите:
+              </div>
+
+              <div class="hero-options">
+                <button type="button" class="hero-option-btn selected-correct" onclick="selectHeroOption(0)">
+                  <span class="hero-option-deva">नमस्ते! मम नाम अलेक्सः। कृपया मह्यं जलं यच्छतु।</span>
+                  <span class="iast-inline">Namaste! Mama nāma Aleksaḥ. Kṛpayā mahyaṃ jalaṃ yacchatu.</span>
+                  <span class="hero-option-sub" data-i18n-ru="Здравствуйте! Меня зовут Алекс. Пожалуйста, дайте мне воды." data-i18n-en="Hello! My name is Alex. Please give me water.">Здравствуйте! Меня зовут Алекс. Пожалуйста, дайте мне воды.</span>
+                </button>
+
+                <button type="button" class="hero-option-btn" onclick="selectHeroOption(1)">
+                  <span class="hero-option-deva">स्वागतम्! अहं संस्कृतेन वदामि। जलं कुत्र अस्ति?</span>
+                  <span class="iast-inline">Svāgatam! Ahaṃ saṃskṛtena vadāmi. Jalaṃ kutra asti?</span>
+                  <span class="hero-option-sub" data-i18n-ru="Добро пожаловать! Я говорю на санскрите. Где находится вода?" data-i18n-en="Welcome! I speak in Sanskrit. Where is the water?">Добро пожаловать! Я говорю на санскрите. Где находится вода?</span>
+                </button>
+              </div>
+
+              <div id="hero-mpf-feedback" class="mpf-feedback">
+                <!-- Populated by app.js -->
+              </div>
+            </div>
+          </div>
+
+          <!-- 4-Card Summary inside Details -->
+          <div class="home-summary-grid">
+            <div class="summary-card">
+              <div>
+                <div class="summary-card-kicker">4 SKILLS</div>
+                <h3 data-i18n-ru="4 Навыка речи" data-i18n-en="4 Communicative Skills">4 Навыка речи</h3>
+                <p data-i18n-ru="Listening, Speaking, Reading, Writing. Живая речь и понимание на слух с первого занятия, а не только чтение со словарём."
+                   data-i18n-en="Listening, Speaking, Reading, Writing. Active oral communication and comprehension from lesson one.">
+                  Listening, Speaking, Reading, Writing. Живая речь и понимание на слух с первого занятия, а не только чтение со словарём.
+                </p>
+              </div>
+              <a href="#matrix" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="Смотреть матрицу ↓" data-i18n-en="View 4×5 Matrix ↓">Смотреть матрицу ↓</a>
+            </div>
+
+            <div class="summary-card">
+              <div>
+                <div class="summary-card-kicker">5 LANGUAGE SYSTEMS</div>
+                <h3 data-i18n-ru="5 Систем по Cambridge" data-i18n-en="5 Cambridge Systems">5 Систем по Cambridge</h3>
+                <p data-i18n-ru="Pronunciation, Grammar, Vocabulary, Functions, Discourse — каноническая сетка CEFR, наполненная санскритом (sandhi, vibhakti, lakāra, dhātu)."
+                   data-i18n-en="Pronunciation, Grammar, Vocabulary, Functions, Discourse — the canonical CEFR grid filled with Sanskrit (sandhi, vibhakti, lakāra, dhātu).">
+                  Pronunciation, Grammar, Vocabulary, Functions, Discourse — каноническая сетка CEFR, наполненная санскритом (sandhi, vibhakti, lakāra, dhātu).
+                </p>
+              </div>
+              <a href="#levels" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="Уровни A1–C2 ↓" data-i18n-en="Explore A1–C2 Levels ↓">Уровни A1–C2 ↓</a>
+            </div>
+
+            <div class="summary-card">
+              <div>
+                <div class="summary-card-kicker">ŚĀSTRA-ROOTED</div>
+                <h3 data-i18n-ru="На основе шастр" data-i18n-en="Built on Śāstras">На основе шастр</h3>
+                <p data-i18n-ru="Никакого искусственного «учебникового санскрита»: грамматика Панини как ОС языка, «Панчатантра», «Хитопадеша», ведические гимны и «Бхагавадгита»."
+                   data-i18n-en="No artificial textbook Sanskrit: Pāṇini’s grammar as the operating system, Pañcatantra, Hitopadeśa, Vedic hymns, and the Bhagavadgītā.">
+                  Никакого искусственного «учебникового санскрита»: грамматика Панини как ОС языка, «Панчатантра», «Хитопадеша», ведические гимны и «Бхагавадгита».
+                </p>
+              </div>
+              <a href="#shastras" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="О программе шастр ↓" data-i18n-en="See Śāstra Sources ↓">О программе шастр ↓</a>
+            </div>
+
+            <div class="summary-card">
+              <div>
+                <div class="summary-card-kicker">GAMIFIED PRACTICE</div>
+                <h3 data-i18n-ru="Интерактивные игры" data-i18n-en="Interactive Games">Интерактивные игры</h3>
+                <p data-i18n-ru="Играем, а не зубрим: конструктор сандхи, симулятор диалогов в гурукуле и кузница корней Панини превращают грамматику в геймплей."
+                   data-i18n-en="Play, don't just study: Sandhi Builder, Dialogue Simulator, and Pāṇini’s Dhātu Forge turn grammar into gameplay.">
+                  Играем, а не зубрим: конструктор сандхи, симулятор диалогов в гурукуле и кузница корней Панини превращают грамматику в геймплей.
+                </p>
+              </div>
+              <a href="#playground" class="summary-link-btn" style="text-decoration:none;"
+                 data-i18n-ru="Играть в тренажёры ↓" data-i18n-en="Play Interactive Labs ↓">Играть в тренажёры ↓</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 1: Why Sanskrit in Action? (Cambridge Method vs Traditional) -->
+      <section id="method">
+        <div class="container">
+          <div class="section-header">
+            <div class="eyebrow" data-i18n-ru="В ЧЁМ ОТЛИЧИЕ ЭТОГО САЙТА" data-i18n-en="WHAT MAKES THIS SITE DIFFERENT">В ЧЁМ ОТЛИЧИЕ ЭТОГО САЙТА</div>
+            <h2 class="section-title"
+                data-i18n-ru="Почему «Sanskrit in Action»? Метод как главный дифференциатор"
+                data-i18n-en="Why “Sanskrit in Action”? Methodology as the Core Differentiator">
+              Почему «Sanskrit in Action»? Метод как главный дифференциатор
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="В мире преподавания английского языка (ELT) выражение <em>Language in Action</em> мгновенно говорит преподавателю с квалификацией CELTA или Delta: здесь учат живому действию и решению задач, а грамматика служит общению, а не наоборот."
+               data-i18n-en="In the world of English Language Teaching (ELT), the phrase <em>Language in Action</em> immediately signals to any CELTA or Delta practitioner: here, learners acquire language through real communicative tasks, and grammar serves communication.">
+              В мире преподавания английского языка (ELT) выражение <em>Language in Action</em> мгновенно говорит преподавателю с квалификацией CELTA или Delta: здесь учат живому действию и решению задач, а грамматика служит общению, а не наоборот.
+            </p>
+          </div>
+
+          <div class="comparison-grid">
+            <div class="comp-card old-way">
+              <div class="comp-header">
+                <span class="badge badge-saffron" data-i18n-ru="Традиционный подход XIX века" data-i18n-en="19th-Century Grammar-Translation">Традиционный подход XIX века</span>
+              </div>
+              <h3 class="comp-title" data-i18n-ru="Как обычно учат санскрит" data-i18n-en="How Sanskrit Is Usually Taught">Как обычно учат санскрит</h3>
+              <ul class="comp-list" style="margin-top:1rem;">
+                <li>
+                  <span class="icon-cross">✕</span>
+                  <span data-i18n-ru="<strong>Таблицы до первой фразы:</strong> ученик зубрит 24 падежные формы слова <em>deva</em> и десятки правил сандхи, не умея сказать «привет» или попросить чаю."
+                        data-i18n-en="<strong>Tables before speech:</strong> students memorize 24 case endings of <em>deva</em> and abstract sandhi charts before ever saying hello or asking for water.">
+                    <strong>Таблицы до первой фразы:</strong> ученик зубрит 24 падежные формы слова <em>deva</em> и десятки правил сандхи, не умея сказать «привет» или попросить чаю.
+                  </span>
+                </li>
+                <li>
+                  <span class="icon-cross">✕</span>
+                  <span data-i18n-ru="<strong>Немой язык:</strong> отсутствие аудирования (Listening) и устной речи (Speaking) превращает живой язык шастр в ребус для дешифровки со словарём."
+                        data-i18n-en="<strong>Silent decoding:</strong> zero Listening or Speaking practice reduces a vibrant classical language into a slow, dictionary-bound cipher.">
+                    <strong>Немой язык:</strong> отсутствие аудирования (Listening) и устной речи (Speaking) превращает живой язык шастр в ребус для дешифровки со словарём.
+                  </span>
+                </li>
+                <li>
+                  <span class="icon-cross">✕</span>
+                  <span data-i18n-ru="<strong>Искусственные примеры:</strong> оторванные от жизни фразы вроде «герой рубит дерево топором» без реальной функции речи и дискурса."
+                        data-i18n-en="<strong>Artificial textbook sentences:</strong> disconnected phrases with no communicative function, context, or authentic śāstra grounding.">
+                    <strong>Искусственные примеры:</strong> оторванные от жизни фразы вроде «герой рубит дерево топором» без реальной функции речи и дискурса.
+                  </span>
+                </li>
+                <li>
+                  <span class="icon-cross">✕</span>
+                  <span data-i18n-ru="<strong>Размытый прогресс:</strong> нет понятных критериев, что именно студент умеет делать через месяц, полгода или год."
+                        data-i18n-en="<strong>No measurable progression:</strong> no transparent A1–C2 benchmarks showing what a learner can actually do in real time.">
+                    <strong>Размытый прогресс:</strong> нет понятных критериев, что именно студент умеет делать через месяц, полгода или год.
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="comp-card cambridge-way">
+              <div class="comp-header">
+                <span class="badge badge-cambridge" data-i18n-ru="Наш подход · Стандарты CELTA / Delta" data-i18n-en="Our Approach · CELTA / Delta Standards">Наш подход · Стандарты CELTA / Delta</span>
+              </div>
+              <h3 class="comp-title" data-i18n-ru="Как работает Sanskrit in Action" data-i18n-en="How Sanskrit in Action Works">Как работает Sanskrit in Action</h3>
+              <ul class="comp-list" style="margin-top:1rem;">
+                <li>
+                  <span class="icon-check">✓</span>
+                  <span data-i18n-ru="<strong>Сначала коммуникативная задача (Task-Based):</strong> урок начинается с живой ситуации (познакомиться, узнать дорогу, обсудить притчу), а грамматика даётся как ключ к её решению."
+                        data-i18n-en="<strong>Communicative Task First (TBLT):</strong> every lesson starts with a real-life mission (greet, navigate, debate a fable), unlocking grammar as the tool to solve it.">
+                    <strong>Сначала коммуникативная задача (Task-Based):</strong> урок начинается с живой ситуации (познакомиться, узнать дорогу, обсудить притчу), а грамматика даётся как ключ к её решению.
+                  </span>
+                </li>
+                <li>
+                  <span class="icon-check">✓</span>
+                  <span data-i18n-ru="<strong>Баланс 4 навыков × 5 систем:</strong> вы одновременно прокачиваете слух, речь, чтение на деванагари и письмо внутри канонической сетки систем Cambridge."
+                        data-i18n-en="<strong>Balanced 4 Skills × 5 Systems:</strong> develop Listening, Speaking, Reading, and Writing simultaneously across the canonical Cambridge systems grid.">
+                    <strong>Баланс 4 навыков × 5 систем:</strong> вы одновременно прокачиваете слух, речь, чтение на деванагари и письмо внутри канонической сетки систем Cambridge.
+                  </span>
+                </li>
+                <li>
+                  <span class="icon-check">✓</span>
+                  <span data-i18n-ru="<strong>Панини как операционная система + Шастры:</strong> корни <em>dhātu</em> работают как генератор лексики, а материалом для чтения служат «Панчатантра», «Хитопадеша» и «Бхагавадгита»."
+                        data-i18n-en="<strong>Pāṇini as the OS + Authentic Śāstras:</strong> <em>dhātu</em> roots act as a vocabulary generator, while <em>Pañcatantra</em>, <em>Hitopadeśa</em>, and <em>Bhagavadgītā</em> provide graded reading.">
+                    <strong>Панини как операционная система + Шастры:</strong> корни <em>dhātu</em> работают как генератор лексики, а материалом для чтения служат «Панчатантра», «Хитопадеша» и «Бхагавадгита».
+                  </span>
+                </li>
+                <li>
+                  <span class="icon-check">✓</span>
+                  <span data-i18n-ru="<strong>Геймификация вместо зубрёжки:</strong> интерактивный конструктор сандхи, ролевой симулятор диалогов и квесты превращают систему языка в увлекательный геймплей."
+                        data-i18n-en="<strong>Gamified Mastery:</strong> interactive Sandhi Builder, Dialogue Simulator, and Dhātu Forge turn morphology and phonology into engaging gameplay.">
+                    <strong>Геймификация вместо зубрёжки:</strong> интерактивный конструктор сандхи, ролевой симулятор диалогов и квесты превращают систему языка в увлекательный геймплей.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CELTA Lesson Architecture Banner -->
+          <div class="cycle-banner">
+            <span class="badge badge-gold" data-i18n-ru="АРХИТЕКТУРА УРОКА ПО СТАНДАРТУ CELTA" data-i18n-en="CELTA LESSON ARCHITECTURE">АРХИТЕКТУРА УРОКА ПО СТАНДАРТУ CELTA</span>
+            <h3 style="margin-top:0.6rem;"
+                data-i18n-ru="Как устроен каждый модуль: от живого контекста к свободной речи"
+                data-i18n-en="How Every Module Works: From Authentic Context to Fluent Production">
+              Как устроен каждый модуль: от живого контекста к свободной речи
+            </h3>
+            <div class="cycle-steps">
+              <div class="cycle-step">
+                <div class="cycle-step-num">Stage 01 · Lead-In &amp; Exposure</div>
+                <h4 data-i18n-ru="Контекст и погружение" data-i18n-en="Context &amp; Authentic Exposure">Контекст и погружение</h4>
+                <p data-i18n-ru="Вы слушаете короткий живой диалог (saṃvāda) или крылатую шлоку из шастры и решаете общую задачу на понимание смысла (Gist Task)."
+                   data-i18n-en="Listen to a short spoken dialogue (saṃvāda) or authentic śloka and solve a quick Gist Task before any grammar rules are mentioned.">
+                  Вы слушаете короткий живой диалог (saṃvāda) или крылатую шлоку из шастры и решаете общую задачу на понимание смысла (Gist Task).
+                </p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num">Stage 02 · Noticing &amp; MPF</div>
+                <h4 data-i18n-ru="Смысл → Звучание → Форма" data-i18n-en="Meaning → Pronunciation → Form">Смысл → Звучание → Форма</h4>
+                <p data-i18n-ru="По золотому правилу CELTA мы сначала разбираем коммуникативную функцию (Meaning), затем артикуляцию и сандхи (Pronunciation) и лишь затем падеж или суффикс Панини (Form)."
+                   data-i18n-en="Following CELTA’s golden MPF sequence, we clarify functional Meaning first, Pronunciation &amp; sandhi second, and Pāṇinian Form third.">
+                  По золотому правилу CELTA мы сначала разбираем коммуникативную функцию (Meaning), затем артикуляцию и сандхи (Pronunciation) и лишь затем падеж или суффикс Панини (Form).
+                </p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num">Stage 03 · Controlled Practice</div>
+                <h4 data-i18n-ru="Интерактивный тренажёр" data-i18n-en="Interactive Game Drills">Интерактивный тренажёр</h4>
+                <p data-i18n-ru="Отрабатываем конструкцию до автоматизма в мини-играх: собираем сандхи, образуем слова из корней dhātu и проходим аудио-квесты."
+                   data-i18n-en="Build automaticity through interactive drills: fuse words in the Sandhi Lab, forge words from dhātu roots, and complete listening quests.">
+                  Отрабатываем конструкцию до автоматизма в мини-играх: собираем сандхи, образуем слова из корней dhātu и проходим аудио-квесты.
+                </p>
+              </div>
+              <div class="cycle-step">
+                <div class="cycle-step-num">Stage 04 · Communicative Task</div>
+                <h4 data-i18n-ru="Живая речь (Saṃvāda)" data-i18n-en="Freer Communicative Task">Живая речь (Saṃvāda)</h4>
+                <p data-i18n-ru="Вы применяете язык в ролевом симуляторе диалога или собственном высказывании, закрывая конкретный дескриптор «Я умею…» (Can-Do)."
+                   data-i18n-en="Deploy the target language in branching role-plays and real production, checking off a concrete CEFR “I can…” descriptor.">
+                  Вы применяете язык в ролевом симуляторе диалога или собственном высказывании, закрывая конкретный дескриптор «Я умею…» (Can-Do).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: The 4 Skills x 5 Language Systems Matrix -->
+      <section id="matrix" class="section-alt">
+        <div class="container">
+          <div class="section-header">
+            <div class="eyebrow saffron" data-i18n-ru="УЧЕБНАЯ МАТРИЦА CAMBRIDGE × SANSKRIT" data-i18n-en="CAMBRIDGE × SANSKRIT CURRICULUM MATRIX">УЧЕБНАЯ МАТРИЦА CAMBRIDGE × SANSKRIT</div>
+            <h2 class="section-title"
+                data-i18n-ru="4 Навыка × 5 Систем языка: знакомый каркас Cambridge, 100% санскрит внутри"
+                data-i18n-en="4 Skills × 5 Language Systems: The Canonical Cambridge Grid Filled with Sanskrit">
+              4 Навыка × 5 Систем языка: знакомый каркас Cambridge, 100% санскрит внутри
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="Мы не выдумываем искусственные названия систем: сила стандартов CEFR и Delta в том, что их сетка универсальна для любого языка. Мы берём классическую матрицу систем Cambridge и наполняем каждую ячейку подлинным содержанием санскрита."
+               data-i18n-en="Rather than inventing ad-hoc labels, we preserve the universal Cambridge / CEFR framework (Pronunciation, Grammar, Vocabulary, Functions, Discourse) and fill every cell with authentic Sanskrit linguistics.">
+              Мы не выдумываем искусственные названия систем: сила стандартов CEFR и Delta в том, что их сетка универсальна для любого языка. Мы берём классическую матрицу систем Cambridge и наполняем каждую ячейку подлинным содержанием санскрита.
+            </p>
+          </div>
+
+          <!-- 4 Skills Cards -->
+          <h3 class="sub-heading">
+            <span class="badge badge-saffron">4 SKILLS</span>
+            <span data-i18n-ru="Четыре речевых навыка (Receptive &amp; Productive Skills)" data-i18n-en="Four Communicative Skills (Receptive &amp; Productive)">Четыре речевых навыка (Receptive &amp; Productive Skills)</span>
+          </h3>
+
+          <div class="skills-grid">
+            <div class="skill-card">
+              <span class="skill-type-badge skill-receptive" data-i18n-ru="Receptive · Восприятие" data-i18n-en="Receptive Skill">Receptive · Восприятие</span>
+              <h4>1. Listening</h4>
+              <div class="skill-sanskrit" data-i18n-ru="श्रवणम् · Śravaṇam (Аудирование)" data-i18n-en="श्रवणम् · Śravaṇam">श्रवणम् · Śravaṇam (Аудирование)</div>
+              <p data-i18n-ru="Восприятие живой санскритской речи на слух: распознавание границ слов сквозь сандхи, долготы гласных, ретрофлексных согласных и ритма шлоки."
+                 data-i18n-en="Comprehending spoken Sanskrit in real time: parsing word boundaries across sandhi, vowel length, retroflexion, and metrical rhythm.">
+                Восприятие живой санскритской речи на слух: распознавание границ слов сквозь сандхи, долготы гласных, ретрофлексных согласных и ритма шлоки.
+              </p>
+              <div class="skill-task-example"
+                   data-i18n-ru="<strong>Task-пример:</strong> прослушать диалог на рынке и определить, какие 3 предмета купил путник и по какой цене."
+                   data-i18n-en="<strong>Sample Task:</strong> listen to a marketplace dialogue and identify which 3 items the traveler bought and why.">
+                <strong>Task-пример:</strong> прослушать диалог на рынке и определить, какие 3 предмета купил путник и по какой цене.
+              </div>
+            </div>
+
+            <div class="skill-card">
+              <span class="skill-type-badge skill-productive" data-i18n-ru="Productive · Порождение речи" data-i18n-en="Productive Skill">Productive · Порождение речи</span>
+              <h4>2. Speaking</h4>
+              <div class="skill-sanskrit" data-i18n-ru="भाषणम् · Bhāṣaṇam (Говорение)" data-i18n-en="भाषणम् · Bhāṣaṇam">भाषणम् · Bhāṣaṇam (Говорение)</div>
+              <p data-i18n-ru="Устная речь с первого дня: от простых диалогов выживания (Survival Sanskrit) до пересказа притч и ведения аргументированного философского диспута (vāda)."
+                 data-i18n-en="Active oral communication from Day 1: from Survival Sanskrit role-plays to storytelling and structured philosophical debate (vāda).">
+                Устная речь с первого дня: от простых диалогов выживания (Survival Sanskrit) до пересказа притч и ведения аргументированного философского диспута (vāda).
+              </p>
+              <div class="skill-task-example"
+                   data-i18n-ru="<strong>Task-пример:</strong> расспросить собеседника о его дне, используя цепочку действий на <em>-tvā</em>, и договориться о встрече."
+                   data-i18n-en="<strong>Sample Task:</strong> interview a partner about their morning routine using <em>-tvā</em> gerunds and agree on a meeting time.">
+                <strong>Task-пример:</strong> расспросить собеседника о его дне, используя цепочку действий на <em>-tvā</em>, и договориться о встрече.
+              </div>
+            </div>
+
+            <div class="skill-card">
+              <span class="skill-type-badge skill-receptive" data-i18n-ru="Receptive · Восприятие" data-i18n-en="Receptive Skill">Receptive · Восприятие</span>
+              <h4>3. Reading</h4>
+              <div class="skill-sanskrit" data-i18n-ru="पठनम् · Paṭhanam (Чтение)" data-i18n-en="पठनम् · Paṭhanam">पठनम् · Paṭhanam (Чтение)</div>
+              <p data-i18n-ru="Беглое чтение на деванагари без пословного буксования: ступенчатый переход (Graded Reading) от коротких диалогов к «Панчатантре», «Бхагавадгите» и комментариям."
+                 data-i18n-en="Fluent reading in Devanāgarī (Skimming, Scanning &amp; Intensive Reading), progressing from graded fables to the <em>Bhagavadgītā</em> and commentaries.">
+                Беглое чтение на деванагари без пословного буксования: ступенчатый переход (Graded Reading) от коротких диалогов к «Панчатантре», «Бхагавадгите» и комментариям.
+              </p>
+              <div class="skill-task-example"
+                   data-i18n-ru="<strong>Task-пример:</strong> прочитать притчу из «Хитопадеши», выделить ключевой конфликт героев и соотнести со шлокой-выводом."
+                   data-i18n-en="<strong>Sample Task:</strong> read a <em>Hitopadeśa</em> story for gist, identify the protagonists’ dilemma, and match it to the concluding moral śloka.">
+                <strong>Task-пример:</strong> прочитать притчу из «Хитопадеши», выделить ключевой конфликт героев и соотнести со шлокой-выводом.
+              </div>
+            </div>
+
+            <div class="skill-card">
+              <span class="skill-type-badge skill-productive" data-i18n-ru="Productive · Порождение речи" data-i18n-en="Productive Skill">Productive · Порождение речи</span>
+              <h4>4. Writing</h4>
+              <div class="skill-sanskrit" data-i18n-ru="लेखनम् · Lekhanam (Письмо)" data-i18n-en="लेखनम् · Lekhanam">लेखनम् · Lekhanam (Письмо)</div>
+              <p data-i18n-ru="Грамотное письмо на деванагари и в IAST: от составления диалогов и писем другу до написания параграфов-аргументов и разбора композитов (vigraha-vākya)."
+                 data-i18n-en="Purposeful composition in Devanāgarī &amp; IAST: from short messages and dialogues to structured philosophical arguments and <em>vigraha-vākya</em>.">
+                Грамотное письмо на деванагари и в IAST: от составления диалогов и писем другу до написания параграфов-аргументов и разбора композитов (vigraha-vākya).
+              </p>
+              <div class="skill-task-example"
+                   data-i18n-ru="<strong>Task-пример:</strong> написать историю из 5 предложений с союзами <em>ca, tu, tasmāt</em> и корректным применением гласных сандхи."
+                   data-i18n-en="<strong>Sample Task:</strong> compose a 5-sentence narrative using discourse markers <em>ca, tu, tasmāt</em> and accurate vowel sandhi.">
+                <strong>Task-пример:</strong> написать историю из 5 предложений с союзами <em>ca, tu, tasmāt</em> и корректным применением гласных сандхи.
+              </div>
+            </div>
+          </div>
+
+          <!-- 5 Language Systems Table -->
+          <h3 class="sub-heading">
+            <span class="badge badge-cambridge">5 LANGUAGE SYSTEMS</span>
+            <span data-i18n-ru="Пять систем языка по сетке CELTA / Delta и их наполнение в санскрите"
+                  data-i18n-en="The Five Cambridge Language Systems &amp; How They Are Filled in Sanskrit">
+              Пять систем языка по сетке CELTA / Delta и их наполнение в санскрите
+            </span>
+          </h3>
+
+          <div class="systems-table-wrapper">
+            <table class="systems-table">
+              <thead>
+                <tr>
+                  <th style="width:22%;" data-i18n-ru="Система языка (Cambridge)" data-i18n-en="Language System (Cambridge)">Система языка (Cambridge)</th>
+                  <th style="width:28%;" data-i18n-ru="Ключевые элементы в санскрите" data-i18n-en="Sanskrit Linguistic Pillars">Ключевые элементы в санскрите</th>
+                  <th style="width:50%;" data-i18n-ru="Как это работает на практике (Communicative Focus)" data-i18n-en="How It Works in Action (Communicative Focus)">Как это работает на практике (Communicative Focus)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <span class="sys-name">1. Pronunciation</span>
+                    <span class="sys-cambridge-sub" data-i18n-ru="Произношение и фонология" data-i18n-en="Phonology, Prosody &amp; Connected Speech">Произношение и фонология</span>
+                  </td>
+                  <td>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Varṇamālā (36+ звуков)" data-i18n-en="Varṇamālā · 36+ sounds">Varṇamālā (36+ звуков)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Uccāraṇa-sthāna" data-i18n-en="Uccāraṇa-sthāna">Uccāraṇa-sthāna</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Sandhi (стык слов)" data-i18n-en="Sandhi · Connected Speech">Sandhi (стык слов)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Udātta / Svarita" data-i18n-en="Udātta / Svarita">Udātta / Svarita</span>
+                  </td>
+                  <td data-i18n-ru="Точная артикуляция гласных (включая <em>ṛ / ḷ</em>), <em>anusvāra</em>, <em>visarga</em> и ретрофлексных (<em>ṭ, ḍ, ṇ</em>) по 5 точкам речевого аппарата; <strong>сандхи</strong> изучается не как сухая алгебра, а как естественное связное звучание речи (Connected Speech); ведический музыкальный акцент."
+                      data-i18n-en="Precise articulation of vowels (including vocalic <em>ṛ / ḷ</em>), <em>anusvāra</em>, <em>visarga</em>, and retroflexes (<em>ṭ, ḍ, ṇ</em>) across the 5 mouth positions; <strong>sandhi</strong> taught as natural Connected Speech rather than abstract algebra; Vedic pitch accent.">
+                    Точная артикуляция гласных (включая <em>ṛ / ḷ</em>), <em>anusvāra</em>, <em>visarga</em> и ретрофлексных (<em>ṭ, ḍ, ṇ</em>) по 5 точкам речевого аппарата; <strong>сандхи</strong> изучается не как сухая алгебра, а как естественное связное звучание речи (Connected Speech); ведический музыкальный акцент.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="sys-name">2. Grammar</span>
+                    <span class="sys-cambridge-sub" data-i18n-ru="Морфология и синтаксис" data-i18n-en="Morphosyntax &amp; Word Architecture">Морфология и синтаксис</span>
+                  </td>
+                  <td>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Vibhakti (8 падежей)" data-i18n-en="Vibhakti · 8 cases">Vibhakti (8 падежей)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Lakāra (10 времён/накл.)" data-i18n-en="Lakāra · 10 tenses/moods">Lakāra (10 времён/накл.)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Samāsa (композиты)" data-i18n-en="Samāsa · Compounds">Samāsa (композиты)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Kāraka (роли)" data-i18n-en="Kāraka · Semantic roles">Kāraka (роли)</span>
+                  </td>
+                  <td data-i18n-ru="Падежи (<em>vibhakti</em>) и глагольные времена/наклонения (<em>lakāra</em>) вводятся по одному под конкретную речевую задачу; сложные слова (<em>samāsa</em>) и свободный порядок слов осваиваются как конструктор смысловых связей (<em>kāraka</em>)."
+                      data-i18n-en="Cases (<em>vibhakti</em>) and verb tenses/moods (<em>lakāra</em>) unlocked one by one to serve real communicative needs; compounds (<em>samāsa</em>) and flexible word order mastered through Pāṇini’s semantic roles (<em>kāraka</em>).">
+                    Падежи (<em>vibhakti</em>) и глагольные времена/наклонения (<em>lakāra</em>) вводятся по одному под конкретную речевую задачу; сложные слова (<em>samāsa</em>) и свободный порядок слов осваиваются как конструктор смысловых связей (<em>kāraka</em>).
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="sys-name">3. Vocabulary (Lexis)</span>
+                    <span class="sys-cambridge-sub" data-i18n-ru="Лексика и словообразование" data-i18n-en="Lexical Fields &amp; Generative Roots">Лексика и словообразование</span>
+                  </td>
+                  <td>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Survival Fields" data-i18n-en="Survival Lexical Fields">Survival Fields</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Pāṇinian Dhātu (√корни)" data-i18n-en="Pāṇinian Dhātu · √roots">Pāṇinian Dhātu (√корни)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Upasarga (приставки)" data-i18n-en="Upasarga · Prefixes">Upasarga (приставки)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Pratyaya (суффиксы)" data-i18n-en="Pratyaya · Suffixes">Pratyaya (суффиксы)</span>
+                  </td>
+                  <td data-i18n-ru="На старте — практические тематические поля («выживательный санскрит»: семья, еда, дорога, рынок). Далее включается суперсила санскрита — корневая система <strong>dhātu</strong> по Панини: зная 1 корень и 5 суффиксов, вы понимаете 20 слов без словаря."
+                      data-i18n-en="Starts with high-frequency thematic fields (“Survival Sanskrit”: family, food, travel, market), then unlocks Sanskrit’s superpower — Pāṇinian <strong>dhātu</strong> roots: knowing 1 root and 5 suffixes lets you transparentize dozens of words without a dictionary.">
+                    На старте — практические тематические поля («выживательный санскрит»: семья, еда, дорога, рынок). Далее включается суперсила санскрита — корневая система <strong>dhātu</strong> по Панини: зная 1 корень и 5 суффиксов, вы понимаете 20 слов без словаря.
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="sys-name">4. Functions</span>
+                    <span class="sys-cambridge-sub" data-i18n-ru="Коммуникативные функции речи" data-i18n-en="Pragmatics &amp; Functional Exponents">Коммуникативные функции речи</span>
+                  </td>
+                  <td>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Greetings &amp; Requests" data-i18n-en="Greetings &amp; Requests">Greetings &amp; Requests</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Storytelling (Kathā)" data-i18n-en="Storytelling · Kathā">Storytelling (Kathā)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Advice (Upadeśa)" data-i18n-en="Counsel · Upadeśa">Advice (Upadeśa)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Debate (Pūrvapakṣa)" data-i18n-en="Debate · Pūrvapakṣa">Debate (Pūrvapakṣa)</span>
+                  </td>
+                  <td data-i18n-ru="Канонические функции CEFR: поприветствовать, представиться, вежливо попросить, пригласить, пообещать, рассказать историю, дать этический совет и провести дискуссию по правилам шастр (тезис оппонента <em>pūrvapakṣa</em> → вывод <em>siddhānta</em>)."
+                      data-i18n-en="Canonical CEFR functional exponents: greeting, introducing, requesting politely, inviting, narrating fables, giving counsel, and conducting classical debate (stating the <em>pūrvapakṣa</em> and proving the <em>siddhānta</em>).">
+                    Канонические функции CEFR: поприветствовать, представиться, вежливо попросить, пригласить, пообещать, рассказать историю, дать этический совет и провести дискуссию по правилам шастр (тезис оппонента <em>pūrvapakṣa</em> → вывод <em>siddhānta</em>).
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <span class="sys-name">5. Discourse</span>
+                    <span class="sys-cambridge-sub" data-i18n-ru="Связность текста и жанры" data-i18n-en="Cohesion, Register &amp; Text Types">Связность текста и жанры</span>
+                  </td>
+                  <td>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Connectives (ca, tu, eva)" data-i18n-en="Connectives · ca, tu, eva">Connectives (ca, tu, eva)</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Yathā… Tathā / Iti" data-i18n-en="Yathā… Tathā / Iti">Yathā… Tathā / Iti</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Gadya (проза) vs Chandas" data-i18n-en="Gadya · Prose vs Chandas">Gadya (проза) vs Chandas</span>
+                    <span class="sys-sanskrit-pill" data-i18n-ru="Anvaya (порядок слов)" data-i18n-en="Anvaya · Prose Word Order">Anvaya (порядок слов)</span>
+                  </td>
+                  <td data-i18n-ru="Как отдельные фразы сшиваются в живой текст: частицы-связки (<em>ca, tu, eva, api, hi, khalu, tasmāt</em>), оформление цитат через <em>iti</em>, коррелятивные рамки (<em>yadā… tadā</em>) и умение переводить поэтический размер (<em>chandas / śloka</em>) в логический порядок прозы (<em>anvaya</em>)."
+                      data-i18n-en="How sentences weave into coherent discourse: enclitic connectives (<em>ca, tu, eva, api, hi, tasmāt</em>), direct-speech framing with <em>iti</em>, correlative clauses (<em>yadā… tadā</em>), and transforming poetic meter (<em>chandas</em>) into logical prose order (<em>anvaya</em>).">
+                    Как отдельные фразы сшиваются в живой текст: частицы-связки (<em>ca, tu, eva, api, hi, khalu, tasmāt</em>), оформление цитат через <em>iti</em>, коррелятивные рамки (<em>yadā… tadā</em>) и умение переводить поэтический размер (<em>chandas / śloka</em>) в логический порядок прозы (<em>anvaya</em>).
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Interactive CEFR A1-C2 Can-Do Grid -->
+      <section id="levels">
+        <div class="container">
+          <div class="section-header">
+            <div class="eyebrow" data-i18n-ru="ШКАЛА УРОВНЕЙ CEFR A1–C2" data-i18n-en="CEFR A1–C2 PROGRESSION">ШКАЛА УРОВНЕЙ CEFR A1–C2</div>
+            <h2 class="section-title"
+                data-i18n-ru="Интерактивная карта уровней: от «Survival Sanskrit» (A1) до чтения Бхашьи и Вед (C2)"
+                data-i18n-en="Interactive CEFR Can-Do Map: From Survival Sanskrit (A1) to Bhāṣya &amp; Veda (C2)">
+              Интерактивная карта уровней: от «Survival Sanskrit» (A1) до чтения Бхашьи и Вед (C2)
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="Нажмите на любой уровень ниже, чтобы увидеть конкретные дескрипторы «Я умею…» (Can-Do) по всем 5 системам языка и пример живой санскритской речи этого уровня."
+               data-i18n-en="Click any level below to inspect concrete “Can-Do” descriptors across all 5 Cambridge language systems along with an authentic Sanskrit speech sample.">
+              Нажмите на любой уровень ниже, чтобы увидеть конкретные дескрипторы «Я умею…» (Can-Do) по всем 5 системам языка и пример живой санскритской речи этого уровня.
+            </p>
+          </div>
+
+          <div class="level-tabs" role="tablist">
+            <button type="button" class="level-tab active" data-level="A1" onclick="selectCefrLevel('A1')">
+              <span class="lvl-code">A1</span>
+              <span class="lvl-tag">Survival Sanskrit</span>
+            </button>
+            <button type="button" class="level-tab" data-level="A2" onclick="selectCefrLevel('A2')">
+              <span class="lvl-code">A2</span>
+              <span class="lvl-tag">Everyday Saṃvāda</span>
+            </button>
+            <button type="button" class="level-tab" data-level="B1" onclick="selectCefrLevel('B1')">
+              <span class="lvl-code">B1</span>
+              <span class="lvl-tag">Pañcatantra &amp; Fables</span>
+            </button>
+            <button type="button" class="level-tab" data-level="B2" onclick="selectCefrLevel('B2')">
+              <span class="lvl-code">B2</span>
+              <span class="lvl-tag">Śāstra &amp; Gītā</span>
+            </button>
+            <button type="button" class="level-tab" data-level="C1" onclick="selectCefrLevel('C1')">
+              <span class="lvl-code">C1</span>
+              <span class="lvl-tag">Pāṇini &amp; Kāvya</span>
+            </button>
+            <button type="button" class="level-tab" data-level="C2" onclick="selectCefrLevel('C2')">
+              <span class="lvl-code">C2</span>
+              <span class="lvl-tag">Bhāṣya &amp; Veda</span>
+            </button>
+          </div>
+
+          <div id="cefr-level-panel" class="level-panel">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Shastra-Rooted Curriculum -->
+      <section id="shastras" class="section-alt">
+        <div class="container">
+          <div class="section-header">
+            <div class="eyebrow gold" data-i18n-ru="АУТЕНТИЧНЫЕ ИСТОЧНИКИ · ŚĀSTRA-ROOTED" data-i18n-en="AUTHENTIC SOURCES · ŚĀSTRA-ROOTED">АУТЕНТИЧНЫЕ ИСТОЧНИКИ · ŚĀSTRA-ROOTED</div>
+            <h2 class="section-title"
+                data-i18n-ru="Изучаем санскрит на основе подлинных шастр, а не искусственных учебников"
+                data-i18n-en="Built on Authentic Śāstras — Never Artificial Textbook Sanskrit">
+              Изучаем санскрит на основе подлинных шастр, а не искусственных учебников
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="Коммуникативный подход не означает упрощение традиции. Напротив: живая речь — это самый быстрый мост к чтению великих памятников индийской мысли в подлиннике."
+               data-i18n-en="Communicative teaching does not dilute classical depth. On the contrary, active spoken mastery is the fastest bridge to reading India’s greatest philosophical and literary monuments in the original.">
+              Коммуникативный подход не означает упрощение традиции. Напротив: живая речь — это самый быстрый мост к чтению великих памятников индийской мысли в подлиннике.
+            </p>
+          </div>
+
+          <div class="shastra-grid">
+            <div class="shastra-card">
+              <div>
+                <div class="shastra-top">
+                  <div>
+                    <div class="shastra-role" data-i18n-ru="Операционная система языка · Уровни A1–C2" data-i18n-en="The Operating System of Sanskrit · Levels A1–C2">Операционная система языка · Уровни A1–C2</div>
+                    <h4 data-i18n-ru="«Аштадхьяи» Панини (Aṣṭādhyāyī)" data-i18n-en="Pāṇini’s Aṣṭādhyāyī">«Аштадхьяи» Панини (Aṣṭādhyāyī)</h4>
+                  </div>
+                  <span class="shastra-deva-badge">अष्टाध्यायी</span>
+                </div>
+                <p data-i18n-ru="Грамматика Панини — это первый в истории человечества формальный алгоритмический код языка. Мы используем её логику (корни <em>dhātu</em> + аффиксы <em>pratyaya</em> + смысловые роли <em>kāraka</em>) как прозрачный конструктор, который избавляет от слепой зубрёжки."
+                   data-i18n-en="Pāṇini’s grammar is humanity’s first generative linguistic operating system. We use its architecture (verbal roots <em>dhātu</em> + suffixes <em>pratyaya</em> + semantic roles <em>kāraka</em>) as an intuitive word-builder that replaces rote memorization.">
+                  Грамматика Панини — это первый в истории человечества формальный алгоритмический код языка. Мы используем её логику (корни <em>dhātu</em> + аффиксы <em>pratyaya</em> + смысловые роли <em>kāraka</em>) как прозрачный конструктор, который избавляет от слепой зубрёжки.
+                </p>
+              </div>
+              <div class="shastra-quote">
+                <div class="deva">भूवादयो धातवः (१.३.१) · स्वतन्त्रः कर्ता (१.४.५४)</div>
+                <div class="iast-inline"
+                     data-i18n-ru="bhūvādayo dhātavaḥ (1.3.1) · svatantraḥ kartā (1.4.54) — базовые аксиомы Панини"
+                     data-i18n-en="bhūvādayo dhātavaḥ (1.3.1) · svatantraḥ kartā (1.4.54) — Pāṇini’s foundational axioms">
+                  bhūvādayo dhātavaḥ (1.3.1) · svatantraḥ kartā (1.4.54) — базовые аксиомы Панини
+                </div>
+              </div>
+            </div>
+
+            <div class="shastra-card">
+              <div>
+                <div class="shastra-top">
+                  <div>
+                    <div class="shastra-role" data-i18n-ru="Ступенчатое чтение и живые диалоги · Уровни A2–B1" data-i18n-en="Graded Reading &amp; Dialogues · Levels A2–B1">Ступенчатое чтение и живые диалоги · Уровни A2–B1</div>
+                    <h4 data-i18n-ru="«Панчатантра» и «Хитопадеша»" data-i18n-en="Pañcatantra &amp; Hitopadeśa">«Панчатантра» и «Хитопадеша»</h4>
+                  </div>
+                  <span class="shastra-deva-badge">हितोपदेशः</span>
+                </div>
+                <p data-i18n-ru="Классические сборники басен и политической мудрости (nīti-śāstra) изначально были написаны для быстрого и увлекательного обучения молодых принцев живому санскриту. Идеальный материал для пересказа, ролевых игр и изучения деепричастных цепочек."
+                   data-i18n-en="Originally composed to teach young princes practical wisdom and fluent Sanskrit in record time, these fables provide natural dialogues, vivid characters, and ideal texts for Task-Based storytelling.">
+                  Классические сборники басен и политической мудрости (nīti-śāstra) изначально были написаны для быстрого и увлекательного обучения молодых принцев живому санскриту. Идеальный материал для пересказа, ролевых игр и изучения деепричастных цепочек.
+                </p>
+              </div>
+              <div class="shastra-quote">
+                <div class="deva">अयं निजः परो वेति गणना लघुचेतसाम्। उदारचरितानां तु वसुधैव कुटुम्बकम्॥</div>
+                <div class="iast-inline"
+                     data-i18n-ru="udāracaritānāṃ tu vasudhaiva kuṭumbakam — «Для великодушных вся земля — одна семья»"
+                     data-i18n-en="udāracaritānāṃ tu vasudhaiva kuṭumbakam — “For the noble-hearted, the whole world is one family”">
+                  udāracaritānāṃ tu vasudhaiva kuṭumbakam — «Для великодушных вся земля — одна семья»
+                </div>
+              </div>
+            </div>
+
+            <div class="shastra-card">
+              <div>
+                <div class="shastra-top">
+                  <div>
+                    <div class="shastra-role" data-i18n-ru="Фонетика, ритм Chandas и мудрость · Уровни A1–B2" data-i18n-en="Prosody, Chandas Rhythm &amp; Epigrams · Levels A1–B2">Фонетика, ритм Chandas и мудрость · Уровни A1–B2</div>
+                    <h4 data-i18n-ru="«Субхашитани» (Subhāṣitāni)" data-i18n-en="Subhāṣitāni &amp; Nītiśataka">«Субхашитани» (Subhāṣitāni)</h4>
+                  </div>
+                  <span class="shastra-deva-badge">सुभाषितानि</span>
+                </div>
+                <p data-i18n-ru="Лаконичные двустишия («прекрасно сказанное») позволяют с первых недель почувствовать музыкальный пульс санскритского стиха (chandas), запомнить золотые синтаксические модели и использовать крылатые выражения в живой беседе."
+                   data-i18n-en="Gems of Sanskrit epigrammatic poetry (“well-spoken verses”) let even A1–A2 learners experience the musical pulse of Sanskrit meter (chandas) and internalize memorable grammatical patterns.">
+                  Лаконичные двустишия («прекрасно сказанное») позволяют с первых недель почувствовать музыкальный пульс санскритского стиха (chandas), запомнить золотые синтаксические модели и использовать крылатые выражения в живой беседе.
+                </p>
+              </div>
+              <div class="shastra-quote">
+                <div class="deva">काव्यशास्त्रविनोदेन कालो गच्छति धीमताम्।</div>
+                <div class="iast-inline"
+                     data-i18n-ru="kāvyaśāstravinodena kālo gacchati dhīmatām — «В беседе о поэзии и шастрах проходит время мудрых»"
+                     data-i18n-en="kāvyaśāstravinodena kālo gacchati dhīmatām — “The wise spend their time delighting in poetry and śāstras”">
+                  kāvyaśāstravinodena kālo gacchati dhīmatām — «В беседе о поэзии и шастрах проходит время мудрых»
+                </div>
+              </div>
+            </div>
+
+            <div class="shastra-card">
+              <div>
+                <div class="shastra-top">
+                  <div>
+                    <div class="shastra-role" data-i18n-ru="Философский дискурс и ведический акцент · Уровни B2–C2" data-i18n-en="Philosophical Discourse &amp; Vedic Prosody · Levels B2–C2">Философский дискурс и ведический акцент · Уровни B2–C2</div>
+                    <h4 data-i18n-ru="«Бхагавадгита», Упанишады и Веды" data-i18n-en="Bhagavadgītā, Upaniṣads &amp; Vedic Hymns">«Бхагавадгита», Упанишады и Веды</h4>
+                  </div>
+                  <span class="shastra-deva-badge">भगवद्गीता</span>
+                </div>
+                <p data-i18n-ru="Вершина программы: диалог Кришны и Арджуны как образец философского вопрошания и аргументации, диалоги Упанишад с классическими комментариями (bhāṣya) и гимны Ригведы с тройным музыкальным ударением (udātta–svarita)."
+                   data-i18n-en="The summit of the curriculum: the philosophical dialogue of the <em>Bhagavadgītā</em>, the inquiry of the <em>Upaniṣads</em> with classical <em>bhāṣya</em> commentaries, and Vedic hymns with three-tone pitch accent.">
+                  Вершина программы: диалог Кришны и Арджуны как образец философского вопрошания и аргументации, диалоги Упанишад с классическими комментариями (bhāṣya) и гимны Ригведы с тройным музыкальным ударением (udātta–svarita).
+                </p>
+              </div>
+              <div class="shastra-quote">
+                <div class="deva">योगः कर्मसु कौशलम् (२.५०) · तत्त्वमसि</div>
+                <div class="iast-inline"
+                     data-i18n-ru="yogaḥ karmasu kauśalam (Gītā 2.50) — «Йога есть искусность в действии»"
+                     data-i18n-en="yogaḥ karmasu kauśalam (Gītā 2.50) — “Yoga is skill in action”">
+                  yogaḥ karmasu kauśalam (Gītā 2.50) — «Йога есть искусность в действии»
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Playground (Play, Don't Just Study) -->
+      <section id="playground">
+        <div class="container">
+          <div class="section-header">
+            <div class="eyebrow saffron" data-i18n-ru="PLAY, DON'T JUST STUDY · ИНТЕРАКТИВНЫЕ ИГРЫ" data-i18n-en="PLAY, DON'T JUST STUDY · INTERACTIVE GAMES">PLAY, DON'T JUST STUDY · ИНТЕРАКТИВНЫЕ ИГРЫ</div>
+            <h2 class="section-title"
+                data-i18n-ru="Грамматика превращается в геймплей: попробуйте 3 мини-тренажёра прямо сейчас"
+                data-i18n-en="Turn Grammar into Gameplay: Try 3 Interactive Labs Right Now">
+              Грамматика превращается в геймплей: попробуйте 3 мини-тренажёра прямо сейчас
+            </h2>
+            <p class="section-desc"
+               data-i18n-ru="На сайте <strong>Sanskrit in Action</strong> каждое правило проверяется в действии. Переключайте слова, собирайте сандхи, проходите ролевой диалог в гурукуле и куйте слова из корней Панини!"
+               data-i18n-en="On <strong>Sanskrit in Action</strong>, every linguistic system is learned hands-on. Click through the live mini-labs below to fuse sandhi, complete a Gurukula dialogue quest, and forge words from Pāṇinian roots!">
+              На сайте <strong>Sanskrit in Action</strong> каждое правило проверяется в действии. Переключайте слова, собирайте сандхи, проходите ролевой диалог в гурукуле и куйте слова из корней Панини!
+            </p>
+          </div>
+
+          <div class="games-grid">
+            <!-- Game 1: Sandhi Builder -->
+            <div class="game-card">
+              <div class="game-header">
+                <div class="game-tag" data-i18n-ru="Система 1 · Pronunciation &amp; Phonology" data-i18n-en="System 1 · Pronunciation &amp; Phonology">Система 1 · Pronunciation &amp; Phonology</div>
+                <h4 data-i18n-ru="1. Sandhi Builder (Конструктор сандхи)" data-i18n-en="1. Sandhi Builder Lab">1. Sandhi Builder (Конструктор сандхи)</h4>
+                <p style="font-size:0.88rem;color:var(--text-secondary);"
+                   data-i18n-ru="Выберите пару слов и посмотрите, как звуки естественно сливаются на границе по сутрам Панини:"
+                   data-i18n-en="Select a word pair to see how sounds naturally blend across boundaries via Pāṇini’s sūtras:">
+                  Выберите пару слов и посмотрите, как звуки естественно сливаются на границе по сутрам Панини:
+                </p>
+              </div>
+              <div id="sandhi-game-stage" class="game-stage">
+                <!-- Populated by app.js -->
+              </div>
+            </div>
+
+            <!-- Game 2: Samvada Dialogue Simulator -->
+            <div class="game-card">
+              <div class="game-header">
+                <div class="game-tag" data-i18n-ru="Система 4 &amp; 5 · Functions &amp; Discourse" data-i18n-en="System 4 &amp; 5 · Functions &amp; Discourse">Система 4 &amp; 5 · Functions &amp; Discourse</div>
+                <h4 data-i18n-ru="2. Saṃvāda Quest (Симулятор диалога)" data-i18n-en="2. Saṃvāda Dialogue Simulator">2. Saṃvāda Quest (Симулятор диалога)</h4>
+                <p style="font-size:0.88rem;color:var(--text-secondary);"
+                   data-i18n-ru="Пройдите 3 шага живого диалога с учителем в ашраме, выбирая уместную речевую функцию:"
+                   data-i18n-en="Complete a 3-turn communicative mission with an Ācārya by selecting the appropriate functional response:">
+                  Пройдите 3 шага живого диалога с учителем в ашраме, выбирая уместную речевую функцию:
+                </p>
+              </div>
+              <div id="dialogue-game-stage" class="game-stage">
+                <!-- Populated by app.js -->
+              </div>
+            </div>
+
+            <!-- Game 3: Panini's Dhatu Forge -->
+            <div class="game-card">
+              <div class="game-header">
+                <div class="game-tag" data-i18n-ru="Система 2 &amp; 3 · Vocabulary &amp; Grammar OS" data-i18n-en="System 2 &amp; 3 · Vocabulary &amp; Grammar OS">Система 2 &amp; 3 · Vocabulary &amp; Grammar OS</div>
+                <h4 data-i18n-ru="3. Dhātu Forge (Кузница корней Панини)" data-i18n-en="3. Pāṇini’s Dhātu Word-Forge">3. Dhātu Forge (Кузница корней Панини)</h4>
+                <p style="font-size:0.88rem;color:var(--text-secondary);"
+                   data-i18n-ru="Соедините глагольный корень (dhātu) с суффиксом (pratyaya) и получите готовое слово и живую фразу:"
+                   data-i18n-en="Combine a Sanskrit verbal root (dhātu) with a suffix (pratyaya) to generate words and real sentences:">
+                  Соедините глагольный корень (dhātu) с суффиксом (pratyaya) и получите готовое слово и живую фразу:
+                </p>
+              </div>
+              <div id="dhatu-game-stage" class="game-stage">
+                <!-- Populated by app.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: About This GitHub Pages Site & Quick Setup Guide -->
+      <section id="github-pages" class="section-alt">
+        <div class="container">
+          <div class="gh-box">
+            <div>
+              <span class="eyebrow" data-i18n-ru="О ПРОЕКТЕ НА GITHUB PAGES" data-i18n-en="ABOUT THIS GITHUB PAGES SITE">О ПРОЕКТЕ НА GITHUB PAGES</span>
+              <h2 class="section-title" style="font-size:2rem;"
+                  data-i18n-ru="Готовое описание для репозитория <code>sanskrit-in-action</code>"
+                  data-i18n-en="Ready-to-Use Repository Description for <code>sanskrit-in-action</code>">
+                Готовое описание для репозитория <code>sanskrit-in-action</code>
+              </h2>
+              <p style="color:var(--text-secondary);margin-bottom:1rem;"
+                 data-i18n-ru="Скопируйте короткую строку ниже и вставьте её в поле <strong>About → Description</strong> справа на главной странице вашего GitHub-репозитория, чтобы каждый посетитель с первого взгляда понимал уникальность вашего проекта:"
+                 data-i18n-en="Copy the short one-liner below into the <strong>About → Description</strong> field of your GitHub repository so visitors immediately see your Cambridge-method positioning:">
+                Скопируйте короткую строку ниже и вставьте её в поле <strong>About → Description</strong> справа на главной странице вашего GitHub-репозитория, чтобы каждый посетитель с первого взгляда понимал уникальность вашего проекта:
+              </p>
+
+              <div class="copy-box">
+                <div>
+                  <strong style="font-size:0.75rem;color:var(--accent-cambridge);display:block;"
+                          data-i18n-ru="Короткое описание для GitHub About:"
+                          data-i18n-en="GitHub About Description:">Короткое описание для GitHub About:</strong>
+                  <span id="gh-desc-active"
+                        data-i18n-ru="Санскрит по-кембриджски: коммуникативный подход, task-based, CEFR A1–C2. 4 навыка × 5 систем, тексты на основе шастр, интерактивные игры."
+                        data-i18n-en="Sanskrit the Cambridge way: communicative, task-based, CEFR A1–C2. 4 skills × 5 systems, śāstra-based texts, interactive games.">
+                    Санскрит по-кембриджски: коммуникативный подход, task-based, CEFR A1–C2. 4 навыка × 5 систем, тексты на основе шастр, интерактивные игры.
+                  </span>
+                </div>
+                <button type="button" class="chip-btn" onclick="copyTextById('gh-desc-active', this)" data-i18n-ru="Копировать" data-i18n-en="Copy">Копировать</button>
+              </div>
+            </div>
+
+            <div>
+              <h3 style="font-family:var(--font-serif);font-size:1.5rem;margin-bottom:0.65rem;"
+                  data-i18n-ru="Как включить GitHub Pages за 1 минуту"
+                  data-i18n-en="How to Enable GitHub Pages in 1 Minute">
+                Как включить GitHub Pages за 1 минуту
+              </h3>
+              <ol style="padding-left:1.2rem;color:var(--text-secondary);font-size:0.93rem;display:flex;flex-direction:column;gap:0.5rem;">
+                <li data-i18n-ru="Откройте репозиторий <strong>sanskrit-in-action</strong> на GitHub и перейдите во вкладку <strong>Settings</strong>."
+                    data-i18n-en="Open the <strong>sanskrit-in-action</strong> repository on GitHub and click <strong>Settings</strong>.">
+                  Откройте репозиторий <strong>sanskrit-in-action</strong> на GitHub и перейдите во вкладку <strong>Settings</strong>.
+                </li>
+                <li data-i18n-ru="В меню слева выберите раздел <strong>Pages</strong>."
+                    data-i18n-en="In the left sidebar, select <strong>Pages</strong>.">
+                  В меню слева выберите раздел <strong>Pages</strong>.
+                </li>
+                <li data-i18n-ru="В блоке <strong>Build and deployment</strong> укажите <code>Source: Deploy from a branch</code>, ветку <code>main</code> и папку <code>/ (root)</code> → нажмите <strong>Save</strong>."
+                    data-i18n-en="Under <strong>Build and deployment</strong>, set <code>Source: Deploy from a branch</code>, select branch <code>main</code> and folder <code>/ (root)</code>, then click <strong>Save</strong>.">
+                  В блоке <strong>Build and deployment</strong> укажите <code>Source: Deploy from a branch</code>, ветку <code>main</code> и папку <code>/ (root)</code> → нажмите <strong>Save</strong>.
+                </li>
+                <li data-i18n-ru="Через 1–2 минуты эта стартовая страница будет доступна всем в интернете!"
+                    data-i18n-en="Within 1–2 minutes, this landing page will be live on the web!">
+                  Через 1–2 минуты эта стартовая страница будет доступна всем в интернете!
+                </li>
+              </ol>
+
+              <div class="code-snippet"
+                   data-i18n-ru="# Публичный адрес сайта на GitHub Pages:
+https://alexquantforge.github.io/sanskrit-in-action/
+
+# Архитектура платформы:
+├── 4 Skills   : Listening · Speaking · Reading · Writing
+├── 5 Systems  : Pronunciation · Grammar · Vocabulary · Functions · Discourse
+├── CEFR Grid  : A1 (Survival) → C2 (Bhāṣya &amp; Veda)
+└── Śāstra OS  : Pāṇini + Pañcatantra + Hitopadeśa + Bhagavadgītā"
+                   data-i18n-en="# Public GitHub Pages URL:
+https://alexquantforge.github.io/sanskrit-in-action/
+
+# Platform Architecture:
+├── 4 Skills   : Listening · Speaking · Reading · Writing
+├── 5 Systems  : Pronunciation · Grammar · Vocabulary · Functions · Discourse
+├── CEFR Grid  : A1 (Survival) → C2 (Bhāṣya &amp; Veda)
+└── Śāstra OS  : Pāṇini + Pañcatantra + Hitopadeśa + Bhagavadgītā"># Публичный адрес сайта на GitHub Pages:
+https://alexquantforge.github.io/sanskrit-in-action/
+
+# Архитектура платформы:
+├── 4 Skills   : Listening · Speaking · Reading · Writing
+├── 5 Systems  : Pronunciation · Grammar · Vocabulary · Functions · Discourse
+├── CEFR Grid  : A1 (Survival) → C2 (Bhāṣya &amp; Veda)
+└── Śāstra OS  : Pāṇini + Pañcatantra + Hitopadeśa + Bhagavadgītā</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Compact Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-disclaimer">
+        <span data-i18n-ru="© 2026 संवाद · Sanskrit in Action с Алексом Виджая · GitHub Pages"
+              data-i18n-en="© 2026 संवाद · Sanskrit in Action with Alex Vijaya · GitHub Pages">© 2026 संवाद · Sanskrit in Action с Алексом Виджая · GitHub Pages</span>
+        <span data-i18n-ru="Примечание: CELTA® и Delta® являются зарегистрированными товарными знаками Cambridge University Press &amp; Assessment. Проект вдохновлён современной коммуникативной методикой преподавания и шкалой CEFR."
+              data-i18n-en="Note: CELTA® and Delta® are registered trademarks of Cambridge University Press &amp; Assessment. This independent educational project is inspired by modern communicative pedagogy and CEFR standards.">
+          Примечание: CELTA® и Delta® являются зарегистрированными товарными знаками Cambridge University Press &amp; Assessment. Проект вдохновлён современной коммуникативной методикой преподавания и шкалой CEFR.
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="lesson1.js?v=36"></script>
+  <script src="app.js?v=36"></script>
+</body>
+</html>
