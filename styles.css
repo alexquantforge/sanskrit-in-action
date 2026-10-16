@@ -1446,6 +1446,26 @@ body.hide-iast .level-sample-iast {
   margin-bottom: 2.25rem;
 }
 
+/* Lesson 2 (6 words) & Lesson 3 (7 words) poster grids */
+.vocab-grid-6 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.25rem;
+}
+
+@media (max-width: 900px) {
+  .vocab-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .vocab-grid-6 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .vocab-item-card {
   background: var(--bg-card);
   border: 1.5px solid var(--border-strong);

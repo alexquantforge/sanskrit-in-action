@@ -64,12 +64,27 @@ No artificial textbook-only Sanskrit. The curriculum is built on authentic class
 
 ```text
 sanskrit-in-action/
-├── index.html      # Interactive landing page (EN / RU switch, 4×5 matrix, CEFR A1–C2 explorer, mini-games)
-├── styles.css      # Cambridge editorial & Sanskrit manuscript typography styles
-├── app.js          # Bilingual i18n, CEFR level explorer, Sandhi Lab, Dialogue Simulator, Dhātu Forge
-├── .nojekyll       # Direct static asset serving on GitHub Pages
-└── README.md       # Project documentation
+├── index.html        # Interactive landing page (EN / RU switch, 4×5 matrix, CEFR A1–C2 explorer, mini-games)
+├── styles.css        # Cambridge editorial & Sanskrit manuscript typography styles
+├── app.js            # Bilingual i18n, CEFR level explorer, Sandhi Lab, Dialogue Simulator, Dhātu Forge
+├── lesson1.js        # Lesson 1 · शरीरसम्बन्धि-शब्दाः (12 body parts) — standalone PPP lesson
+├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 2+
+├── lesson2.js        # Lesson 2 · शरीरावयवाः — 6 words: शीर्ष, उदर, हस्त, अङ्गुली, जानु, पाद
+├── lesson3.js        # Lesson 3 · मुखसम्बन्धि-शब्दाः — 7 words: ललाट, नयन, नासिका, कर्ण, मुख, दन्त, जिह्वा
+├── .nojekyll         # Direct static asset serving on GitHub Pages
+└── README.md         # Project documentation
 ```
+
+### Adding a New Lesson
+Lessons 2+ are **pure data** — no code changes are needed:
+
+1. Create `lesson4.js` with a single `SAL.registerLesson({ ... })` call (copy `lesson2.js` as a template).
+2. Add `<script src="lesson4.js?v=N"></script>` to `index.html` before `app.js`, plus an empty
+   `<div id="view-lesson4" class="view-pane" style="display: none;" hidden></div>` next to the other lesson panes.
+3. Register the pane in the `panes` / `buttons` maps inside `switchView()` in `app.js`.
+
+The engine automatically provides all 4 presentation modes, all 12 practice games and all 4 production
+modes for the new word list — in both RU and EN.
 
 ### How to Publish on GitHub Pages
 1. Open the repository on GitHub and go to **Settings** → **Pages** (in the left sidebar).

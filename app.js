@@ -921,11 +921,15 @@ function switchView(viewName, targetSectionId = null) {
   const panes = {
     home: document.getElementById('view-home'),
     lesson1: document.getElementById('view-lesson1'),
+    lesson2: document.getElementById('view-lesson2'),
+    lesson3: document.getElementById('view-lesson3'),
     details: document.getElementById('view-details')
   };
   const buttons = {
     home: document.getElementById('tab-btn-home'),
     lesson1: document.getElementById('tab-btn-lesson1'),
+    lesson2: document.getElementById('tab-btn-lesson2'),
+    lesson3: document.getElementById('tab-btn-lesson3'),
     details: document.getElementById('tab-btn-details')
   };
 
@@ -985,6 +989,9 @@ function setLanguage(lang) {
   renderDhatuForge();
   if (typeof refreshLesson1 === 'function') {
     refreshLesson1();
+  }
+  if (window.SAL && typeof window.SAL.refresh === 'function') {
+    window.SAL.refresh();
   }
 }
 
