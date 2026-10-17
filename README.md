@@ -125,3 +125,21 @@ modes for the new word list — in both RU and EN.
 ---
 
 *Note: CELTA® and Delta® are registered trademarks of Cambridge University Press & Assessment. This independent educational project is inspired by modern communicative language teaching and CEFR standards and is not affiliated with or endorsed by Cambridge University Press & Assessment.*
+
+---
+
+## Tests / Тесты
+
+A jsdom harness walks both engine lessons end to end — presentation modes, all 12
+practice games, all 4 production modes — and locks in the details that mattered in
+class (arrow direction, A/B/C/D option letters, memory-board coordinates,
+second-try scoring, the exact mistake being explained).
+
+Автотест на jsdom проходит оба урока движка целиком и проверяет мелочи, которые
+важны в классе: направление стрелки, буквы A/B/C/D у вариантов, координаты
+карточек в «Мемори», вторую попытку, показ конкретной ошибки.
+
+```bash
+npm init -y && npm install jsdom
+node tests/regression.js      # ALL CHECKS PASSED
+```

@@ -136,6 +136,16 @@ var SAL = (window.SAL = window.SAL || {});
       (revealed ? w.maskedHidden : '■') + '</span></div>';
   }
   var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+  /* memory board shape: rows are lettered a, b, c... and columns numbered 1, 2, 3...
+     so a face-down card can be named aloud, e.g. "b2" */
+  function memoryCols(n) {
+    if (n <= 6) return 3;
+    if (n <= 16) return 4;
+    return 6;
+  }
+  function cellName(idx, cols) {
+    return LETTERS[Math.floor(idx / cols)].toLowerCase() + ((idx % cols) + 1);
+  }
   function letterBadge(i) {
     return '<span class="opt-letter">' + LETTERS[i] + '</span>';
   }
@@ -863,6 +873,7 @@ var SAL = (window.SAL = window.SAL || {});
         ru('Moves', 'Ходов') + ': ' + g.moves +
         (memFailed ? ' · ' + ru('Pairs to review', 'Пар на повтор') + ': ' + memFailed : ''));
     }
+    var cols = memoryCols(g.cards.length);
     var html = g.cards.map(function (c, idx) {
       var w = byId(cfg, c.id);
       var flipped = g.flipped.indexOf(idx) >= 0 || g.matched[c.id];
@@ -872,8 +883,9 @@ var SAL = (window.SAL = window.SAL || {});
       if (g.wrong && g.wrong.indexOf(idx) >= 0) cls += ' mismatch';
       var inner = c.kind === 'pic' ? svgBox(w, 62) :
         '<div style="font-family:var(--font-deva);font-size:1.15rem;font-weight:700;">' + w.deva + '</div>';
+      var back = '<span class="memory-card-back-emblem memory-coord">' + cellName(idx, cols) + '</span>';
       return '<button type="button" class="memory-card ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'tile\',\'' + idx + '\')">' +
-        (flipped ? inner : '<span class="memory-card-back-emblem">🕉</span>') + '</button>';
+        (flipped ? inner : back) + '</button>';
     }).join('');
     return topBar(pill(ru('Pairs', 'Пары') + ': ' + matchedPairs + '/' + g.size) + ' ' + pill(ru('Moves', 'Ходов') + ': ' + g.moves) +
       ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
@@ -881,7 +893,10 @@ var SAL = (window.SAL = window.SAL || {});
       chip(cfg, 'memorySize', String(Math.max(3, Math.ceil(cfg.words.length / 2))),
         Math.max(3, Math.ceil(cfg.words.length / 2)) + ' × 2 (' + Math.max(3, Math.ceil(cfg.words.length / 2)) * 2 + ')', g.size < cfg.words.length) +
       chip(cfg, 'restart', 'memory', '↺')) +
-      centerCard('<div class="memory-grid">' + html + '</div>');
+      centerCard('<div class="memory-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + html + '</div>' +
+        '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);text-align:center;">' +
+        ru('Name the card by its square — the letter is the row, the number is the column (for example <strong>b2</strong>).',
+           'Называйте карточку по клетке: буква — ряд, цифра — столбец (например <strong>b2</strong>).') + '</div>');
   }
 
   /* Explain the exact mistake (Lesson 1 shows the correction on the card itself) */

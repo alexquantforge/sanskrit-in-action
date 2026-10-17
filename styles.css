@@ -1858,6 +1858,15 @@ body.hide-iast .level-sample-iast {
   color: #fde68a;
 }
 
+/* Face-down card shows its grid coordinate, e.g. b2 = row b, column 2 */
+.memory-card-back-emblem.memory-coord {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fffbeb;
+}
+
 .memory-card.flipped {
   background: var(--bg-primary);
   border: 2px solid var(--accent-cambridge);
