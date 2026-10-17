@@ -25,6 +25,7 @@ SAL.registerLesson({
   words: [
     {
       id: "ekam", deva: "एकम्", iast: "ekam", ttsText: "एकं",
+      syll: ["ए", "क", "म्"],
       typoDeva: "ऐकम्", typoIast: "aikam",
       maskedPrefix: "ए", maskedHidden: "कम्",
       gapDeva: "_कम्", gapIast: "_kam", gapAnswer: "ए",
@@ -40,6 +41,7 @@ SAL.registerLesson({
     },
     {
       id: "dve", deva: "द्वे", iast: "dve", ttsText: "द्वे",
+      syll: ["द्व", "े"],
       typoDeva: "द्वै", typoIast: "dvai",
       maskedPrefix: "", maskedHidden: "द्वे",
       gapDeva: "द्व _", gapIast: "dv _", gapAnswer: "े",
@@ -55,6 +57,7 @@ SAL.registerLesson({
     },
     {
       id: "trini", deva: "त्रीणि", iast: "trīṇi", ttsText: "त्रीणि",
+      syll: ["त्री", "णि"],
       typoDeva: "त्रिणि", typoIast: "triṇi",
       maskedPrefix: "त्री", maskedHidden: "णि",
       gapDeva: "त्री _", gapIast: "trī _", gapAnswer: "णि",
@@ -70,6 +73,7 @@ SAL.registerLesson({
     },
     {
       id: "catvari", deva: "चत्वारि", iast: "catvāri", ttsText: "चत्वारि",
+      syll: ["च", "त्वा", "रि"],
       typoDeva: "चत्वरि", typoIast: "catvari",
       maskedPrefix: "च", maskedHidden: "त्वारि",
       gapDeva: "च _ रि", gapIast: "ca _ ri", gapAnswer: "त्वा",
@@ -85,6 +89,7 @@ SAL.registerLesson({
     },
     {
       id: "panca", deva: "पञ्च", iast: "pañca", ttsText: "पञ्च",
+      syll: ["प", "ञ्च"],
       typoDeva: "पन्च", typoIast: "panca",
       maskedPrefix: "प", maskedHidden: "ञ्च",
       gapDeva: "प _", gapIast: "pa _", gapAnswer: "ञ्च",
@@ -98,6 +103,47 @@ SAL.registerLesson({
       missingChoices: ["प", "फ", "ब", "भ"],
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"30\" cy=\"32\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"27\" cy=\"29\" r=\"2.6\" fill=\"#FDE68A\"/>\n      <circle cx=\"70\" cy=\"32\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"67\" cy=\"29\" r=\"2.6\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"50\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"47\" cy=\"47\" r=\"2.6\" fill=\"#FDE68A\"/>\n      <circle cx=\"30\" cy=\"68\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"27\" cy=\"65\" r=\"2.6\" fill=\"#FDE68A\"/>\n      <circle cx=\"70\" cy=\"68\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"67\" cy=\"65\" r=\"2.6\" fill=\"#FDE68A\"/>\n    </svg>"
     }
+  ],
+  /* words for the 10 x 10 word grid: real Sanskrit, but never in this lesson */
+  decoys: [
+    "ऐकम्",
+    "द्वै",
+    "त्रिणि",
+    "चत्वरि",
+    "पन्च",
+    "षट्",
+    "सप्त",
+    "अष्ट",
+    "नव",
+    "दश",
+    "अहम्",
+    "त्वम्",
+    "अस्ति",
+    "नास्ति",
+    "जलम्",
+    "फलम्",
+    "गृहम्",
+    "पुस्तकम्",
+    "शीर्ष",
+    "उदर",
+    "हस्त",
+    "अङ्गुली",
+    "जानु",
+    "पाद",
+    "ललाट",
+    "नयन",
+    "नासिका",
+    "कर्ण",
+    "मुख",
+    "दन्त",
+    "जिह्वा"
+  ],
+  /* extra practice games from games-extra.js (solo, then pair, then the grids) */
+  extraGames: [
+    'hotcards', 'retry', 'echo', 'snowball', 'drip', 'anagram', 'typein', 'sorting',
+    'flashcount', 'blindboard',
+    'battleship', 'bingo', 'duel', 'describe', 'orderrelay', 'coopmemory', 'tictactoe',
+    'wordgrid', 'wordsearch'
   ],
   steps: [
     { wordIds: ["ekam", "dve"] },

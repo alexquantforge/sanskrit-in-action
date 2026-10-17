@@ -72,6 +72,7 @@ sanskrit-in-action/
 ├── lesson3.js        # Lesson 2 · मुखसम्बन्धि-शब्दाः — face, 7 words: ललाट, नयन, नासिका, कर्ण, मुख, दन्त, जिह्वा
 ├── lesson1.js        # Lesson 3 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
 ├── lesson4.js        # Lesson 4 · सङ्ख्याः — 5 numerals, neuter nom.-acc.: एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
+├── games-extra.js    # 19 extra practice games (solo / pair / word grids), registered via SAL.addGame()
 ├── .nojekyll         # Direct static asset serving on GitHub Pages
 └── README.md         # Project documentation
 ```
@@ -86,6 +87,22 @@ Lessons 2+ are **pure data** — no code changes are needed:
 
 The engine automatically provides all 4 presentation modes, all 12 practice games and all 4 production
 modes for the new word list — in both RU and EN.
+
+### Extra Practice Games (`games-extra.js`)
+`games-extra.js` adds 19 further practice games (tabs 13–31) built on `SAL.addGame()`. A lesson opts in
+by listing them in `extraGames`; Lesson 4 is the only one that does, so the other lessons are untouched.
+
+* **Solo (one student with a teacher):** 13 Hot Cards (streak, 3 lives) · 14 Mistake Pile · 15 Minimal
+  Pairs by Ear · 16 Snowball · 17 Drip Reveal · 18 Build the Word · 19 Type It · 20 Sort into Boxes ·
+  21 Flash Count · 22 Blind Board.
+* **Pairs (two students, one device):** 23 Battleship on Coordinates · 24 Bingo · 25 Duel ·
+  26 Describe & Guess · 27 Order Relay · 28 Co-op Memory · 29 Tic-Tac-Toe with a Quiz.
+  Switch with the 👥 «2 ученика» toggle above the tabs; 🔑 reveals the answers for a student acting as teacher.
+* **Grids:** 30 Word Grid 10 × 10 (find the lesson words among 100) · 31 Word Search (words hidden
+  part by part in a 10 × 10 grid).
+
+Every wrong answer in any game drops that word into a shared **mistake pile** (localStorage); game 14
+drills the pile until each word has been answered right twice in a row.
 
 ### How to Publish on GitHub Pages
 1. Open the repository on GitHub and go to **Settings** → **Pages** (in the left sidebar).

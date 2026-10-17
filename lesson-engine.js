@@ -33,7 +33,7 @@ var SAL = (window.SAL = window.SAL || {});
   var lessons = {};
   SAL.lessons = lessons;
   var activeKey = null;
-  var timers = { sprint: null, chant: null };
+  var timers = { sprint: null, chant: null, extra: null };
 
   /* Called by every lesson data file (lesson2.js, lesson3.js, ...) */
   SAL.registerLesson = function (cfg) {
@@ -93,6 +93,9 @@ var SAL = (window.SAL = window.SAL || {});
         revealed: {}, heard: {}, audioRevealed: {}, hotspotId: cfg.words[0].id
       },
       game: 'masked',
+      players: 1,
+      teacherKey: false,
+      pile: loadPile(cfg),
       g: {},
       prod: {
         mode: 'sprint',
@@ -121,6 +124,41 @@ var SAL = (window.SAL = window.SAL || {});
     if (!st.g[name]) st.g[name] = (GAME_INIT[name] || function () { return {}; })(cfg, st);
     return st.g[name];
   }
+
+  /* ------------------------------------------------ mistake pile ("Повтор") */
+  /* Every wrong answer anywhere in the lesson drops that word into a pile kept
+     in localStorage; the extra game "retry" then drills the pile until each
+     word has been answered right twice in a row. */
+  function pileKey(cfg) { return 'sal-pile-' + cfg.key; }
+  function loadPile(cfg) {
+    try {
+      var raw = window.localStorage ? window.localStorage.getItem(pileKey(cfg)) : null;
+      return raw ? (JSON.parse(raw) || {}) : {};
+    } catch (e) { return {}; }
+  }
+  function savePile(cfg) {
+    try {
+      if (window.localStorage) window.localStorage.setItem(pileKey(cfg), JSON.stringify(state(cfg).pile || {}));
+    } catch (e) { /* storage unavailable */ }
+  }
+  function noteWrong(cfg, id) {
+    if (!id) return;
+    var st = state(cfg);
+    if (!st.pile) st.pile = {};
+    st.pile[id] = (st.pile[id] || 0) + 1;
+    savePile(cfg);
+  }
+  function pileIds(cfg) {
+    var st = state(cfg);
+    return cfg.words.map(function (w) { return w.id; })
+      .filter(function (id) { return st.pile && st.pile[id]; });
+  }
+  function pileDrop(cfg, id) {
+    var st = state(cfg);
+    if (st.pile) delete st.pile[id];
+    savePile(cfg);
+  }
+  function pileClear(cfg) { state(cfg).pile = {}; savePile(cfg); }
 
   /* ------------------------------------------------------- tiny html pieces */
   /* The TPR gesture of the lesson: touching a body part, clapping N times, ...
@@ -236,6 +274,28 @@ var SAL = (window.SAL = window.SAL || {});
         '</div><div class="teacher-guide-grid">' + items + '</div></div>';
   }
 
+  /* Who is playing (one student / a pair) and the teacher answer key */
+  function extraBarHtml(cfg) {
+    var st = state(cfg);
+    return '<div class="practice-extra-bar">' +
+      '<span class="game-score-pill" data-i18n-ru="Кто играет" data-i18n-en="Who plays">' +
+        tx({ ru: 'Кто играет', en: 'Who plays' }) + '</span>' +
+      '<button type="button" class="chip-btn' + (st.players === 1 ? ' active' : '') + '" data-players="1"' +
+        ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'1\')">👤 ' +
+        tx({ ru: '1 ученик', en: '1 student' }) + '</button>' +
+      '<button type="button" class="chip-btn' + (st.players === 2 ? ' active' : '') + '" data-players="2"' +
+        ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'2\')">👥 ' +
+        tx({ ru: '2 ученика', en: '2 students' }) + '</button>' +
+      '<button type="button" class="chip-btn' + (st.teacherKey ? ' active' : '') + '" data-key="1"' +
+        ' onclick="SAL.do(\'' + cfg.key + '\',\'toggleKey\')">🔑 ' +
+        tx({ ru: 'Ключ учителя', en: 'Answer key' }) + '</button>' +
+      '<span class="practice-extra-note" data-i18n-ru="🔑 показывает ответ: ученик-«учитель» проверяет напарника. 👥 — игры для двоих: ход передаётся по очереди."' +
+        ' data-i18n-en="🔑 reveals the answer so the student acting as teacher can check a partner. 👥 — pair games: turns alternate.">' +
+        tx({ ru: '🔑 показывает ответ: ученик-«учитель» проверяет напарника. 👥 — игры для двоих: ход передаётся по очереди.',
+             en: '🔑 reveals the answer so the student acting as teacher can check a partner. 👥 — pair games: turns alternate.' }) +
+      '</span></div>';
+  }
+
   function skeletonHtml(cfg) {
     var N = cfg.words.length;
     var devaList = cfg.words.map(function (w) { return w.deva; }).join(' · ');
@@ -251,7 +311,7 @@ var SAL = (window.SAL = window.SAL || {});
         '<p class="iast-text"><em>' + words.map(function (w) { return w.iast; }).join(' · ') + '</em></p></div>';
     }).join('');
 
-    var gameTabs = [
+    var defGames = [
       ['masked', ru('1. Covered Square ■ (Guess Word)', '1. Закрыто квадратом ■ (Угадай слово)')],
       ['flashcards', ru('2. Flashcards', '2. Flashcards (Карточки)')],
       ['gaps', ru('3. Fill in the Gaps', '3. Fill in the Gaps (Пропуски)')],
@@ -264,9 +324,17 @@ var SAL = (window.SAL = window.SAL || {});
       ['categories', ru('10. Categories', '10. Категории (Выбери из ' + N + ')')],
       ['spelling', ru('11. Missing Letters', '11. Missing Letters (Буквы)')],
       ['truefalse', ru('12. आम् / न (True / False)', '12. आम् / न (Да / Нет)')]
-    ].map(function (g) {
+    ];
+    /* lessons may add their own games (see SAL.addGame in games-extra.js) */
+    var extraTabs = (cfg.extraGames || []).map(function (k, i) {
+      var lab = EXTRA_LABELS[k] || { ru: k, en: k };
+      var num = (defGames.length + i + 1) + '. ';
+      return [k, num + tx(lab), num + lab.ru, num + lab.en];
+    });
+    var gameTabs = defGames.concat(extraTabs).map(function (g) {
       return '<button type="button" class="practice-tab-btn' + (g[0] === 'masked' ? ' active' : '') + '" data-game="' + g[0] +
-        '" onclick="SAL.do(\'' + key + '\',\'setGame\',\'' + g[0] + '\')">' + g[1] + '</button>';
+        '"' + (g[2] ? ' data-i18n-ru="' + g[2] + '" data-i18n-en="' + g[3] + '"' : '') +
+        ' onclick="SAL.do(\'' + key + '\',\'setGame\',\'' + g[0] + '\')">' + g[1] + '</button>';
     }).join('');
 
     var prodTabs = [
@@ -377,8 +445,12 @@ var SAL = (window.SAL = window.SAL || {});
            '<strong>3. Wave 2 — Script Precision (Games 3, 9, 11 · 5 min):</strong><br/><strong>9. Spot the 1-Letter Typo</strong> (sensitivity to vowel length), then <strong>3. Fill in the Gaps</strong> and <strong>11. Missing Letters</strong>.'],
           ['<strong>4. Волна 3 — Память без подсказок (Игры 6, 7, 10 → 1, 2 · 6 мин):</strong><br/><strong>6. Match Pairs</strong>, <strong>7. Мемори</strong>, <strong>10. Категории</strong>, финал — <strong>1. Закрыто квадратом ■</strong> и <strong>2. Flashcards</strong> до результата ' + N + '/' + N + '.',
            '<strong>4. Wave 3 — Unprompted Recall (Games 6, 7, 10 → 1, 2 · 6 min):</strong><br/><strong>6. Match Pairs</strong>, <strong>7. Classic Memory</strong>, <strong>10. Categories</strong>, then finish with <strong>1. Covered Square ■</strong> and <strong>2. Flashcards</strong> up to ' + N + '/' + N + '.']
-        ]) +
+        ].concat((cfg.extraGames && cfg.extraGames.length) ? [
+          ['<strong>5. Игры 13+ — соло и в паре (по выбору преподавателя):</strong><br/>Соло: <strong>13. Горячая карточка</strong> (серия, 3 жизни), <strong>14. Копилка ошибок</strong> (повтор только того, что ученик пропустил), <strong>15. Минимальные пары на слух</strong>, <strong>19. Напиши сам</strong>. В паре (переключатель 👥): <strong>23. Морской бой</strong>, <strong>25. Дуэль</strong>, <strong>26. Диктор и ученик</strong>. Финальный дрилль: <strong>30. Филворд 10 × 10</strong>.',
+           '<strong>5. Games 13+ — solo and pair work (pick what fits):</strong><br/>Solo: <strong>13. Hot Cards</strong> (streak, 3 lives), <strong>14. Mistake Pile</strong> (recycling only what this student missed), <strong>15. Minimal Pairs by Ear</strong>, <strong>19. Type It</strong>. In pairs (toggle 👥): <strong>23. Battleship</strong>, <strong>25. Duel</strong>, <strong>26. Describe &amp; Guess</strong>. Final drill: <strong>30. Word Grid 10 × 10</strong>.']
+        ] : [])) +
 
+      (((cfg.extraGames && cfg.extraGames.length) ? extraBarHtml(cfg) : '')) +
       '<div class="practice-tabs" role="tablist">' + gameTabs + '</div>' +
       '<div id="' + key + '-practice-arena" class="practice-arena"></div>' +
     '</div></section>' +
@@ -1212,6 +1284,12 @@ var SAL = (window.SAL = window.SAL || {});
       pane.querySelectorAll('.practice-tab-btn[data-game]').forEach(function (b) {
         b.classList.toggle('active', b.getAttribute('data-game') === st.game);
       });
+      pane.querySelectorAll('[data-players]').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-players') === String(st.players));
+      });
+      pane.querySelectorAll('[data-key]').forEach(function (b) {
+        b.classList.toggle('active', !!st.teacherKey);
+      });
     }
     var arena = document.getElementById(cfg.key + '-practice-arena');
     if (!arena) return;
@@ -1222,9 +1300,13 @@ var SAL = (window.SAL = window.SAL || {});
   /* =========================================================================
      PRODUCTION
      ========================================================================= */
+  function clearExtra() {
+    if (timers.extra) { clearTimeout(timers.extra); clearInterval(timers.extra); timers.extra = null; }
+  }
   function stopTimers() {
     if (timers.sprint) { clearInterval(timers.sprint); timers.sprint = null; }
     if (timers.chant) { clearInterval(timers.chant); timers.chant = null; }
+    clearExtra();
   }
   SAL.stopTimers = stopTimers;
 
@@ -1584,8 +1666,9 @@ var SAL = (window.SAL = window.SAL || {});
     },
 
     /* practice: shared */
-    setGame: function (cfg, st, a) { st.game = a; },
+    setGame: function (cfg, st, a) { clearExtra(); st.game = a; },
     restart: function (cfg, st, a) {
+      clearExtra();
       st.g[a] = (GAME_INIT[a] || function () { return {}; })(cfg, st);
       st.game = a;
       if (a === 'sprintRestart') { st.prod.sprint = makeState(cfg).prod.sprint; st.prod.mode = 'sprint'; }
@@ -1602,7 +1685,7 @@ var SAL = (window.SAL = window.SAL || {});
     },
     maskedGrade: function (cfg, st, a) {
       var g = gst(cfg, 'masked');
-      if (a === '1') g.score++;
+      if (a === '1') g.score++; else noteWrong(cfg, cfg.words[g.i].id);
       g.i++; g.shown = false;
       if (g.i >= cfg.words.length) g.finished = true;
     },
@@ -1621,7 +1704,7 @@ var SAL = (window.SAL = window.SAL || {});
     fcFlip: function (cfg, st) { gst(cfg, 'flashcards').flipped = !gst(cfg, 'flashcards').flipped; },
     fcAnswer: function (cfg, st, a) {
       var g = gst(cfg, 'flashcards');
-      if (a === '1') g.score++;
+      if (a === '1') g.score++; else noteWrong(cfg, cfg.words[g.i].id);
       g.i++; g.flipped = false;
       if (g.i >= cfg.words.length) g.finished = true;
     },
@@ -1631,7 +1714,7 @@ var SAL = (window.SAL = window.SAL || {});
       var g = gst(cfg, 'gaps');
       if (g.answered) return;
       var w = cfg.words[g.i];
-      if (a !== w.gapAnswer) { g.firstTry = false; g.redPick = a; return; }
+      if (a !== w.gapAnswer) { g.firstTry = false; g.redPick = a; noteWrong(cfg, w.id); return; }
       g.answered = true; g.picked = a;
       if (g.firstTry) g.score++;
       SAL.speak(w.ttsText);
@@ -1648,7 +1731,7 @@ var SAL = (window.SAL = window.SAL || {});
       var g = gst(cfg, st2.game);
       if (g.answered) return;
       var w = cfg.words[g.i];
-      if (id !== w.id) { g.firstTry = false; g.redPick = id; return; }
+      if (id !== w.id) { g.firstTry = false; g.redPick = id; noteWrong(cfg, w.id); return; }
       g.answered = true; g.picked = id;
       if (g.firstTry) g.score++;
       SAL.speak(w.ttsText);
@@ -1683,7 +1766,7 @@ var SAL = (window.SAL = window.SAL || {});
             else { g.stage++; g.tiles = null; g.sel = null; }
           }
         } else {
-          g.failed[a1.id] = true;
+          g.failed[a1.id] = true; noteWrong(cfg, a1.id);
           g.wrong = [g.sel, idx]; g.sel = null;
         }
       } else { /* memory */
@@ -1699,6 +1782,7 @@ var SAL = (window.SAL = window.SAL || {});
         } else {
           if (g.seen[c1.id]) g.failed[c1.id] = true;
           g.seen[c1.id] = true; g.seen[c2.id] = true;
+          noteWrong(cfg, c1.id);
           g.wrong = g.flipped.slice(); g.lock = true;
           setTimeout(function () {
             var gg = gst(cfg, 'memory');
@@ -1731,6 +1815,7 @@ var SAL = (window.SAL = window.SAL || {});
         /* Clicked a clean card: mark it red, keep the round going (2nd chance) */
         g.firstTry = false;
         g.redIdx = idx;
+        noteWrong(cfg, wordId);
         SAL.speak(byId(cfg, wordId).ttsText);
         return;
       }
@@ -1783,6 +1868,10 @@ var SAL = (window.SAL = window.SAL || {});
       var right = cat.wordIds.concat(cat.bonusWordIds || []);
       var perfect = sel.length === cat.wordIds.length && sel.every(function (id) { return right.indexOf(id) >= 0; });
       if (perfect) g.score++;
+      else {
+        cat.wordIds.forEach(function (id) { if (sel.indexOf(id) < 0) noteWrong(cfg, id); });
+        sel.forEach(function (id) { if (right.indexOf(id) < 0) noteWrong(cfg, id); });
+      }
       g.checked = true;
     },
     catNext: function (cfg, st) {
@@ -1796,7 +1885,7 @@ var SAL = (window.SAL = window.SAL || {});
       var g = gst(cfg, 'spelling');
       if (g.answered) return;
       var w = cfg.words[g.i];
-      if (a !== w.missingAnswer) { g.firstTry = false; g.redPick = a; return; }
+      if (a !== w.missingAnswer) { g.firstTry = false; g.redPick = a; noteWrong(cfg, w.id); return; }
       g.answered = true; g.picked = a;
       if (g.firstTry) g.score++;
       SAL.speak(w.ttsText);
@@ -1814,6 +1903,7 @@ var SAL = (window.SAL = window.SAL || {});
       g.answered = true; g.picked = a;
       var right = g.isTrue ? 'yes' : 'no';
       if (a === right) { g.score++; SAL.speak(cfg.words[g.idx].ttsText); }
+      else noteWrong(cfg, cfg.words[g.idx].id);
     },
     tfNext: function (cfg, st) {
       var g = gst(cfg, 'truefalse');
@@ -1982,6 +2072,34 @@ var SAL = (window.SAL = window.SAL || {});
     produced: function (cfg, st, id) {
       if (st.prod.produced[id]) delete st.prod.produced[id]; else st.prod.produced[id] = true;
     }
+  };
+
+  /* =========================================================================
+     EXTENSION POINT — extra practice games live in games-extra.js
+     ========================================================================= */
+  var EXTRA_LABELS = {};
+  SAL.addGame = function (key, spec) {
+    EXTRA_LABELS[key] = { ru: spec.labelRu || key, en: spec.labelEn || spec.labelRu || key };
+    GAME_INIT[key] = spec.init || function () { return {}; };
+    GAME_RENDER[key] = spec.render;
+    Object.keys(spec.actions || {}).forEach(function (a) { ACTIONS[a] = spec.actions[a]; });
+  };
+  SAL.addAction = function (name, fn) { ACTIONS[name] = fn; };
+  SAL.kit = {
+    ru: ru, tx: tx, shuffle: shuffle, others: others, byId: byId,
+    optBtn: optBtn, chip: chip, topBar: topBar, pill: pill, stage: stage,
+    centerCard: centerCard, svgBox: svgBox, finalScreen: finalScreen, optGrid: optGrid,
+    wordBtn: wordBtn, letterBadge: letterBadge, LETTERS: LETTERS,
+    cellName: cellName, memoryCols: memoryCols,
+    gst: gst, state: state, iastOn: iastOn,
+    maskedMarkup: maskedMarkup, devaLabel: devaLabel, iastSpan: iastSpan,
+    answerFeedback: answerFeedback, restartRow: restartRow,
+    noteWrong: noteWrong, pileIds: pileIds, pileDrop: pileDrop, pileClear: pileClear,
+    speak: function (t) { SAL.speak(t); },
+    /* one shared timer slot: the extra games never run two at once */
+    after: function (ms, fn) { clearExtra(); timers.extra = setTimeout(fn, ms); },
+    clearAfter: clearExtra,
+    pending: function () { return !!timers.extra; }
   };
 
   SAL.do = function (key, action, a, b) {

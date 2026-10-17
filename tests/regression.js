@@ -28,7 +28,7 @@ const dom = new JSDOM(fs.readFileSync(path.join(REPO, 'index.html'), 'utf8'), {
   runScripts: 'dangerously', url: 'https://example.test/', virtualConsole: vc, pretendToBeVisual: true
 });
 const win = dom.window;
-['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'app.js'].forEach(f => {
+['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'games-extra.js', 'app.js'].forEach(f => {
   const s = win.document.createElement('script');
   s.textContent = fs.readFileSync(path.join(REPO, f), 'utf8');
   win.document.body.appendChild(s);
@@ -344,6 +344,189 @@ ck(/Называйте карточку по клетке|Name the card by its s
   'урок 3 (12 слов): подсказка про букву ряда и номер столбца');
 win.setLanguage('en'); win.setLanguage('ru');
 ck(true, 'переключение RU/EN работает');
+
+
+/* ==========================================================================
+   EXTRA PRACTICE GAMES (games-extra.js) — only Lesson 4 lists them
+   ========================================================================== */
+console.log('\n===== Новые игры (games-extra.js) =====');
+const EXTRA = ['hotcards', 'retry', 'echo', 'snowball', 'drip', 'anagram', 'typein', 'sorting',
+  'flashcount', 'blindboard', 'battleship', 'bingo', 'duel', 'describe', 'orderrelay',
+  'coopmemory', 'tictactoe', 'wordgrid', 'wordsearch'];
+const PAIR = ['battleship', 'bingo', 'duel', 'describe', 'orderrelay', 'coopmemory', 'tictactoe'];
+const L4 = SAL.lessons.L4;
+const clean = h => !/undefined|NaN|\[object Object\]/.test(h);
+const openL4 = () => { SAL.openLesson('L4'); return arenaOf('L4'); };
+const wById = id => L4.words.filter(w => w.id === id)[0];
+
+/* ---------- they exist for lesson 4 and nowhere else ---------- */
+const tabsOf = k => [...win.document.getElementById('view-lesson' + SAL.lessons[k].num)
+  .querySelectorAll('.practice-tab-btn[data-game]')].map(b => b.getAttribute('data-game'));
+['L2', 'L3', 'L4'].forEach(k => SAL.openLesson(k));
+const l4tabs = tabsOf('L4');
+ck(l4tabs.length === 12 + EXTRA.length, 'урок 4: вкладок ' + l4tabs.length + ' (12 классических + ' + EXTRA.length + ' новых)');
+ck(EXTRA.every(g => l4tabs.indexOf(g) >= 0), 'урок 4: все новые игры есть во вкладках');
+ck(l4tabs.slice(0, 12).join() === GAMES.join(), 'урок 4: первые 12 вкладок — классические игры, порядок не сбит');
+['L2', 'L3'].forEach(k => {
+  const t = tabsOf(k);
+  ck(t.length === 12 && !t.some(g => EXTRA.indexOf(g) >= 0),
+    k + ': новых игр нет, вкладок ' + t.length + ' (как было)');
+});
+
+/* ---------- every new game renders and survives being clicked ---------- */
+SAL.do('L4', 'setPlayers', '1');
+let dirty = [];
+for (const gm of EXTRA) {
+  SAL.do('L4', 'restart', gm);
+  const a = openL4();
+  if (!a.innerHTML || a.innerHTML.length < 40 || !clean(a.innerHTML)) dirty.push(gm + ' (разметка)');
+  Array.from(a.querySelectorAll('[onclick]')).slice(0, 40)
+    .forEach(b => b.dispatchEvent(new win.MouseEvent('click', { bubbles: true })));
+  if (!clean(arenaOf('L4').innerHTML)) dirty.push(gm + ' (после нажатий)');
+}
+ck(dirty.length === 0, 'все ' + EXTRA.length + ' новых игр рисуются и выдерживают нажатия' +
+  (dirty.length ? ' — ' + dirty.join(', ') : ''));
+
+/* ---------- two players: a score column each ---------- */
+SAL.do('L4', 'setPlayers', '2');
+const noPair = PAIR.filter(gm => {
+  SAL.do('L4', 'restart', gm);
+  const h = arenaOf('L4').innerHTML;
+  return !/(1 — |2 — |Ученик 1|Ученик 2|Student 1|Student 2)/.test(h);
+});
+ck(noPair.length === 0, 'в режиме «2 ученика» у каждой парной игры два счёта' +
+  (noPair.length ? ' — без счёта: ' + noPair.join(', ') : ''));
+ck(win.document.getElementById('view-lesson4').querySelector('[data-players="2"]').classList.contains('active'),
+  'переключатель «2 ученика» подсвечен');
+SAL.do('L4', 'setPlayers', '1');
+
+/* ---------- 30. word grid 10 x 10 ---------- */
+SAL.do('L4', 'restart', 'wordgrid');
+let wg = gst('L4', 'wordgrid');
+const lessonDeva = L4.words.map(w => w.deva);
+ck(wg.grid.length === 100, 'филворд: поле 10 × 10 = 100 клеток');
+ck(wg.total === L4.words.length * 2, 'филворд: цель — каждое слово урока дважды (' + wg.total + ')');
+const targets = wg.grid.filter(c => c.t);
+ck(targets.length === wg.total, 'филворд: в поле ровно ' + wg.total + ' клеток со словами урока');
+ck(targets.every(c => lessonDeva.indexOf(wById(c.id).deva) >= 0), 'филворд: все отмеченные клетки — слова урока');
+ck(wg.grid.filter(c => !c.t).every(c => lessonDeva.indexOf(c.s) < 0),
+  'филворд: ни один отвлекающий вариант не совпадает со словом урока');
+ck(L4.decoys.length >= 20 && new Set(L4.decoys).size === L4.decoys.length,
+  'филворд: ' + L4.decoys.length + ' разных отвлекающих слов');
+const targetIdx = wg.grid.map((c, i) => c.t ? i : -1).filter(i => i >= 0);
+const decoyIdx = wg.grid.map((c, i) => c.t ? -1 : i).filter(i => i >= 0);
+SAL.do('L4', 'wgTap', String(targetIdx[0]));
+ck(gst('L4', 'wordgrid').found[targetIdx[0]] === true, 'филворд: верная клетка отмечается найденной');
+SAL.do('L4', 'wgTap', String(decoyIdx[0]));
+ck(gst('L4', 'wordgrid').wrong[decoyIdx[0]] === true, 'филворд: чужая клетка отмечается промахом');
+SAL.do('L4', 'toggleKey');
+ck(/hint/.test(arenaOf('L4').innerHTML), 'филворд: 🔑 ключ учителя подсвечивает нужные клетки');
+SAL.do('L4', 'toggleKey');
+
+/* ---------- 31. word search (among letters) ---------- */
+SAL.do('L4', 'restart', 'wordsearch');
+const ws = gst('L4', 'wordsearch');
+ck(ws.grid.length === 100 && ws.grid.every(c => c && c.length), 'филворд по частям: 100 клеток, пустых нет');
+ck(ws.places.length === L4.words.length, 'филворд по частям: спрятаны все ' + L4.words.length + ' слов');
+const straight = ws.places.every(p => {
+  const ch = wById(p.id).syll.join('');
+  const built = p.cells.map(i => ws.grid[i]).join('');
+  const r0 = Math.floor(p.cells[0] / 10), c0 = p.cells[0] % 10;
+  const dr = Math.floor(p.cells[1] / 10) - r0, dc = (p.cells[1] % 10) - c0;
+  const line = p.cells.every((idx, k) => idx === (r0 + dr * k) * 10 + (c0 + dc * k));
+  return line && built === ch;
+});
+ck(straight, 'филворд по частям: каждое слово лежит по прямой и читается верно');
+ws.places.forEach(p => p.cells.forEach(i => SAL.do('L4', 'wsTap', String(i))));
+ck(Object.keys(gst('L4', 'wordsearch').found).length === L4.words.length,
+  'филворд по частям: нажатие клеток по порядку находит слово');
+
+/* ---------- 19. type-in ---------- */
+SAL.do('L4', 'restart', 'typein');
+SAL.do('L4', 'typeCheck', 'trini');
+ck(gst('L4', 'typein').result === null || gst('L4', 'typein').result === 'bad' || gst('L4', 'typein').result === 'ok',
+  'напиши сам: ответ принимается');
+SAL.do('L4', 'restart', 'typein');
+const firstW = wById(gst('L4', 'typein').order[0]);
+SAL.do('L4', 'typeCheck', firstW.iast);
+ck(gst('L4', 'typein').result === 'ok' && gst('L4', 'typein').score === 1,
+  'напиши сам: верное написание засчитывается (' + firstW.iast + ')');
+SAL.do('L4', 'restart', 'typein');
+const w2 = wById(gst('L4', 'typein').order[0]);
+SAL.do('L4', 'typeCheck', w2.iast.replace(/[āīūṃñṇṛṝḷśṣṭḍḥṅ]/g, '') + 'x');
+ck(gst('L4', 'typein').result === 'bad', 'напиши сам: неверное написание не засчитывается');
+SAL.do('L4', 'restart', 'typein');
+const w3 = wById(gst('L4', 'typein').order[0]);
+SAL.do('L4', 'typeCheck', w3.iast.replace(/[āīūṃñṇṛṝḷśṣṭḍḥṅ]/g, c => ({ 'ā': 'a', 'ī': 'i', 'ū': 'u', 'ṃ': 'm', 'ñ': 'n', 'ṇ': 'n', 'ṛ': 'r', 'ṝ': 'r', 'ḷ': 'l', 'ś': 's', 'ṣ': 's', 'ṭ': 't', 'ḍ': 'd', 'ḥ': 'h', 'ṅ': 'n' }[c])));
+ck(gst('L4', 'typein').result === 'ok', 'напиши сам: диакритику можно не набирать');
+
+/* ---------- 18. anagram ---------- */
+SAL.do('L4', 'restart', 'anagram');
+const an = gst('L4', 'anagram');
+const anW = wById(an.order[0]);
+const rightOrder = anW.syll.map(c => String(an.tiles.indexOf(c)));
+rightOrder.forEach(i => SAL.do('L4', 'anaTap', i));
+ck(gst('L4', 'anagram').answered === true && gst('L4', 'anagram').score === 1,
+  'собери слово: части в верном порядке собирают слово');
+SAL.do('L4', 'restart', 'anagram');
+const an2 = gst('L4', 'anagram');
+const wrongOrder = an2.tiles.map((_, i) => String(i)).reverse();
+wrongOrder.forEach(i => SAL.do('L4', 'anaTap', i));
+ck(gst('L4', 'anagram').miss === 1 || gst('L4', 'anagram').answered === true,
+  'собери слово: неверный порядок не проходит молча');
+
+/* ---------- 27. order relay ---------- */
+SAL.do('L4', 'restart', 'orderrelay');
+L4.words.forEach(w => SAL.do('L4', 'relayTap', w.id));
+ck(gst('L4', 'orderrelay').placed.length === L4.words.length,
+  'эстафета: слова выкладываются по порядку 1–5');
+SAL.do('L4', 'restart', 'orderrelay');
+SAL.do('L4', 'relayTap', L4.words[L4.words.length - 1].id);
+ck(gst('L4', 'orderrelay').placed.length === 0 && gst('L4', 'orderrelay').wrong !== null,
+  'эстафета: не в том порядке — ход не засчитывается');
+
+/* ---------- 20. sorting: every box has at least two words ---------- */
+const feats = [
+  { ru: 'носовой', test: w => /[ंङञणनम]/.test(w.deva) },
+  { ru: 'три части', test: w => w.syll.length >= 3 },
+  { ru: 'гласный знак на конце', test: w => /[ा-ौ]$/.test(w.deva) },
+  { ru: 'буква च', test: w => w.deva.indexOf('च') >= 0 }
+];
+const unbalanced = feats.filter(f => {
+  const yes = L4.words.filter(f.test).length;
+  return yes < 2 || (L4.words.length - yes) < 2;
+});
+ck(unbalanced.length === 0, 'сортировка: в каждой коробке хотя бы два слова (иначе игра пустая)' +
+  (unbalanced.length ? ' — ' + unbalanced.map(f => f.ru).join(', ') : ''));
+
+/* ---------- 14. retry: the mistake pile fills and empties ---------- */
+SAL.do('L4', 'clearPile');
+SAL.do('L4', 'restart', 'gaps');
+const gw = L4.words[0];
+SAL.do('L4', 'gapPick', gw.gapChoices.filter(c => c.deva !== gw.gapAnswer)[0].deva);
+ck(Object.keys(SAL.lessons.L4._st.pile).length === 1, 'копилка ошибок: неверный ответ кладёт слово в копилку');
+SAL.do('L4', 'restart', 'retry');
+ck(gst('L4', 'retry').queue.length === 1 && gst('L4', 'retry').queue[0] === gw.id,
+  'копилка ошибок: игра повторяет именно ошибки');
+SAL.do('L4', 'retryPick', gw.id);
+SAL.do('L4', 'retryNext');
+SAL.do('L4', 'retryPick', gw.id);
+ck(Object.keys(SAL.lessons.L4._st.pile).length === 0,
+  'копилка ошибок: два верных ответа — и слово выходит из копилки');
+SAL.do('L4', 'clearPile');
+
+/* ---------- 13. hot cards: three misses end the game ---------- */
+SAL.do('L4', 'restart', 'hotcards');
+SAL.do('L4', 'hotGrade', '0');
+SAL.do('L4', 'hotGrade', '0');
+SAL.do('L4', 'hotGrade', '0');
+ck(gst('L4', 'hotcards').finished === true && gst('L4', 'hotcards').lives === 0,
+  'горячая карточка: три промаха — игра окончена');
+SAL.do('L4', 'restart', 'hotcards');
+SAL.do('L4', 'hotGrade', '1');
+ck(gst('L4', 'hotcards').score === 1 && gst('L4', 'hotcards').streak === 1,
+  'горячая карточка: верный ответ даёт очко и продолжает серию');
+
 
 console.log(errs.length ? '\nJS ERRORS: ' + errs.slice(0, 5).join(' | ') : '\nJS-ошибок нет');
 console.log(bad === 0 && errs.length === 0 ? 'ALL CHECKS PASSED' : bad + ' FAILURES');
