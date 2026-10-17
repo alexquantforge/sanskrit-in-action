@@ -239,7 +239,9 @@ var SAL = (window.SAL = window.SAL || {});
     L3: { ru: 'Урок 2: Лицо', en: 'Lesson 2: Face' },
     lesson3: { ru: 'Урок 3: Части тела (12)', en: 'Lesson 3: Body Parts (12)' },
     L4: { ru: 'Урок 4: Цифры 1–5', en: 'Lesson 4: Numbers 1–5' },
-    L5: { ru: 'Урок 5: Цифры 6–10', en: 'Lesson 5: Numbers 6–10' }
+    L5: { ru: 'Урок 5: Цифры 6–10', en: 'Lesson 5: Numbers 6–10' },
+    L6: { ru: 'Урок 6: Цифры 11–15', en: 'Lesson 6: Numbers 11–15' },
+    L7: { ru: 'Урок 7: Цифры 16–20', en: 'Lesson 7: Numbers 16–20' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
