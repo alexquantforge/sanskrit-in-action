@@ -584,8 +584,8 @@ var SAL = (window.SAL = window.SAL || {});
     wordquiz: function () { return { i: 0, score: 0, answered: false, picked: null, options: null, finished: false }; },
     match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, score: 0, done: false, tiles: null }; },
     memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, size: cfg.words.length }; },
-    wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, round: null, finished: false }; },
-    typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, round: null, finished: false }; },
+    wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
+    typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     categories: function () { return { i: 0, score: 0, sel: {}, checked: false, finished: false }; },
     spelling: function () { return { i: 0, score: 0, answered: false, picked: null, finished: false }; },
     truefalse: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, isTrue: true, otherId: null, finished: false }; }
@@ -861,6 +861,25 @@ var SAL = (window.SAL = window.SAL || {});
       centerCard('<div class="memory-grid">' + html + '</div>');
   }
 
+  /* Explain the exact mistake (Lesson 1 shows the correction on the card itself) */
+  function diffSegments(wrongStr, rightStr) {
+    var a = Array.from(wrongStr), b = Array.from(rightStr);
+    var i = 0;
+    while (i < a.length && i < b.length && a[i] === b[i]) i++;
+    var j = 0;
+    while (j < a.length - i && j < b.length - i && a[a.length - 1 - j] === b[b.length - 1 - j]) j++;
+    return {
+      from: a.slice(i, a.length - j).join(''),
+      to: b.slice(i, b.length - j).join('')
+    };
+  }
+  function mistakeKind(seg) {
+    if (/[ािीुूृेैोौ]/.test(seg)) return { ru: 'ошибка в гласной (долгота или качество звука)', en: 'a vowel mistake (length or quality)' };
+    if (/[टठडढणष]/.test(seg)) return { ru: 'ошибка в согласной (ретрофлексный звук)', en: 'a consonant mistake (retroflex sound)' };
+    if (/[कखगघचछजझतथदधपफबभयरलवशसह]/.test(seg)) return { ru: 'ошибка в согласной', en: 'a consonant mistake' };
+    return { ru: 'ошибка в одной букве', en: 'a one-letter mistake' };
+  }
+
   /* 8. Spot the Wrong Word (3 pictures) ----------------------------------- */
   function prepareWrongLabel(cfg) {
     var trio = shuffle(cfg.words).slice(0, 3);
@@ -877,29 +896,63 @@ var SAL = (window.SAL = window.SAL || {});
   function renderWrongLabel(cfg, st) {
     var g = gst(cfg, 'wronglabel');
     var N = cfg.words.length;
-    if (g.finished || g.i >= N) return finalScreen(cfg, 'wronglabel', ru('Spot the Wrong Word — done!', '«Где ошибка?» — пройдено!'), g.score, N);
+    var title = ru('8. 3 🖼 → 1 ✕ — Spot the Wrong Word', '8. Где ошибка? (3 картинки)');
+    if (g.finished || g.i >= N) return finalScreen(cfg, 'wronglabel', title, g.score, N);
     if (!g.round) g.round = prepareWrongLabel(cfg);
+
+    var good = byId(cfg, g.round.cards[g.round.wrongIdx].wordId);
+    var bad = byId(cfg, g.round.cards[g.round.wrongIdx].labelId);
+
     var cards = g.round.cards.map(function (c, idx) {
       var w = byId(cfg, c.wordId);
       var label = byId(cfg, c.labelId);
+      var isTarget = idx === g.round.wrongIdx;
+      var showCorrection = g.answered && isTarget;
       var cls = '';
-      if (g.answered) {
-        if (idx === g.round.wrongIdx) cls = 'correct';
-        else if (String(idx) === g.picked) cls = 'wrong';
-      }
-      return optBtn(cfg, 'pick3', String(idx),
-        '<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">' + svgBox(w, 96) +
-        '<div style="font-family:var(--font-deva);font-size:1.5rem;font-weight:700;">' + label.deva + '</div>' +
-        '<div class="iast-text">' + label.iast + '</div></div>', cls);
+      if (g.answered && isTarget) cls = 'correct';
+      if (!g.answered && g.redIdx === idx) cls = 'wrong';
+      return '<button type="button" class="quiz-opt-btn ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'pick3\',\'' + idx + '\')"' +
+        ' style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">' +
+        '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">' + w.svg + '</div>' +
+        (showCorrection
+          ? '<div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.8;">' + label.deva + '</div>' +
+            '<div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ' + w.deva + '</div>' +
+            '<div class="vocab-iast" style="font-size:0.85rem;color:#15803d;">' + w.iast + '</div>'
+          : '<div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">' + label.deva + '</div>' +
+            '<div class="vocab-iast" style="font-size:0.85rem;color:var(--accent-saffron);">' + label.iast + '</div>') +
+        '</button>';
     }).join('');
-    return topBar(pill(ru('Round', 'Раунд') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
-      chip(cfg, 'restart', 'wronglabel', '↺')) +
-      centerCard(
-        '<div style="font-size:0.95rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.9rem;">' +
-        ru('One picture has the WRONG label — find it!', 'На одной картинке НЕВЕРНАЯ подпись — найдите её!') + '</div>' +
-        optGrid(cards) +
-        (g.answered ? nextRow(cfg, 'wronglabelNext') : '')
-      );
+
+    var explain = '';
+    if (g.answered) {
+      explain = '<div style="margin-top:1.15rem;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:12px;padding:0.9rem 1.15rem;text-align:center;">' +
+        '<div style="font-size:0.98rem;line-height:1.6;">' +
+        (L() === 'ru'
+          ? 'Ошибка была под картинкой <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + good.deva + '</strong> (' + good.iast + '): там стояла подпись ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + bad.deva + '</span> (' + bad.iast + ').'
+          : 'The wrong label was under the picture <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + good.deva + '</strong> (' + good.iast + '): it read ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + bad.deva + '</span> (' + bad.iast + ').') +
+        '</div>' +
+        (!g.firstTry
+          ? '<div style="margin-top:0.4rem;font-size:0.88rem;color:#b45309;font-weight:700;">' +
+            ru('Found on the 2nd try — the point is only awarded for the first try.',
+               'Нашли со второй попытки — очко начисляется только за первую.') + '</div>'
+          : '') +
+        '<div style="margin-top:0.75rem;display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;">' +
+        chip(cfg, 'speak', good.ttsText, '🔊 ' + ru('Listen', 'Послушать')) +
+        chip(cfg, 'wronglabelNext', '', ru('Next', 'Далее') + ' →') +
+        '</div></div>';
+    }
+
+    return '<div class="game-top-bar"><div><strong style="font-size:1.05rem;">' + title + '</strong></div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+      chip(cfg, 'restart', 'wronglabel', '↺ ' + ru('Start Over', 'Начать сначала')) +
+      pill(g.score + ' / ' + N + ' · (' + (g.i + 1) + '/' + N + ')') +
+      '</div></div>' +
+      '<div style="text-align:center;font-size:0.95rem;font-weight:700;color:var(--text-secondary);margin:0.9rem 0;">' +
+      ru('One picture has the WRONG label — find it!', 'На одной картинке НЕВЕРНАЯ подпись — найдите её!') + '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">' + cards + '</div>' +
+      explain;
   }
 
   /* 9. Spot the 1-Letter Typo --------------------------------------------- */
@@ -911,31 +964,71 @@ var SAL = (window.SAL = window.SAL || {});
   function renderTypo(cfg, st) {
     var g = gst(cfg, 'typo');
     var N = cfg.words.length;
-    if (g.finished || g.i >= N) return finalScreen(cfg, 'typo', ru('Spot the 1-Letter Typo — done!', '«Ошибка в 1 букве» — пройдено!'), g.score, N);
+    var title = ru('9. 3 🖼 → 1 आ/अ ✕ — Spot the 1-Letter Typo', '9. Ошибка в 1 букве (3 картинки)');
+    if (g.finished || g.i >= N) return finalScreen(cfg, 'typo', title, g.score, N);
     if (!g.round) g.round = prepareTypo(cfg);
+
+    var targetId = g.round.trio[g.round.wrongIdx];
+    var target = byId(cfg, targetId);
+
     var cards = g.round.trio.map(function (id, idx) {
       var w = byId(cfg, id);
-      var isWrong = idx === g.round.wrongIdx;
-      var text = isWrong ? w.typoDeva : w.deva;
-      var iast = isWrong ? w.typoIast : w.iast;
+      var isTarget = idx === g.round.wrongIdx;
+      var shownDeva = isTarget ? w.typoDeva : w.deva;
+      var shownIast = isTarget ? w.typoIast : w.iast;
+      var showCorrection = g.answered && isTarget;
       var cls = '';
-      if (g.answered) {
-        if (isWrong) cls = 'correct';
-        else if (String(idx) === g.picked) cls = 'wrong';
-      }
-      return optBtn(cfg, 'pick3', String(idx),
-        '<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">' + svgBox(w, 96) +
-        '<div style="font-family:var(--font-deva);font-size:1.5rem;font-weight:700;">' + text + '</div>' +
-        '<div class="iast-text">' + iast + '</div></div>', cls);
+      if (g.answered && isTarget) cls = 'correct';
+      if (!g.answered && g.redIdx === idx) cls = 'wrong';
+      return '<button type="button" class="quiz-opt-btn ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'pick3\',\'' + idx + '\')"' +
+        ' style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">' +
+        '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">' + w.svg + '</div>' +
+        (showCorrection
+          ? '<div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">' + shownDeva + '</div>' +
+            '<div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ' + w.deva + '</div>' +
+            '<div class="vocab-iast" style="font-size:0.85rem;color:#15803d;">' + w.iast + '</div>'
+          : '<div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">' + shownDeva + '</div>' +
+            '<div class="vocab-iast" style="font-size:0.85rem;color:var(--accent-saffron);">' + shownIast + '</div>') +
+        '</button>';
     }).join('');
-    return topBar(pill(ru('Round', 'Раунд') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
-      chip(cfg, 'restart', 'typo', '↺')) +
-      centerCard(
-        '<div style="font-size:0.95rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.9rem;">' +
-        ru('One word has a 1-letter spelling mistake — find it!', 'В одном слове ошибка в одной букве — найдите её!') + '</div>' +
-        optGrid(cards) +
-        (g.answered ? nextRow(cfg, 'typoNext') : '')
-      );
+
+    var explain = '';
+    if (g.answered) {
+      var d = diffSegments(target.typoDeva, target.deva);
+      var kind = mistakeKind(d.from + d.to);
+      explain = '<div style="margin-top:1.15rem;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:12px;padding:0.9rem 1.15rem;text-align:center;">' +
+        '<div style="font-size:0.98rem;line-height:1.6;">' +
+        (L() === 'ru'
+          ? 'Опечатка в слове <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + target.deva + '</strong> (' + target.iast + '): написано ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + target.typoDeva + '</span>, верно ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#15803d;">' + target.deva + '</span>.'
+          : 'The typo is in <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + target.deva + '</strong> (' + target.iast + '): it read ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + target.typoDeva + '</span>, correct is ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#15803d;">' + target.deva + '</span>.') +
+        '</div>' +
+        '<div style="margin-top:0.5rem;font-size:0.92rem;font-weight:700;color:var(--accent-cambridge);">' +
+        ru('Difference', 'Разница') + ': <span style="font-family:var(--font-deva);color:#dc2626;text-decoration:line-through;">' + (d.from || '—') + '</span> ✕ → ' +
+        '<span style="font-family:var(--font-deva);color:#15803d;">' + (d.to || '—') + '</span> ✓ — ' + tx(kind) + '</div>' +
+        (!g.firstTry
+          ? '<div style="margin-top:0.4rem;font-size:0.88rem;color:#b45309;font-weight:700;">' +
+            ru('Found on the 2nd try — the point is only awarded for the first try.',
+               'Нашли со второй попытки — очко начисляется только за первую.') + '</div>'
+          : '') +
+        '<div style="margin-top:0.75rem;display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;">' +
+        chip(cfg, 'speak', target.ttsText, '🔊 ' + ru('Listen', 'Послушать')) +
+        chip(cfg, 'typoNext', '', ru('Next', 'Далее') + ' →') +
+        '</div></div>';
+    }
+
+    return '<div class="game-top-bar"><div><strong style="font-size:1.05rem;">' + title + '</strong></div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+      chip(cfg, 'restart', 'typo', '↺ ' + ru('Start Over', 'Начать сначала')) +
+      pill(g.score + ' / ' + N + ' · (' + (g.i + 1) + '/' + N + ')') +
+      '</div></div>' +
+      '<div style="text-align:center;font-size:0.95rem;font-weight:700;color:var(--text-secondary);margin:0.9rem 0;">' +
+      ru('One word has a 1-letter spelling mistake — find it!', 'В одном слове ошибка в одной букве — найдите её!') + '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:1rem;">' + cards + '</div>' +
+      explain;
   }
 
   /* 10. Categories -------------------------------------------------------- */
@@ -1554,22 +1647,36 @@ var SAL = (window.SAL = window.SAL || {});
       st.g.memory.size = Math.min(size, cfg.words.length);
     },
 
-    /* 8 / 9 pick one of three */
+    /* 8 / 9 pick one of three (Lesson 1: a wrong pick only costs the first-try point) */
     pick3: function (cfg, st, a) {
       var g = gst(cfg, st.game);
       if (g.answered) return;
-      g.answered = true; g.picked = a;
-      var correct = String(st.game === 'wronglabel' ? g.round.wrongIdx : g.round.wrongIdx);
-      if (a === correct) { g.score++; SAL.speak(byId(cfg, g.round.trio ? g.round.trio[parseInt(a, 10)] : g.round.cards[parseInt(a, 10)].wordId).ttsText); }
+      var idx = parseInt(a, 10);
+      var isTarget = idx === g.round.wrongIdx;
+      var wordId = st.game === 'typo' ? g.round.trio[idx] : g.round.cards[idx].wordId;
+      if (!isTarget) {
+        /* Clicked a clean card: mark it red, keep the round going (2nd chance) */
+        g.firstTry = false;
+        g.redIdx = idx;
+        SAL.speak(byId(cfg, wordId).ttsText);
+        return;
+      }
+      g.answered = true;
+      g.picked = idx;
+      g.redIdx = null;
+      if (g.firstTry) g.score++;
+      SAL.speak(byId(cfg, wordId).ttsText);
     },
     wronglabelNext: function (cfg, st) {
       var g = gst(cfg, 'wronglabel');
       g.i++; g.answered = false; g.picked = null; g.round = null;
+      g.firstTry = true; g.redIdx = null;
       if (g.i >= cfg.words.length) g.finished = true;
     },
     typoNext: function (cfg, st) {
       var g = gst(cfg, 'typo');
       g.i++; g.answered = false; g.picked = null; g.round = null;
+      g.firstTry = true; g.redIdx = null;
       if (g.i >= cfg.words.length) g.finished = true;
     },
 
