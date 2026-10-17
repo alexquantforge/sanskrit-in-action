@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-build="v38">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Ask browsers (incl. Chrome) not to serve a stale copy of this entry document -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2 · 4 Skills × 5 Systems)</title>
   <meta name="description" content="Sanskrit in Action with Alex Vijaya — Sanskrit the Cambridge way: communicative, task-based, CEFR A1–C2. 4 skills × 5 systems, śāstra-based texts, interactive games." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=36" />
+  <link rel="stylesheet" href="styles.css?v=38" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -1243,10 +1247,58 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=36"></script>
-  <script src="lesson-engine.js?v=37"></script>
-  <script src="lesson2.js?v=37"></script>
-  <script src="lesson3.js?v=37"></script>
-  <script src="app.js?v=36"></script>
+  <script src="lesson1.js?v=38"></script>
+  <script src="lesson-engine.js?v=38"></script>
+  <script src="lesson2.js?v=38"></script>
+  <script src="lesson3.js?v=38"></script>
+  <script src="app.js?v=38"></script>
+
+  <!-- ===================================================================
+       Stale-cache guard (GitHub Pages + aggressive browser caches).
+       Compares the build id of the loaded document with the freshly
+       fetched one (cache: 'reload' bypasses the HTTP cache and refreshes
+       it), and shows a small "new version available" bar if they differ.
+       Checked at most once every 5 minutes, never auto-reloads.
+       =================================================================== -->
+  <script>
+  (function () {
+    var CURRENT = document.documentElement.getAttribute('data-build') || 'v0';
+    var KEY = 'sa-build-check';
+    var MIN_GAP = 5 * 60 * 1000;
+    try {
+      var last = parseInt(window.sessionStorage.getItem(KEY) || '0', 10);
+      if (Date.now() - last < MIN_GAP) return;
+      window.sessionStorage.setItem(KEY, String(Date.now()));
+    } catch (e) { /* storage blocked — just check once */ }
+
+    if (!window.fetch || location.protocol === 'file:') return;
+
+    fetch(location.pathname.split('#')[0], { cache: 'reload' })
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .then(function (html) {
+        var m = html.match(/data-build="([^"]+)"/);
+        if (!m || m[1] === CURRENT) return;
+        if (document.getElementById('sa-update-bar')) return;
+        var ru = (document.documentElement.lang === 'ru');
+        var bar = document.createElement('div');
+        bar.id = 'sa-update-bar';
+        bar.setAttribute('role', 'status');
+        bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:1rem;z-index:9999;' +
+          'display:flex;align-items:center;gap:0.75rem;background:#14213D;color:#FEF3C7;border:1px solid #d4a373;' +
+          'border-radius:999px;padding:0.55rem 1.1rem;box-shadow:0 8px 24px rgba(15,23,42,.28);font-size:0.85rem;';
+        bar.innerHTML = '<span>🔄 ' +
+          (ru ? 'Доступна новая версия сайта.' : 'A new version of the site is available.') + '</span>' +
+          '<button type="button" id="sa-update-btn" style="background:#d97706;color:#fff;border:0;border-radius:999px;' +
+          'padding:0.35rem 0.9rem;font-weight:700;cursor:pointer;">' +
+          (ru ? 'Обновить' : 'Refresh') + '</button>';
+        document.body.appendChild(bar);
+        document.getElementById('sa-update-btn').onclick = function () {
+          /* the fetch above refreshed the HTTP cache entry, so a plain reload now gets the new files */
+          window.location.reload();
+        };
+      })
+      .catch(function () { /* offline — stay quiet */ });
+  })();
+  </script>
 </body>
 </html>
