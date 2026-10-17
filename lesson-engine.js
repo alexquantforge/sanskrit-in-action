@@ -159,6 +159,8 @@ var SAL = (window.SAL = window.SAL || {});
       (extra ? '<div style="margin-bottom:0.75rem;color:var(--text-secondary);font-size:0.95rem;">' + extra + '</div>' : '') +
       '<div class="game-score-pill" style="font-size:1rem;padding:0.5rem 1.1rem;">' +
       ru('Score', 'Результат') + ': ' + score + ' / ' + total + '</div>' +
+      '<div style="margin-top:0.55rem;font-size:1rem;color:var(--accent-cambridge);font-weight:800;">' +
+      (total ? Math.round((score / total) * 100) : 0) + '%</div>' +
       '<div style="margin-top:1.15rem;">' +
       '<button type="button" class="btn btn-primary" onclick="SAL.do(\'' + cfg.key + '\',\'restart\',\'' + game + '\')">' +
       ru('↺ Start Over', '↺ Начать сначала') + '</button></div></div>'
@@ -577,17 +579,17 @@ var SAL = (window.SAL = window.SAL || {});
      PRACTICE GAMES
      ========================================================================= */
   var GAME_INIT = {
-    masked: function () { return { i: 0, score: 0, answered: false, picked: null, view: 'card', revealed: {} }; },
+    masked: function () { return { i: 0, score: 0, answered: false, picked: null, shown: false, view: 'card', revealed: {}, finished: false }; },
     flashcards: function () { return { i: 0, flipped: false, score: 0, finished: false }; },
-    gaps: function () { return { i: 0, score: 0, answered: false, picked: null, finished: false }; },
-    picquiz: function () { return { i: 0, score: 0, answered: false, picked: null, finished: false }; },
-    wordquiz: function () { return { i: 0, score: 0, answered: false, picked: null, options: null, finished: false }; },
-    match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, score: 0, done: false, tiles: null }; },
-    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, size: cfg.words.length }; },
+    gaps: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
+    picquiz: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
+    wordquiz: function () { return { i: 0, score: 0, answered: false, picked: null, options: null, firstTry: true, redPick: null, finished: false }; },
+    match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, failed: {}, score: 0, done: false, tiles: null }; },
+    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length }; },
     wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
-    categories: function () { return { i: 0, score: 0, sel: {}, checked: false, finished: false }; },
-    spelling: function () { return { i: 0, score: 0, answered: false, picked: null, finished: false }; },
+    categories: function () { return { i: 0, score: 0, sel: {}, wrong: {}, firstTry: true, checked: false, finished: false }; },
+    spelling: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     truefalse: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, isTrue: true, otherId: null, finished: false }; }
   };
 
@@ -604,6 +606,19 @@ var SAL = (window.SAL = window.SAL || {});
     return '<div style="background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:18px;padding:1.5rem;' +
       'margin-bottom:1.25rem;box-shadow:var(--shadow-sm);text-align:center;">' + inner + '</div>';
   }
+  /* Lesson 1 feedback line: ✓ correct word (iast), a note if it took 2 tries, Listen + Next */
+  function answerFeedback(cfg, g, w, nextAction) {
+    return '<div style="margin-top:1rem;">' +
+      '<div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:#15803d;">✓ ' + w.deva + '</div>' +
+      '<div class="iast-text" style="color:#15803d;">' + w.iast + '</div>' +
+      (!g.firstTry
+        ? '<div style="margin-top:0.4rem;font-size:0.86rem;color:#b45309;font-weight:700;">' +
+          ru('Correct, but on the 2nd try — no point this round.', 'Верно, но со второй попытки — очко не начисляется.') + '</div>'
+        : '') +
+      nextRow(cfg, nextAction, chip(cfg, 'speak', w.ttsText, '🔊 ' + ru('Listen', 'Послушать'))) +
+      '</div>';
+  }
+
   function nextRow(cfg, action, extra) {
     return '<div style="display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:0.5rem;">' +
       (extra || '') +
@@ -621,42 +636,45 @@ var SAL = (window.SAL = window.SAL || {});
     var N = cfg.words.length;
     if (g.view === 'grid') {
       if (Object.keys(g.revealed).length >= N) {
-        return finalScreen(cfg, 'masked', ru('1. Covered Square ■ (All Revealed)', '1. Закрыто квадратом ■ (все открыты)'), N, N);
+        return finalScreen(cfg, 'masked', ru('1. Covered Square ■ (' + N + ' / ' + N + ')', '1. Закрыто квадратом ■ (' + N + ' / ' + N + ')'), N, N);
       }
       var cards = cfg.words.map(function (w) {
         var rev = !!g.revealed[w.id];
         return '<div class="vocab-item-card" onclick="SAL.do(\'' + cfg.key + '\',\'maskedReveal\',\'' + w.id + '\')">' +
+          '<button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); SAL.speak(\'' + w.ttsText + '\')">🔊</button>' +
           maskedMarkup(w, rev, '1.6rem') +
           '<div class="vocab-iast">' + w.iast + '</div>' +
           '<div style="margin-top:0.5rem;">' + svgBox(w, 92) + '</div></div>';
       }).join('');
-      return topBar(pill(ru('Covered Square ■', 'Закрыто квадратом ■') + ' · ' + Object.keys(g.revealed).length + '/' + N),
-        chip(cfg, 'maskedView', 'card', '1 / ' + N, false) + chip(cfg, 'restart', 'masked', '↺')) +
+      return topBar(
+        chip(cfg, 'maskedView', 'card', '1 / ' + N, false) + chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', true),
+        pill(Object.keys(g.revealed).length + ' / ' + N) + ' ' + chip(cfg, 'maskedGridReset', '', '↺')) +
         '<div class="vocab-grid-6" style="margin-top:1rem;">' + cards + '</div>';
     }
-    if (g.i >= N) {
-      return finalScreen(cfg, 'masked', ru('Covered Square ■ — done!', 'Закрыто квадратом ■ — пройдено!'), g.score, N);
+    if (g.finished || g.i >= N) {
+      return finalScreen(cfg, 'masked', ru('1. ■', '1. ■'), g.score, N);
     }
     var w = cfg.words[g.i];
-    var opts = shuffle([w].concat(others(cfg, w.id, 3)));
-    var btns = opts.map(function (o) {
-      var cls = '';
-      if (g.answered) {
-        if (o.id === w.id) cls = 'correct';
-        else if (o.id === g.picked) cls = 'wrong';
-      }
-      return wordBtn(cfg, o, 'maskedPick', o.id, cls);
-    }).join('');
-    return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
-      chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', false) + chip(cfg, 'restart', 'masked', '↺')) +
+    return topBar(
+        chip(cfg, 'maskedView', 'card', '1 / ' + N, g.view !== 'grid') +
+        chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', g.view === 'grid'),
+        pill(g.score + ' · (' + (g.i + 1) + ' / ' + N) + ' ' + chip(cfg, 'restart', 'masked', '↺')) +
       centerCard(
-        '<div style="margin-bottom:0.75rem;">' + svgBox(w, 130) + '</div>' +
-        maskedMarkup(w, g.answered && g.picked === w.id, '2.4rem') +
-        '<div class="iast-text" style="margin-bottom:0.85rem;">' + (g.answered ? w.iast : '&nbsp;') + '</div>' +
-        optGrid(btns) +
-        (g.answered
-          ? nextRow(cfg, 'maskedNext', '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Прослушать') + '</button>')
-          : '<div style="margin-top:0.85rem;">' + chip(cfg, 'speak', w.ttsText, '🔊 ' + ru('Listen', 'Послушать')) + '</div>')
+        '<div class="flashcard-box" onclick="SAL.do(\'' + cfg.key + '\',\'maskedFlip\')">' +
+          svgBox(w, 140) +
+          maskedMarkup(w, g.shown, '2.45rem') +
+          '<div class="iast-text" style="font-size:1.1rem;margin-top:0.25rem;">' + (g.shown ? w.iast : '&nbsp;') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:center;gap:0.65rem;flex-wrap:wrap;">' +
+          chip(cfg, 'maskedFlip', '', '↺') +
+          chip(cfg, 'speak', w.ttsText, '🔊') +
+          '<button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="SAL.do(\'' + cfg.key + '\',\'maskedGrade\',\'0\')">✕ ' +
+            ru('Repeat', 'Повторить') + '</button>' +
+          '<button type="button" class="chip-btn" style="background:#16a34a;border-color:#16a34a;color:#fff;" onclick="SAL.do(\'' + cfg.key + '\',\'maskedGrade\',\'1\')">✓ ' +
+            ru('I knew it', 'Знаю') + '</button>' +
+        '</div>' +
+        '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
+          ru('Say the word aloud, then uncover it and grade yourself.', 'Назовите слово вслух, затем откройте его и оцените себя.') + '</div>'
       );
   }
 
@@ -697,10 +715,8 @@ var SAL = (window.SAL = window.SAL || {});
     var w = cfg.words[g.i];
     var btns = w.gapChoices.map(function (c) {
       var cls = '';
-      if (g.answered) {
-        if (c.deva === w.gapAnswer) cls = 'correct';
-        else if (c.deva === g.picked) cls = 'wrong';
-      }
+      if (g.answered && c.deva === w.gapAnswer) cls = 'correct';
+      if (c.deva === g.redPick) cls = 'wrong';
       return optBtn(cfg, 'gapPick', c.deva, c.deva + iastSpan(c.iast), cls);
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
@@ -711,8 +727,7 @@ var SAL = (window.SAL = window.SAL || {});
         '<div class="iast-text" style="margin-bottom:1rem;">' + w.gapIast + '</div>' +
         optGrid(btns) +
         (g.answered
-          ? '<div style="margin-top:0.9rem;font-family:var(--font-deva);font-size:1.6rem;font-weight:600;color:#15803d;">' + w.deva + '</div>' +
-            nextRow(cfg, 'gapsNext', '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Прослушать') + '</button>')
+          ? answerFeedback(cfg, g, w, 'gapsNext')
           : '<div style="margin-top:0.85rem;">' + chip(cfg, 'speak', w.ttsText, '🔊 ' + ru('Listen', 'Послушать')) + '</div>')
       );
   }
@@ -723,13 +738,12 @@ var SAL = (window.SAL = window.SAL || {});
     var N = cfg.words.length;
     if (g.finished || g.i >= N) return finalScreen(cfg, 'picquiz', ru('Picture Quiz — done!', 'Picture Quiz — пройдено!'), g.score, N);
     var w = cfg.words[g.i];
-    var opts = shuffle([w].concat(others(cfg, w.id, 3)));
+    if (!g.options) g.options = shuffle([w.id].concat(others(cfg, w.id, 3).map(function (o) { return o.id; })));
+    var opts = g.options.map(function (id) { return byId(cfg, id); });
     var btns = opts.map(function (o) {
       var cls = '';
-      if (g.answered) {
-        if (o.id === w.id) cls = 'correct';
-        else if (o.id === g.picked) cls = 'wrong';
-      }
+      if (g.answered && o.id === w.id) cls = 'correct';
+      if (o.id === g.redPick) cls = 'wrong';
       return wordBtn(cfg, o, 'quizPick', o.id, cls);
     }).join('');
     return topBar(pill(ru('Picture', 'Картинка') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
@@ -739,7 +753,7 @@ var SAL = (window.SAL = window.SAL || {});
         '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
         ru('Which word is it?', 'Какое это слово?') + '</div>' +
         optGrid(btns) +
-        (g.answered ? nextRow(cfg, 'picquizNext', '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Прослушать') + '</button>') : '')
+        (g.answered ? answerFeedback(cfg, g, w, 'picquizNext') : '')
       );
   }
 
@@ -753,10 +767,8 @@ var SAL = (window.SAL = window.SAL || {});
     var btns = g.options.map(function (id) {
       var o = byId(cfg, id);
       var cls = '';
-      if (g.answered) {
-        if (id === w.id) cls = 'correct';
-        else if (id === g.picked) cls = 'wrong';
-      }
+      if (g.answered && id === w.id) cls = 'correct';
+      if (id === g.redPick) cls = 'wrong';
       return optBtn(cfg, 'quizPick', id, '<div style="display:flex;flex-direction:column;align-items:center;gap:0.35rem;">' +
         svgBox(o, 92) + '</div>', cls);
     }).join('');
@@ -768,7 +780,7 @@ var SAL = (window.SAL = window.SAL || {});
         '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
         ru('Find the picture', 'Найдите картинку') + '</div>' +
         optGrid(btns) +
-        (g.answered ? nextRow(cfg, 'wordquizNext', '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Прослушать') + '</button>') : '')
+        (g.answered ? answerFeedback(cfg, g, w, 'wordquizNext') : '')
       );
   }
 
@@ -782,7 +794,10 @@ var SAL = (window.SAL = window.SAL || {});
     var g = gst(cfg, 'match');
     var chunks = matchChunks(cfg);
     if (g.done || g.stage >= chunks.length) {
-      return finalScreen(cfg, 'match', ru('Match Pairs — done!', 'Match Pairs — пройдено!'), g.score, cfg.words.length);
+      var failed = Object.keys(g.failed).length;
+      return finalScreen(cfg, 'match', ru('Match Pairs — done!', 'Match Pairs — пройдено!'),
+        Math.max(1, cfg.words.length - failed), cfg.words.length,
+        failed ? ru('Mistakes', 'Ошибок') + ': ' + failed : '');
     }
     var words = chunks[g.stage];
     if (!g.tiles) {
@@ -808,7 +823,7 @@ var SAL = (window.SAL = window.SAL || {});
     var matchedCount = Object.keys(g.matched).length;
     var stageDone = words.every(function (w) { return g.matched[w.id]; });
     return topBar(pill(ru('Stage', 'Этап') + ' ' + (g.stage + 1) + '/' + chunks.length) + ' ' +
-      pill(ru('Matched', 'Пары') + ': ' + matchedCount + '/' + cfg.words.length) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
+      pill(matchedCount + ' / ' + cfg.words.length),
       chip(cfg, 'restart', 'match', '↺')) +
       centerCard(
         '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.9rem;">' +
@@ -837,8 +852,11 @@ var SAL = (window.SAL = window.SAL || {});
     }
     var matchedPairs = Object.keys(g.matched).length;
     if (matchedPairs >= g.size) {
-      return finalScreen(cfg, 'memory', ru('Memory — done!', 'Мемори — пройдено!'), g.score, g.size,
-        ru('Moves', 'Ходов') + ': ' + g.moves);
+      var memFailed = Object.keys(g.failed).length;
+      return finalScreen(cfg, 'memory', ru('Memory — done!', 'Мемори — пройдено!'),
+        Math.max(1, g.size - memFailed), g.size,
+        ru('Moves', 'Ходов') + ': ' + g.moves +
+        (memFailed ? ' · ' + ru('Pairs to review', 'Пар на повтор') + ': ' + memFailed : ''));
     }
     var html = g.cards.map(function (c, idx) {
       var w = byId(cfg, c.id);
@@ -1050,7 +1068,10 @@ var SAL = (window.SAL = window.SAL || {});
         if (on && (isCorrect || isBonus)) { cls += ' active'; style = 'border-color:#16a34a;background:#f0fdf4;color:#15803d;'; }
         else if (on) { style = 'border-color:#dc2626;background:#fef2f2;color:#b91c1c;'; }
         else if (isCorrect) { style = 'border-color:#f59e0b;background:#fffbeb;color:#b45309;'; }
-      } else if (on) cls += ' active';
+      } else {
+        if (on) cls += ' active';
+        if (g.wrong[w.id]) style = 'border-color:#dc2626;background:#fef2f2;color:#b91c1c;';
+      }
       return '<button type="button" class="' + cls + '" style="' + style + '" onclick="SAL.do(\'' + cfg.key + '\',\'catToggle\',\'' + w.id + '\')">' +
         w.deva + iastSpan(w.iast) + '</button>';
     }).join('');
@@ -1066,8 +1087,10 @@ var SAL = (window.SAL = window.SAL || {});
           ? '<button type="button" class="btn btn-primary" style="padding:0.5rem 1.2rem;font-size:0.9rem;" onclick="SAL.do(\'' + cfg.key + '\',\'catNext\')">' +
             ru('Next →', 'Далее →') + '</button>'
           : '<button type="button" class="btn btn-primary" style="padding:0.5rem 1.2rem;font-size:0.9rem;" onclick="SAL.do(\'' + cfg.key + '\',\'catCheck\')">' +
-            ru('Check ✓', 'Проверить ✓') + '</button>') +
+            ru('Show Answer ✓', 'Показать ответ ✓') + '</button>') +
         '</div>' +
+        (g.checked && !g.firstTry ? '<div style="margin-top:0.9rem;font-size:0.86rem;color:#b45309;font-weight:700;">' +
+          ru('There was a wrong click — no point this round.', 'Был неверный клик — очко не начисляется.') + '</div>' : '') +
         (g.checked ? '<div style="margin-top:0.9rem;font-size:0.88rem;color:var(--text-secondary);">' +
           ru('Correct', 'Верно') + ': ' + cat.wordIds.map(function (id) { return byId(cfg, id).deva; }).join(' · ') +
           ((cat.bonusWordIds && cat.bonusWordIds.length) ? ' (+ ' + cat.bonusWordIds.map(function (id) { return byId(cfg, id).deva; }).join(' · ') + ')' : '') +
@@ -1083,10 +1106,8 @@ var SAL = (window.SAL = window.SAL || {});
     var w = cfg.words[g.i];
     var btns = w.missingChoices.map(function (c) {
       var cls = '';
-      if (g.answered) {
-        if (c === w.missingAnswer) cls = 'correct';
-        else if (c === g.picked) cls = 'wrong';
-      }
+      if (g.answered && c === w.missingAnswer) cls = 'correct';
+      if (c === g.redPick) cls = 'wrong';
       return optBtn(cfg, 'spellPick', c, '<span style="font-family:var(--font-deva);font-size:1.35rem;font-weight:700;">' + c + '</span>', cls);
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
@@ -1097,8 +1118,7 @@ var SAL = (window.SAL = window.SAL || {});
         '<div class="iast-text" style="margin-bottom:1rem;">' + w.iast + '</div>' +
         optGrid(btns) +
         (g.answered
-          ? '<div style="margin-top:0.9rem;font-family:var(--font-deva);font-size:1.7rem;font-weight:600;color:#15803d;">' + w.deva + '</div>' +
-            nextRow(cfg, 'spellingNext', '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Прослушать') + '</button>')
+          ? answerFeedback(cfg, g, w, 'spellingNext')
           : '<div style="margin-top:0.85rem;">' + chip(cfg, 'speak', w.ttsText, '🔊 ' + ru('Listen', 'Послушать')) + '</div>')
       );
   }
@@ -1542,21 +1562,28 @@ var SAL = (window.SAL = window.SAL || {});
     },
 
     /* 1 masked */
-    maskedPick: function (cfg, st, id) {
+    /* Lesson 1 game 1 is a self-check drill: say the word aloud, uncover it, then grade yourself ✓/✕ */
+    maskedFlip: function (cfg, st) {
       var g = gst(cfg, 'masked');
-      if (g.answered) return;
-      g.answered = true; g.picked = id;
-      if (id === cfg.words[g.i].id) { g.score++; SAL.speak(cfg.words[g.i].ttsText); }
+      g.shown = !g.shown;
+      if (g.shown) SAL.speak(cfg.words[g.i].ttsText);
+    },
+    maskedGrade: function (cfg, st, a) {
+      var g = gst(cfg, 'masked');
+      if (a === '1') g.score++;
+      g.i++; g.shown = false;
+      if (g.i >= cfg.words.length) g.finished = true;
     },
     maskedNext: function (cfg, st) {
       var g = gst(cfg, 'masked');
-      g.i++; g.answered = false; g.picked = null;
+      g.i++; g.answered = false; g.picked = null; g.shown = false;
     },
     maskedView: function (cfg, st, a) { gst(cfg, 'masked').view = a; },
     maskedReveal: function (cfg, st, id) {
       var g = gst(cfg, 'masked');
       if (g.revealed[id]) delete g.revealed[id]; else { g.revealed[id] = true; SAL.speak(byId(cfg, id).ttsText); }
     },
+    maskedGridReset: function (cfg, st) { gst(cfg, 'masked').revealed = {}; },
 
     /* 2 flashcards */
     fcFlip: function (cfg, st) { gst(cfg, 'flashcards').flipped = !gst(cfg, 'flashcards').flipped; },
@@ -1572,12 +1599,14 @@ var SAL = (window.SAL = window.SAL || {});
       var g = gst(cfg, 'gaps');
       if (g.answered) return;
       var w = cfg.words[g.i];
+      if (a !== w.gapAnswer) { g.firstTry = false; g.redPick = a; return; }
       g.answered = true; g.picked = a;
-      if (a === w.gapAnswer) { g.score++; SAL.speak(w.ttsText); }
+      if (g.firstTry) g.score++;
+      SAL.speak(w.ttsText);
     },
     gapsNext: function (cfg, st) {
       var g = gst(cfg, 'gaps');
-      g.i++; g.answered = false; g.picked = null;
+      g.i++; g.answered = false; g.picked = null; g.firstTry = true; g.redPick = null;
       if (g.i >= cfg.words.length) g.finished = true;
     },
 
@@ -1586,17 +1615,20 @@ var SAL = (window.SAL = window.SAL || {});
       var st2 = state(cfg);
       var g = gst(cfg, st2.game);
       if (g.answered) return;
+      var w = cfg.words[g.i];
+      if (id !== w.id) { g.firstTry = false; g.redPick = id; return; }
       g.answered = true; g.picked = id;
-      if (id === cfg.words[g.i].id) { g.score++; SAL.speak(cfg.words[g.i].ttsText); }
+      if (g.firstTry) g.score++;
+      SAL.speak(w.ttsText);
     },
     picquizNext: function (cfg, st) {
       var g = gst(cfg, 'picquiz');
-      g.i++; g.answered = false; g.picked = null;
+      g.i++; g.answered = false; g.picked = null; g.options = null; g.firstTry = true; g.redPick = null;
       if (g.i >= cfg.words.length) g.finished = true;
     },
     wordquizNext: function (cfg, st) {
       var g = gst(cfg, 'wordquiz');
-      g.i++; g.answered = false; g.picked = null; g.options = null;
+      g.i++; g.answered = false; g.picked = null; g.options = null; g.firstTry = true; g.redPick = null;
       if (g.i >= cfg.words.length) g.finished = true;
     },
 
@@ -1610,9 +1642,16 @@ var SAL = (window.SAL = window.SAL || {});
         if (g.sel === idx) { g.sel = null; return; }
         var a1 = g.tiles[g.sel], b1 = g.tiles[idx];
         if (a1.kind !== b1.kind && a1.id === b1.id) {
-          g.matched[a1.id] = true; g.score++; g.sel = null; g.wrong = null;
+          g.matched[a1.id] = true; g.sel = null; g.wrong = null;
           SAL.speak(byId(cfg, a1.id).ttsText);
+          var chunkNow = matchChunks(cfg)[g.stage] || [];
+          var stageDone = chunkNow.every(function (w) { return g.matched[w.id]; });
+          if (stageDone) {
+            if (g.stage + 1 >= matchChunks(cfg).length) g.done = true;
+            else { g.stage++; g.tiles = null; g.sel = null; }
+          }
         } else {
+          g.failed[a1.id] = true;
           g.wrong = [g.sel, idx]; g.sel = null;
         }
       } else { /* memory */
@@ -1626,6 +1665,8 @@ var SAL = (window.SAL = window.SAL || {});
           g.matched[c1.id] = true; g.score++; g.flipped = [];
           SAL.speak(byId(cfg, c1.id).ttsText);
         } else {
+          if (g.seen[c1.id]) g.failed[c1.id] = true;
+          g.seen[c1.id] = true; g.seen[c2.id] = true;
           g.wrong = g.flipped.slice(); g.lock = true;
           setTimeout(function () {
             var gg = gst(cfg, 'memory');
@@ -1681,13 +1722,30 @@ var SAL = (window.SAL = window.SAL || {});
     },
 
     /* 10 categories */
+    /* Lesson 1: every click is graded at once — a wrong word only costs the first-try point */
     catToggle: function (cfg, st, id) {
       var g = gst(cfg, 'categories');
       if (g.checked) return;
-      if (g.sel[id]) delete g.sel[id]; else g.sel[id] = true;
+      var cat = cfg.categories[g.i];
+      var isPrimary = cat.wordIds.indexOf(id) >= 0;
+      var isBonus = (cat.bonusWordIds || []).indexOf(id) >= 0;
+      if (!isPrimary && !isBonus) {
+        g.firstTry = false;
+        g.wrong[id] = true;
+        return;
+      }
+      if (g.sel[id]) return;
+      g.sel[id] = true;
+      SAL.speak(byId(cfg, id).ttsText);
+      var allPrimary = cat.wordIds.every(function (wid) { return g.sel[wid]; });
+      if (allPrimary) {
+        g.checked = true;
+        if (g.firstTry) g.score++;
+      }
     },
     catCheck: function (cfg, st) {
       var g = gst(cfg, 'categories');
+      if (g.checked) return;
       var cat = cfg.categories[g.i];
       var sel = Object.keys(g.sel);
       var right = cat.wordIds.concat(cat.bonusWordIds || []);
@@ -1697,7 +1755,7 @@ var SAL = (window.SAL = window.SAL || {});
     },
     catNext: function (cfg, st) {
       var g = gst(cfg, 'categories');
-      g.i++; g.sel = {}; g.checked = false;
+      g.i++; g.sel = {}; g.wrong = {}; g.firstTry = true; g.checked = false;
       if (g.i >= cfg.categories.length) g.finished = true;
     },
 
@@ -1706,12 +1764,14 @@ var SAL = (window.SAL = window.SAL || {});
       var g = gst(cfg, 'spelling');
       if (g.answered) return;
       var w = cfg.words[g.i];
+      if (a !== w.missingAnswer) { g.firstTry = false; g.redPick = a; return; }
       g.answered = true; g.picked = a;
-      if (a === w.missingAnswer) { g.score++; SAL.speak(w.ttsText); }
+      if (g.firstTry) g.score++;
+      SAL.speak(w.ttsText);
     },
     spellingNext: function (cfg, st) {
       var g = gst(cfg, 'spelling');
-      g.i++; g.answered = false; g.picked = null;
+      g.i++; g.answered = false; g.picked = null; g.firstTry = true; g.redPick = null;
       if (g.i >= cfg.words.length) g.finished = true;
     },
 
