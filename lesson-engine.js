@@ -99,8 +99,15 @@ var SAL = (window.SAL = window.SAL || {});
         produced: {},
         active: cfg.words[0].id,
         chantReverse: false,
-        sprint: { started: false, startAt: 0, elapsed: 0, order: null, i: 0, score: 0, revealed: false, finished: false },
-        mic: { order: null, i: 0, score: 0, listening: false, transcript: '', result: null, finished: false },
+        /* Speed Sprint — same 3 sub-modes / 3 speeds / 2 views as Lesson 1 */
+        sprint: {
+          subMode: 'manual',   /* 'manual' | 'auto' | 'slideshow' */
+          duration: 4,         /* 4 | 3 | 2 seconds */
+          visual: 'card',      /* 'card' (isolated picture) | 'arrow' (arrow on the diagram) */
+          i: 0, score: 0, timeLeft: 4, running: false,
+          started: false, revealed: false, finished: false
+        },
+        mic: { i: 0, score: 0, listening: false, revealed: false, transcript: '', result: null, finished: false },
         missing: { order: null, i: 0, score: 0, revealed: false, finished: false }
       }
     };
@@ -373,11 +380,13 @@ var SAL = (window.SAL = window.SAL || {});
         [
           ['<strong>1. Цель этапа (Freer Production &amp; Fluency):</strong><br/>Вывести все ' + N + ' слов в устную речь без опоры на текст. Главный принцип CELTA: <strong>максимум речи учеников (High STT), минимум речи учителя (Low TTT)</strong>.',
            '<strong>1. Stage Aim (Freer Production &amp; Fluency):</strong><br/>Activate all ' + N + ' words in speech without written prompts. Core CELTA principle: <strong>high Student Talking Time, low Teacher Talking Time</strong>.'],
-          ['<strong>2. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча указывает на часть тела, ученик Б мгновенно называет её на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
+          ['<strong>2. Тренажёр 1 «Спринт» — три режима таймера:</strong><br/><code>✋ Таймер вручную</code> (учитель запускает таймер сам), <code>⚡ Авто-таймер</code> (после оценки карточка и таймер запускаются сами), <code>⏩ Авто-смена картинок</code> (чистый TPR-поток: картинки меняются каждые 4 / 3 / 2 сек без текста и звука). Вид: <code>🖼 отдельная часть тела</code> или <code>🏹 стрелка на схеме</code>.',
+           '<strong>2. Trainer 1 "Speed Sprint" — three timer modes:</strong><br/><code>✋ Manual Timer</code> (the teacher starts the countdown), <code>⚡ Auto Timer</code> (the next card and countdown start automatically), <code>⏩ Auto-Advance Pictures</code> (pure TPR flow: pictures change every 4 / 3 / 2 s with no text and no sound). View: <code>🖼 isolated body part</code> or <code>🏹 arrow on the diagram</code>.'],
+          ['<strong>3. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча указывает на часть тела, ученик Б мгновенно называет её на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
            '<strong>2. Activity A — Living Mirror in Pairs (4 min):</strong><br/>Partner A silently points to a body part, Partner B names it in Sanskrit at once. Swap roles after ' + Math.ceil(N / 2) + ' words.'],
-          ['<strong>3. Активность Б — «Ловушка ведущего» (Simon Says, 4 мин):</strong><br/>Ведущий называет одно слово, но касается другой части тела. Ученики слушают ушами, касаются правильного и хором повторяют слово.',
+          ['<strong>4. Активность Б — «Ловушка ведущего» (Simon Says, 4 мин):</strong><br/>Ведущий называет одно слово, но касается другой части тела. Ученики слушают ушами, касаются правильного и хором повторяют слово.',
            '<strong>3. Activity B — Listen, Don\'t Copy (Simon Says, 4 min):</strong><br/>The leader says one word while touching a different body part. Learners must listen, touch the right part, and repeat the word in chorus.'],
-          ['<strong>4. Активность В — Индивидуальный зачёт ' + N + '/' + N + ' (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже до результата <code>' + N + ' из ' + N + '</code>. Не перебивайте — разберите ошибки в конце (<em>Delayed Error Correction</em>).',
+          ['<strong>5. Активность В — Индивидуальный зачёт ' + N + '/' + N + ' (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже до результата <code>' + N + ' из ' + N + '</code>. Не перебивайте — разберите ошибки в конце (<em>Delayed Error Correction</em>).',
            '<strong>4. Activity C — Individual ' + N + '/' + N + ' Check (4 min):</strong><br/>Every learner completes the trainer below up to <code>' + N + ' out of ' + N + '</code>. Do not interrupt — give <em>delayed error correction</em> at the end.']
         ]) +
 
@@ -611,6 +620,9 @@ var SAL = (window.SAL = window.SAL || {});
     var g = gst(cfg, 'masked');
     var N = cfg.words.length;
     if (g.view === 'grid') {
+      if (Object.keys(g.revealed).length >= N) {
+        return finalScreen(cfg, 'masked', ru('1. Covered Square ■ (All Revealed)', '1. Закрыто квадратом ■ (все открыты)'), N, N);
+      }
       var cards = cfg.words.map(function (w) {
         var rev = !!g.revealed[w.id];
         return '<div class="vocab-item-card" onclick="SAL.do(\'' + cfg.key + '\',\'maskedReveal\',\'' + w.id + '\')">' +
@@ -619,7 +631,7 @@ var SAL = (window.SAL = window.SAL || {});
           '<div style="margin-top:0.5rem;">' + svgBox(w, 92) + '</div></div>';
       }).join('');
       return topBar(pill(ru('Covered Square ■', 'Закрыто квадратом ■') + ' · ' + Object.keys(g.revealed).length + '/' + N),
-        chip(cfg, 'maskedView', 'card', ru('🃏 One by one', '🃏 По одной'), false) + chip(cfg, 'restart', 'masked', '↺')) +
+        chip(cfg, 'maskedView', 'card', '1 / ' + N, false) + chip(cfg, 'restart', 'masked', '↺')) +
         '<div class="vocab-grid-6" style="margin-top:1rem;">' + cards + '</div>';
     }
     if (g.i >= N) {
@@ -636,7 +648,7 @@ var SAL = (window.SAL = window.SAL || {});
       return wordBtn(cfg, o, 'maskedPick', o.id, cls);
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
-      chip(cfg, 'maskedView', 'grid', ru('▦ All words', '▦ Все слова'), false) + chip(cfg, 'restart', 'masked', '↺')) +
+      chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', false) + chip(cfg, 'restart', 'masked', '↺')) +
       centerCard(
         '<div style="margin-bottom:0.75rem;">' + svgBox(w, 130) + '</div>' +
         maskedMarkup(w, g.answered && g.picked === w.id, '2.4rem') +
@@ -842,8 +854,9 @@ var SAL = (window.SAL = window.SAL || {});
     }).join('');
     return topBar(pill(ru('Pairs', 'Пары') + ': ' + matchedPairs + '/' + g.size) + ' ' + pill(ru('Moves', 'Ходов') + ': ' + g.moves) +
       ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
-      chip(cfg, 'memorySize', String(g.size === cfg.words.length ? Math.min(6, cfg.words.length) : cfg.words.length),
-        g.size >= cfg.words.length ? ru('▦ Fewer pairs', '▦ Меньше пар') : ru('▦ All pairs', '▦ Все пары'), false) +
+      chip(cfg, 'memorySize', String(cfg.words.length), cfg.words.length + ' × 2 (' + cfg.words.length * 2 + ')', g.size >= cfg.words.length) +
+      chip(cfg, 'memorySize', String(Math.max(3, Math.ceil(cfg.words.length / 2))),
+        Math.max(3, Math.ceil(cfg.words.length / 2)) + ' × 2 (' + Math.max(3, Math.ceil(cfg.words.length / 2)) * 2 + ')', g.size < cfg.words.length) +
       chip(cfg, 'restart', 'memory', '↺')) +
       centerCard('<div class="memory-grid">' + html + '</div>');
   }
@@ -1079,133 +1092,251 @@ var SAL = (window.SAL = window.SAL || {});
     return out;
   }
 
-  /* 1. Speed Sprint ------------------------------------------------------- */
+  /* 1. Speed Sprint (parity with Lesson 1: manual / auto / slideshow + 4s|3s|2s + card/arrow) */
+  function sprintArrowHtml(cfg, wordId) {
+    var fig = null, pin = null;
+    cfg.hotspots.figures.forEach(function (f) {
+      f.pins.forEach(function (pn) { if (pn.id === wordId) { fig = f; pin = pn; } });
+    });
+    if (!fig) return '';
+    var dx = pin.tx - pin.x, dy = pin.ty - pin.y;
+    var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+    var endX = pin.tx - (dx / dist) * 6;
+    var endY = pin.ty - (dy / dist) * 6;
+    var markerId = 'sprint-arrow-head-' + cfg.key;
+    return '<div style="width:100%;max-width:320px;margin:0 auto 0.75rem;">' +
+      '<svg viewBox="' + fig.viewBox + '" style="width:100%;height:auto;display:block;margin:0 auto;" fill="none"' +
+      ' xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><marker id="' + markerId + '" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"' +
+      ' markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#DC2626"/></marker></defs>' +
+      fig.art +
+      '<circle cx="' + pin.tx + '" cy="' + pin.ty + '" r="11" fill="rgba(220,38,38,0.18)" stroke="#DC2626" stroke-width="2" stroke-dasharray="3,2"/>' +
+      '<circle cx="' + pin.tx + '" cy="' + pin.ty + '" r="4" fill="#DC2626" stroke="#FFFFFF" stroke-width="1.4"/>' +
+      '<line x1="' + pin.x + '" y1="' + pin.y + '" x2="' + endX + '" y2="' + endY + '" stroke="#FFFFFF" stroke-width="6.5" stroke-linecap="round"/>' +
+      '<line x1="' + pin.x + '" y1="' + pin.y + '" x2="' + endX + '" y2="' + endY + '" stroke="#DC2626" stroke-width="3.6"' +
+      ' stroke-linecap="round" marker-end="url(#' + markerId + ')"/>' +
+      '<circle cx="' + pin.x + '" cy="' + pin.y + '" r="14" fill="#DC2626" stroke="#FEF08A" stroke-width="2.5"/>' +
+      '<text x="' + pin.x + '" y="' + (pin.y + 4.5) + '" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800"' +
+      ' font-family="Plus Jakarta Sans, sans-serif">?</text>' +
+      '</svg></div>';
+  }
+
+  function sprintTick(cfg) {
+    var p = state(cfg).prod.sprint;
+    p.timeLeft--;
+    if (p.timeLeft <= 0) {
+      if (p.subMode === 'slideshow') {
+        /* Pure picture slideshow: no text and no audio — advance to the next picture at once */
+        if (p.i + 1 >= cfg.words.length) {
+          stopTimers();
+          p.running = false;
+          p.score = cfg.words.length;
+          p.finished = true;
+        } else {
+          p.i++;
+          p.timeLeft = p.duration;
+        }
+      } else {
+        stopTimers();
+        p.running = false;
+        p.revealed = true;
+        SAL.speak(cfg.words[p.i].ttsText);
+      }
+    }
+    SAL.refresh();
+  }
+
+  function startSprintTimer(cfg) {
+    stopTimers();
+    var p = state(cfg).prod.sprint;
+    p.running = true;
+    p.revealed = false;
+    p.timeLeft = p.duration;
+    var key = cfg.key;
+    timers.sprint = setInterval(function () { sprintTick(lessons[key]); }, 1000);
+    SAL.refresh();
+  }
+
   function renderSprint(cfg, st) {
     var p = st.prod.sprint;
     var N = cfg.words.length;
-    if (!p.order) p.order = shuffle(cfg.words.map(function (w) { return w.id; }));
-    if (p.finished || p.i >= N) {
+    if (p.finished) {
       stopTimers();
-      var secs = Math.round(p.elapsed);
-      return finalScreen(cfg, 'sprintRestart', ru('Speed Sprint — done!', 'Спринт — пройдено!'), p.score, N,
-        ru('Time', 'Время') + ': ' + Math.floor(secs / 60) + ':' + ('0' + (secs % 60)).slice(-2));
+      return finalScreen(cfg, 'sprintRestart', ru('1. Speed Sprint ⏱', '1. Спринт на время ⏱'), p.score, N,
+        p.subMode === 'slideshow' ? ru('All ' + N + ' pictures shown', 'Показаны все ' + N + ' картинок') : '');
     }
-    var w = byId(cfg, p.id_order ? p.id_order : p.order[p.i]);
-    var elapsedTxt = '0:00';
-    if (p.started) {
-      var sec = Math.round(p.elapsed);
-      elapsedTxt = Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2);
+    var w = cfg.words[p.i];
+    var manualLabel = ru('✋ Manual Timer', '✋ Таймер вручную');
+    var autoLabel = ru('⚡ Auto Timer', '⚡ Авто-таймер');
+    var slideshowLabel = ru('⏩ Auto-Advance Pictures (No Text & No Sound)', '⏩ Авто-смена картинок (без текста и звука)');
+    var cardLabel = ru('🖼 Isolated Body Part', '🖼 Отдельная часть тела');
+    var arrowLabel = ru('🏹 Arrow on the Diagram', '🏹 Стрелка на схеме');
+    var enableText = ru('▶ Enable Timer & Start Game', '▶ Включить таймер и начать игру') + ' (' + p.duration + 's)';
+    var startText = ru('▶ Start Timer', '▶ Запустить таймер') + ' (' + p.duration + 's)';
+    var pauseText = ru('⏸ Pause', '⏸ Пауза');
+    var revealText = ru('🔊 I Said It! Check Answer', '🔊 Я назвал вслух! Проверить');
+    var promptText = p.subMode === 'slideshow'
+      ? ru('Pictures advance automatically every ' + p.duration + 's with no text and no sound — say all ' + N + ' words aloud in time!',
+           'Картинки сменяют друг друга каждые ' + p.duration + ' сек без текста и звука — успевайте называть все ' + N + ' слов вслух!')
+      : ru('Point to this body part on yourself and say the Sanskrit word aloud BEFORE time runs out:',
+           'Покажите эту часть тела у себя и назовите её вслух ДО окончания таймера:');
+    var visualHtml = p.visual === 'arrow'
+      ? sprintArrowHtml(cfg, w.id)
+      : '<div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">' + w.svg + '</div>';
+    var counter = p.subMode === 'slideshow'
+      ? (p.i + 1) + ' / ' + N
+      : p.score + ' / ' + N + ' · (' + (p.i + 1) + '/' + N + ')';
+
+    var rows = '<div class="game-top-bar" style="margin-bottom:0.6rem;">' +
+      '<div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">' +
+      chip(cfg, 'sprintSub', 'manual', manualLabel, p.subMode === 'manual') +
+      chip(cfg, 'sprintSub', 'auto', autoLabel, p.subMode === 'auto') +
+      chip(cfg, 'sprintSub', 'slideshow', slideshowLabel, p.subMode === 'slideshow') +
+      '<span style="color:var(--border-strong);margin:0 0.15rem;">|</span>' +
+      chip(cfg, 'sprintDur', '4', '4s', p.duration === 4) +
+      chip(cfg, 'sprintDur', '3', '3s', p.duration === 3) +
+      chip(cfg, 'sprintDur', '2', '2s', p.duration === 2) +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+      chip(cfg, 'sprintRestart', '', '↺ ' + ru('Start Over', 'Начать сначала')) +
+      pill(counter) +
+      '</div></div>' +
+      '<div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.85rem;">' +
+      chip(cfg, 'sprintVisual', 'card', cardLabel, p.visual === 'card') +
+      chip(cfg, 'sprintVisual', 'arrow', arrowLabel, p.visual === 'arrow') +
+      '</div>' +
+      '<div style="text-align:center;font-size:0.9rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.85rem;">' +
+      promptText + '</div>' +
+      '<div class="flashcard-box" style="cursor:default;">' +
+      visualHtml;
+
+    if (!p.revealed) {
+      rows += '<div style="font-size:2rem;font-weight:800;color:' + (p.running ? '#dc2626' : 'var(--accent-cambridge)') +
+        ';margin-bottom:0.65rem;">⏱ ' + p.timeLeft + 's</div>' +
+        '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">' +
+        (p.running
+          ? '<button type="button" class="chip-btn" onclick="SAL.do(\'' + cfg.key + '\',\'sprintPause\')">' + pauseText + '</button>'
+          : '<button type="button" class="btn btn-primary" style="padding:0.55rem 1.2rem;font-size:0.92rem;" onclick="SAL.do(\'' + cfg.key + '\',\'sprintBegin\')">' +
+            (p.subMode !== 'manual' && !p.started ? enableText : startText) + '</button>') +
+        (p.subMode !== 'slideshow'
+          ? '<button type="button" class="chip-btn" onclick="SAL.do(\'' + cfg.key + '\',\'sprintReveal\')">' + revealText + '</button>'
+          : '') +
+        '</div>';
+    } else {
+      rows += '<div class="vocab-deva" style="font-size:2.5rem;color:#15803d;margin-bottom:0.15rem;">' + w.deva + '</div>' +
+        '<div class="vocab-iast" style="font-size:1.1rem;margin-bottom:0.85rem;">' + w.iast + '</div>' +
+        '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">' +
+        chip(cfg, 'speak', w.ttsText, '🔊') +
+        '<button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="SAL.do(\'' + cfg.key + '\',\'sprintGrade\',\'0\')">' +
+        ru('✕ Missed', '✕ Не успел / ошибся') + '</button>' +
+        '<button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="SAL.do(\'' + cfg.key + '\',\'sprintGrade\',\'1\')">' +
+        ru('✓ Said It in Time!', '✓ Успел назвать верно!') + '</button>' +
+        '</div>';
     }
-    if (p.started && !timers.sprint) {
-      timers.sprint = setInterval(function () {
-        var s = st.prod.sprint;
-        if (!s.started) return;
-        s.elapsed += 0.25;
-        var el = document.getElementById(cfg.key + '-sprint-timer');
-        if (el) {
-          var t = Math.round(s.elapsed);
-          el.textContent = Math.floor(t / 60) + ':' + ('0' + (t % 60)).slice(-2);
-        }
-      }, 250);
-    }
-    return topBar(pill(ru('Word', 'Слово') + ' ' + (p.i + 1) + '/' + N) + ' ' +
-      pill('⏱ <span id="' + cfg.key + '-sprint-timer">' + elapsedTxt + '</span>') + ' ' + pill(ru('Score', 'Счёт') + ': ' + p.score),
-      chip(cfg, 'sprintRestart', '', '↺')) +
-      centerCard(
-        '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
-        ru('Say the word aloud — no text on screen!', 'Назовите слово вслух — текста на экране нет!') + '</div>' +
-        '<div style="margin-bottom:0.85rem;">' + svgBox(w, 180) + '</div>' +
-        (p.revealed
-          ? '<div style="font-family:var(--font-deva);font-size:2.2rem;font-weight:700;color:#15803d;">' + w.deva + '</div>' +
-            '<div class="iast-text">' + w.iast + '</div>'
-          : '<div style="height:3.2rem;"></div>') +
-        '<div style="display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:1rem;">' +
-        (p.revealed ? '' : '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Hint', 'Подсказка') + '</button>') +
-        '<button type="button" class="quiz-opt-btn correct" style="max-width:230px;" onclick="SAL.do(\'' + cfg.key + '\',\'sprintAnswer\',\'1\')">✓ ' + ru('I said it!', 'Назвал(а)!') + '</button>' +
-        '<button type="button" class="quiz-opt-btn wrong" style="max-width:230px;" onclick="SAL.do(\'' + cfg.key + '\',\'sprintAnswer\',\'0\')">✗ ' + ru('Skip', 'Пропустить') + '</button>' +
-        '</div>' +
-        (p.revealed ? nextRow(cfg, 'sprintNext') : '')
-      );
+    return rows + '</div>';
   }
 
-  /* 2. Microphone --------------------------------------------------------- */
-  function normalize(s) {
-    return (s || '').toLowerCase().replace(/[̄-ͯ]/g, '').replace(/[^a-z]/g, '');
-  }
+  /* 2. Microphone (parity with Lesson 1: record → auto-check, or check with audio) */
   function renderMic(cfg, st) {
     var m = st.prod.mic;
     var N = cfg.words.length;
-    if (!m.order) m.order = shuffle(cfg.words.map(function (w) { return w.id; }));
-    if (m.finished || m.i >= N) return finalScreen(cfg, 'micRestart', ru('Microphone — done!', 'Микрофон — пройдено!'), m.score, N);
-    var w = byId(cfg, m.order[m.i]);
+    var title = ru('2. Speak into Microphone 🎙', '2. Произнеси в микрофон 🎙');
+    if (m.finished || m.i >= N) return finalScreen(cfg, 'micRestart', title, m.score, N);
+    var w = cfg.words[m.i];
     var supported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
-    return topBar(pill(ru('Word', 'Слово') + ' ' + (m.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + m.score),
-      chip(cfg, 'micRestart', '', '↺')) +
-      centerCard(
-        '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
-        ru('Look at the picture and say the Sanskrit word into the microphone', 'Посмотрите на картинку и произнесите санскритское слово в микрофон') + '</div>' +
-        svgBox(w, 160) +
-        '<div style="margin:0.9rem 0 0.5rem;display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;">' +
-        (supported
-          ? '<button type="button" class="btn btn-primary" style="padding:0.5rem 1.2rem;font-size:0.9rem;" onclick="SAL.do(\'' + cfg.key + '\',\'micStart\')">🎙 ' +
-            (m.listening ? ru('Listening…', 'Слушаю…') : ru('Start recording', 'Начать запись')) + '</button>'
-          : '<span class="game-score-pill">' + ru('Speech recognition is not supported in this browser — use the buttons below',
-              'Распознавание речи не поддерживается этим браузером — используйте кнопки ниже') + '</span>') +
-        '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Послушать') + '</button>' +
-        '</div>' +
-        (m.transcript
-          ? '<div style="margin-top:0.5rem;font-size:0.95rem;">' + ru('Heard', 'Распознано') + ': <strong>' + m.transcript + '</strong></div>'
-          : '') +
-        (m.result === 'ok'
-          ? '<div style="margin-top:0.6rem;color:#15803d;font-weight:700;">✓ ' + ru('Correct!', 'Верно!') + ' — ' + w.deva + ' (' + w.iast + ')</div>'
-          : m.result === 'no'
-            ? '<div style="margin-top:0.6rem;color:#b91c1c;font-weight:700;">✗ ' + ru('Not quite. Correct word', 'Не совсем. Правильное слово') + ': ' + w.deva + ' (' + w.iast + ')</div>'
-            : '') +
-        '<div style="display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:1rem;">' +
-        '<button type="button" class="quiz-opt-btn correct" style="max-width:230px;" onclick="SAL.do(\'' + cfg.key + '\',\'micAnswer\',\'1\')">✓ ' + ru('I said it right', 'Я сказал(а) верно') + '</button>' +
-        '<button type="button" class="quiz-opt-btn wrong" style="max-width:230px;" onclick="SAL.do(\'' + cfg.key + '\',\'micAnswer\',\'0\')">✗ ' + ru('Need practice', 'Надо повторить') + '</button>' +
-        '</div>' +
-        nextRow(cfg, 'micNext')
-      );
+    var statusHtml = '';
+    if (m.transcript) {
+      statusHtml += '<div style="font-size:0.88rem;font-weight:600;color:var(--accent-cambridge);margin-bottom:0.5rem;">' +
+        ru('Heard', 'Распознано') + ': ' + m.transcript + '</div>';
+    }
+    if (m.result === 'ok') {
+      statusHtml += '<div style="font-size:0.9rem;font-weight:700;color:#15803d;margin-bottom:0.5rem;">✓ ' +
+        ru('Correct!', 'Верно!') + '</div>';
+    } else if (m.result === 'no') {
+      statusHtml += '<div style="font-size:0.9rem;font-weight:700;color:#b91c1c;margin-bottom:0.5rem;">✗ ' +
+        ru('Not quite — compare with the correct word below', 'Не совсем — сравните с правильным словом ниже') + '</div>';
+    }
+    return '<div class="game-top-bar"><div><strong style="font-size:1.05rem;">' + title + '</strong></div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+      chip(cfg, 'micRestart', '', '↺ ' + ru('Start Over', 'Начать сначала')) +
+      pill(m.score + ' / ' + N + ' · (' + (m.i + 1) + '/' + N + ')') +
+      '</div></div>' +
+      '<div class="flashcard-box" style="cursor:default;">' +
+      '<div class="vocab-svg-box" style="width:138px;height:138px;margin-bottom:0.75rem;">' + w.svg + '</div>' +
+      '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;margin-bottom:0.75rem;">' +
+      '<button type="button" class="chip-btn active" onclick="SAL.do(\'' + cfg.key + '\',\'micStart\')">' +
+      (m.listening ? ru('🎙 Listening...', '🎙 Слушаю...') : ru('🎙 Click & Speak into Mic', '🎙 Нажать и сказать в микрофон')) + '</button>' +
+      '<button type="button" class="chip-btn" onclick="SAL.do(\'' + cfg.key + '\',\'micReveal\')">🔊 ' +
+      ru('Check with Audio (No Mic)', 'Проверить звуком (без микрофона)') + '</button>' +
+      '</div>' +
+      (!supported
+        ? '<div class="game-score-pill" style="margin-bottom:0.7rem;">' +
+          ru('Speech recognition is not supported in this browser — use the audio check button',
+             'Распознавание речи не поддерживается этим браузером — используйте кнопку проверки звуком') + '</div>'
+        : '') +
+      statusHtml +
+      (m.revealed
+        ? '<div class="vocab-deva" style="font-size:2.45rem;color:#15803d;margin-bottom:0.15rem;">' + w.deva + '</div>' +
+          '<div class="vocab-iast" style="font-size:1.05rem;margin-bottom:0.8rem;">' + w.iast + '</div>' +
+          '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">' +
+          chip(cfg, 'speak', w.ttsText, '🔊') +
+          '<button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="SAL.do(\'' + cfg.key + '\',\'micGrade\',\'0\')">' +
+          ru('✕ Retry', '✕ Ещё повторить') + '</button>' +
+          '<button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="SAL.do(\'' + cfg.key + '\',\'micGrade\',\'1\')">' +
+          ru('✓ Pronounced Correctly!', '✓ Произнёс верно!') + '</button>' +
+          '</div>'
+        : '') +
+      '</div>';
   }
 
-  /* 3. What Is Missing? --------------------------------------------------- */
-  function renderMissing(cfg, st) {
-    var m = st.prod.missing;
+  /* 3. What Is Missing? (parity with Lesson 1: '?' marker on the diagram) */
+  function allPinsOf(cfg) {
     var all = [];
     cfg.hotspots.figures.forEach(function (f) { f.pins.forEach(function (p) { all.push({ pin: p, fig: f }); }); });
     all.sort(function (a, b) { return a.pin.num - b.pin.num; });
-    if (!m.order) m.order = shuffle(all.map(function (a) { return a.pin.id; }));
+    return all;
+  }
+  function renderMissing(cfg, st) {
+    var m = st.prod.missing;
+    var all = allPinsOf(cfg);
     var N = all.length;
-    if (m.finished || m.i >= N) return finalScreen(cfg, 'missingRestart', ru('What Is Missing? — done!', '«Что пропало?» — пройдено!'), m.score, N);
-    var cur = all.filter(function (a) { return a.pin.id === m.order[m.i]; })[0] || all[0];
+    if (m.finished || m.i >= N) {
+      return finalScreen(cfg, 'missingRestart', ru("3. What's Missing on the Portrait? ❓", '3. Что пропало на рисунке? ❓'), m.score, N);
+    }
+    var cur = all[m.i];
     var w = byId(cfg, cur.pin.id);
-    var fig = cur.fig;
     var marker = '<g><line x1="' + cur.pin.x + '" y1="' + cur.pin.y + '" x2="' + cur.pin.tx + '" y2="' + cur.pin.ty +
       '" stroke="#DC2626" stroke-width="2.8"/>' +
       '<circle cx="' + cur.pin.tx + '" cy="' + cur.pin.ty + '" r="11" fill="#FEF08A" stroke="#DC2626" stroke-width="2.5" stroke-dasharray="3,2"/>' +
       '<circle cx="' + cur.pin.x + '" cy="' + cur.pin.y + '" r="15" fill="#DC2626" stroke="#FEF08A" stroke-width="2.5"/>' +
       '<text x="' + cur.pin.x + '" y="' + (cur.pin.y + 5) + '" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="800"' +
       ' font-family="Plus Jakarta Sans, sans-serif">?</text></g>';
-    return topBar(pill(ru('Question', 'Вопрос') + ' ' + (m.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + m.score),
-      chip(cfg, 'missingRestart', '', '↺')) +
-      centerCard(
-        '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
-        ru('Look where the red ? points and say that word aloud', 'Посмотрите, куда указывает красный знак «?», и назовите это слово вслух') + '</div>' +
-        '<svg viewBox="' + fig.viewBox + '" style="width:100%;max-width:320px;height:auto;display:block;margin:0 auto;" fill="none"' +
-        ' xmlns="http://www.w3.org/2000/svg">' + fig.art + marker + '</svg>' +
-        (m.revealed
-          ? '<div style="margin-top:0.75rem;">' + svgBox(w, 96) +
-            '<div style="font-family:var(--font-deva);font-size:2rem;font-weight:700;color:#15803d;">' + w.deva + '</div>' +
-            '<div class="iast-text">' + w.iast + '</div></div>'
-          : '<div style="margin-top:0.75rem;"><button type="button" class="chip-btn" onclick="SAL.do(\'' + cfg.key + '\',\'missingReveal\')">👁 ' +
-            ru('Reveal answer', 'Показать ответ') + '</button></div>') +
-        '<div style="display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:1rem;">' +
-        '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Послушать') + '</button>' +
-        '<button type="button" class="quiz-opt-btn correct" style="max-width:230px;" onclick="SAL.do(\'' + cfg.key + '\',\'missingAnswer\',\'1\')">✓ ' + ru('I said it!', 'Назвал(а)!') + '</button>' +
-        '<button type="button" class="quiz-opt-btn wrong" style="max-width:230px;" onclick="SAL.do(\'' + cfg.key + '\',\'missingAnswer\',\'0\')">✗ ' + ru('Skip', 'Пропустить') + '</button>' +
-        '</div>' + nextRow(cfg, 'missingNext')
-      );
+    var title = ru("3. What's Missing on the Portrait? ❓", '3. Что пропало на рисунке? ❓');
+    return '<div class="game-top-bar"><div><strong style="font-size:1.05rem;">' + title + '</strong></div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+      chip(cfg, 'missingRestart', '', '↺ ' + ru('Start Over', 'Начать сначала')) +
+      pill(m.score + ' / ' + N + ' · (' + (m.i + 1) + '/' + N + ')') +
+      '</div></div>' +
+      '<div class="flashcard-box" style="cursor:default;">' +
+      '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
+      ru('Look where the red ? points and say that word aloud',
+         'Посмотрите, куда указывает красный знак «?», и назовите это слово вслух') + '</div>' +
+      '<svg viewBox="' + cur.fig.viewBox + '" style="width:100%;max-width:320px;height:auto;display:block;margin:0 auto;" fill="none"' +
+      ' xmlns="http://www.w3.org/2000/svg">' + cur.fig.art + marker + '</svg>' +
+      (m.revealed
+        ? '<div style="margin-top:0.75rem;" class="vocab-svg-box" style="width:96px;height:96px;margin:0.75rem auto 0.25rem;">' + w.svg + '</div>' +
+          '<div class="vocab-deva" style="font-size:2.2rem;color:#15803d;margin-bottom:0.15rem;">' + w.deva + '</div>' +
+          '<div class="vocab-iast" style="font-size:1.05rem;margin-bottom:0.8rem;">' + w.iast + '</div>' +
+          '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">' +
+          chip(cfg, 'speak', w.ttsText, '🔊') +
+          '<button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="SAL.do(\'' + cfg.key + '\',\'missingGrade\',\'0\')">' +
+          ru('✕ Missed', '✕ Ошибся') + '</button>' +
+          '<button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="SAL.do(\'' + cfg.key + '\',\'missingGrade\',\'1\')">' +
+          ru('✓ Said It Right!', '✓ Назвал верно!') + '</button>' +
+          '</div>'
+        : '<div style="margin-top:0.85rem;"><button type="button" class="chip-btn active" onclick="SAL.do(\'' + cfg.key + '\',\'missingReveal\')">' +
+          ru('🔊 I Said It! Check Answer', '🔊 Я назвал вслух! Проверить') + '</button></div>') +
+      '</div>';
   }
 
   /* 4. TPR Chant & Checklist --------------------------------------------- */
@@ -1496,36 +1627,75 @@ var SAL = (window.SAL = window.SAL || {});
     /* production */
     setProdMode: function (cfg, st, a) {
       stopTimers();
+      st.prod.sprint.running = false;
       st.prod.mode = a;
-      if (a !== 'sprint') st.prod.sprint.started = false;
     },
-    sprintAnswer: function (cfg, st, a) {
+
+    /* Speed Sprint — manual / auto / slideshow, 4s|3s|2s, card / arrow */
+    sprintSub: function (cfg, st, a) {
+      stopTimers();
       var p = st.prod.sprint;
-      if (p.revealed) return;
-      p.revealed = true;
-      if (!p.started) { p.started = true; p.startAt = Date.now(); }
+      p.subMode = a;
+      p.i = 0;
+      p.score = a === 'slideshow' ? cfg.words.length : 0;
+      p.revealed = false; p.finished = false; p.started = false;
+      p.running = false; p.timeLeft = p.duration;
+    },
+    sprintDur: function (cfg, st, a) {
+      stopTimers();
+      var p = st.prod.sprint;
+      p.duration = parseInt(a, 10) || 4;
+      p.timeLeft = p.duration;
+      p.running = false;
+      if (p.subMode !== 'manual' && p.started && !p.finished && !p.revealed) startSprintTimer(cfg);
+    },
+    sprintVisual: function (cfg, st, a) { st.prod.sprint.visual = a; },
+    sprintBegin: function (cfg, st) {
+      st.prod.sprint.started = true;
+      startSprintTimer(cfg);
+    },
+    sprintPause: function (cfg, st) {
+      stopTimers();
+      st.prod.sprint.running = false;
+    },
+    sprintReveal: function (cfg, st) {
+      stopTimers();
+      var p = st.prod.sprint;
+      p.running = false; p.started = true; p.revealed = true;
+      SAL.speak(cfg.words[p.i].ttsText);
+    },
+    sprintGrade: function (cfg, st, a) {
+      stopTimers();
+      var p = st.prod.sprint;
+      p.running = false;
       if (a === '1') {
         p.score++;
-        st.prod.produced[p.order[p.i]] = true;
+        st.prod.produced[cfg.words[p.i].id] = true;
       }
-    },
-    sprintNext: function (cfg, st) {
-      var p = st.prod.sprint;
-      p.i++; p.revealed = false;
-      if (p.i >= cfg.words.length) {
-        p.finished = true; p.elapsed = p.started ? (Date.now() - p.startAt) / 1000 : p.elapsed;
-        stopTimers();
+      if (p.i + 1 >= cfg.words.length) {
+        p.finished = true;
+      } else {
+        p.i++;
+        p.revealed = false;
+        p.timeLeft = p.duration;
+        if (p.subMode === 'auto' && p.started) startSprintTimer(cfg);
       }
     },
     sprintRestart: function (cfg, st) {
       stopTimers();
-      st.prod.sprint = { started: false, startAt: 0, elapsed: 0, order: shuffle(cfg.words.map(function (w) { return w.id; })), i: 0, score: 0, revealed: false, finished: false };
+      var p = st.prod.sprint;
+      p.i = 0;
+      p.score = p.subMode === 'slideshow' ? cfg.words.length : 0;
+      p.revealed = false; p.finished = false; p.started = false;
+      p.running = false; p.timeLeft = p.duration;
       st.prod.mode = 'sprint';
     },
+
+    /* Microphone */
     micStart: function (cfg, st) {
       var m = st.prod.mic;
       var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) return;
+      if (!SR) { m.revealed = true; SAL.speak(cfg.words[m.i].ttsText); return; }
       try {
         var rec = new SR();
         rec.lang = 'sa-IN';
@@ -1536,7 +1706,7 @@ var SAL = (window.SAL = window.SAL || {});
           var alts = [];
           for (var i = 0; i < ev.results[0].length; i++) alts.push(ev.results[0][i].transcript);
           m.transcript = alts.join(' / ');
-          var w = byId(cfg, m.order[m.i]);
+          var w = cfg.words[m.i];
           var target = normalize(w.iast);
           var hit = alts.some(function (t) {
             var n = normalize(t);
@@ -1544,42 +1714,50 @@ var SAL = (window.SAL = window.SAL || {});
           });
           m.result = hit ? 'ok' : 'no';
           m.listening = false;
+          m.revealed = true;
           SAL.refresh();
         };
-        rec.onerror = function () { m.listening = false; m.result = null; SAL.refresh(); };
+        rec.onerror = function () { m.listening = false; SAL.refresh(); };
         rec.onend = function () { m.listening = false; SAL.refresh(); };
         rec.start();
-      } catch (e) { m.listening = false; }
+      } catch (e) { m.listening = false; m.revealed = true; }
     },
-    micAnswer: function (cfg, st, a) {
+    micReveal: function (cfg, st) {
       var m = st.prod.mic;
-      if (a === '1') { m.score++; st.prod.produced[m.order[m.i]] = true; }
-      m.result = a === '1' ? 'ok' : 'no';
+      m.revealed = true;
+      SAL.speak(cfg.words[m.i].ttsText);
     },
-    micNext: function (cfg, st) {
+    micGrade: function (cfg, st, a) {
       var m = st.prod.mic;
-      m.i++; m.result = null; m.transcript = ''; m.listening = false;
+      if (a === '1') { m.score++; st.prod.produced[cfg.words[m.i].id] = true; }
+      m.transcript = ''; m.result = null; m.listening = false; m.revealed = false;
+      m.i++;
       if (m.i >= cfg.words.length) m.finished = true;
     },
     micRestart: function (cfg, st) {
-      st.prod.mic = { order: shuffle(cfg.words.map(function (w) { return w.id; })), i: 0, score: 0, listening: false, transcript: '', result: null, finished: false };
+      st.prod.mic = { i: 0, score: 0, listening: false, revealed: false, transcript: '', result: null, finished: false };
       st.prod.mode = 'mic';
     },
-    missingReveal: function (cfg, st) { st.prod.missing.revealed = true; },
-    missingAnswer: function (cfg, st, a) {
-      var m = st.prod.missing;
-      if (a === '1') { m.score++; st.prod.produced[m.order[m.i]] = true; }
-      m.revealed = true;
+
+    /* What Is Missing? */
+    missingReveal: function (cfg, st) {
+      var all = allPinsOf(cfg);
+      st.prod.missing.revealed = true;
+      SAL.speak(byId(cfg, all[st.prod.missing.i].pin.id).ttsText);
     },
-    missingNext: function (cfg, st) {
+    missingGrade: function (cfg, st, a) {
       var m = st.prod.missing;
-      m.i++; m.revealed = false;
-      if (m.i >= m.order.length) m.finished = true;
+      var all = allPinsOf(cfg);
+      if (a === '1') { m.score++; st.prod.produced[all[m.i].pin.id] = true; }
+      if (m.i + 1 >= all.length) m.finished = true;
+      else { m.i++; m.revealed = false; }
     },
     missingRestart: function (cfg, st) {
       st.prod.missing = { order: null, i: 0, score: 0, revealed: false, finished: false };
       st.prod.mode = 'missingpart';
     },
+
+    /* TPR chant & checklist */
     chantWord: function (cfg, st, id) { st.prod.active = id; SAL.speak(byId(cfg, id).ttsText); },
     chantReverse: function (cfg, st) { st.prod.chantReverse = !st.prod.chantReverse; },
     chantReset: function (cfg, st) {
@@ -1601,6 +1779,7 @@ var SAL = (window.SAL = window.SAL || {});
       tick();
       timers.chant = setInterval(tick, 1600);
     },
+
     produced: function (cfg, st, id) {
       if (st.prod.produced[id]) delete st.prod.produced[id]; else st.prod.produced[id] = true;
     }
