@@ -2210,3 +2210,31 @@ body.hide-iast .level-sample-iast {
 .rules-label { font-weight: 800; color: var(--text-primary); }
 .rules-list { margin: 0.3rem 0 0; padding-left: 1.2rem; }
 .rules-list li { margin-bottom: 0.22rem; }
+
+/* lesson dropdown (replaces the row of lesson buttons: it ran out of space) */
+.lesson-nav-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.lesson-select {
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  max-width: 15rem;
+  transition: all 0.15s ease;
+}
+.lesson-select:hover { background: var(--text-primary); color: #ffffff; border-color: var(--text-primary); }
+.lesson-select:focus-visible { outline: 2px solid var(--accent-cambridge); outline-offset: 1px; }
+.lesson-select option { background: var(--bg-card); color: var(--text-primary); }
+@media (max-width: 760px) {
+  .lesson-nav-label { display: none; }
+  .lesson-select { max-width: 11rem; }
+}

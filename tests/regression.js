@@ -631,14 +631,50 @@ SAL.do('L5', 'restart', 'sorting');
 ck(L5.sortFeatures.some(f => arenaOf('L5').textContent.indexOf(f.ru) >= 0),
   'урок 5: сортировка задаёт свой вопрос по форме слова');
 
-/* navigation: lesson 5 is reachable from every lesson pane */
-['L2', 'L3', 'L4', 'L5'].forEach(k => {
-  SAL.openLesson(k);
-  ck(win.document.getElementById('view-lesson' + SAL.lessons[k].num)
-      .querySelectorAll('[onclick*="openLesson(\'L5\')"]').length > 0 ||
-     k === 'L5',
-    k + ': в панели есть кнопка перехода к уроку 5');
+/* navigation: one dropdown lists every lesson, in every pane */
+console.log('\n===== Выпадающий список уроков =====');
+const NAV_VALUES = ['L2', 'L3', 'lesson3', 'L4', 'L5'];
+const PANES = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5'];
+const CUR = { 'view-lesson1': 'L2', 'view-lesson2': 'L3', 'view-lesson3': 'lesson3',
+              'view-lesson4': 'L4', 'view-lesson5': 'L5' };
+['L2', 'L3', 'L4', 'L5'].forEach(k => SAL.openLesson(k));
+win.switchView('lesson3');
+PANES.forEach(id => {
+  const pane = win.document.getElementById(id);
+  const sels = pane.querySelectorAll('select.lesson-select');
+  ck(sels.length === 1, id + ': ровно один выпадающий список уроков (найдено ' + sels.length + ')');
+  const sel = sels[0];
+  if (!sel) return;
+  ck(NAV_VALUES.every(v => [...sel.options].some(o => o.value === v)) && sel.options.length === NAV_VALUES.length,
+    id + ': в списке ровно все пять уроков (' + sel.options.length + ')');
+  ck(sel.value === CUR[id] && sel.options[sel.selectedIndex].value === CUR[id],
+    id + ': выбран текущий урок (' + sel.value + ')');
+  ck(pane.querySelectorAll('.ppp-top-row [onclick*="openLesson"]').length === 0,
+    id + ': строки кнопок-уроков больше нет');
+  ck(/Выбрать номер урока/.test(pane.textContent), id + ': подпись «Выбрать номер урока» на месте');
 });
+ck(win.document.getElementById('view-lesson4')
+    .querySelectorAll('.ppp-top-row > div:first-child > *').length === 3,
+  'слева в строке три элемента: «на главную», подпись и список');
+SAL.gotoLesson('L5');
+ck(win.document.getElementById('view-lesson5').classList.contains('active'),
+  'выбор урока 5 в списке открывает пятую панель');
+SAL.gotoLesson('lesson3');
+ck(win.document.getElementById('view-lesson3').classList.contains('active'),
+  'выбор урока 3 открывает панель 12 слов');
+SAL.gotoLesson('L2');
+ck(win.document.getElementById('view-lesson1').classList.contains('active'),
+  'выбор урока 1 открывает первую панель');
+win.setLanguage('en');
+SAL.openLesson('L4');
+ck([...win.document.getElementById('view-lesson4').querySelector('select.lesson-select').options]
+    .every(o => /^Lesson \d/.test(o.textContent)), 'список уроков переведён на английский');
+ck(/Choose a lesson/.test(win.document.getElementById('view-lesson3').textContent),
+  'урок 3 (12 слов): подпись списка тоже переведена');
+win.setLanguage('ru');
+SAL.openLesson('L4');
+ck([...win.document.getElementById('view-lesson4').querySelector('select.lesson-select').options]
+    .every(o => /^Урок \d/.test(o.textContent)), 'список уроков возвращается на русский');
 
 /* ==========================================================================
    RULES — every practice game must carry its own short manual

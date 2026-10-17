@@ -232,23 +232,57 @@ var SAL = (window.SAL = window.SAL || {});
   /* =========================================================================
      SKELETON (built once per lesson pane)
      ========================================================================= */
-  function navBarHtml(cfg) {
-    function lessonBtn(key, labelRu, labelEn, num) {
-      return '<button type="button" class="chip-btn' + (cfg.num === num ? ' active' : '') +
-        '" style="padding:0.28rem 0.65rem;font-size:0.78rem;white-space:nowrap;" onclick="SAL.openLesson(\'' + key + '\')"' +
-        ' data-i18n-ru="' + labelRu + '" data-i18n-en="' + labelEn + '">' + (L() === 'ru' ? labelRu : labelEn) + '</button>';
+  /* One dropdown for every lesson instead of a row of buttons: the row ran out
+     of space as soon as the fifth lesson arrived. */
+  var NAV_LABELS = {
+    L2: { ru: 'Урок 1: Тело', en: 'Lesson 1: Body' },
+    L3: { ru: 'Урок 2: Лицо', en: 'Lesson 2: Face' },
+    lesson3: { ru: 'Урок 3: Части тела (12)', en: 'Lesson 3: Body Parts (12)' },
+    L4: { ru: 'Урок 4: Цифры 1–5', en: 'Lesson 4: Numbers 1–5' },
+    L5: { ru: 'Урок 5: Цифры 6–10', en: 'Lesson 5: Numbers 6–10' }
+  };
+  /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
+  function navRows() {
+    var rows = Object.keys(lessons).map(function (k) {
+      var c = lessons[k], lab = NAV_LABELS[k];
+      return { v: k, num: c.num,
+               ru: lab ? lab.ru : ('Урок ' + c.num + ': ' + c.titleRu),
+               en: lab ? lab.en : ('Lesson ' + c.num + ': ' + c.titleEn) };
+    });
+    rows.push({ v: 'lesson3', num: 3, ru: NAV_LABELS.lesson3.ru, en: NAV_LABELS.lesson3.en });
+    rows.sort(function (a, b) { return a.num - b.num; });
+    return rows;
+  }
+  /* current = the lesson this nav bar belongs to ('lesson3' for the 12-word lesson) */
+  function navSelectHtml(current) {
+    var opts = navRows().map(function (r) {
+      return '<option value="' + r.v + '"' + (r.v === current ? ' selected' : '') +
+        ' data-i18n-ru="' + r.ru + '" data-i18n-en="' + r.en + '">' + (L() === 'ru' ? r.ru : r.en) + '</option>';
+    }).join('');
+    return '<label class="lesson-nav-label" for="lesson-nav-' + current + '"' +
+        ' data-i18n-ru="Выбрать номер урока:" data-i18n-en="Choose a lesson:">' +
+        ru('Choose a lesson:', 'Выбрать номер урока:') + '</label>' +
+      '<select id="lesson-nav-' + current + '" class="lesson-select" onchange="SAL.gotoLesson(this.value)"' +
+        ' aria-label="Выбрать номер урока / Choose a lesson" title="Выбрать номер урока / Choose a lesson">' +
+        opts + '</select>';
+  }
+  /* the standalone 12-word lesson keeps its nav bar in index.html — fill that slot */
+  function fillNavSlots() {
+    var slots = document.querySelectorAll('[data-lesson-nav]');
+    for (var i = 0; i < slots.length; i++) {
+      if (slots[i].getAttribute('data-filled') === '1') continue;
+      slots[i].innerHTML = navSelectHtml('lesson3');
+      slots[i].setAttribute('data-filled', '1');
     }
+  }
+
+  function navBarHtml(cfg) {
     return '' +
       '<div class="ppp-nav-bar"><div class="container ppp-top-row">' +
         '<div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:nowrap;white-space:nowrap;">' +
           '<button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView(\'home\')"' +
             ' data-i18n-ru="← На главную" data-i18n-en="← Home">← ' + ru('Home', 'На главную') + '</button>' +
-          lessonBtn('L2', 'Урок 1: Тело', 'Lesson 1: Body', 1) +
-          lessonBtn('L3', 'Урок 2: Лицо', 'Lesson 2: Face', 2) +
-          '<button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView(\'lesson3\')"' +
-            ' data-i18n-ru="Урок 3: Части тела (12)" data-i18n-en="Lesson 3: Body Parts (12)">' + ru('Lesson 3: Body Parts (12)', 'Урок 3: Части тела (12)') + '</button>' +
-          lessonBtn('L4', 'Урок 4: Цифры 1–5', 'Lesson 4: Numbers 1–5', 4) +
-          lessonBtn('L5', 'Урок 5: Цифры 6–10', 'Lesson 5: Numbers 6–10', 5) +
+          navSelectHtml(cfg.key) +
         '</div>' +
         '<div class="ppp-steps-pills">' +
           '<a href="#' + cfg.key + '-presentation" class="ppp-step-pill p1" data-i18n-ru="1. Presentation" data-i18n-en="1. Presentation">1. Presentation</a>' +
@@ -2359,7 +2393,15 @@ var SAL = (window.SAL = window.SAL || {});
     if (btn) btn.classList.toggle('active', open);
   };
 
+  /* the lesson dropdown: 'lesson3' is the standalone 12-word lesson, everything
+     else is a key registered by a lesson data file */
+  SAL.gotoLesson = function (v) {
+    if (v === 'lesson3') { if (typeof switchView === 'function') switchView('lesson3'); return; }
+    SAL.openLesson(v);
+  };
+
   SAL.refresh = function () {
+    fillNavSlots();
     var cfg = lessons[activeKey];
     if (!cfg) return;
     renderPres(cfg);
@@ -2388,6 +2430,7 @@ var SAL = (window.SAL = window.SAL || {});
   };
 
   document.addEventListener('DOMContentLoaded', function () {
+    fillNavSlots();
     Object.keys(lessons).forEach(function (k) {
       var pane = document.getElementById('view-lesson' + lessons[k].num);
       if (pane && pane.getAttribute('data-built') !== '1') {

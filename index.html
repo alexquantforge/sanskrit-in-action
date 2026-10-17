@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-build="v52">
+<html lang="ru" data-build="v53">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=52" />
+  <link rel="stylesheet" href="styles.css?v=53" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -114,25 +114,8 @@
           <div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:nowrap;white-space:nowrap;">
             <button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView('home')"
                     data-i18n-ru="← На главную" data-i18n-en="← Home">← На главную</button>
-            <button type="button" class="practice-tab-btn" style="padding:0.28rem 0.65rem;font-size:0.76rem;"
-                    onclick="SAL.openLesson('L2')"
-                    data-i18n-ru="Урок 1: Тело"
-                    data-i18n-en="Lesson 1: Body">Урок 1: Тело</button>
-            <button type="button" class="practice-tab-btn" style="padding:0.28rem 0.65rem;font-size:0.76rem;"
-                    onclick="SAL.openLesson('L3')"
-                    data-i18n-ru="Урок 2: Лицо"
-                    data-i18n-en="Lesson 2: Face">Урок 2: Лицо</button>
-            <span class="practice-tab-btn active" style="padding:0.28rem 0.7rem;font-size:0.78rem;cursor:default;"
-                  data-i18n-ru="Урок 3: Части тела (12)"
-                  data-i18n-en="Lesson 3: Body Parts (12)">Урок 3: Части тела (12)</span>
-            <button type="button" class="practice-tab-btn" style="padding:0.28rem 0.65rem;font-size:0.76rem;"
-                    onclick="SAL.openLesson('L4')"
-                    data-i18n-ru="Урок 4: Цифры 1–5"
-                    data-i18n-en="Lesson 4: Numbers 1–5">Урок 4: Цифры 1–5</button>
-            <button type="button" class="practice-tab-btn" style="padding:0.28rem 0.65rem;font-size:0.76rem;"
-                    onclick="SAL.openLesson('L5')"
-                    data-i18n-ru="Урок 5: Цифры 6–10"
-                    data-i18n-en="Lesson 5: Numbers 6–10">Урок 5: Цифры 6–10</button>
+            <!-- the lesson dropdown is filled by lesson-engine.js (fillNavSlots) -->
+            <span data-lesson-nav></span>
           </div>
 
           <!-- Center: 1. Presentation · 2. Practice · 3. Production strictly on ONE line -->
@@ -1259,14 +1242,14 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=52"></script>
-  <script src="lesson-engine.js?v=52"></script>
-  <script src="lesson2.js?v=52"></script>
-  <script src="lesson3.js?v=52"></script>
-  <script src="lesson4.js?v=52"></script>
-  <script src="lesson5.js?v=52"></script>
-  <script src="games-extra.js?v=52"></script>
-  <script src="app.js?v=52"></script>
+  <script src="lesson1.js?v=53"></script>
+  <script src="lesson-engine.js?v=53"></script>
+  <script src="lesson2.js?v=53"></script>
+  <script src="lesson3.js?v=53"></script>
+  <script src="lesson4.js?v=53"></script>
+  <script src="lesson5.js?v=53"></script>
+  <script src="games-extra.js?v=53"></script>
+  <script src="app.js?v=53"></script>
 
   <!-- ===================================================================
        Stale-cache guard (GitHub Pages + aggressive browser caches).
