@@ -269,11 +269,12 @@ for (const key of ['L2', 'L3', 'L4']) {
 
 /* ---------- lesson order: body (6) -> face (7) -> body+face (12) ---------- */
 {
-  const order = ['view-lesson1', 'view-lesson2', 'view-lesson3']
+  const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4']
     .map(id => win.document.getElementById(id));
-  const pos = order.map(p => order.map(q => q.compareDocumentPosition(p)).length);
-  ck(order[0].compareDocumentPosition(order[1]) & 4, 'порядок панелей: урок 1 → урок 2 → урок 3');
-  ck(order[1].compareDocumentPosition(order[2]) & 4, 'урок 3 (12 слов) стоит последним');
+  ck(order.every(Boolean), 'все четыре панели урока есть на странице');
+  ck(order[0].compareDocumentPosition(order[1]) & 4, 'порядок панелей: урок 1 → урок 2');
+  ck(order[1].compareDocumentPosition(order[2]) & 4, 'порядок панелей: урок 2 → урок 3');
+  ck(order[2].compareDocumentPosition(order[3]) & 4, 'порядок панелей: урок 3 → урок 4');
   ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2 && SAL.lessons.L4.num === 4,
     'номера в данных: Тело = 1, Лицо = 2, Цифры = 4');
   ck(/Урок 4: Цифры/.test(win.document.getElementById('view-lesson4').textContent), 'слот 4 — Цифры 1–5');
