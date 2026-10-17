@@ -130,12 +130,12 @@ modes for the new word list — in both RU and EN.
 
 ## Tests / Тесты
 
-A jsdom harness walks both engine lessons end to end — presentation modes, all 12
+A jsdom harness walks all three lessons end to end — presentation modes, all 12
 practice games, all 4 production modes — and locks in the details that mattered in
 class (arrow direction, A/B/C/D option letters, memory-board coordinates,
 second-try scoring, the exact mistake being explained).
 
-Автотест на jsdom проходит оба урока движка целиком и проверяет мелочи, которые
+Автотест на jsdom проходит все три урока целиком и проверяет мелочи, которые
 важны в классе: направление стрелки, буквы A/B/C/D у вариантов, координаты
 карточек в «Мемори», вторую попытку, показ конкретной ошибки.
 

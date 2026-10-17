@@ -251,11 +251,33 @@ for (const key of ['L2', 'L3']) {
   ck(true, 'все кнопки нажаты без ошибок');
 }
 
-/* ---------- Lesson 1 must stay as it was ---------- */
+/* ---------- Lesson 1: same letters and memory squares, nothing else touched ---------- */
 win.switchView('lesson1');
 const l1 = win.document.getElementById('view-lesson1').innerHTML;
 ck(['नयन', 'नासिका', 'जिह्वा', 'कर्ण', 'शीर्ष', 'ललाट', 'भ्रू', 'ओष्ठ', 'कर', 'पाद', 'दन्त', 'अङ्गुली']
   .every(w => l1.indexOf(w) >= 0), 'урок 1: все 12 слов на месте');
+
+console.log('\n===== L1 (12 слов) =====');
+const l1arena = win.document.getElementById('lesson1-practice-arena');
+for (const [gm, n] of [['gaps', 4], ['picquiz', 4], ['wordquiz', 4], ['spelling', 4],
+                       ['truefalse', 2], ['wronglabel', 3], ['typo', 3]]) {
+  win.selectPracticeGame(gm);
+  const got = [...l1arena.querySelectorAll('.quiz-opt-btn')]
+    .map(b => { const sp = b.querySelector('.opt-letter'); return sp ? sp.textContent.trim() : null; });
+  ck(got.length === n && got.every((v, i) => v === LETTERS[i]), 'урок 1: буквы в игре ' + gm + ': ' + JSON.stringify(got));
+}
+for (const pairs of [6, 12]) {
+  win.setMemoryPairsCount(pairs);
+  win.selectPracticeGame('memory');
+  const cards = [...l1arena.querySelectorAll('.memory-card')];
+  const cols = 4;                       // .memory-grid in styles.css
+  const backs = cards.map(b => { const sp = b.querySelector('.memory-coord'); return sp ? sp.textContent.trim() : null; });
+  const want = cards.map((_, i) => LETTERS[Math.floor(i / cols)].toLowerCase() + ((i % cols) + 1));
+  ck(cards.length === pairs * 2, 'урок 1: мемори на ' + pairs * 2 + ' карточек');
+  ck(backs.every((v, i) => v === want[i]), 'урок 1: координаты рубашек ' + backs.join(' '));
+}
+ck(/Называйте карточку по клетке|Name the card by its square/.test(l1arena.textContent),
+  'урок 1: подсказка про букву ряда и номер столбца');
 win.setLanguage('en'); win.setLanguage('ru');
 ck(true, 'переключение RU/EN работает');
 
