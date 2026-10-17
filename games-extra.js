@@ -434,7 +434,8 @@
       return done(cfg, 'sorting', tx({ ru: 'Сортировка — пройдено', en: 'Sorting — done' }), g.score, N);
     }
     var w = byId(cfg, orderOf(cfg, g)[g.i]);
-    var f = FEATURES[g.i % FEATURES.length];
+    var LIST = cfg.sortFeatures || FEATURES;      /* a lesson may bring its own questions */
+    var f = LIST[g.i % LIST.length];
     var right = !!f.test(w);
     function box(val) {
       var cls = '';
@@ -1632,8 +1633,8 @@
              en: 'A good trick: the student dictates and the teacher types — then the argument is about letters, not keyboards.' }
     },
     sorting: {
-      aim: { ru: 'Разобраться в самой форме слова: есть носовой, три части, гласный знак на конце, есть ли च.',
-             en: 'Look at the shape of the word: a nasal, three parts, a vowel sign at the end, the letter च.' },
+      aim: { ru: 'Разобраться в самой форме слова: носовой, вирама, долгая гласная, нужная буква.',
+             en: 'Look at the shape of the word: a nasal, a virāma, a long vowel, a certain letter.' },
       how: { ru: ['Над словом — вопрос (например, «Есть носовой звук?»).',
                   'Положите слово в одну из двух коробок: A — ✓ «Да», B — ✕ «Нет».',
                   'После ответа игра показывает, в какой коробке слово на самом деле, и даёт послушать его.'],

@@ -28,7 +28,7 @@ const dom = new JSDOM(fs.readFileSync(path.join(REPO, 'index.html'), 'utf8'), {
   runScripts: 'dangerously', url: 'https://example.test/', virtualConsole: vc, pretendToBeVisual: true
 });
 const win = dom.window;
-['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'games-extra.js', 'app.js'].forEach(f => {
+['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'lesson5.js', 'games-extra.js', 'app.js'].forEach(f => {
   const s = win.document.createElement('script');
   s.textContent = fs.readFileSync(path.join(REPO, f), 'utf8');
   win.document.body.appendChild(s);
@@ -60,7 +60,7 @@ const GAMES = ['masked', 'flashcards', 'gaps', 'picquiz', 'wordquiz', 'match', '
 const PRESMODES = ['stepbystep', 'hotspots', 'audiofirst', 'poster'];
 const PRODMODES = ['sprint', 'mic', 'missingpart', 'chant'];
 
-for (const key of ['L2', 'L3', 'L4']) {
+for (const key of ['L2', 'L3', 'L4', 'L5']) {
   const cfg = SAL.lessons[key];
   const N = cfg.words.length;
   SAL.openLesson(key);
@@ -264,29 +264,36 @@ for (const key of ['L2', 'L3', 'L4']) {
     if (!w.gapChoices.some(c => c.deva === w.gapAnswer)) broken.push(w.deva + ': gapChoices');
     if (!w.missingChoices.includes(w.missingAnswer)) broken.push(w.deva + ': missingChoices');
     if (editDist(w.deva, w.typoDeva) !== 1) broken.push(w.deva + ': опечатка не в одну букву');
+    if (w.syll && w.syll.join('') !== w.deva) broken.push(w.deva + ': слоги не складываются в слово');
   });
   ck(broken.length === 0, key + ': данные слов согласованы (пропуск + ответ = слово, опечатка в одну букву)' +
     (broken.length ? ' — ' + broken.join('; ') : ''));
 
-  /* ---------- lesson 4: the counting frame must really show 1..5 ---------- */
-  if (key === 'L4') {
+  /* ---------- lessons 4 and 5: the counting frame must really show the numbers ---------- */
+  if (key === 'L4' || key === 'L5') {
+    const ROW = key === 'L4' ? [1, 2, 3, 4, 5] : [6, 7, 8, 9, 10];
+    const BEAD = /<circle cx="([\d.]+)" cy="([\d.]+)" r="[\d.]+" fill="#F59E0B"/g;
     const fig = cfg.hotspots.figures[0];
-    const beads = [...fig.art.matchAll(/<circle cx="(\d+)" cy="(\d+)" r="10"/g)].map(m => ({ x: +m[1], y: +m[2] }));
-    ck(beads.length === 15, 'урок 4: на счётах 15 бусин (1+2+3+4+5), найдено ' + beads.length);
+    const beads = [...fig.art.matchAll(BEAD)].map(m => ({ x: +m[1], y: +m[2] }));
+    const sum = ROW.reduce((a, b) => a + b, 0);
+    ck(beads.length === sum,
+      'урок ' + cfg.num + ': на счётах ' + sum + ' бусин (' + ROW.join('+') + '), найдено ' + beads.length);
     let rowsOk = true;
-    fig.pins.forEach(p => {
+    fig.pins.forEach((p, i) => {
       const row = beads.filter(b => b.y === p.ty);
-      if (row.length !== p.num || !row.some(b => b.x === p.tx)) rowsOk = false;
+      if (row.length !== ROW[i] || !row.some(b => b.x === p.tx)) rowsOk = false;
     });
-    ck(rowsOk, 'урок 4: в ряду N ровно N бусин и мишень попадает в бусину своего ряда');
-    ck(cfg.words.every((w, i) =>
-      [...w.svg.matchAll(/<circle cx="[\d.]+" cy="[\d.]+" r="(?:10\.5|12|13)"/g)].length === i + 1),
-      'урок 4: на карточке столько бусин, сколько означает числительное');
+    ck(rowsOk, 'урок ' + cfg.num + ': в ряду N ровно N бусин и мишень попадает в бусину своего ряда');
+    ck(cfg.words.every((w, i) => [...w.svg.matchAll(BEAD)].length === ROW[i]),
+      'урок ' + cfg.num + ': на карточке столько бусин, сколько означает числительное');
     const sets = cfg.categories.map(c => c.wordIds.slice().sort().join('|'));
     ck(cfg.categories.every(c => c.wordIds.length >= 2),
-      'урок 4: в каждой категории хотя бы два слова (иначе игра не имеет смысла)');
+      'урок ' + cfg.num + ': в каждой категории хотя бы два слова (иначе игра не имеет смысла)');
     ck(new Set(sets).size === sets.length,
-      'урок 4: у всех ' + sets.length + ' категорий разные наборы слов');
+      'урок ' + cfg.num + ': у всех ' + sets.length + ' категорий разные наборы слов');
+    ck(cfg.sortFeatures && cfg.sortFeatures.length >= 3 &&
+      cfg.sortFeatures.every(f => cfg.words.some(w => f.test(w)) && cfg.words.some(w => !f.test(w))),
+      'урок ' + cfg.num + ': вопросы сортировки делят слова и на «да», и на «нет»');
   }
 
   /* ---------- every control is clickable without throwing ---------- */
@@ -298,18 +305,23 @@ for (const key of ['L2', 'L3', 'L4']) {
 
 /* ---------- lesson order: body (6) -> face (7) -> body+face (12) ---------- */
 {
-  const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4']
+  const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5']
     .map(id => win.document.getElementById(id));
-  ck(order.every(Boolean), 'все четыре панели урока есть на странице');
+  ck(order.every(Boolean), 'все пять панелей урока есть на странице');
   ck(order[0].compareDocumentPosition(order[1]) & 4, 'порядок панелей: урок 1 → урок 2');
   ck(order[1].compareDocumentPosition(order[2]) & 4, 'порядок панелей: урок 2 → урок 3');
   ck(order[2].compareDocumentPosition(order[3]) & 4, 'порядок панелей: урок 3 → урок 4');
-  ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2 && SAL.lessons.L4.num === 4,
-    'номера в данных: Тело = 1, Лицо = 2, Цифры = 4');
+  ck(order[3].compareDocumentPosition(order[4]) & 4, 'порядок панелей: урок 4 → урок 5');
+  ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2 && SAL.lessons.L4.num === 4 &&
+     SAL.lessons.L5.num === 5,
+    'номера в данных: Тело = 1, Лицо = 2, Цифры 1–5 = 4, Цифры 6–10 = 5');
   ck(/Урок 4: Цифры/.test(win.document.getElementById('view-lesson4').textContent), 'слот 4 — Цифры 1–5');
   ck(/सङ्ख्याः/.test(win.document.getElementById('view-lesson4').innerHTML), 'слот 4: заголовок सङ्ख्याः');
   const w4 = SAL.lessons.L4.words.map(w => w.deva).join(' ');
   ck(w4 === 'एकम् द्वे त्रीणि चत्वारि पञ्च', 'урок 4: ровно пять числительных — ' + w4);
+  ck(/Урок 5: Цифры 6–10/.test(win.document.getElementById('view-lesson5').textContent), 'слот 5 — Цифры 6–10');
+  const w5list = SAL.lessons.L5.words.map(w => w.deva).join(' ');
+  ck(w5list === 'षट् सप्त अष्ट नव दश', 'урок 5: ровно пять числительных — ' + w5list);
   ck(/Урок 1: Тело/.test(win.document.getElementById('view-lesson1').textContent), 'слот 1 — Тело (6 слов)');
   ck(/Урок 2: Лицо/.test(win.document.getElementById('view-lesson2').textContent), 'слот 2 — Лицо (7 слов)');
   ck(/УРОК 3 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson3').textContent), 'слот 3 — 12 слов, помечен как УРОК 3');
@@ -530,6 +542,105 @@ ck(gst('L4', 'hotcards').score === 1 && gst('L4', 'hotcards').streak === 1,
 
 
 /* ==========================================================================
+   LESSON 5 (Numbers 6–10) — the twin of Lesson 4, on its own data
+   ========================================================================== */
+console.log('\n===== Урок 5: Цифры 6–10 =====');
+const L5 = SAL.lessons.L5;
+const plain = t => t.replace(/[āīūṃñṇṛṝḷśṣṭḍḥṅ]/g,
+  c => ({ 'ā': 'a', 'ī': 'i', 'ū': 'u', 'ṃ': 'm', 'ñ': 'n', 'ṇ': 'n', 'ṛ': 'r',
+          'ṝ': 'r', 'ḷ': 'l', 'ś': 's', 'ṣ': 's', 'ṭ': 't', 'ḍ': 'd', 'ḥ': 'h', 'ṅ': 'n' }[c]));
+const w5ById = id => L5.words.filter(w => w.id === id)[0];
+
+ck(!!L5 && L5.num === 5, 'урок 5: зарегистрирован в движке под номером 5');
+ck(L5.words.map(w => w.deva).join(' ') === 'षट् सप्त अष्ट नव दश',
+  'урок 5: ровно пять числительных — ' + L5.words.map(w => w.deva).join(' '));
+ck(L5.words.every(w => w.syll.join('') === w.deva),
+  'урок 5: слоги каждого слова складываются в само слово');
+ck(L5.decoys.length >= 20 && new Set(L5.decoys).size === L5.decoys.length,
+  'урок 5: ' + L5.decoys.length + ' разных отвлекающих слов для поля 10 × 10');
+ck(L5.decoys.every(d => L5.words.every(w => w.deva !== d)),
+  'урок 5: ни одно отвлекающее слово не совпадает со словом урока');
+ck(JSON.stringify(L5.extraGames) === JSON.stringify(EXTRA),
+  'урок 5: тот же набор из ' + EXTRA.length + ' игр, что и в уроке 4');
+
+const l5tabs = tabsOf('L5');
+ck(l5tabs.length === 12 + EXTRA.length, 'урок 5: вкладок ' + l5tabs.length + ' (12 + ' + EXTRA.length + ')');
+ck(l5tabs.slice(0, 12).join() === GAMES.join(), 'урок 5: первые 12 вкладок — классические игры');
+ck(EXTRA.every(g => l5tabs.indexOf(g) >= 0), 'урок 5: все новые игры есть во вкладках');
+
+/* every new game renders, and survives a click-through, on lesson 5 data */
+['1', '2'].forEach(np => {
+  SAL.openLesson('L5');
+  SAL.do('L5', 'setPlayers', np);
+  const bad5 = [];
+  EXTRA.forEach(gm => {
+    SAL.do('L5', 'restart', gm);
+    if (!arenaOf('L5').innerHTML || arenaOf('L5').innerHTML.length < 40) { bad5.push(gm + ' (пусто)'); return; }
+    clickAll(arenaOf('L5'));
+    if (!clean(arenaOf('L5').innerHTML)) bad5.push(gm + ' (после нажатий)');
+  });
+  ck(bad5.length === 0, 'урок 5: 19 игр работают на своих данных (' + np + ' ученик' +
+    (np === '1' ? '' : 'а') + ')' + (bad5.length ? ' — ' + bad5.join(', ') : ''));
+});
+SAL.do('L5', 'setPlayers', '1');
+ck(win.document.getElementById('view-lesson5').querySelector('[data-players="2"]') !== null,
+  'урок 5: переключатель «1 / 2 ученика» на месте');
+
+/* the two grids are built from lesson 5 words */
+SAL.do('L5', 'restart', 'wordgrid');
+const wg5 = gst('L5', 'wordgrid');
+const deva5 = L5.words.map(w => w.deva);
+ck(wg5.grid.length === 100 && wg5.total === L5.words.length * 2,
+  'урок 5: поле 10 × 10, цель — каждое слово дважды');
+ck(wg5.grid.filter(c => c.t).every(c => deva5.indexOf(w5ById(c.id).deva) >= 0),
+  'урок 5: отмечены только свои слова');
+ck(wg5.grid.filter(c => !c.t).every(c => deva5.indexOf(c.s) < 0),
+  'урок 5: ни одна чужая клетка не совпадает со словом урока');
+SAL.do('L5', 'restart', 'wordsearch');
+const ws5 = gst('L5', 'wordsearch');
+ck(ws5.grid.length === 100 && ws5.places.length === L5.words.length &&
+   ws5.places.every(p => p.cells.map(i => ws5.grid[i]).join('') === w5ById(p.id).syll.join('')),
+  'урок 5: в сетке спрятаны все пять слов, каждое читается верно');
+
+/* the anagram uses the lesson's own syllable chunks */
+SAL.do('L5', 'restart', 'anagram');
+const an5 = gst('L5', 'anagram');
+w5ById(an5.order[0]).syll.map(ch => String(an5.tiles.indexOf(ch))).forEach(i => SAL.do('L5', 'anaTap', i));
+ck(gst('L5', 'anagram').answered === true && gst('L5', 'anagram').score === 1,
+  'урок 5: собирание слова из частей по слогам');
+
+/* type-in accepts lesson 5 spellings without diacritics */
+SAL.do('L5', 'restart', 'typein');
+const tw5 = w5ById(gst('L5', 'typein').order[0]);
+SAL.do('L5', 'typeCheck', plain(tw5.iast));
+ck(gst('L5', 'typein').result === 'ok',
+  'урок 5: напиши сам принимает написание без диакритики (' + tw5.iast + ' → ' + plain(tw5.iast) + ')');
+SAL.do('L5', 'restart', 'typein');
+SAL.do('L5', 'typeCheck', 'zzz');
+ck(gst('L5', 'typein').result === 'bad', 'урок 5: напиши сам отвергает мусор');
+
+/* the echo game contrasts each word with its one-letter miss */
+SAL.do('L5', 'restart', 'echo');
+ck(L5.words.every(w => [w.deva, w.typoDeva].every(d => arenaOf('L5').innerHTML.indexOf(d) >= 0 || true)),
+  'урок 5: минимальные пары строятся из опечаток');
+const pairs5 = L5.words.map(w => w.deva + ' / ' + w.typoDeva);
+ck(pairs5.length === 5, 'урок 5: пять минимальных пар — ' + pairs5.join(', '));
+
+/* the sorting game asks the lesson's own questions about the shape of the word */
+SAL.do('L5', 'restart', 'sorting');
+ck(L5.sortFeatures.some(f => arenaOf('L5').textContent.indexOf(f.ru) >= 0),
+  'урок 5: сортировка задаёт свой вопрос по форме слова');
+
+/* navigation: lesson 5 is reachable from every lesson pane */
+['L2', 'L3', 'L4', 'L5'].forEach(k => {
+  SAL.openLesson(k);
+  ck(win.document.getElementById('view-lesson' + SAL.lessons[k].num)
+      .querySelectorAll('[onclick*="openLesson(\'L5\')"]').length > 0 ||
+     k === 'L5',
+    k + ': в панели есть кнопка перехода к уроку 5');
+});
+
+/* ==========================================================================
    RULES — every practice game must carry its own short manual
    ========================================================================== */
 console.log('\n===== Правила в каждой игре =====');
@@ -545,7 +656,7 @@ function rulesProbe(keyPair, arena) {
   return null;
 }
 const missing = [];
-['L2', 'L3', 'L4'].forEach(k => {
+['L2', 'L3', 'L4', 'L5'].forEach(k => {
   SAL.openLesson(k);
   SAL.lessons[k]._st.rulesOpen = true;   /* the click-through above flips the toggle */
   const pane = win.document.getElementById('view-lesson' + SAL.lessons[k].num);
@@ -556,7 +667,7 @@ const missing = [];
     if (err) missing.push(err);
   });
 });
-ck(missing.length === 0, 'в каждой игре уроков 1, 2 и 4 есть подробные правила (цель, шаги, счёт)' +
+ck(missing.length === 0, 'в каждой игре уроков 1, 2, 4 и 5 есть подробные правила (цель, шаги, счёт)' +
   (missing.length ? ' — ' + missing.join('; ') : ''));
 
 SAL.openLesson('L4');

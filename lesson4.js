@@ -145,6 +145,17 @@ SAL.registerLesson({
     'battleship', 'bingo', 'duel', 'describe', 'orderrelay', 'coopmemory', 'tictactoe',
     'wordgrid', 'wordsearch'
   ],
+  /* the sorting game asks about the shape of the word (see games-extra.js) */
+  sortFeatures: [
+    { ru: 'Есть носовой (ङ / ञ / ण / न / म)', en: 'Has a nasal (ङ / ञ / ण / न / म)',
+      test: function (w) { return /[\u0901\u0902ङञणनम]/.test(w.deva); } },
+    { ru: 'Оканчивается на гласный знак', en: 'Ends on a vowel sign',
+      test: function (w) { return /[\u093E-\u094C]$/.test(w.deva); } },
+    { ru: 'Есть буква «च» (ca)', en: 'Contains "च" (ca)',
+      test: function (w) { return w.deva.indexOf('च') >= 0; } },
+    { ru: 'Есть долгий гласный (ा / ी / े)', en: 'Has a long vowel sign (ा / ी / े)',
+      test: function (w) { return /[\u093E\u0940\u0947]/.test(w.deva); } }
+  ],
   steps: [
     { wordIds: ["ekam", "dve"] },
     { wordIds: ["trini", "catvari"] },

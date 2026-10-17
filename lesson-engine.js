@@ -248,6 +248,7 @@ var SAL = (window.SAL = window.SAL || {});
           '<button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView(\'lesson3\')"' +
             ' data-i18n-ru="Урок 3: Части тела (12)" data-i18n-en="Lesson 3: Body Parts (12)">' + ru('Lesson 3: Body Parts (12)', 'Урок 3: Части тела (12)') + '</button>' +
           lessonBtn('L4', 'Урок 4: Цифры 1–5', 'Lesson 4: Numbers 1–5', 4) +
+          lessonBtn('L5', 'Урок 5: Цифры 6–10', 'Lesson 5: Numbers 6–10', 5) +
         '</div>' +
         '<div class="ppp-steps-pills">' +
           '<a href="#' + cfg.key + '-presentation" class="ppp-step-pill p1" data-i18n-ru="1. Presentation" data-i18n-en="1. Presentation">1. Presentation</a>' +

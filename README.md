@@ -67,11 +67,12 @@ sanskrit-in-action/
 ├── index.html        # Interactive landing page (EN / RU switch, 4×5 matrix, CEFR A1–C2 explorer, mini-games)
 ├── styles.css        # Cambridge editorial & Sanskrit manuscript typography styles
 ├── app.js            # Bilingual i18n, CEFR level explorer, Sandhi Lab, Dialogue Simulator, Dhātu Forge
-├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 1, 2 and 4
+├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 1, 2, 4 and 5
 ├── lesson2.js        # Lesson 1 · शरीरावयवाः — body, 6 words: शीर्ष, उदर, हस्त, अङ्गुली, जानु, पाद
 ├── lesson3.js        # Lesson 2 · मुखसम्बन्धि-शब्दाः — face, 7 words: ललाट, नयन, नासिका, कर्ण, मुख, दन्त, जिह्वा
 ├── lesson1.js        # Lesson 3 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
 ├── lesson4.js        # Lesson 4 · सङ्ख्याः — 5 numerals, neuter nom.-acc.: एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
+├── lesson5.js        # Lesson 5 · सङ्ख्याः — 5 numerals 6–10: षट्, सप्त, अष्ट, नव, दश
 ├── games-extra.js    # 19 extra practice games (solo / pair / word grids), registered via SAL.addGame()
 ├── .nojekyll         # Direct static asset serving on GitHub Pages
 └── README.md         # Project documentation
@@ -80,10 +81,13 @@ sanskrit-in-action/
 ### Adding a New Lesson
 Lessons 2+ are **pure data** — no code changes are needed:
 
-1. Create `lesson4.js` with a single `SAL.registerLesson({ ... })` call (copy `lesson2.js` as a template).
-2. Add `<script src="lesson4.js?v=N"></script>` to `index.html` before `app.js`, plus an empty
-   `<div id="view-lesson4" class="view-pane" style="display: none;" hidden></div>` next to the other lesson panes.
-3. Register the pane in the `panes` / `buttons` maps inside `switchView()` in `app.js`.
+1. Create `lessonN.js` with a single `SAL.registerLesson({ ... })` call (copy `lesson5.js` as a template:
+   it is the fullest one — numerals, `syll`, `decoys`, `sortFeatures`, `extraGames`).
+2. Add `<script src="lessonN.js?v=N"></script>` to `index.html` before `app.js`, plus an empty
+   `<div id="view-lessonN" class="view-pane" style="display: none;" hidden></div>` next to the other lesson panes.
+3. Register the pane in the `panes` map inside `switchView()` in `app.js` and add a `lessonBtn(...)`
+   line to `navBarHtml()` in `lesson-engine.js`.
+4. Add the key to the lists in `tests/regression.js` (script list, lesson sweep, rules sweep).
 
 The engine automatically provides all 4 presentation modes, all 12 practice games and all 4 production
 modes for the new word list — in both RU and EN.
@@ -94,14 +98,16 @@ modes for the new word list — in both RU and EN.
 **Цель**, **Как играть** (нумерованные шаги), **Счёт и ошибки** (что именно начисляется и
 куда попадают ошибки), для парных игр — **Вдвоём**, иногда — **Преподавателю**.
 Правила для 12 общих игр лежат в реестре `RULES` в `lesson-engine.js`, правила 19 игр
-4‑го урока — в `RULES_EXTRA` в `games-extra.js` (регистрируются через `SAL.addRules`).
+4‑го и 5‑го уроков — в `RULES_EXTRA` в `games-extra.js` (регистрируются через `SAL.addRules`).
 Панелью управляет действие `toggleRules`; урок 3 (12 слов) подключает её через
 `SAL.rulesPanel(gameKey)`. Панель раскрыта по умолчанию, переводится вместе с интерфейсом
 и не содержит цифр и слов, привязанных к конкретному уроку.
 
 ### Extra Practice Games (`games-extra.js`)
 `games-extra.js` adds 19 further practice games (tabs 13–31) built on `SAL.addGame()`. A lesson opts in
-by listing them in `extraGames`; Lesson 4 is the only one that does, so the other lessons are untouched.
+by listing them in `extraGames`; Lessons 4 (numbers 1–5) and 5 (numbers 6–10) both do, so the other
+lessons are untouched. A lesson may also bring its own `sortFeatures` (the yes/no questions for
+game 20), otherwise `games-extra.js` falls back to its generic Devanagari features.
 
 * **Solo (one student with a teacher):** 13 Hot Cards (streak, 3 lives) · 14 Mistake Pile · 15 Minimal
   Pairs by Ear · 16 Snowball · 17 Drip Reveal · 18 Build the Word · 19 Type It · 20 Sort into Boxes ·
