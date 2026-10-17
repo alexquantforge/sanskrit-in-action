@@ -135,9 +135,14 @@ var SAL = (window.SAL = window.SAL || {});
       '<span class="pink-mask-square' + (revealed ? ' revealed' : '') + '">' +
       (revealed ? w.maskedHidden : '■') + '</span></div>';
   }
-  function optBtn(cfg, action, value, html, cls) {
+  var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+  function letterBadge(i) {
+    return '<span class="opt-letter">' + LETTERS[i] + '</span>';
+  }
+  function optBtn(cfg, action, value, html, cls, letter) {
     return '<button type="button" class="quiz-opt-btn ' + (cls || '') + '" onclick="SAL.do(\'' + cfg.key +
-      '\',\'' + action + '\',\'' + value + '\')">' + html + '</button>';
+      '\',\'' + action + '\',\'' + value + '\')">' +
+      (typeof letter === 'number' ? letterBadge(letter) : '') + html + '</button>';
   }
   function chip(cfg, action, value, label, active) {
     return '<button type="button" class="chip-btn' + (active ? ' active' : '') + '" onclick="SAL.do(\'' + cfg.key +
@@ -593,8 +598,8 @@ var SAL = (window.SAL = window.SAL || {});
     truefalse: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, isTrue: true, otherId: null, finished: false }; }
   };
 
-  function wordBtn(cfg, w, action, value, cls) {
-    return optBtn(cfg, action, value, w.deva + iastSpan(w.iast), cls);
+  function wordBtn(cfg, w, action, value, cls, letter) {
+    return optBtn(cfg, action, value, w.deva + iastSpan(w.iast), cls, letter);
   }
   function optGrid(items) {
     return '<div class="quiz-options-grid">' + items + '</div>';
@@ -713,11 +718,11 @@ var SAL = (window.SAL = window.SAL || {});
     var N = cfg.words.length;
     if (g.finished || g.i >= N) return finalScreen(cfg, 'gaps', ru('Fill in the Gaps — done!', 'Fill in the Gaps — пройдено!'), g.score, N);
     var w = cfg.words[g.i];
-    var btns = w.gapChoices.map(function (c) {
+    var btns = w.gapChoices.map(function (c, idx) {
       var cls = '';
       if (g.answered && c.deva === w.gapAnswer) cls = 'correct';
       if (c.deva === g.redPick) cls = 'wrong';
-      return optBtn(cfg, 'gapPick', c.deva, c.deva + iastSpan(c.iast), cls);
+      return optBtn(cfg, 'gapPick', c.deva, c.deva + iastSpan(c.iast), cls, idx);
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'gaps', '↺')) +
@@ -740,11 +745,11 @@ var SAL = (window.SAL = window.SAL || {});
     var w = cfg.words[g.i];
     if (!g.options) g.options = shuffle([w.id].concat(others(cfg, w.id, 3).map(function (o) { return o.id; })));
     var opts = g.options.map(function (id) { return byId(cfg, id); });
-    var btns = opts.map(function (o) {
+    var btns = opts.map(function (o, idx) {
       var cls = '';
       if (g.answered && o.id === w.id) cls = 'correct';
       if (o.id === g.redPick) cls = 'wrong';
-      return wordBtn(cfg, o, 'quizPick', o.id, cls);
+      return wordBtn(cfg, o, 'quizPick', o.id, cls, idx);
     }).join('');
     return topBar(pill(ru('Picture', 'Картинка') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'picquiz', '↺')) +
@@ -764,13 +769,13 @@ var SAL = (window.SAL = window.SAL || {});
     if (g.finished || g.i >= N) return finalScreen(cfg, 'wordquiz', ru('Read & Match — done!', 'Read & Match — пройдено!'), g.score, N);
     var w = cfg.words[g.i];
     if (!g.options) g.options = shuffle([w.id].concat(others(cfg, w.id, 3).map(function (o) { return o.id; })));
-    var btns = g.options.map(function (id) {
+    var btns = g.options.map(function (id, idx) {
       var o = byId(cfg, id);
       var cls = '';
       if (g.answered && id === w.id) cls = 'correct';
       if (id === g.redPick) cls = 'wrong';
       return optBtn(cfg, 'quizPick', id, '<div style="display:flex;flex-direction:column;align-items:center;gap:0.35rem;">' +
-        svgBox(o, 92) + '</div>', cls);
+        svgBox(o, 92) + '</div>', cls, idx);
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'wordquiz', '↺')) +
@@ -931,6 +936,7 @@ var SAL = (window.SAL = window.SAL || {});
       if (!g.answered && g.redIdx === idx) cls = 'wrong';
       return '<button type="button" class="quiz-opt-btn ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'pick3\',\'' + idx + '\')"' +
         ' style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">' +
+        letterBadge(idx) +
         '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">' + w.svg + '</div>' +
         (showCorrection
           ? '<div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.8;">' + label.deva + '</div>' +
@@ -1000,6 +1006,7 @@ var SAL = (window.SAL = window.SAL || {});
       if (!g.answered && g.redIdx === idx) cls = 'wrong';
       return '<button type="button" class="quiz-opt-btn ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'pick3\',\'' + idx + '\')"' +
         ' style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">' +
+        letterBadge(idx) +
         '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">' + w.svg + '</div>' +
         (showCorrection
           ? '<div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">' + shownDeva + '</div>' +
@@ -1104,11 +1111,11 @@ var SAL = (window.SAL = window.SAL || {});
     var N = cfg.words.length;
     if (g.finished || g.i >= N) return finalScreen(cfg, 'spelling', ru('Missing Letters — done!', 'Missing Letters — пройдено!'), g.score, N);
     var w = cfg.words[g.i];
-    var btns = w.missingChoices.map(function (c) {
+    var btns = w.missingChoices.map(function (c, idx) {
       var cls = '';
       if (g.answered && c === w.missingAnswer) cls = 'correct';
       if (c === g.redPick) cls = 'wrong';
-      return optBtn(cfg, 'spellPick', c, '<span style="font-family:var(--font-deva);font-size:1.35rem;font-weight:700;">' + c + '</span>', cls);
+      return optBtn(cfg, 'spellPick', c, '<span style="font-family:var(--font-deva);font-size:1.35rem;font-weight:700;">' + c + '</span>', cls, idx);
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'spelling', '↺')) +
@@ -1160,8 +1167,8 @@ var SAL = (window.SAL = window.SAL || {});
         '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
         ru('Does the word match the picture?', 'Слово подходит к картинке?') + '</div>' +
         '<div class="quiz-options-grid">' +
-        optBtn(cfg, 'tfAnswer', 'yes', '<span style="font-family:var(--font-deva);font-size:1.5rem;">आम्</span> ' + ru('Yes', 'Да'), clsYes) +
-        optBtn(cfg, 'tfAnswer', 'no', '<span style="font-family:var(--font-deva);font-size:1.5rem;">न</span> ' + ru('No', 'Нет'), clsNo) +
+        optBtn(cfg, 'tfAnswer', 'yes', '<span style="font-family:var(--font-deva);font-size:1.5rem;">आम्</span> ' + ru('Yes', 'Да'), clsYes, 0) +
+        optBtn(cfg, 'tfAnswer', 'no', '<span style="font-family:var(--font-deva);font-size:1.5rem;">न</span> ' + ru('No', 'Нет'), clsNo, 1) +
         '</div>' +
         (g.answered ? nextRow(cfg, 'tfNext', '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Прослушать') + '</button>') : '')
       );

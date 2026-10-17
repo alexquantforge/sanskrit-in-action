@@ -1715,6 +1715,46 @@ body.hide-iast .level-sample-iast {
   font-family: var(--font-sans);
   text-align: center;
   transition: all 0.15s ease;
+  position: relative;
+}
+
+/* Letter badge (A, B, C, D) so a student can just call out the letter */
+.opt-letter {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding: 0 0.25rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-strong);
+  pointer-events: none;
+}
+
+.quiz-opt-btn:hover .opt-letter {
+  border-color: var(--accent-cambridge);
+  color: var(--accent-cambridge);
+}
+
+.quiz-opt-btn.correct .opt-letter {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+}
+
+.quiz-opt-btn.wrong .opt-letter {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
 }
 
 .quiz-opt-btn:hover {
