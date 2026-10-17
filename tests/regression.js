@@ -28,7 +28,7 @@ const dom = new JSDOM(fs.readFileSync(path.join(REPO, 'index.html'), 'utf8'), {
   runScripts: 'dangerously', url: 'https://example.test/', virtualConsole: vc, pretendToBeVisual: true
 });
 const win = dom.window;
-['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'app.js'].forEach(f => {
+['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'app.js'].forEach(f => {
   const s = win.document.createElement('script');
   s.textContent = fs.readFileSync(path.join(REPO, f), 'utf8');
   win.document.body.appendChild(s);
@@ -60,7 +60,7 @@ const GAMES = ['masked', 'flashcards', 'gaps', 'picquiz', 'wordquiz', 'match', '
 const PRESMODES = ['stepbystep', 'hotspots', 'audiofirst', 'poster'];
 const PRODMODES = ['sprint', 'mic', 'missingpart', 'chant'];
 
-for (const key of ['L2', 'L3']) {
+for (const key of ['L2', 'L3', 'L4']) {
   const cfg = SAL.lessons[key];
   const N = cfg.words.length;
   SAL.openLesson(key);
@@ -244,6 +244,22 @@ for (const key of ['L2', 'L3']) {
     }
   }
 
+  /* ---------- lesson 4: the counting frame must really show 1..5 ---------- */
+  if (key === 'L4') {
+    const fig = cfg.hotspots.figures[0];
+    const beads = [...fig.art.matchAll(/<circle cx="(\d+)" cy="(\d+)" r="10"/g)].map(m => ({ x: +m[1], y: +m[2] }));
+    ck(beads.length === 15, 'урок 4: на счётах 15 бусин (1+2+3+4+5), найдено ' + beads.length);
+    let rowsOk = true;
+    fig.pins.forEach(p => {
+      const row = beads.filter(b => b.y === p.ty);
+      if (row.length !== p.num || !row.some(b => b.x === p.tx)) rowsOk = false;
+    });
+    ck(rowsOk, 'урок 4: в ряду N ровно N бусин и мишень попадает в бусину своего ряда');
+    ck(cfg.words.every((w, i) =>
+      [...w.svg.matchAll(/<circle cx="[\d.]+" cy="[\d.]+" r="(?:10\.5|12|13)"/g)].length === i + 1),
+      'урок 4: на карточке столько бусин, сколько означает числительное');
+  }
+
   /* ---------- every control is clickable without throwing ---------- */
   for (const m of PRESMODES) { SAL.do(key, 'setPresMode', m); clickAll(win.document.getElementById(key + '-pres-grid')); }
   for (const gm of GAMES) { SAL.do(key, 'setGame', gm); clickAll(arenaOf(key)); }
@@ -258,7 +274,12 @@ for (const key of ['L2', 'L3']) {
   const pos = order.map(p => order.map(q => q.compareDocumentPosition(p)).length);
   ck(order[0].compareDocumentPosition(order[1]) & 4, 'порядок панелей: урок 1 → урок 2 → урок 3');
   ck(order[1].compareDocumentPosition(order[2]) & 4, 'урок 3 (12 слов) стоит последним');
-  ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2, 'номера в данных: Тело = 1, Лицо = 2');
+  ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2 && SAL.lessons.L4.num === 4,
+    'номера в данных: Тело = 1, Лицо = 2, Цифры = 4');
+  ck(/Урок 4: Цифры/.test(win.document.getElementById('view-lesson4').textContent), 'слот 4 — Цифры 1–5');
+  ck(/सङ्ख्याः/.test(win.document.getElementById('view-lesson4').innerHTML), 'слот 4: заголовок सङ्ख्याः');
+  const w4 = SAL.lessons.L4.words.map(w => w.deva).join(' ');
+  ck(w4 === 'एक द्वि त्रि चतुर् पञ्चन्', 'урок 4: ровно пять чисел — ' + w4);
   ck(/Урок 1: Тело/.test(win.document.getElementById('view-lesson1').textContent), 'слот 1 — Тело (6 слов)');
   ck(/Урок 2: Лицо/.test(win.document.getElementById('view-lesson2').textContent), 'слот 2 — Лицо (7 слов)');
   ck(/УРОК 3 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson3').textContent), 'слот 3 — 12 слов, помечен как УРОК 3');

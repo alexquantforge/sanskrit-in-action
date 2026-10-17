@@ -123,6 +123,15 @@ var SAL = (window.SAL = window.SAL || {});
   }
 
   /* ------------------------------------------------------- tiny html pieces */
+  /* The TPR gesture of the lesson: touching a body part, clapping N times, ...
+     each lesson can define its own in gestureRu / gestureEn. */
+  function gesture(cfg) {
+    return tx({
+      ru: cfg.gestureRu || 'коснитесь этой части тела у себя',
+      en: cfg.gestureEn || 'touch that part of your body'
+    });
+  }
+
   function iastSpan(s) {
     return '<span class="iast-text"> (' + s + ')</span>';
   }
@@ -200,6 +209,7 @@ var SAL = (window.SAL = window.SAL || {});
           lessonBtn('L3', 'Урок 2: Лицо', 'Lesson 2: Face', 2) +
           '<button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView(\'lesson3\')"' +
             ' data-i18n-ru="Урок 3: Части тела (12)" data-i18n-en="Lesson 3: Body Parts (12)">' + ru('Lesson 3: Body Parts (12)', 'Урок 3: Части тела (12)') + '</button>' +
+          lessonBtn('L4', 'Урок 4: Цифры 1–5', 'Lesson 4: Numbers 1–5', 4) +
         '</div>' +
         '<div class="ppp-steps-pills">' +
           '<a href="#' + cfg.key + '-presentation" class="ppp-step-pill p1" data-i18n-ru="1. Presentation" data-i18n-en="1. Presentation">1. Presentation</a>' +
@@ -271,7 +281,7 @@ var SAL = (window.SAL = window.SAL || {});
 
     var presTabs = [
       ['stepbystep', ru('1. Step-by-Step (2 Words)', '1. Пошагово (по 2 слова)')],
-      ['hotspots', ru('2. Body Diagram (Hotspots)', '2. Схема (Hotspots)')],
+      ['hotspots', ru('2. Diagram (Hotspots)', '2. Схема (Hotspots)')],
       ['audiofirst', ru('3. Audio-First 🔊 → Text', '3. Сначала звук 🔊 → потом буквы')],
       ['poster', ru('4. Full Poster (All ' + N + ')', '4. Плакат (все ' + N + ' слов)')]
     ].map(function (p) {
@@ -385,10 +395,10 @@ var SAL = (window.SAL = window.SAL || {});
         '<h2 class="section-title" data-i18n-ru="Живая речь: покажите у себя и назовите вслух все ' + N + ' слов"' +
           ' data-i18n-en="Freer Production: Point &amp; Name All ' + N + ' Words Aloud">' +
           ru('Freer Production: Point &amp; Name All ' + N + ' Words Aloud', 'Живая речь: покажите у себя и назовите вслух все ' + N + ' слов') + '</h2>' +
-        '<p class="section-desc" data-i18n-ru="Финальный этап <strong>PPP</strong>: выберите слово, коснитесь этой части тела у себя и уверенно произнесите чистую основу вслух."' +
-          ' data-i18n-en="The final <strong>PPP</strong> stage: pick a word, touch that part of your body, and say the Sanskrit stem aloud.">' +
-          ru('The final <strong>PPP</strong> stage: pick a word, touch that part of your body, and say the Sanskrit stem aloud.',
-             'Финальный этап <strong>PPP</strong>: выберите слово, коснитесь этой части тела у себя и уверенно произнесите чистую основу вслух.') + '</p>' +
+        '<p class="section-desc" data-i18n-ru="Финальный этап <strong>PPP</strong>: выберите слово, ' + gesture(cfg) + ' и уверенно произнесите чистую основу вслух."' +
+          ' data-i18n-en="The final <strong>PPP</strong> stage: pick a word, ' + gesture(cfg) + ', and say the Sanskrit stem aloud.">' +
+          ru('The final <strong>PPP</strong> stage: pick a word, ' + gesture(cfg) + ', and say the Sanskrit stem aloud.',
+             'Финальный этап <strong>PPP</strong>: выберите слово, ' + gesture(cfg) + ' и уверенно произнесите чистую основу вслух.') + '</p>' +
       '</div>' +
 
       tgBox(cfg, 'production',
@@ -397,12 +407,12 @@ var SAL = (window.SAL = window.SAL || {});
         [
           ['<strong>1. Цель этапа (Freer Production &amp; Fluency):</strong><br/>Вывести все ' + N + ' слов в устную речь без опоры на текст. Главный принцип CELTA: <strong>максимум речи учеников (High STT), минимум речи учителя (Low TTT)</strong>.',
            '<strong>1. Stage Aim (Freer Production &amp; Fluency):</strong><br/>Activate all ' + N + ' words in speech without written prompts. Core CELTA principle: <strong>high Student Talking Time, low Teacher Talking Time</strong>.'],
-          ['<strong>2. Тренажёр 1 «Спринт» — три режима таймера:</strong><br/><code>✋ Таймер вручную</code> (учитель запускает таймер сам), <code>⚡ Авто-таймер</code> (после оценки карточка и таймер запускаются сами), <code>⏩ Авто-смена картинок</code> (чистый TPR-поток: картинки меняются каждые 4 / 3 / 2 сек без текста и звука). Вид: <code>🖼 отдельная часть тела</code> или <code>🏹 стрелка на схеме</code>.',
-           '<strong>2. Trainer 1 "Speed Sprint" — three timer modes:</strong><br/><code>✋ Manual Timer</code> (the teacher starts the countdown), <code>⚡ Auto Timer</code> (the next card and countdown start automatically), <code>⏩ Auto-Advance Pictures</code> (pure TPR flow: pictures change every 4 / 3 / 2 s with no text and no sound). View: <code>🖼 isolated body part</code> or <code>🏹 arrow on the diagram</code>.'],
-          ['<strong>3. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча указывает на часть тела, ученик Б мгновенно называет её на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
-           '<strong>2. Activity A — Living Mirror in Pairs (4 min):</strong><br/>Partner A silently points to a body part, Partner B names it in Sanskrit at once. Swap roles after ' + Math.ceil(N / 2) + ' words.'],
-          ['<strong>4. Активность Б — «Ловушка ведущего» (Simon Says, 4 мин):</strong><br/>Ведущий называет одно слово, но касается другой части тела. Ученики слушают ушами, касаются правильного и хором повторяют слово.',
-           '<strong>3. Activity B — Listen, Don\'t Copy (Simon Says, 4 min):</strong><br/>The leader says one word while touching a different body part. Learners must listen, touch the right part, and repeat the word in chorus.'],
+          ['<strong>2. Тренажёр 1 «Спринт» — три режима таймера:</strong><br/><code>✋ Таймер вручную</code> (учитель запускает таймер сам), <code>⚡ Авто-таймер</code> (после оценки карточка и таймер запускаются сами), <code>⏩ Авто-смена картинок</code> (чистый TPR-поток: картинки меняются каждые 4 / 3 / 2 сек без текста и звука). Вид: <code>🖼 отдельная картинка</code> или <code>🏹 стрелка на схеме</code>.',
+           '<strong>2. Trainer 1 "Speed Sprint" — three timer modes:</strong><br/><code>✋ Manual Timer</code> (the teacher starts the countdown), <code>⚡ Auto Timer</code> (the next card and countdown start automatically), <code>⏩ Auto-Advance Pictures</code> (pure TPR flow: pictures change every 4 / 3 / 2 s with no text and no sound). View: <code>🖼 isolated picture</code> or <code>🏹 arrow on the diagram</code>.'],
+          ['<strong>3. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча показывает карточку (или ' + gesture(cfg) + '), ученик Б мгновенно называет слово на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
+           '<strong>2. Activity A — Living Mirror in Pairs (4 min):</strong><br/>Partner A silently shows a card (or ' + gesture(cfg) + '), Partner B names the word in Sanskrit at once. Swap roles after ' + Math.ceil(N / 2) + ' words.'],
+          ['<strong>4. Активность Б — «Ловушка ведущего» (Simon Says, 4 мин):</strong><br/>Ведущий называет одно слово, а показывает другое. Ученики слушают ушами, реагируют на названное слово и хором его повторяют.',
+           '<strong>3. Activity B — Listen, Don\'t Copy (Simon Says, 4 min):</strong><br/>The leader says one word but shows another. Learners must listen, react to the word they hear, and repeat it in chorus.'],
           ['<strong>5. Активность В — Индивидуальный зачёт ' + N + '/' + N + ' (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже до результата <code>' + N + ' из ' + N + '</code>. Не перебивайте — разберите ошибки в конце (<em>Delayed Error Correction</em>).',
            '<strong>4. Activity C — Individual ' + N + '/' + N + ' Check (4 min):</strong><br/>Every learner completes the trainer below up to <code>' + N + ' out of ' + N + '</code>. Do not interrupt — give <em>delayed error correction</em> at the end.']
         ]) +
@@ -1304,7 +1314,7 @@ var SAL = (window.SAL = window.SAL || {});
     var manualLabel = ru('✋ Manual Timer', '✋ Таймер вручную');
     var autoLabel = ru('⚡ Auto Timer', '⚡ Авто-таймер');
     var slideshowLabel = ru('⏩ Auto-Advance Pictures (No Text & No Sound)', '⏩ Авто-смена картинок (без текста и звука)');
-    var cardLabel = ru('🖼 Isolated Body Part', '🖼 Отдельная часть тела');
+    var cardLabel = ru('🖼 Isolated Picture', '🖼 Отдельная картинка');
     var arrowLabel = ru('🏹 Arrow on the Diagram', '🏹 Стрелка на схеме');
     var enableText = ru('▶ Enable Timer & Start Game', '▶ Включить таймер и начать игру') + ' (' + p.duration + 's)';
     var startText = ru('▶ Start Timer', '▶ Запустить таймер') + ' (' + p.duration + 's)';
@@ -1313,8 +1323,8 @@ var SAL = (window.SAL = window.SAL || {});
     var promptText = p.subMode === 'slideshow'
       ? ru('Pictures advance automatically every ' + p.duration + 's with no text and no sound — say all ' + N + ' words aloud in time!',
            'Картинки сменяют друг друга каждые ' + p.duration + ' сек без текста и звука — успевайте называть все ' + N + ' слов вслух!')
-      : ru('Point to this body part on yourself and say the Sanskrit word aloud BEFORE time runs out:',
-           'Покажите эту часть тела у себя и назовите её вслух ДО окончания таймера:');
+      : ru('Say the Sanskrit word aloud BEFORE time runs out (' + gesture(cfg) + '):',
+           'Назовите слово вслух ДО окончания таймера (' + gesture(cfg) + '):');
     var visualHtml = p.visual === 'arrow'
       ? sprintArrowHtml(cfg, w.id)
       : '<div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">' + w.svg + '</div>';
@@ -1498,8 +1508,8 @@ var SAL = (window.SAL = window.SAL || {});
         'text-align:left;font-size:0.88rem;line-height:1.55;">' +
         '<div style="font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;font-size:0.94rem;">🎓 ' +
         ru('Student instructions (TPR Chant)', 'Инструкция для ученика (ритм-чант)') + ':</div>' +
-        '<div><strong>1.</strong> ' + ru('Tap the words in order, TOUCH that part of your body and say the word aloud.',
-          'Нажимайте слова по порядку, КАСАЙТЕСЬ этой части тела у себя и называйте слово вслух.') + '</div>' +
+        '<div><strong>1.</strong> ' + ru('Tap the words in order, ' + gesture(cfg).toUpperCase() + ' and say the word aloud.',
+          'Нажимайте слова по порядку, ' + gesture(cfg).toUpperCase() + ' и называйте слово вслух.') + '</div>' +
         '<div><strong>2.</strong> ' + ru('Press Auto-Chant: cards advance every 1.6 s — keep up with the rhythm!',
           'Нажмите «Авто-ритм»: карточки переключаются каждые 1,6 сек — успевайте в ритм!') + '</div>' +
         '<div><strong>3.</strong> ' + ru('Mark ✓ every word you can say from memory.',

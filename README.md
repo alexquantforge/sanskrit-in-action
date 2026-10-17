@@ -71,6 +71,7 @@ sanskrit-in-action/
 ├── lesson2.js        # Lesson 1 · शरीरावयवाः — body, 6 words: शीर्ष, उदर, हस्त, अङ्गुली, जानु, पाद
 ├── lesson3.js        # Lesson 2 · मुखसम्बन्धि-शब्दाः — face, 7 words: ललाट, नयन, नासिका, कर्ण, मुख, दन्त, जिह्वा
 ├── lesson1.js        # Lesson 3 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
+├── lesson4.js        # Lesson 4 · सङ्ख्याः — 5 numerals: एक, द्वि, त्रि, चतुर्, पञ्चन्
 ├── .nojekyll         # Direct static asset serving on GitHub Pages
 └── README.md         # Project documentation
 ```
