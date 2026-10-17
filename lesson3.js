@@ -141,13 +141,13 @@ SAL.registerLesson({
       viewBox: "0 0 320 260",
       art: "<rect x=\"6\" y=\"6\" width=\"308\" height=\"248\" rx=\"14\" fill=\"#F8EFE6\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n  <path d=\"M134 210V238H186V210\" fill=\"#F4C7AB\" stroke=\"#14213D\" stroke-width=\"2.4\"/>\n  <path d=\"M108 246C122 232 198 232 212 246\" fill=\"#0F766E\" stroke=\"#14213D\" stroke-width=\"2.4\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"90\" cy=\"140\" rx=\"11\" ry=\"19\" fill=\"#F4C7AB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <path d=\"M88 132C84 136 84 144 88 148\" stroke=\"#14213D\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"230\" cy=\"140\" rx=\"11\" ry=\"19\" fill=\"#F4C7AB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <path d=\"M232 132C236 136 236 144 232 148\" stroke=\"#14213D\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"160\" cy=\"136\" rx=\"68\" ry=\"82\" fill=\"#F4C7AB\" stroke=\"#14213D\" stroke-width=\"2.8\"/>\n  <path d=\"M92 120C92 68 122 46 160 46C198 46 228 68 228 120C214 88 190 78 160 78C130 78 106 88 92 120Z\" fill=\"#1E293B\" stroke=\"#14213D\" stroke-width=\"2.4\"/>\n  <path d=\"M114 100C125 92 141 92 150 98\" stroke=\"#1E293B\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <path d=\"M170 98C179 92 195 92 206 100\" stroke=\"#1E293B\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n  <ellipse cx=\"132\" cy=\"116\" rx=\"15\" ry=\"9.5\" fill=\"#FFFFFF\" stroke=\"#14213D\" stroke-width=\"2.4\"/>\n  <circle cx=\"132\" cy=\"116\" r=\"5.5\" fill=\"#1D4ED8\"/>\n  <circle cx=\"132\" cy=\"116\" r=\"2.6\" fill=\"#0F172A\"/>\n  <circle cx=\"130\" cy=\"114\" r=\"1.3\" fill=\"#FFFFFF\"/>\n  <ellipse cx=\"188\" cy=\"116\" rx=\"15\" ry=\"9.5\" fill=\"#FFFFFF\" stroke=\"#14213D\" stroke-width=\"2.4\"/>\n  <circle cx=\"188\" cy=\"116\" r=\"5.5\" fill=\"#1D4ED8\"/>\n  <circle cx=\"188\" cy=\"116\" r=\"2.6\" fill=\"#0F172A\"/>\n  <circle cx=\"186\" cy=\"114\" r=\"1.3\" fill=\"#FFFFFF\"/>\n  <path d=\"M160 112V145C153 149 149 147 149 143M160 145C167 149 171 147 171 143\" stroke=\"#14213D\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n  <path d=\"M132 172C148 167 172 167 188 172C183 196 137 196 132 172Z\" fill=\"#7F1D1D\" stroke=\"#14213D\" stroke-width=\"2.4\"/>\n  <path d=\"M139 172H181V179C170 181 150 181 139 179V172Z\" fill=\"#FFFFFF\" stroke=\"#14213D\" stroke-width=\"1.5\"/>\n  <path d=\"M148 185C154 180 166 180 172 185C174 194 146 194 148 185Z\" fill=\"#FB7185\" stroke=\"#14213D\" stroke-width=\"1.6\"/>\n  <path d=\"M129 171C146 165 174 165 191 171\" stroke=\"#E11D48\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>\n  <path d=\"M133 173C146 197 174 197 187 173\" stroke=\"#E11D48\" stroke-width=\"3.4\" stroke-linecap=\"round\"/>",
       pins: [
-        { id: "lalata", num: 1, x: 160, y: 86, tx: 246, ty: 58 },
-        { id: "nayana", num: 2, x: 132, y: 116, tx: 40, ty: 96 },
-        { id: "nasika", num: 3, x: 160, y: 140, tx: 252, ty: 130 },
-        { id: "mukha", num: 4, x: 150, y: 169, tx: 36, ty: 150 },
-        { id: "karna", num: 5, x: 230, y: 140, tx: 276, ty: 178 },
-        { id: "danta", num: 6, x: 160, y: 177, tx: 254, ty: 200 },
-        { id: "jihva", num: 7, x: 172, y: 188, tx: 40, ty: 210 }
+        { id: "lalata", num: 1, x: 246, y: 58, tx: 160, ty: 86 },
+        { id: "nayana", num: 2, x: 40, y: 96, tx: 132, ty: 116 },
+        { id: "nasika", num: 3, x: 252, y: 130, tx: 160, ty: 140 },
+        { id: "mukha", num: 4, x: 36, y: 150, tx: 150, ty: 169 },
+        { id: "karna", num: 5, x: 276, y: 178, tx: 230, ty: 140 },
+        { id: "danta", num: 6, x: 254, y: 200, tx: 160, ty: 177 },
+        { id: "jihva", num: 7, x: 40, y: 210, tx: 172, ty: 188 }
       ]
     }
     ]
