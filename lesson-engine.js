@@ -196,10 +196,10 @@ var SAL = (window.SAL = window.SAL || {});
         '<div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:nowrap;white-space:nowrap;">' +
           '<button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView(\'home\')"' +
             ' data-i18n-ru="← На главную" data-i18n-en="← Home">← ' + ru('Home', 'На главную') + '</button>' +
-          '<button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView(\'lesson1\')"' +
-            ' data-i18n-ru="Урок 1: Части тела" data-i18n-en="Lesson 1: Body Parts">' + ru('Lesson 1: Body Parts', 'Урок 1: Части тела') + '</button>' +
-          lessonBtn('L2', 'Урок 2: Тело', 'Lesson 2: Body', 2) +
-          lessonBtn('L3', 'Урок 3: Лицо', 'Lesson 3: Face', 3) +
+          lessonBtn('L2', 'Урок 1: Тело', 'Lesson 1: Body', 1) +
+          lessonBtn('L3', 'Урок 2: Лицо', 'Lesson 2: Face', 2) +
+          '<button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView(\'lesson3\')"' +
+            ' data-i18n-ru="Урок 3: Части тела (12)" data-i18n-en="Lesson 3: Body Parts (12)">' + ru('Lesson 3: Body Parts (12)', 'Урок 3: Части тела (12)') + '</button>' +
         '</div>' +
         '<div class="ppp-steps-pills">' +
           '<a href="#' + cfg.key + '-presentation" class="ppp-step-pill p1" data-i18n-ru="1. Presentation" data-i18n-en="1. Presentation">1. Presentation</a>' +

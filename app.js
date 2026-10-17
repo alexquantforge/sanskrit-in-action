@@ -916,7 +916,7 @@ function setPratyaya(pratyayaKey) {
   renderDhatuForge();
 }
 
-// Switch between "home" (Главная), "lesson1" (Урок 1 PPP), and "details" (Подробнее) tabs
+// Switch between "home" (Главная), "lesson1"/"lesson2"/"lesson3" (PPP lesson slots 1-3) and "details" (Подробнее) tabs
 function switchView(viewName, targetSectionId = null) {
   const panes = {
     home: document.getElementById('view-home'),

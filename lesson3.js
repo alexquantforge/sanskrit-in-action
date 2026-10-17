@@ -11,14 +11,14 @@
 
 SAL.registerLesson({
   key: "L3",
-  num: 3,
+  num: 2,
   titleDeva: "मुखसम्बन्धि-शब्दाः",
   titleRu: "Лицо",
   titleEn: "The Face",
   topicRu: "лоб, глаз, нос, ухо, рот, зуб, язык",
   topicEn: "forehead, eye, nose, ear, mouth, tooth, tongue",
-  introRu: "Третий урок: всё лицо целиком — 7 слов на одной схеме. Слова <code>ललाट</code>, <code>नयन</code>, <code>नासिका</code>, <code>कर्ण</code>, <code>दन्त</code>, <code>जिह्वा</code> уже встречались в Уроке 1, теперь они собраны в отдельный урок-лицо и добавляется новое слово <code>मुख</code> (рот/лицо).",
-  introEn: "The third lesson zooms into the face: 7 words on a single diagram. The words <code>ललाट</code>, <code>नयन</code>, <code>नासिका</code>, <code>कर्ण</code>, <code>दन्त</code>, <code>जिह्वा</code> already appeared in Lesson 1; here they are grouped into a dedicated face lesson with one new word, <code>मुख</code> (mouth / face).",
+  introRu: "Второй урок: всё лицо целиком — 7 слов на одной схеме, от <code>ललाट</code> (лоб) до <code>जिह्वा</code> (язык). К 6 словам Урока 1 прибавляется лицо, включая новое слово <code>मुख</code> (рот/лицо). В Уроке 3 тело и лицо соберутся в один набор из 12 слов.",
+  introEn: "The second lesson zooms into the face: 7 words on a single diagram, from <code>ललाट</code> (forehead) to <code>जिह्वा</code> (tongue). The 6 words of Lesson 1 are joined by the face, including the new word <code>मुख</code> (mouth / face). In Lesson 3 body and face come together as one set of 12 words.",
   words: [
     {
       id: "lalata", deva: "ललाट", iast: "lalāṭa", ttsText: "ललाटा",

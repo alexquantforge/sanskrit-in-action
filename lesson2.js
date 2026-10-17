@@ -11,14 +11,14 @@
 
 SAL.registerLesson({
   key: "L2",
-  num: 2,
+  num: 1,
   titleDeva: "शरीरावयवाः",
   titleRu: "Части тела — 2",
   titleEn: "Body Parts — 2",
   topicRu: "голова, живот, рука, палец, колено, стопа",
   topicEn: "head, belly, hand, finger, knee, foot",
-  introRu: "Второй урок цикла <strong>शरीरसम्बन्धि-शब्दाः</strong>. Ещё 6 слов — чистые основы (без падежных окончаний и без указания рода), значение передаётся только картинкой и звуком (<em>Direct Method</em>). Слова из Урока 1 (<code>शीर्ष</code>, <code>कर</code>, <code>पाद</code>, <code>अङ्गुली</code>) повторяются здесь в новом контексте — так работает <strong>спиральное повторение</strong>.",
-  introEn: "The second lesson of the <strong>शरीरसम्बन्धि-शब्दाः</strong> cycle: 6 more pure stems (no case endings, no gender), with meaning conveyed only through pictures and sound (<em>Direct Method</em>). Words from Lesson 1 (<code>शीर्ष</code>, <code>कर</code>, <code>पाद</code>, <code>अङ्गुली</code>) reappear in a new context — that is <strong>spiral revision</strong>.",
+  introRu: "Первый урок цикла <strong>शरीरसम्बन्धि-शब्दाः</strong>. 6 слов — чистые основы (без падежных окончаний и без указания рода), значение передаётся только картинкой и звуком (<em>Direct Method</em>). Начинаем с крупных частей тела: голова, живот, руки и ноги. В Уроке 3 к ним прибавится лицо, и весь набор из 12 слов соберётся вместе — так работает <strong>спиральное повторение</strong>.",
+  introEn: "The first lesson of the <strong>शरीरसम्बन्धि-शब्दाः</strong> cycle: 6 pure stems (no case endings, no gender), with meaning conveyed only through pictures and sound (<em>Direct Method</em>). We start with the large parts of the body: head, belly, arms and legs. In Lesson 3 the face joins them and the full set of 12 words comes together — that is <strong>spiral revision</strong>.",
   words: [
     {
       id: "shirsha", deva: "शीर्ष", iast: "śīrṣa", ttsText: "शीर्षा",
