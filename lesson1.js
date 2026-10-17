@@ -1187,6 +1187,10 @@ function renderPracticeArena() {
   } else if (currentPracticeGame === 'truefalse') {
     renderTrueFalseGame(arena);
   }
+
+  // Rules panel: the same manual the engine shows above every game (lesson-engine.js)
+  const rulesPanel = (typeof SAL !== 'undefined' && SAL.rulesPanel) ? SAL.rulesPanel(currentPracticeGame) : '';
+  if (rulesPanel) arena.insertAdjacentHTML('afterbegin', rulesPanel);
 }
 
 // GAME 2: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio + Self-Score)

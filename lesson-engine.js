@@ -1294,7 +1294,7 @@ var SAL = (window.SAL = window.SAL || {});
     var arena = document.getElementById(cfg.key + '-practice-arena');
     if (!arena) return;
     var fn = GAME_RENDER[st.game] || renderMasked;
-    arena.innerHTML = fn(cfg, st);
+    arena.innerHTML = rulesHtml(cfg, st) + fn(cfg, st);
   }
 
   /* =========================================================================
@@ -1667,6 +1667,14 @@ var SAL = (window.SAL = window.SAL || {});
 
     /* practice: shared */
     setGame: function (cfg, st, a) { clearExtra(); st.game = a; },
+    toggleRules: function (cfg, st, a) {
+      if (a === '__l1') {
+        rulesOpenL1 = !rulesOpenL1;
+        if (typeof refreshLesson1 === 'function') refreshLesson1();
+        return;
+      }
+      st.rulesOpen = st.rulesOpen === false;
+    },
     restart: function (cfg, st, a) {
       clearExtra();
       st.g[a] = (GAME_INIT[a] || function () { return {}; })(cfg, st);
@@ -2075,6 +2083,215 @@ var SAL = (window.SAL = window.SAL || {});
   };
 
   /* =========================================================================
+     RULES — every practice game carries its own short manual
+     =========================================================================
+     Aim / how to play / scoring / pair play / a note for the teacher, in RU
+     and EN, shown in a collapsible panel above the game. Lessons add rules
+     for their own games with SAL.addRules(); the standalone lesson 1 calls
+     SAL.rulesPanel(gameKey).
+     ------------------------------------------------------------------------ */
+  var RULES = {
+    masked: {
+      aim: { ru: 'Вспомнить слово по картинке без всякой подсказки и честно оценить себя.',
+             en: 'Recall the word from the picture with no prompt at all, and grade yourself honestly.' },
+      how: { ru: ['Посмотрите на картинку и назовите слово вслух — про себя не считается.',
+                  'Нажмите «Открыть» (или на саму карточку) — слово открывается.',
+                  '✓ «Знаю» — если назвали верно; ✕ «Повторить» — если нет.',
+                  'Кнопка «все слова ■» показывает весь список сразу: открывайте в любом порядке.'],
+             en: ['Look at the picture and say the word aloud — saying it in your head does not count.',
+                  'Press “Show” (or the card itself) and the word appears.',
+                  '✓ “I knew it” if you were right; ✕ “Repeat” if not.',
+                  'The “all words ■” view shows the whole list at once: open them in any order.'] },
+      score: { ru: 'Очко за каждый ✓. ✕ не снимает очко, но отправляет слово в копилку ошибок — игра 14 повторит его отдельно.',
+               en: 'A point for every ✓. ✕ costs no point, but drops the word into the mistake pile — game 14 drills it again.' },
+      tip: { ru: 'Не подсказывайте. Ошибку исправьте на месте: пусть ученик произнесёт верную форму и нажмёт ✕.',
+             en: 'Do not prompt. Correct on the spot: have the student say the right form, then press ✕.' }
+    },
+    flashcards: {
+      aim: { ru: 'Самое быстрое узнавание: картинка → слово, без письма.',
+             en: 'Fastest recognition: picture → word, no writing involved.' },
+      how: { ru: ['Назовите слово по картинке вслух.',
+                  '👁 «Показать» — проверьте себя по написанию.',
+                  '🔊 — послушать слово; ✓ или ✕ — оценить себя.'],
+             en: ['Say the word for the picture aloud.',
+                  '👁 “Show” — check yourself against the written word.',
+                  '🔊 to listen; ✓ or ✕ to grade yourself.'] },
+      score: { ru: 'Очко за каждый ✓. Промахи уходят в копилку ошибок (игра 14).',
+               en: 'A point per ✓. Misses go to the mistake pile (game 14).' },
+      tip: { ru: 'Держите темп 3–4 секунды на карточку: это разогрев, а не экзамен.',
+             en: 'Keep it at 3–4 seconds a card: this is a warm-up, not a test.' }
+    },
+    gaps: {
+      aim: { ru: 'Точность написания: в слове пропущена одна часть.',
+             en: 'Spelling accuracy: one part of the word is missing.' },
+      how: { ru: ['Прочитайте слово с пропуском и выберите вариант A–D.',
+                  'Назовите ответ вслух буквой («B») — так быстрее и слышно всему классу.',
+                  'Ошиблись — вариант станет красным, будет вторая попытка.',
+                  'После ответа игра показывает верное слово и включает 🔊.'],
+             en: ['Read the word with the gap and choose A–D.',
+                  'Say the letter of your answer out loud (“B”) — quicker, and the whole class is involved.',
+                  'A wrong pick turns red and you get a second try.',
+                  'After the answer the game shows the correct word and lets you hear it.'] },
+      score: { ru: 'Очко даётся только за первую попытку. Вторая попытка спасает раунд, но не счёт; ошибка кладёт слово в копилку.',
+               en: 'A point only for the first try. The second try saves the round but not the score; a miss drops the word into the pile.' },
+      tip: { ru: 'Если ученик ошибся — пусть назовёт, в чём именно разница между его вариантом и верным.',
+             en: 'When a student misses, make them say what exactly differs between their pick and the right one.' }
+    },
+    picquiz: {
+      aim: { ru: 'Узнавание: картинка → написание слова.',
+             en: 'Recognition: picture → written word.' },
+      how: { ru: ['Посмотрите на картинку.',
+                  'Выберите слово из четырёх вариантов (A–D).',
+                  'Ошибка даёт вторую попытку, верный вариант подсвечивается зелёным.'],
+             en: ['Look at the picture.',
+                  'Choose the word from four options (A–D).',
+                  'A wrong pick gives a second try; the right one turns green.'] },
+      score: { ru: 'Очко только с первой попытки.',
+               en: 'A point only for the first try.' }
+    },
+    wordquiz: {
+      aim: { ru: 'Чтение: написанное слово → смысл (картинка).',
+             en: 'Reading: the written word → its meaning (the picture).' },
+      how: { ru: ['Прочитайте слово в деванагари.',
+                  'Найдите среди четырёх картинок ту, которую оно называет.',
+                  'Ошибка даёт вторую попытку.'],
+             en: ['Read the word in Devanagari.',
+                  'Find the picture it names among the four.',
+                  'A wrong pick gives a second try.'] },
+      score: { ru: 'Очко только с первой попытки. Это самая медленная из игр на узнавание — не гоните.',
+               en: 'A point only for the first try. This is the slowest of the recognition games — do not rush it.' }
+    },
+    match: {
+      aim: { ru: 'Связать картинку и написание, пока все слова перед глазами.',
+             en: 'Tie picture and spelling together with every word in front of you.' },
+      how: { ru: ['Нажмите картинку, затем её слово — так собирается пара.',
+                  'Пары даются этапами: следующий этап откроется, когда закрыт предыдущий.',
+                  'Ошибка не страшна: пара просто не закрывается, пробуйте снова.'],
+             en: ['Tap a picture, then its word — that makes a pair.',
+                  'Pairs come in stages: the next stage opens once the previous one is cleared.',
+                  'A mismatch does nothing: the pair simply stays, try again.'] },
+      score: { ru: 'Считаются пары, закрытые с первой попытки; счётчик показывает, сколько пар стоит повторить.',
+               en: 'Pairs matched first try are counted; the counter shows how many pairs need another look.' }
+    },
+    memory: {
+      aim: { ru: 'Память плюс чтение; единственная из классических игр, где ученик работает вслух по клеткам.',
+             en: 'Memory plus reading; the one classic game where the student works out loud, square by square.' },
+      how: { ru: ['Откройте две карточки: картинка и её слово — пара.',
+                  'Не совпали — карточки закроются; постарайтесь запомнить, что где.',
+                  'Размер поля переключается над ним: все слова или только половина.',
+                  'Называйте карточку по клетке: буква — ряд, цифра — столбец (например b2).'],
+             en: ['Open two cards: a picture and its word make a pair.',
+                  'If they do not match they close again — try to remember what was where.',
+                  'The size of the board is switched above it: all the words, or only half of them.',
+                  'Name a card by its square: the letter is the row, the number is the column (b2, for example).'] },
+      score: { ru: 'Считаются пары и ходы; пары, в которых ошиблись, помечаются как «на повтор».',
+               en: 'Pairs and moves are counted; pairs you missed are marked for review.' },
+      pair: { ru: 'Ходите по очереди; совпавшая пара даёт право на ещё один ход. Вслух называйте клетку, а не тыкайте пальцем.',
+              en: 'Take turns; a matched pair earns another turn. Say the square out loud instead of pointing.' }
+    },
+    wronglabel: {
+      aim: { ru: 'Заметить, где подпись не соответствует картинке.',
+             en: 'Spot the card whose label does not match its picture.' },
+      how: { ru: ['На трёх карточках — картинка и подпись; одна подпись НЕВЕРНАЯ.',
+                  'Нажмите эту карточку (A, B или C).',
+                  'Ошиблись — карточка станет красной, раунд продолжается.',
+                  'После верного ответа игра показывает, в чём именно ошибка, и даёт послушать верное слово.'],
+             en: ['Three cards show a picture and a label; one label is WRONG.',
+                  'Press that card (A, B or C).',
+                  'A wrong pick turns red and the round goes on.',
+                  'After the correct answer the game explains exactly what the mistake was and lets you hear the right word.'] },
+      score: { ru: 'Очко с первой попытки; вторая попытка очка не даёт.',
+               en: 'A point for the first try; the second try earns none.' }
+    },
+    typo: {
+      aim: { ru: 'Зоркость к одной букве: долгота, качество гласной, носовой, ретрофлексный звук.',
+             en: 'Keenness for a single letter: vowel length, vowel quality, the nasal, a retroflex.' },
+      how: { ru: ['На трёх карточках одно слово написано с ошибкой в одной букве.',
+                  'Найдите его (A, B или C).',
+                  'В разборе игра зачёркивает неверную форму, показывает верную и называет тип ошибки.'],
+             en: ['One of three cards has a one-letter spelling mistake.',
+                  'Find it (A, B or C).',
+                  'The feedback strikes the wrong form through, shows the right one and names the kind of error.'] },
+      score: { ru: 'Очко с первой попытки.',
+               en: 'A point for the first try.' },
+      tip: { ru: 'Полезно произносить пару вслух (dve / dvai) — ухо ловит то, что глаз пропускает.',
+             en: 'Say the pair aloud (dve / dvai) — the ear catches what the eye skips.' }
+    },
+    categories: {
+      aim: { ru: 'Осмысленная группировка: перебрать все слова урока под одним признаком.',
+             en: 'Meaningful grouping: go through every word of the lesson under one heading.' },
+      how: { ru: ['Прочитайте название категории.',
+                  'Отметьте ВСЕ слова, которые к ней относятся (их может быть два, три или четыре).',
+                  '«Показать ответ» — проверьте себя; лишние слова раунд не закрывают.'],
+             en: ['Read the name of the category.',
+                  'Tick ALL the words that belong to it (there may be two, three or four).',
+                  '“Show answer” to check yourself; extra words keep the round open.'] },
+      score: { ru: 'Очко, если отмечены все нужные слова и ни одного лишнего.',
+               en: 'A point if all the right words are ticked and no extra ones.' }
+    },
+    spelling: {
+      aim: { ru: 'Точность написания: собрать слово из частей.',
+             en: 'Spelling accuracy: assemble the word from its parts.' },
+      how: { ru: ['В слове пропущена часть — на месте пропуска стоит подчёркивание.',
+                  'Выберите подходящую часть из вариантов A–D.',
+                  'Ошибка даёт вторую попытку, затем игра показывает верное слово и включает 🔊.'],
+             en: ['A part of the word is missing, marked with an underscore.',
+                  'Choose the right part from A–D.',
+                  'A wrong pick gives a second try; then the game shows the word and lets you hear it.'] },
+      score: { ru: 'Очко только с первой попытки.',
+               en: 'A point only for the first try.' }
+    },
+    truefalse: {
+      aim: { ru: 'Реакция «да / нет» по‑санскритски: आम् / न.',
+             en: 'A yes / no reflex in Sanskrit: आम् / न.' },
+      how: { ru: ['Игра показывает картинку и слово.',
+                  'Подходит ли это слово к этой картинке? A — आम् (да), B — न (нет).'],
+             en: ['The game shows a picture and a word.',
+                  'Does the word belong to the picture? A — आम् (yes), B — न (no).'] },
+      score: { ru: 'Очко за верный ответ; ошибка отправляет слово в копилку.',
+               en: 'A point for a correct answer; a miss drops the word into the pile.' }
+    }
+  };
+  function txPair(o) { return o ? tx({ ru: o.ru, en: o.en }) : ''; }
+  function rulesBlock(r, open, onclick) {
+    var how = r.how ? txPair(r.how) : null;
+    var howHtml = how && how.length
+      ? '<ol class="rules-list">' + how.map(function (step) { return '<li>' + step + '</li>'; }).join('') + '</ol>'
+      : '';
+    function row(label, text, cls) {
+      return text ? '<div class="rules-row' + (cls ? ' ' + cls : '') + '">' +
+        '<span class="rules-label">' + label + '.</span> ' + text + '</div>' : '';
+    }
+    return '<div class="game-rules' + (open ? ' open' : '') + '">' +
+      '<button type="button" class="game-rules-head" onclick="' + onclick + '">' +
+        '<span>ℹ ' + tx({ ru: 'Правила игры', en: 'How to play' }) + '</span>' +
+        '<span class="game-rules-caret">' + (open ? '▾' : '▸') + '</span></button>' +
+      (open
+        ? '<div class="game-rules-body">' +
+          row(tx({ ru: 'Цель', en: 'Aim' }), txPair(r.aim)) +
+          row(tx({ ru: 'Как играть', en: 'Steps' }), howHtml, 'rules-how') +
+          row(tx({ ru: 'Счёт и ошибки', en: 'Scoring' }), txPair(r.score)) +
+          row(tx({ ru: 'Вдвоём', en: 'In pairs' }), txPair(r.pair)) +
+          row(tx({ ru: 'Преподавателю', en: 'Teacher' }), txPair(r.tip)) +
+          '</div>'
+        : '') +
+      '</div>';
+  }
+  function rulesHtml(cfg, st) {
+    var r = RULES[st.game];
+    if (!r) return '';
+    return rulesBlock(r, st.rulesOpen !== false,
+      'SAL.do(\'' + cfg.key + '\',\'toggleRules\')');
+  }
+  /* the standalone 12-word lesson (lesson1.js) renders its own arena */
+  var rulesOpenL1 = true;
+  SAL.rulesPanel = function (gameKey) {
+    var r = RULES[gameKey];
+    if (!r) return '';
+    return rulesBlock(r, rulesOpenL1, 'SAL.do(\'\',\'toggleRules\',\'__l1\')');
+  };
+
+  /* =========================================================================
      EXTENSION POINT — extra practice games live in games-extra.js
      ========================================================================= */
   var EXTRA_LABELS = {};
@@ -2085,6 +2302,7 @@ var SAL = (window.SAL = window.SAL || {});
     Object.keys(spec.actions || {}).forEach(function (a) { ACTIONS[a] = spec.actions[a]; });
   };
   SAL.addAction = function (name, fn) { ACTIONS[name] = fn; };
+  SAL.addRules = function (game, spec) { RULES[game] = spec; };
   SAL.kit = {
     ru: ru, tx: tx, shuffle: shuffle, others: others, byId: byId,
     optBtn: optBtn, chip: chip, topBar: topBar, pill: pill, stage: stage,

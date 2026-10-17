@@ -2171,3 +2171,42 @@ body.hide-iast .level-sample-iast {
   .grid-10 { max-width: 100%; gap: 3px; }
   .wcell, .bcell { min-height: 28px; }
 }
+
+/* rules panel above every practice game */
+.game-rules {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.game-rules-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: left;
+}
+.game-rules-head:hover { background: var(--bg-primary); }
+.game-rules.open .game-rules-head { border-bottom: 1px solid var(--border-soft); }
+.game-rules-caret { color: var(--text-secondary); font-size: 0.8rem; }
+.game-rules-body {
+  padding: 0.75rem 0.9rem 0.9rem;
+  font-size: 0.87rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.rules-row { margin-bottom: 0.55rem; }
+.rules-row:last-child { margin-bottom: 0; }
+.rules-label { font-weight: 800; color: var(--text-primary); }
+.rules-list { margin: 0.3rem 0 0; padding-left: 1.2rem; }
+.rules-list li { margin-bottom: 0.22rem; }

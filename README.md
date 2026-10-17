@@ -88,6 +88,17 @@ Lessons 2+ are **pure data** — no code changes are needed:
 The engine automatically provides all 4 presentation modes, all 12 practice games and all 4 production
 modes for the new word list — in both RU and EN.
 
+### Правила в каждой игре
+
+Над любой игрой Practice — сворачиваемая панель **«ℹ Правила игры / How to play»**:
+**Цель**, **Как играть** (нумерованные шаги), **Счёт и ошибки** (что именно начисляется и
+куда попадают ошибки), для парных игр — **Вдвоём**, иногда — **Преподавателю**.
+Правила для 12 общих игр лежат в реестре `RULES` в `lesson-engine.js`, правила 19 игр
+4‑го урока — в `RULES_EXTRA` в `games-extra.js` (регистрируются через `SAL.addRules`).
+Панелью управляет действие `toggleRules`; урок 3 (12 слов) подключает её через
+`SAL.rulesPanel(gameKey)`. Панель раскрыта по умолчанию, переводится вместе с интерфейсом
+и не содержит цифр и слов, привязанных к конкретному уроку.
+
 ### Extra Practice Games (`games-extra.js`)
 `games-extra.js` adds 19 further practice games (tabs 13–31) built on `SAL.addGame()`. A lesson opts in
 by listing them in `extraGames`; Lesson 4 is the only one that does, so the other lessons are untouched.

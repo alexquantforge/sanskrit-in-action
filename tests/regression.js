@@ -528,6 +528,70 @@ ck(gst('L4', 'hotcards').score === 1 && gst('L4', 'hotcards').streak === 1,
   'горячая карточка: верный ответ даёт очко и продолжает серию');
 
 
+
+/* ==========================================================================
+   RULES — every practice game must carry its own short manual
+   ========================================================================== */
+console.log('\n===== Правила в каждой игре =====');
+function rulesProbe(keyPair, arena) {
+  const panel = arena.querySelector('.game-rules');
+  if (!panel) return keyPair + ': нет панели правил';
+  const rows = panel.querySelectorAll('.rules-row').length;
+  const steps = panel.querySelectorAll('.rules-list li').length;
+  const len = panel.textContent.replace(/\s+/g, ' ').trim().length;
+  if (rows < 3) return keyPair + ': только ' + rows + ' раздела правил';
+  if (steps < 2) return keyPair + ': только ' + steps + ' шага «как играть»';
+  if (len < 150) return keyPair + ': правил всего ' + len + ' символов';
+  return null;
+}
+const missing = [];
+['L2', 'L3', 'L4'].forEach(k => {
+  SAL.openLesson(k);
+  SAL.lessons[k]._st.rulesOpen = true;   /* the click-through above flips the toggle */
+  const pane = win.document.getElementById('view-lesson' + SAL.lessons[k].num);
+  [...pane.querySelectorAll('.practice-tab-btn[data-game]')].forEach(btn => {
+    const gm = btn.getAttribute('data-game');
+    SAL.do(k, 'restart', gm);
+    const err = rulesProbe(k + ' · ' + gm, arenaOf(k));
+    if (err) missing.push(err);
+  });
+});
+ck(missing.length === 0, 'в каждой игре уроков 1, 2 и 4 есть подробные правила (цель, шаги, счёт)' +
+  (missing.length ? ' — ' + missing.join('; ') : ''));
+
+SAL.openLesson('L4');
+const l4panel = () => arenaOf('L4').querySelector('.game-rules');
+SAL.do('L4', 'restart', 'bingo');
+ck(l4panel().querySelectorAll('.rules-row').length >= 3, 'панель правил раскрыта по умолчанию');
+SAL.do('L4', 'toggleRules');
+ck(l4panel() && l4panel().querySelectorAll('.rules-row').length === 0, 'панель правил свёртывается');
+SAL.do('L4', 'toggleRules');
+ck(l4panel().querySelectorAll('.rules-row').length >= 3, 'панель правил разворачивается обратно');
+
+SAL.lessons.L4._st.rulesOpen = true;
+win.setLanguage('en');
+SAL.do('L4', 'restart', 'duel');
+ck(/How to play/.test(arenaOf('L4').querySelector('.game-rules-head').textContent) &&
+   /Aim/.test(arenaOf('L4').querySelector('.rules-label').textContent) &&
+   /Scoring/.test(arenaOf('L4').querySelector('.game-rules').textContent),
+  'правила переведены на английский');
+win.setLanguage('ru');
+SAL.do('L4', 'restart', 'duel');
+ck(/Правила игры/.test(arenaOf('L4').querySelector('.game-rules-head').textContent) &&
+   /Цель/.test(arenaOf('L4').querySelector('.rules-label').textContent) &&
+   /Счёт/.test(arenaOf('L4').querySelector('.game-rules').textContent),
+  'правила возвращаются на русский');
+
+/* the standalone 12-word lesson shares the same rules via SAL.rulesPanel() */
+win.switchView('lesson3');
+const noRulesL1 = GAMES.filter(gm => {
+  win.selectPracticeGame(gm);
+  return !l1arena.querySelector('.game-rules');
+});
+ck(noRulesL1.length === 0, 'урок 3 (12 слов): правила есть во всех 12 играх' +
+  (noRulesL1.length ? ' — без правил: ' + noRulesL1.join(', ') : ''));
+
+
 console.log(errs.length ? '\nJS ERRORS: ' + errs.slice(0, 5).join(' | ') : '\nJS-ошибок нет');
 console.log(bad === 0 && errs.length === 0 ? 'ALL CHECKS PASSED' : bad + ' FAILURES');
 process.exit(bad || errs.length ? 1 : 0);
