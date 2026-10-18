@@ -276,19 +276,38 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7']) {
   if (ROWS[key]) {
     const ROW = ROWS[key];
     const BEAD = /<circle cx="([\d.]+)" cy="([\d.]+)" r="[\d.]+" fill="#F59E0B"/g;
+    const DIGIT = /<text x="([\d.]+)" y="([\d.]+)"[^>]*>(\d+)<\/text>/g;
     const fig = cfg.hotspots.figures[0];
-    const beads = [...fig.art.matchAll(BEAD)].map(m => ({ x: +m[1], y: +m[2] }));
-    const sum = ROW.reduce((a, b) => a + b, 0);
-    ck(beads.length === sum,
-      'урок ' + cfg.num + ': на счётах ' + sum + ' бусин (' + ROW.join('+') + '), найдено ' + beads.length);
-    let rowsOk = true;
-    fig.pins.forEach((p, i) => {
-      const row = beads.filter(b => b.y === p.ty);
-      if (row.length !== ROW[i] || !row.some(b => b.x === p.tx)) rowsOk = false;
-    });
-    ck(rowsOk, 'урок ' + cfg.num + ': в ряду N ровно N бусин и мишень попадает в бусину своего ряда');
-    ck(cfg.words.every((w, i) => [...w.svg.matchAll(BEAD)].length === ROW[i]),
-      'урок ' + cfg.num + ': на карточке столько бусин, сколько означает числительное');
+    const past = ROW[ROW.length - 1] > 10;   /* past ten, beads cannot be counted at a glance */
+    if (past) {
+      const marks = [...fig.art.matchAll(DIGIT)].map(m => ({ x: +m[1], y: +m[2], n: +m[3] }));
+      ck(marks.length === ROW.length && marks.every((m, i) => m.n === ROW[i]),
+        'урок ' + cfg.num + ': таблица чисел показывает ' + ROW.join(', ') + ' (найдено ' +
+        marks.map(m => m.n).join(', ') + ')');
+      ck(fig.pins.every((p, i) => marks[i] && marks[i].x === p.tx && marks[i].y === p.ty),
+        'урок ' + cfg.num + ': мишень каждого пина попадает в свою цифру');
+      ck(cfg.words.every((w, i) => {
+        const d = [...w.svg.matchAll(DIGIT)];
+        return d.length === 1 && +d[0][3] === ROW[i];
+      }), 'урок ' + cfg.num + ': на карточке арабская цифра, сколько и означает числительное');
+      ck(!cfg.words.some(w => /fill="#F59E0B"/.test(w.svg)) && !/fill="#F59E0B"/.test(fig.art),
+        'урок ' + cfg.num + ': бусин нет — на числах больше десяти их не сосчитать');
+    } else {
+      const beads = [...fig.art.matchAll(BEAD)].map(m => ({ x: +m[1], y: +m[2] }));
+      const sum = ROW.reduce((a, b) => a + b, 0);
+      ck(beads.length === sum,
+        'урок ' + cfg.num + ': на счётах ' + sum + ' бусин (' + ROW.join('+') + '), найдено ' + beads.length);
+      let rowsOk = true;
+      fig.pins.forEach((p, i) => {
+        const row = beads.filter(b => b.y === p.ty);
+        if (row.length !== ROW[i] || !row.some(b => b.x === p.tx)) rowsOk = false;
+      });
+      ck(rowsOk, 'урок ' + cfg.num + ': в ряду N ровно N бусин и мишень попадает в бусину своего ряда');
+      ck(cfg.words.every((w, i) => [...w.svg.matchAll(BEAD)].length === ROW[i]),
+        'урок ' + cfg.num + ': на карточке столько бусин, сколько означает числительное');
+      ck(!cfg.words.some(w => /<text[^>]*>\d+<\/text>/.test(w.svg)),
+        'урок ' + cfg.num + ': цифр нет, только бусины (до десяти считаем на глаз)');
+    }
     const sets = cfg.categories.map(c => c.wordIds.slice().sort().join('|'));
     ck(cfg.categories.every(c => c.wordIds.length >= 2),
       'урок ' + cfg.num + ': в каждой категории хотя бы два слова (иначе игра не имеет смысла)');
@@ -574,6 +593,13 @@ Object.keys(NUMS).forEach(key => {
     key + ': ' + L.decoys.length + ' разных отвлекающих слов');
   ck(L.decoys.every(d => L.words.every(w => w.deva !== d)),
     key + ': отвлекающие слова не совпадают со словами урока');
+  const pastTen = L.num >= 6;
+  const digits = L.words.every(w => /<text[^>]*>\d+<\/text>/.test(w.svg));
+  const beads = L.words.every(w => /fill="#F59E0B"/.test(w.svg));
+  ck(pastTen ? (digits && !beads) : (beads && !digits),
+    key + ': количество показано ' + (pastTen
+      ? 'арабскими цифрами — больше десяти бусины не сосчитать'
+      : 'бусинами — до десяти считаем на глаз'));
   ck(JSON.stringify(L.extraGames) === JSON.stringify(EXTRA),
     key + ': тот же набор из ' + EXTRA.length + ' игр, что и в уроке 4');
 
