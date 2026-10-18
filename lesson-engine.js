@@ -110,6 +110,15 @@ var SAL = (window.SAL = window.SAL || {});
           i: 0, score: 0, timeLeft: 4, running: false,
           started: false, revealed: false, finished: false
         },
+        /* Sprint across several lessons at once (declared by cfg.unionSprint) */
+        union: {
+          duration: 4,      /* 4 | 3 | 2 seconds per picture */
+          visual: 'card',   /* 'card' (isolated picture) | 'arrow' (arrow on the diagram) */
+          random: false,    /* lesson order (1 -> 2) or shuffled */
+          order: null, i: 0, score: 0, wrong: [],
+          timeLeft: 4, elapsed: 0,
+          running: false, started: false, revealed: false, finished: false
+        },
         mic: { i: 0, score: 0, listening: false, revealed: false, transcript: '', result: null, finished: false },
         missing: { order: null, i: 0, score: 0, revealed: false, finished: false }
       }
@@ -376,12 +385,20 @@ var SAL = (window.SAL = window.SAL || {});
         ' onclick="SAL.do(\'' + key + '\',\'setGame\',\'' + g[0] + '\')">' + g[1] + '</button>';
     }).join('');
 
-    var prodTabs = [
+    var prodList = [
       ['sprint', ru('1. Speed Sprint ⏱ (No Text)', '1. Спринт на время ⏱ (Без текста)')],
       ['mic', ru('2. Speak into Microphone 🎙', '2. Произнеси в микрофон 🎙')],
       ['missingpart', ru('3. What Is Missing? ❓', '3. Что пропало на рисунке? ❓')],
       ['chant', ru('4. TPR Chant & Checklist ' + N + '/' + N + ' ↑↓', '4. Ритм-чант и Чек-лист ' + N + '/' + N + ' ↑↓')]
-    ].map(function (p) {
+    ];
+    /* Lesson 2 declares `unionSprint`: one more production mode — a timed run
+       over every word of lessons 1 and 2 together (6 body + 7 face words). */
+    if (cfg.unionSprint) {
+      var uTotal = unionWords(cfg).length;
+      prodList.push(['union', ru('5. Sprint: Body + Face ⏱ (' + uTotal + ')',
+        '5. Спринт: тело + лицо ⏱ (' + uTotal + ')')]);
+    }
+    var prodTabs = prodList.map(function (p) {
       return '<button type="button" class="practice-tab-btn' + (p[0] === 'sprint' ? ' active' : '') + '" data-prod-mode="' + p[0] +
         '" onclick="SAL.do(\'' + key + '\',\'setProdMode\',\'' + p[0] + '\')">' + p[1] + '</button>';
     }).join('');
@@ -1358,6 +1375,149 @@ var SAL = (window.SAL = window.SAL || {});
     return out;
   }
 
+  /* =========================================================================
+     SPRINT ACROSS LESSONS — production mode 5, only for a lesson that
+     declares `unionSprint: ['L2', 'L3']` (Lesson 2 · the face).
+     One timed run over every word of the listed lessons: the 6 body words of
+     Lesson 1 plus the 7 face words of Lesson 2. 4 / 3 / 2 seconds a picture;
+     the student names the word aloud, then checks it himself (✓ / ✕).
+     ========================================================================= */
+  var UNION_BEST = 'sal.unionSprint.best.';
+
+  function unionWords(cfg) {
+    var out = [];
+    (cfg.unionSprint || []).forEach(function (k) {
+      var c = lessons[k];
+      if (!c) return;
+      c.words.forEach(function (w) { out.push({ cfg: c, w: w }); });
+    });
+    return out;
+  }
+  /* p.order keeps the run stable across re-renders: [index into unionWords()] */
+  function unionOrder(cfg, p) {
+    var all = unionWords(cfg);
+    if (!p.order || p.order.length !== all.length) {
+      p.order = all.map(function (_, i) { return i; });
+      if (p.random) p.order = shuffle(p.order);
+    }
+    return p.order.map(function (i) { return all[i]; });
+  }
+  function unionBest(cfg) {
+    try {
+      var v = window.localStorage ? window.localStorage.getItem(UNION_BEST + cfg.key) : null;
+      return v === null ? null : parseInt(v, 10);
+    } catch (e) { return null; }
+  }
+  function saveUnionBest(cfg, p, total) {
+    if (p.score < total) return;                 /* only a clean run sets a record */
+    var prev = unionBest(cfg);
+    if (prev === null || p.elapsed < prev) {
+      try { window.localStorage.setItem(UNION_BEST + cfg.key, String(p.elapsed)); } catch (e) {}
+    }
+  }
+  function startUnionTimer(cfg) {
+    stopTimers();
+    var p = state(cfg).prod.union;
+    p.running = true;
+    p.revealed = false;
+    p.timeLeft = p.duration;
+    var key = cfg.key;
+    timers.sprint = setInterval(function () { unionTick(lessons[key]); }, 1000);
+    SAL.refresh();
+  }
+  function unionTick(cfg) {
+    var p = state(cfg).prod.union;
+    if (state(cfg).prod.mode !== 'union' || p.finished) { stopTimers(); return; }
+    p.elapsed++;
+    p.timeLeft--;
+    if (p.timeLeft <= 0) {
+      stopTimers();
+      p.running = false;
+      p.started = true;
+      p.revealed = true;
+      SAL.speak(unionOrder(cfg, p)[p.i].w.ttsText);
+    }
+    SAL.refresh();
+  }
+
+  function renderUnionSprint(cfg, st) {
+    var p = st.prod.union;
+    var all = unionOrder(cfg, p);
+    var total = all.length;
+    if (!total) return stage('<div style="text-align:center;padding:1.5rem 1rem;">\u2014</div>');
+    if (p.finished) {
+      stopTimers();
+      var extra = ru('Time', 'Время') + ': ' + p.elapsed + ' s \u00b7 ' +
+        (p.elapsed / total).toFixed(1) + ' s / ' + ru('word', 'слово');
+      var best = unionBest(cfg);
+      if (best !== null) extra += '<br>\ud83c\udfc5 ' + ru('Best clean run', 'Рекорд без ошибок') + ': ' + best + ' s';
+      if (p.wrong.length) {
+        extra += '<br>' + ru('Repeat', 'Повторить') + ': ' + p.wrong.map(function (id) {
+          var it = all.filter(function (x) { return x.w.id === id; })[0];
+          return it ? it.w.deva : id;
+        }).join(' \u00b7 ');
+      }
+      return finalScreen(cfg, 'unionRestart', tx({ ru: '5. Спринт: тело + лицо ⏱', en: '5. Sprint: Body + Face ⏱' }),
+        p.score, total, extra);
+    }
+    var item = all[p.i], w = item.w;
+    var startText = ru('▶ Start Timer', '▶ Запустить таймер') + ' (' + p.duration + 's)';
+    var pauseText = ru('⏸ Pause', '⏸ Пауза');
+    var revealText = ru('🔊 I Said It! Check Answer', '🔊 Я назвал вслух! Проверить');
+    var visualHtml = p.visual === 'arrow'
+      ? sprintArrowHtml(item.cfg, w.id)
+      : '<div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">' + w.svg + '</div>';
+
+    var rows = '<div class="game-top-bar" style="margin-bottom:0.6rem;">' +
+      '<div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">' +
+      chip(cfg, 'unionMix', 'ordered', ru('1→2 In Lesson Order', '1→2 по урокам'), !p.random) +
+      chip(cfg, 'unionMix', 'shuffle', ru('🔀 Shuffled', '🔀 Вперемешку'), p.random) +
+      '<span style="color:var(--border-strong);margin:0 0.15rem;">|</span>' +
+      chip(cfg, 'unionDur', '4', '4s', p.duration === 4) +
+      chip(cfg, 'unionDur', '3', '3s', p.duration === 3) +
+      chip(cfg, 'unionDur', '2', '2s', p.duration === 2) +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+      chip(cfg, 'unionRestart', '', '↺ ' + ru('Start Over', 'Начать сначала')) +
+      pill(p.score + ' / ' + total + ' · (' + (p.i + 1) + '/' + total + ')') +
+      pill('⏱ ' + p.elapsed + ' s') +
+      '</div></div>' +
+      '<div style="display:flex;justify-content:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.85rem;">' +
+      chip(cfg, 'unionVisual', 'card', ru('🖼 Isolated Picture', '🖼 Отдельная картинка'), p.visual === 'card') +
+      chip(cfg, 'unionVisual', 'arrow', ru('🏹 Arrow on the Diagram', '🏹 Стрелка на схеме'), p.visual === 'arrow') +
+      '</div>' +
+      '<div style="text-align:center;font-size:0.9rem;font-weight:600;color:var(--text-secondary);margin-bottom:0.85rem;">' +
+      ru('Say the Sanskrit word aloud BEFORE time runs out (' + gesture(item.cfg) + '):',
+         'Назовите слово вслух ДО окончания таймера (' + gesture(item.cfg) + '):') + '</div>' +
+      '<div class="flashcard-box" style="cursor:default;">' +
+      '<div style="font-family:var(--font-deva);font-weight:700;font-size:0.95rem;color:var(--text-secondary);' +
+      'margin-bottom:0.5rem;">' + item.cfg.titleDeva + '</div>' +
+      visualHtml;
+
+    if (!p.revealed) {
+      rows += '<div style="font-size:2rem;font-weight:800;color:' + (p.running ? '#dc2626' : 'var(--accent-cambridge)') +
+        ';margin-bottom:0.65rem;">⏱ ' + p.timeLeft + 's</div>' +
+        '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;">' +
+        (p.running
+          ? '<button type="button" class="chip-btn" onclick="SAL.do(\'' + cfg.key + '\',\'unionPause\')">' + pauseText + '</button>'
+          : '<button type="button" class="btn btn-primary" style="padding:0.55rem 1.2rem;font-size:0.92rem;" onclick="SAL.do(\'' +
+            cfg.key + '\',\'unionBegin\')">' + startText + '</button>') +
+        '<button type="button" class="chip-btn" onclick="SAL.do(\'' + cfg.key + '\',\'unionReveal\')">' + revealText + '</button>' +
+        '</div>';
+    } else {
+      rows += '<div class="vocab-deva" style="font-size:2.5rem;color:#15803d;margin-bottom:0.15rem;">' + w.deva + '</div>' +
+        '<div class="vocab-iast" style="font-size:1.1rem;margin-bottom:0.85rem;">' + w.iast + '</div>' +
+        '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">' +
+        chip(cfg, 'speak', w.ttsText, '🔊') +
+        '<button type="button" class="chip-btn" style="border-color:#dc2626;color:#dc2626;" onclick="SAL.do(\'' + cfg.key +
+        '\',\'unionGrade\',\'0\')">' + ru('✕ Missed', '✕ Не успел / ошибся') + '</button>' +
+        '<button type="button" class="chip-btn active" style="background:#16a34a;border-color:#16a34a;" onclick="SAL.do(\'' +
+        cfg.key + '\',\'unionGrade\',\'1\')">' + ru('✓ Said It in Time!', '✓ Успел назвать верно!') + '</button>' +
+        '</div>';
+    }
+    return rows + '</div>';
+  }
+
   /* 1. Speed Sprint (parity with Lesson 1: manual / auto / slideshow + 4s|3s|2s + card/arrow) */
   function sprintArrowHtml(cfg, wordId) {
     var fig = null, pin = null;
@@ -1665,6 +1825,7 @@ var SAL = (window.SAL = window.SAL || {});
     if (m === 'mic') box.innerHTML = renderMic(cfg, st);
     else if (m === 'missingpart') box.innerHTML = renderMissing(cfg, st);
     else if (m === 'chant') box.innerHTML = renderChant(cfg, st);
+    else if (m === 'union') box.innerHTML = renderUnionSprint(cfg, st);
     else box.innerHTML = renderSprint(cfg, st);
   }
 
@@ -1705,7 +1866,15 @@ var SAL = (window.SAL = window.SAL || {});
     },
 
     /* practice: shared */
-    setGame: function (cfg, st, a) { clearExtra(); st.game = a; },
+    /* switching to a practice game stops every production timer: no sprint may
+       keep counting (and suddenly speak) while the student is elsewhere */
+    setGame: function (cfg, st, a) {
+      stopTimers();
+      clearExtra();
+      if (st.prod.sprint) st.prod.sprint.running = false;
+      if (st.prod.union) st.prod.union.running = false;
+      st.game = a;
+    },
     toggleRules: function (cfg, st, a) {
       if (a === '__l1') {
         rulesOpenL1 = !rulesOpenL1;
@@ -1721,6 +1890,7 @@ var SAL = (window.SAL = window.SAL || {});
       if (a === 'sprintRestart') { st.prod.sprint = makeState(cfg).prod.sprint; st.prod.mode = 'sprint'; }
       if (a === 'micRestart') { st.prod.mic = makeState(cfg).prod.mic; st.prod.mode = 'mic'; }
       if (a === 'missingRestart') { st.prod.missing = makeState(cfg).prod.missing; st.prod.mode = 'missingpart'; }
+      if (a === 'unionRestart') { ACTIONS.unionRestart(cfg, st); }
     },
 
     /* 1 masked */
@@ -1964,6 +2134,7 @@ var SAL = (window.SAL = window.SAL || {});
     setProdMode: function (cfg, st, a) {
       stopTimers();
       st.prod.sprint.running = false;
+      if (st.prod.union) st.prod.union.running = false;
       st.prod.mode = a;
     },
 
@@ -2025,6 +2196,75 @@ var SAL = (window.SAL = window.SAL || {});
       p.revealed = false; p.finished = false; p.started = false;
       p.running = false; p.timeLeft = p.duration;
       st.prod.mode = 'sprint';
+    },
+
+    /* Sprint across lessons 1 + 2: one picture at a time, 4 / 3 / 2 s each */
+    unionDur: function (cfg, st, a) {
+      stopTimers();
+      var p = st.prod.union;
+      p.duration = parseInt(a, 10) || 4;
+      p.timeLeft = p.duration;
+      p.running = false;
+      if (p.started && !p.finished && !p.revealed) startUnionTimer(cfg);
+    },
+    unionVisual: function (cfg, st, a) { st.prod.union.visual = a; },
+    unionMix: function (cfg, st, a) {
+      stopTimers();
+      var p = st.prod.union;
+      p.random = a === 'shuffle';
+      p.order = null;                 /* a new order means a new run */
+      p.i = 0; p.score = 0; p.wrong = []; p.elapsed = 0;
+      p.running = false; p.started = false; p.revealed = false; p.finished = false;
+      p.timeLeft = p.duration;
+    },
+    unionBegin: function (cfg, st) {
+      st.prod.union.started = true;
+      startUnionTimer(cfg);
+    },
+    unionPause: function (cfg, st) {
+      stopTimers();
+      st.prod.union.running = false;
+    },
+    unionReveal: function (cfg, st) {
+      stopTimers();
+      var p = st.prod.union;
+      p.running = false; p.started = true; p.revealed = true;
+      SAL.speak(unionOrder(cfg, p)[p.i].w.ttsText);
+    },
+    unionGrade: function (cfg, st, a) {
+      stopTimers();
+      var p = st.prod.union;
+      var all = unionOrder(cfg, p);
+      var item = all[p.i];
+      p.running = false;
+      if (a === '1') {
+        p.score++;
+        state(item.cfg).prod.produced[item.w.id] = true;
+      } else {
+        p.wrong.push(item.w.id);
+        noteWrong(item.cfg, item.w.id);
+      }
+      if (p.i + 1 >= all.length) {
+        p.finished = true;
+        p.revealed = false;
+        saveUnionBest(cfg, p, all.length);
+      } else {
+        p.i++;
+        p.revealed = false;
+        p.timeLeft = p.duration;
+        startUnionTimer(cfg);
+      }
+    },
+    unionRestart: function (cfg, st) {
+      stopTimers();
+      var old = st.prod.union;
+      var fresh = makeState(cfg).prod.union;
+      fresh.duration = old.duration;
+      fresh.visual = old.visual;
+      fresh.random = old.random;
+      fresh.timeLeft = old.duration;
+      st.prod.union = fresh;
+      st.prod.mode = 'union';
     },
 
     /* Microphone */

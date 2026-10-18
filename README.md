@@ -95,7 +95,9 @@ sanskrit-in-action/
 Lessons 2+ are **pure data** — no code changes are needed:
 
 1. Create `lessonN.js` with a single `SAL.registerLesson({ ... })` call (copy `lesson5.js` as a template:
-   it is the fullest one — numerals, `syll`, `decoys`, `sortFeatures`, `extraGames`).
+   it is the fullest one — numerals, `syll`, `decoys`, `sortFeatures`, `extraGames`). A lesson may also
+   declare `unionSprint: ["L2", "L3"]` to get a fifth production mode: one timed sprint over the words
+   of the listed lessons (see «Спринт по двум урокам» above).
 2. Add `<script src="lessonN.js?v=N"></script>` to `index.html` before `app.js`, plus an empty
    `<div id="view-lessonN" class="view-pane" style="display: none;" hidden></div>` next to the other lesson panes.
 3. Register the pane in the `panes` map inside `switchView()` in `app.js`. The lesson dropdown in the
@@ -120,6 +122,27 @@ modes for the new word list — in both RU and EN.
 Панель урока 3 (12 слов) размечается в `index.html` пустым слотом `<span data-lesson-nav></span>`,
 который заполняет `fillNavSlots()` — поэтому список один и тот же во всех девяти панелях и
 переводится вместе с интерфейсом.
+
+### Спринт по двум урокам (урок 2)
+
+Пятый режим Production есть только в уроке 2 «Лицо»: **«5. Спринт: тело + лицо ⏱ (13)»**.
+Это тот же спринт на время, но не по семи словам урока, а по **всем 13 словам уроков 1 и 2** —
+сначала 6 частей тела, потом 7 слов лица. На каждую картинку даётся **4, 3 или 2 секунды**:
+ученик называет санскритское слово вслух, пока идёт отсчёт, и проверяет себя кнопками ✓ / ✕.
+Переключатели: «1→2 по урокам» и «🔀 Вперемешку», длительность (4s / 3s / 2s) и вид картинки —
+отдельная карточка или 🏹 стрелка на схеме. Схема берётся **своего урока**: для слов тела —
+человек в полный рост, для слов лица — лицо крупным планом.
+
+Подключается одной строкой в данных урока — движок сам собирает список слов в порядке уроков:
+
+```js
+unionSprint: ["L2", "L3"],   /* ключи уроков, чьи слова входят в спринт */
+```
+
+На финальном экране — счёт, общее время и секунд на слово; рекорд (забег без ошибок) лежит
+в localStorage. Ошибка уходит в копилку ошибок **своего** урока: не названное `शीर्ष` попадёт
+в копилку урока 1, а не урока 2. Уход на вкладку игры останавливает таймер — спринт не должен
+вдруг заговорить, пока ученик занимается другим.
 
 ### Правила в каждой игре
 

@@ -126,6 +126,9 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#F8EFE6\"/>\n      <path d=\"M22 36C34 28 66 28 78 36C74 52 66 58 50 58C34 58 26 52 22 36Z\" fill=\"#7F1D1D\" stroke=\"#14213D\" stroke-width=\"3\"/>\n      <path d=\"M32 39H68L65 65C64 78 56 85 50 85C44 85 36 78 35 65L32 39Z\" fill=\"#FB7185\" stroke=\"#14213D\" stroke-width=\"3.2\"/>\n      <path d=\"M50 42V74\" stroke=\"#BE123C\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n    </svg>"
     }
   ],
+  /* Production mode 5: one timed sprint over every word of lessons 1 and 2
+     (6 body words + 7 face words = 13 pictures, 4 / 3 / 2 seconds each). */
+  unionSprint: ["L2", "L3"],
   steps: [
     { wordIds: ["lalata", "nayana"] },
     { wordIds: ["nasika", "karna"] },

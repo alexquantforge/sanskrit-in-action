@@ -5,7 +5,8 @@
  *   node tests/regression.js
  *
  * It boots index.html in jsdom, loads the real scripts and walks every lesson:
- * presentation modes, all 12 practice games, all 4 production modes, plus the
+ * presentation modes, all 12 practice games, every production mode (lesson 2 has a
+ * fifth one — a timed sprint over lessons 1 + 2), plus the
  * details that were wrong once and must stay right (arrow direction, A/B/C/D
  * option letters, memory board coordinates, second-try scoring, ...).
  */
@@ -80,6 +81,17 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
   for (const m of PRODMODES) {
     SAL.do(key, 'setProdMode', m);
     ck(!!stageOf(key).innerHTML.trim(), 'продакшн ' + m + ' отрисовывается');
+  }
+  /* production mode 5 — the timed sprint over lessons 1 + 2 — only lesson 2 has it */
+  {
+    const prodTabs = [...win.document.getElementById('view-lesson' + cfg.num)
+      .querySelectorAll('[data-prod-mode]')];
+    ck(prodTabs.length === (cfg.unionSprint ? 5 : 4),
+      'режимов продакшна: ' + prodTabs.length + (cfg.unionSprint ? ' (пятый — спринт по двум урокам)' : ''));
+    if (cfg.unionSprint) {
+      SAL.do(key, 'setProdMode', 'union');
+      ck(!!stageOf(key).innerHTML.trim(), 'продакшн union (спринт по двум урокам) отрисовывается');
+    }
   }
 
   /* ---------- game 1: self-assessment, not multiple choice ---------- */
@@ -243,6 +255,124 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
       SAL.do(key, 'missingReveal'); SAL.do(key, 'missingGrade', '1');
       if (cfg._st.prod.missing.finished) break;
     }
+  }
+
+  /* ---------- lesson 2 only: production mode 5 — sprint over lessons 1 + 2 ---------- */
+  if (key === 'L3') {
+    const body = SAL.lessons.L2, face = SAL.lessons.L3;
+    const all13 = body.words.concat(face.words).map(w => w.deva);
+    const P = () => cfg._st.prod.union;
+    const devaNow = () => {
+      const m = stageOf(key).innerHTML.match(/class="vocab-deva"[^>]*>([^<]+)</);
+      return m ? m[1].trim() : null;
+    };
+    const tab5 = [...win.document.getElementById('view-lesson' + cfg.num)
+      .querySelectorAll('[data-prod-mode]')].pop().textContent.trim();
+
+    ck(Array.isArray(cfg.unionSprint) && cfg.unionSprint.join() === 'L2,L3',
+      'урок 2 объявляет спринт по урокам 1 и 2');
+    ck(/13/.test(tab5), 'пятый режим продакшна: в подписи все 13 слов — ' + tab5);
+
+    /* --- one clean run: 13 pictures, lesson 1 first, then lesson 2 --- */
+    SAL.do(key, 'setProdMode', 'union');
+    SAL.do(key, 'unionRestart');
+    SAL.do(key, 'unionDur', '2');
+    SAL.do(key, 'unionBegin');
+    ck(P().running === true && P().timeLeft === 2, 'спринт по двум урокам: таймер пошёл, 2 с на слово');
+    const seen = [];
+    for (let r = 0; r < 20 && !P().finished; r++) {
+      SAL.do(key, 'unionReveal');
+      seen.push(devaNow());
+      if (r === 0) {
+        const h = stageOf(key).innerHTML;
+        ck(/vocab-iast/.test(h), 'спринт: после проверки видно слово и его IAST');
+        ck(/unionGrade','0'/.test(h) && /unionGrade','1'/.test(h), 'спринт: оценка ✓ / ✕ на месте');
+      }
+      SAL.do(key, 'unionGrade', '1');
+    }
+    ck(seen.join(' · ') === all13.join(' · '),
+      'спринт проходит все 13 слов: 6 из урока 1, потом 7 из урока 2');
+    ck(P().finished === true && P().score === 13, 'спринт: 13 из 13');
+    ck(/🏆/.test(stageOf(key).innerHTML), 'спринт: финальный экран с результатом');
+    ck(/Результат|Score/.test(stageOf(key).innerHTML), 'спринт: на финальном экране есть счёт');
+
+    /* --- the countdown runs out by itself: the interval is captured and fired by hand --- */
+    SAL.do(key, 'unionRestart');
+    SAL.do(key, 'unionDur', '2');
+    {
+      const realInterval = win.setInterval;
+      let tick = null;
+      win.setInterval = function (fn) { tick = fn; return 999; };
+      SAL.do(key, 'unionBegin');
+      win.setInterval = realInterval;
+      ck(typeof tick === 'function', 'спринт: секундный таймер заведён');
+      if (tick) {
+        tick();
+        ck(P().timeLeft === 1 && P().elapsed === 1, 'спринт: через секунду осталась 1 с');
+        tick();
+        ck(P().revealed === true && P().running === false,
+          'спринт: время вышло — слово открывается само');
+      }
+      SAL.do(key, 'unionPause');
+    }
+
+    /* --- arrow view: every word is pointed at on the diagram of its own lesson --- */
+    SAL.do(key, 'unionRestart');
+    SAL.do(key, 'unionVisual', 'arrow');
+    SAL.do(key, 'unionBegin');
+    for (let r = 0; r < 13 && !P().finished; r++) {
+      SAL.do(key, 'unionReveal');
+      const h = stageOf(key).innerHTML;
+      const deva = devaNow();
+      const home = [body, face].find(c => c.words.some(w => w.deva === deva));
+      const w = home.words.find(x => x.deva === deva);
+      const pin = home.hotspots.figures[0].pins.find(x => x.id === w.id);
+      ck(h.indexOf('viewBox="' + home.hotspots.figures[0].viewBox + '"') >= 0,
+        deva + ': стрелка — на схеме своего урока');
+      const qs = [...h.matchAll(/<text([^>]*)>\s*\?\s*<\/text>/g)]
+        .map(m => ({ x: num(m[1], 'x'), y: num(m[1], 'y') }));
+      ck(qs.some(q => near(q.x, pin.x, 1) && near(q.y, pin.y, 6)), deva + ': «?» — на поле схемы');
+      ck(lines(h).filter(l => l.marker).some(l =>
+        near(l.x1, pin.x, 1) && near(l.y1, pin.y, 1) &&
+        Math.hypot(l.x2 - pin.tx, l.y2 - pin.ty) < 14),
+        deva + ': стрелка указывает на часть тела');
+      SAL.do(key, 'unionGrade', '1');
+    }
+
+    /* --- shuffled: the same 13 words in another order --- */
+    SAL.do(key, 'unionRestart');
+    SAL.do(key, 'unionMix', 'shuffle');
+    SAL.do(key, 'unionBegin');
+    const shuf = [];
+    for (let r = 0; r < 13 && !P().finished; r++) {
+      SAL.do(key, 'unionReveal');
+      shuf.push(devaNow());
+      SAL.do(key, 'unionGrade', '1');
+    }
+    ck(shuf.length === 13 && shuf.slice().sort().join() === all13.slice().sort().join(),
+      'спринт вперемешку: те же 13 слов');
+    ck(shuf.join() !== all13.join(), 'спринт вперемешку: порядок другой');
+
+    /* --- a miss: no point, the word goes to the pile of its own lesson --- */
+    SAL.do(key, 'unionRestart');
+    SAL.do(key, 'unionMix', 'ordered');
+    SAL.do(key, 'unionBegin');
+    SAL.do(key, 'unionReveal');
+    {
+      const deva = devaNow();
+      const w = body.words.find(x => x.deva === deva);
+      ck(deva === body.words[0].deva, 'спринт начинается с первого слова урока 1');
+      SAL.do(key, 'unionGrade', '0');
+      ck(P().score === 0 && P().wrong.join() === w.id, 'спринт: ✕ не даёт очка и запоминает слово');
+      ck(!!(body._st.pile && body._st.pile[w.id]), 'спринт: ошибка ушла в копилку ошибок урока 1');
+      ck(!(face._st.pile && face._st.pile[w.id]), 'спринт: копилка урока 2 не затронута');
+    }
+
+    /* --- leaving for a practice game stops the timer --- */
+    SAL.do(key, 'unionBegin');
+    SAL.do(key, 'setGame', 'masked');
+    ck(P().running === false, 'спринт: уход в игру останавливает таймер');
+    SAL.do(key, 'setProdMode', 'sprint');
   }
 
   /* ---------- the word data must add up: gap + answer = the word, etc. ---------- */
