@@ -241,7 +241,9 @@ var SAL = (window.SAL = window.SAL || {});
     L4: { ru: 'Урок 4: Цифры 1–5', en: 'Lesson 4: Numbers 1–5' },
     L5: { ru: 'Урок 5: Цифры 6–10', en: 'Lesson 5: Numbers 6–10' },
     L6: { ru: 'Урок 6: Цифры 11–15', en: 'Lesson 6: Numbers 11–15' },
-    L7: { ru: 'Урок 7: Цифры 16–20', en: 'Lesson 7: Numbers 16–20' }
+    L7: { ru: 'Урок 7: Цифры 16–20', en: 'Lesson 7: Numbers 16–20' },
+    L8: { ru: 'Урок 8: Десятки 10–50', en: 'Lesson 8: Tens 10–50' },
+    L9: { ru: 'Урок 9: Десятки 60–100', en: 'Lesson 9: Tens 60–100' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {

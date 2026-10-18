@@ -927,6 +927,8 @@ function switchView(viewName, targetSectionId = null) {
     lesson5: document.getElementById('view-lesson5'),
     lesson6: document.getElementById('view-lesson6'),
     lesson7: document.getElementById('view-lesson7'),
+    lesson8: document.getElementById('view-lesson8'),
+    lesson9: document.getElementById('view-lesson9'),
     details: document.getElementById('view-details')
   };
   const buttons = {
