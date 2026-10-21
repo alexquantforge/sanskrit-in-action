@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=36" />
+  <link rel="stylesheet" href="styles.css?v=37" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -106,9 +106,11 @@
             <span class="practice-tab-btn active" style="padding:0.28rem 0.7rem;font-size:0.78rem;cursor:default;"
                   data-i18n-ru="Урок 1: Части тела"
                   data-i18n-en="Lesson 1: Body Parts">Урок 1: Части тела</span>
-            <span class="practice-tab-btn" style="padding:0.28rem 0.65rem;font-size:0.76rem;opacity:0.5;cursor:not-allowed;"
-                  data-i18n-ru="Урок 2 (скоро)"
-                  data-i18n-en="Lesson 2 (soon)">Урок 2 (скоро)</span>
+            <button type="button" class="practice-tab-btn" disabled
+                    style="padding:0.28rem 0.65rem;font-size:0.76rem;"
+                    title="Урок 2 появится в следующем обновлении · Lesson 2 is coming in the next update"
+                    data-i18n-ru="Урок 2 (скоро)"
+                    data-i18n-en="Lesson 2 (soon)">Урок 2 (скоро)</button>
           </div>
 
           <!-- Center: 1. Presentation · 2. Practice · 3. Production strictly on ONE line -->
@@ -1232,7 +1234,7 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=36"></script>
-  <script src="app.js?v=36"></script>
+  <script src="lesson1.js?v=37"></script>
+  <script src="app.js?v=37"></script>
 </body>
 </html>

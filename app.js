@@ -989,17 +989,48 @@ function setLanguage(lang) {
 }
 
 // Copy helper for GitHub Description snippets
+// navigator.clipboard is unavailable in some in-app browsers / non-HTTPS
+// contexts — without a fallback the "Copy" button silently does nothing.
+function copyTextFallback(text, done) {
+  try {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.top = '-1000px';
+    document.body.appendChild(area);
+    area.select();
+    const ok = typeof document.execCommand === 'function' && document.execCommand('copy');
+    document.body.removeChild(area);
+    done(!!ok);
+  } catch (e) {
+    done(false);
+  }
+}
+
 function copyTextById(elementId, btnEl) {
   const el = document.getElementById(elementId);
   if (!el) return;
-  const text = el.innerText.trim();
-  navigator.clipboard.writeText(text).then(() => {
-    const original = btnEl.innerText;
-    btnEl.innerText = currentLang === 'ru' ? 'Скопировано ✓' : 'Copied ✓';
+  const text = (el.innerText || el.textContent || '').trim();
+
+  const showResult = (ok) => {
+    if (!btnEl) return;
+    if (!btnEl.dataset.originalLabel) btnEl.dataset.originalLabel = btnEl.textContent;
+    btnEl.textContent = ok
+      ? (currentLang === 'ru' ? 'Скопировано ✓' : 'Copied ✓')
+      : (currentLang === 'ru' ? 'Не удалось скопировать' : 'Copy failed');
     setTimeout(() => {
-      btnEl.innerText = original;
+      btnEl.textContent = btnEl.dataset.originalLabel;
     }, 1800);
-  });
+  };
+
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    navigator.clipboard.writeText(text)
+      .then(() => showResult(true))
+      .catch(() => copyTextFallback(text, showResult));
+  } else {
+    copyTextFallback(text, showResult);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

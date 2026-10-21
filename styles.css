@@ -1956,3 +1956,112 @@ body.hide-iast .level-sample-iast {
     overflow-x: auto;
   }
 }
+
+/* ===================================================================
+   CLICK / TAP FEEDBACK (fix for "I press the button and nothing happens")
+   Every control now reacts visually the moment it is pressed, even when the
+   action itself is audio-only or does not change the layout.
+   =================================================================== */
+button,
+a.btn,
+.chip-btn,
+.practice-tab-btn,
+.quiz-opt-btn,
+.match-tile,
+.memory-card,
+.vocab-item-card,
+.vocab-audio-btn {
+  touch-action: manipulation; /* removes the 300ms double-tap delay on phones */
+  -webkit-tap-highlight-color: rgba(15, 118, 110, 0.18);
+}
+
+button:active,
+a.btn:active,
+.chip-btn:active,
+.practice-tab-btn:active,
+.quiz-opt-btn:active,
+.match-tile:active,
+.memory-card:active {
+  transform: scale(0.97);
+  filter: brightness(0.96);
+}
+
+.vocab-item-card:active {
+  transform: scale(0.98);
+}
+
+button:disabled,
+.practice-tab-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+/* Inline hint for game states that used to swallow clicks silently
+   (e.g. a wrong Match Pairs selection, Memory cards flipping back). */
+.game-hint {
+  margin-top: 1rem;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  background: #fff7ed;
+  border: 1.5px solid #fdba74;
+  color: #9a3412;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Small toast that confirms audio playback ("🔊 नयन") and explains when the
+   browser has no speech synthesis at all. */
+.audio-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.35rem;
+  transform: translate(-50%, 12px);
+  z-index: 500;
+  max-width: min(92vw, 460px);
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(20, 33, 61, 0.94);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: var(--font-deva), var(--font-sans);
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.audio-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .audio-toast,
+  .practice-tab-btn,
+  .chip-btn,
+  .quiz-opt-btn,
+  .match-tile,
+  .memory-card {
+    transition: none;
+  }
+}
+
+/* Green ring shown when the user re-clicks a stage/mode that is already open,
+   so the click is acknowledged instead of looking like a dead button. */
+@keyframes stagePulse {
+  0%   { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.5); }
+  100% { box-shadow: 0 0 0 16px rgba(15, 118, 110, 0); }
+}
+
+.stage-pulse {
+  animation: stagePulse 0.75s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-pulse { animation: none; }
+}
