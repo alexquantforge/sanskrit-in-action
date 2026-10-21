@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-build="v58">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Ask browsers (incl. Chrome) not to serve a stale copy of this entry document -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2 · 4 Skills × 5 Systems)</title>
   <meta name="description" content="Sanskrit in Action with Alex Vijaya — Sanskrit the Cambridge way: communicative, task-based, CEFR A1–C2. 4 skills × 5 systems, śāstra-based texts, interactive games." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=37" />
+  <link rel="stylesheet" href="styles.css?v=58" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -95,7 +99,14 @@
     <!-- ===================================================================
          LESSONS VIEW (OPENED AFTER CLICKING "НАЧАТЬ УРОКИ / START LESSONS")
          =================================================================== -->
-    <div id="view-lesson1" class="view-pane" style="display: none;" hidden>
+
+    <!-- ===================================================================
+         LESSONS 1, 2 & 4 (rendered by the generic engine lesson-engine.js)
+         =================================================================== -->
+    <div id="view-lesson1" class="view-pane" style="display: none;" hidden></div>
+    <div id="view-lesson2" class="view-pane" style="display: none;" hidden></div>
+
+    <div id="view-lesson3" class="view-pane" style="display: none;" hidden>
       <!-- Single-line Compact Lesson & PPP Bar -->
       <div class="ppp-nav-bar">
         <div class="container ppp-top-row">
@@ -103,14 +114,8 @@
           <div style="display:inline-flex;align-items:center;gap:0.4rem;flex-wrap:nowrap;white-space:nowrap;">
             <button type="button" class="chip-btn" style="padding:0.28rem 0.65rem;font-size:0.78rem;" onclick="switchView('home')"
                     data-i18n-ru="← На главную" data-i18n-en="← Home">← На главную</button>
-            <span class="practice-tab-btn active" style="padding:0.28rem 0.7rem;font-size:0.78rem;cursor:default;"
-                  data-i18n-ru="Урок 1: Части тела"
-                  data-i18n-en="Lesson 1: Body Parts">Урок 1: Части тела</span>
-            <button type="button" class="practice-tab-btn" disabled
-                    style="padding:0.28rem 0.65rem;font-size:0.76rem;"
-                    title="Урок 2 появится в следующем обновлении · Lesson 2 is coming in the next update"
-                    data-i18n-ru="Урок 2 (скоро)"
-                    data-i18n-en="Lesson 2 (soon)">Урок 2 (скоро)</button>
+            <!-- the lesson dropdown is filled by lesson-engine.js (fillNavSlots) -->
+            <span data-lesson-nav></span>
           </div>
 
           <!-- Center: 1. Presentation · 2. Practice · 3. Production strictly on ONE line -->
@@ -140,7 +145,7 @@
         <div class="container">
           <div class="section-header" style="margin-bottom:2rem;">
             <div class="stage-eyebrow-row">
-              <div class="eyebrow" data-i18n-ru="УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 1 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
+              <div class="eyebrow" data-i18n-ru="УРОК 3 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 3 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 3 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
               <button type="button" class="teacher-guide-btn" id="tg-btn-presentation" onclick="toggleTeacherGuide('presentation')"
                       data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
             </div>
@@ -419,6 +424,13 @@
         </div>
       </section>
     </div>
+
+    <div id="view-lesson4" class="view-pane" style="display: none;" hidden></div>
+    <div id="view-lesson5" class="view-pane" style="display: none;" hidden></div>
+    <div id="view-lesson6" class="view-pane" style="display: none;" hidden></div>
+    <div id="view-lesson7" class="view-pane" style="display: none;" hidden></div>
+    <div id="view-lesson8" class="view-pane" style="display: none;" hidden></div>
+    <div id="view-lesson9" class="view-pane" style="display: none;" hidden></div>
 
     <!-- ===================================================================
          TAB 2: LEARN MORE / FULL DETAILS PAGE (ПОДРОБНЕЕ)
@@ -1234,7 +1246,65 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=37"></script>
-  <script src="app.js?v=37"></script>
+  <script src="lesson1.js?v=58"></script>
+  <script src="lesson-engine.js?v=58"></script>
+  <script src="lesson2.js?v=58"></script>
+  <script src="lesson3.js?v=58"></script>
+  <script src="lesson4.js?v=58"></script>
+  <script src="lesson5.js?v=58"></script>
+  <script src="lesson6.js?v=58"></script>
+  <script src="lesson7.js?v=58"></script>
+  <script src="lesson8.js?v=58"></script>
+  <script src="lesson9.js?v=58"></script>
+  <script src="games-extra.js?v=58"></script>
+  <script src="app.js?v=58"></script>
+
+  <!-- ===================================================================
+       Stale-cache guard (GitHub Pages + aggressive browser caches).
+       Compares the build id of the loaded document with the freshly
+       fetched one (cache: 'reload' bypasses the HTTP cache and refreshes
+       it), and shows a small "new version available" bar if they differ.
+       Checked at most once every 5 minutes, never auto-reloads.
+       =================================================================== -->
+  <script>
+  (function () {
+    var CURRENT = document.documentElement.getAttribute('data-build') || 'v0';
+    var KEY = 'sa-build-check';
+    var MIN_GAP = 5 * 60 * 1000;
+    try {
+      var last = parseInt(window.sessionStorage.getItem(KEY) || '0', 10);
+      if (Date.now() - last < MIN_GAP) return;
+      window.sessionStorage.setItem(KEY, String(Date.now()));
+    } catch (e) { /* storage blocked — just check once */ }
+
+    if (!window.fetch || location.protocol === 'file:') return;
+
+    fetch(location.pathname.split('#')[0], { cache: 'reload' })
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .then(function (html) {
+        var m = html.match(/data-build="([^"]+)"/);
+        if (!m || m[1] === CURRENT) return;
+        if (document.getElementById('sa-update-bar')) return;
+        var ru = (document.documentElement.lang === 'ru');
+        var bar = document.createElement('div');
+        bar.id = 'sa-update-bar';
+        bar.setAttribute('role', 'status');
+        bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:1rem;z-index:9999;' +
+          'display:flex;align-items:center;gap:0.75rem;background:#14213D;color:#FEF3C7;border:1px solid #d4a373;' +
+          'border-radius:999px;padding:0.55rem 1.1rem;box-shadow:0 8px 24px rgba(15,23,42,.28);font-size:0.85rem;';
+        bar.innerHTML = '<span>🔄 ' +
+          (ru ? 'Доступна новая версия сайта.' : 'A new version of the site is available.') + '</span>' +
+          '<button type="button" id="sa-update-btn" style="background:#d97706;color:#fff;border:0;border-radius:999px;' +
+          'padding:0.35rem 0.9rem;font-weight:700;cursor:pointer;">' +
+          (ru ? 'Обновить' : 'Refresh') + '</button>';
+        document.body.appendChild(bar);
+        document.getElementById('sa-update-btn').onclick = function () {
+          /* the fetch above refreshed the HTTP cache entry, so a plain reload now gets the new files */
+          window.location.reload();
+        };
+      })
+      .catch(function () { /* offline — stay quiet */ });
+  })();
+  </script>
 </body>
 </html>

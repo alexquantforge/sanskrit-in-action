@@ -916,16 +916,26 @@ function setPratyaya(pratyayaKey) {
   renderDhatuForge();
 }
 
-// Switch between "home" (Главная), "lesson1" (Урок 1 PPP), and "details" (Подробнее) tabs
+// Switch between "home" (Главная), "lesson1"/"lesson2"/"lesson3" (PPP lesson slots 1-3) and "details" (Подробнее) tabs
 function switchView(viewName, targetSectionId = null) {
   const panes = {
     home: document.getElementById('view-home'),
     lesson1: document.getElementById('view-lesson1'),
+    lesson2: document.getElementById('view-lesson2'),
+    lesson3: document.getElementById('view-lesson3'),
+    lesson4: document.getElementById('view-lesson4'),
+    lesson5: document.getElementById('view-lesson5'),
+    lesson6: document.getElementById('view-lesson6'),
+    lesson7: document.getElementById('view-lesson7'),
+    lesson8: document.getElementById('view-lesson8'),
+    lesson9: document.getElementById('view-lesson9'),
     details: document.getElementById('view-details')
   };
   const buttons = {
     home: document.getElementById('tab-btn-home'),
     lesson1: document.getElementById('tab-btn-lesson1'),
+    lesson2: document.getElementById('tab-btn-lesson2'),
+    lesson3: document.getElementById('tab-btn-lesson3'),
     details: document.getElementById('tab-btn-details')
   };
 
@@ -985,6 +995,9 @@ function setLanguage(lang) {
   renderDhatuForge();
   if (typeof refreshLesson1 === 'function') {
     refreshLesson1();
+  }
+  if (window.SAL && typeof window.SAL.refresh === 'function') {
+    window.SAL.refresh();
   }
 }
 

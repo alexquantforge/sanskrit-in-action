@@ -1446,6 +1446,26 @@ body.hide-iast .level-sample-iast {
   margin-bottom: 2.25rem;
 }
 
+/* Lesson 2 (6 words) & Lesson 3 (7 words) poster grids */
+.vocab-grid-6 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2.25rem;
+}
+
+@media (max-width: 900px) {
+  .vocab-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .vocab-grid-6 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .vocab-item-card {
   background: var(--bg-card);
   border: 1.5px solid var(--border-strong);
@@ -1695,6 +1715,46 @@ body.hide-iast .level-sample-iast {
   font-family: var(--font-sans);
   text-align: center;
   transition: all 0.15s ease;
+  position: relative;
+}
+
+/* Letter badge (A, B, C, D) so a student can just call out the letter */
+.opt-letter {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding: 0 0.25rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-strong);
+  pointer-events: none;
+}
+
+.quiz-opt-btn:hover .opt-letter {
+  border-color: var(--accent-cambridge);
+  color: var(--accent-cambridge);
+}
+
+.quiz-opt-btn.correct .opt-letter {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+}
+
+.quiz-opt-btn.wrong .opt-letter {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
 }
 
 .quiz-opt-btn:hover {
@@ -1796,6 +1856,15 @@ body.hide-iast .level-sample-iast {
   font-size: 1.25rem;
   font-weight: 700;
   color: #fde68a;
+}
+
+/* Face-down card shows its grid coordinate, e.g. b2 = row b, column 2 */
+.memory-card-back-emblem.memory-coord {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #fffbeb;
 }
 
 .memory-card.flipped {
@@ -1957,6 +2026,219 @@ body.hide-iast .level-sample-iast {
   }
 }
 
+/* ==========================================================================
+   EXTRA PRACTICE GAMES (games 13+, games-extra.js)
+   ========================================================================== */
+.practice-extra-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+}
+.practice-extra-note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+  flex: 1 1 220px;
+}
+.game-note-box {
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  background: var(--bg-secondary);
+}
+/* anagram: slots + tiles */
+.anagram-slots { display: flex; gap: 0.35rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.85rem; }
+.anagram-slot {
+  min-width: 2.6rem; height: 3rem; padding: 0 0.5rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-bottom: 3px solid var(--border-strong);
+  background: var(--bg-secondary);
+  border-radius: 6px 6px 0 0;
+}
+.anagram-slot.correct { border-bottom-color: #16a34a; background: #F0FDF4; }
+.anagram-tiles { display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap; }
+.anagram-tile {
+  min-width: 2.8rem; padding: 0.55rem 0.7rem;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.anagram-tile:hover { border-color: var(--accent-cambridge); transform: translateY(-1px); }
+.anagram-tile.used { opacity: 0.28; cursor: default; transform: none; }
+/* type-in */
+.typein-input {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  padding: 0.55rem 0.75rem;
+  min-width: 220px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+.typein-input:focus { outline: none; border-color: var(--accent-cambridge); }
+/* generic 10-column board (word grid, blind board, battleship, co-op memory) */
+.grid-10 {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+.wcell, .bcell {
+  aspect-ratio: 1 / 1;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  padding: 2px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+.wcell:hover, .bcell:hover { border-color: var(--accent-cambridge); }
+.wcell.found { background: #DCFCE7; border-color: #16a34a; }
+.wcell.wrong { background: #FEE2E2; border-color: #DC2626; opacity: 0.55; }
+.wcell.hint { box-shadow: inset 0 0 0 2px #F59E0B; }
+.wcell.sel { background: #DBEAFE; border-color: #2563EB; }
+.wcell.asked, .bcell.asked { box-shadow: 0 0 0 2px var(--accent-cambridge); }
+.bcell.captured { background: #F0FDF4; border-color: #16a34a; cursor: default; }
+.cell-owner {
+  position: absolute; right: 2px; bottom: 1px;
+  font-size: 0.6rem; font-weight: 800; color: #16a34a;
+}
+.wrong-card { border-color: #DC2626 !important; background: #FEE2E2; }
+/* bingo */
+.bingo-card { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.bingo-cell {
+  aspect-ratio: 1 / 1;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--bg-primary);
+  cursor: pointer;
+  padding: 2px;
+  transition: all 0.15s ease;
+}
+.bingo-cell:hover { border-color: var(--accent-cambridge); }
+.bingo-cell.covered { background: #DCFCE7; border-color: #16a34a; color: #16a34a; font-weight: 800; cursor: default; }
+/* tic-tac-toe */
+.ttt-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  max-width: 330px; margin: 0 auto;
+}
+.ttt-cell {
+  aspect-ratio: 1 / 1;
+  min-height: 74px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 1.9rem;
+  font-weight: 800;
+  transition: all 0.15s ease;
+}
+.ttt-cell:hover { border-color: var(--accent-cambridge); }
+.ttt-cell.own-1 { color: var(--accent-cambridge); background: #EFF6FF; border-color: var(--accent-cambridge); cursor: default; }
+.ttt-cell.own-2 { color: #B45309; background: #FFFBEB; border-color: #B45309; cursor: default; }
+.ttt-cell.asked { box-shadow: 0 0 0 2px var(--accent-cambridge); }
+/* word search legend */
+.ws-legend-row { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-top: 0.85rem; }
+.ws-legend {
+  font-family: var(--font-deva);
+  font-size: 1.05rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 5px;
+  background: var(--bg-secondary);
+}
+.ws-legend.done { color: #16a34a; border-color: #16a34a; background: #F0FDF4; }
+@media (max-width: 640px) {
+  .grid-10 { max-width: 100%; gap: 3px; }
+  .wcell, .bcell { min-height: 28px; }
+}
+
+/* rules panel above every practice game */
+.game-rules {
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.game-rules-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-align: left;
+}
+.game-rules-head:hover { background: var(--bg-primary); }
+.game-rules.open .game-rules-head { border-bottom: 1px solid var(--border-soft); }
+.game-rules-caret { color: var(--text-secondary); font-size: 0.8rem; }
+.game-rules-body {
+  padding: 0.75rem 0.9rem 0.9rem;
+  font-size: 0.87rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.rules-row { margin-bottom: 0.55rem; }
+.rules-row:last-child { margin-bottom: 0; }
+.rules-label { font-weight: 800; color: var(--text-primary); }
+.rules-list { margin: 0.3rem 0 0; padding-left: 1.2rem; }
+.rules-list li { margin-bottom: 0.22rem; }
+
+/* lesson dropdown (replaces the row of lesson buttons: it ran out of space) */
+.lesson-nav-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.lesson-select {
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  max-width: 15rem;
+  transition: all 0.15s ease;
+}
+.lesson-select:hover { background: var(--text-primary); color: #ffffff; border-color: var(--text-primary); }
+.lesson-select:focus-visible { outline: 2px solid var(--accent-cambridge); outline-offset: 1px; }
+.lesson-select option { background: var(--bg-card); color: var(--text-primary); }
+@media (max-width: 760px) {
+  .lesson-nav-label { display: none; }
+  .lesson-select { max-width: 11rem; }
+}
+
 /* ===================================================================
    CLICK / TAP FEEDBACK (fix for "I press the button and nothing happens")
    Every control now reacts visually the moment it is pressed, even when the
@@ -1970,7 +2252,9 @@ a.btn,
 .match-tile,
 .memory-card,
 .vocab-item-card,
-.vocab-audio-btn {
+.vocab-audio-btn,
+.anagram-tile,
+.lesson-select {
   touch-action: manipulation; /* removes the 300ms double-tap delay on phones */
   -webkit-tap-highlight-color: rgba(15, 118, 110, 0.18);
 }
@@ -1981,7 +2265,8 @@ a.btn:active,
 .practice-tab-btn:active,
 .quiz-opt-btn:active,
 .match-tile:active,
-.memory-card:active {
+.memory-card:active,
+.anagram-tile:active {
   transform: scale(0.97);
   filter: brightness(0.96);
 }
@@ -2040,17 +2325,6 @@ button:disabled,
   transform: translate(-50%, 0);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .audio-toast,
-  .practice-tab-btn,
-  .chip-btn,
-  .quiz-opt-btn,
-  .match-tile,
-  .memory-card {
-    transition: none;
-  }
-}
-
 /* Green ring shown when the user re-clicks a stage/mode that is already open,
    so the click is acknowledged instead of looking like a dead button. */
 @keyframes stagePulse {
@@ -2063,5 +2337,14 @@ button:disabled,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stage-pulse { animation: none; }
+  .audio-toast,
+  .practice-tab-btn,
+  .chip-btn,
+  .quiz-opt-btn,
+  .match-tile,
+  .memory-card,
+  .stage-pulse {
+    transition: none;
+    animation: none;
+  }
 }

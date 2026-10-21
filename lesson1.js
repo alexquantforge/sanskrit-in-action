@@ -1293,6 +1293,10 @@ function renderPracticeArena() {
   } else if (currentPracticeGame === 'truefalse') {
     renderTrueFalseGame(arena);
   }
+
+  // Rules panel: the same manual the engine shows above every game (lesson-engine.js)
+  const rulesPanel = (typeof SAL !== 'undefined' && SAL.rulesPanel) ? SAL.rulesPanel(currentPracticeGame) : '';
+  if (rulesPanel) arena.insertAdjacentHTML('afterbegin', rulesPanel);
 }
 
 // GAME 2: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio + Self-Score)
@@ -1506,6 +1510,7 @@ function renderFillGapsGame(arena) {
 
   const optionsHtml = options.map((opt, idx) => `
     <button type="button" class="quiz-opt-btn" id="gap-opt-${idx}" onclick="checkGapAnswer('${opt.deva}', ${idx})">
+      <span class="opt-letter">${'ABCD'[idx]}</span>
       <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;">${opt.deva}</div>
       <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.9rem;color:var(--accent-saffron);">${opt.iast}</div>
     </button>
@@ -1611,8 +1616,9 @@ function renderPictureQuizGame(arena) {
   ];
   const options = [item, ...distractors].sort((a, b) => a.id.localeCompare(b.id));
 
-  const optionsHtml = options.map(opt => `
+  const optionsHtml = options.map((opt, idx) => `
     <button type="button" class="quiz-opt-btn" id="pq-opt-${opt.id}" onclick="checkPicQuizAnswer('${opt.id}')">
+      <span class="opt-letter">${'ABCD'[idx]}</span>
       <div style="font-family:var(--font-deva);font-size:1.5rem;font-weight:700;">${opt.deva}</div>
       <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-saffron);">${opt.iast}</div>
     </button>
@@ -1699,8 +1705,9 @@ function renderWordToPicQuizGame(arena) {
   ];
   const options = [item, ...distractors].sort((a, b) => a.id.localeCompare(b.id));
 
-  const optionsHtml = options.map(opt => `
+  const optionsHtml = options.map((opt, idx) => `
     <button type="button" class="quiz-opt-btn" id="wq-opt-${opt.id}" onclick="checkWordQuizAnswer('${opt.id}')" style="display:flex;flex-direction:column;align-items:center;">
+      <span class="opt-letter">${'ABCD'[idx]}</span>
       <div class="vocab-svg-box" style="margin:0;width:95px;height:95px;">${opt.svg}</div>
     </button>
   `).join('');
@@ -1943,7 +1950,11 @@ function renderMemoryGame(arena) {
 
     let innerContent = '';
     if (!isVisible) {
-      innerContent = `<div class="memory-card-back-emblem">सं</div>`;
+      /* the board is 4 columns wide (see .memory-grid in styles.css):
+         the letter is the row, the number is the column — e.g. b2 */
+      const memoryCols = 4;
+      const cellName = 'abcdef'[Math.floor(idx / memoryCols)] + ((idx % memoryCols) + 1);
+      innerContent = `<div class="memory-card-back-emblem memory-coord">${cellName}</div>`;
     } else if (c.type === 'pic') {
       innerContent = `<div class="vocab-svg-box" style="margin:0;width:74px;height:74px;">${c.item.svg}</div>`;
     } else {
@@ -1981,6 +1992,12 @@ function renderMemoryGame(arena) {
     ${memoryLock ? `<div class="game-hint" role="status">${currentLang === 'ru'
       ? '🙈 Не совпало — карточки переворачиваются обратно…'
       : '🙈 No match — the cards are flipping back…'}</div>` : ''}
+
+    <div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);text-align:center;">
+      ${currentLang === 'ru'
+        ? 'Называйте карточку по клетке: буква — ряд, цифра — столбец (например <strong>b2</strong>).'
+        : 'Name the card by its square — the letter is the row, the number is the column (for example <strong>b2</strong>).'}
+    </div>
   `;
 }
 
@@ -2077,6 +2094,7 @@ function renderWrongLabelGame(arena) {
     return `
       <button type="button" class="quiz-opt-btn" id="wl-card-${idx}" onclick="checkWrongLabelCard(${idx})"
               style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <span class="opt-letter">${'ABC'[idx]}</span>
         <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.picItem.svg}</div>
         ${!showCorrection ? `
           <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.labelItem.deva}</div>
@@ -2190,6 +2208,7 @@ function renderTypoGame(arena) {
     return `
       <button type="button" class="quiz-opt-btn" id="typo-card-${idx}" onclick="checkTypoCard(${idx})"
               style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <span class="opt-letter">${'ABC'[idx]}</span>
         <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.item.svg}</div>
         ${!showCorrection ? `
           <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.displayedDeva}</div>
@@ -2408,6 +2427,7 @@ function renderSpellingGame(arena) {
 
   const choicesHtml = item.missingChoices.map((ch, i) => `
     <button type="button" class="quiz-opt-btn" id="sp-opt-${i}" onclick="checkSpellingAnswer('${ch}', ${i})">
+      <span class="opt-letter">${'ABCD'[i]}</span>
       <div style="font-family:var(--font-deva);font-size:1.65rem;font-weight:700;">${ch}</div>
     </button>
   `).join('');
@@ -2524,9 +2544,11 @@ function renderTrueFalseGame(arena) {
 
     <div class="quiz-options-grid">
       <button type="button" class="quiz-opt-btn" id="tf-btn-true" onclick="checkTrueFalse(true)">
+        <span class="opt-letter">A</span>
         <div style="font-family:var(--font-deva);font-size:1.55rem;font-weight:700;color:#15803d;">✓ आम्<span class="iast-text" style="font-family:var(--font-mono);font-size:0.85rem;"> (ām)</span></div>
       </button>
       <button type="button" class="quiz-opt-btn" id="tf-btn-false" onclick="checkTrueFalse(false)">
+        <span class="opt-letter">B</span>
         <div style="font-family:var(--font-deva);font-size:1.55rem;font-weight:700;color:#dc2626;">✕ न<span class="iast-text" style="font-family:var(--font-mono);font-size:0.85rem;"> (na)</span></div>
       </button>
     </div>
