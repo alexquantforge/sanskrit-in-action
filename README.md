@@ -64,12 +64,114 @@ No artificial textbook-only Sanskrit. The curriculum is built on authentic class
 
 ```text
 sanskrit-in-action/
-├── index.html      # Interactive landing page (EN / RU switch, 4×5 matrix, CEFR A1–C2 explorer, mini-games)
-├── styles.css      # Cambridge editorial & Sanskrit manuscript typography styles
-├── app.js          # Bilingual i18n, CEFR level explorer, Sandhi Lab, Dialogue Simulator, Dhātu Forge
-├── .nojekyll       # Direct static asset serving on GitHub Pages
-└── README.md       # Project documentation
+├── index.html        # Interactive landing page (EN / RU switch, 4×5 matrix, CEFR A1–C2 explorer, mini-games)
+├── styles.css        # Cambridge editorial & Sanskrit manuscript typography styles
+├── app.js            # Bilingual i18n, CEFR level explorer, Sandhi Lab, Dialogue Simulator, Dhātu Forge
+├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 1, 2, 4–9
+├── lesson2.js        # Lesson 1 · शरीरावयवाः — body, 6 words: शीर्ष, उदर, हस्त, अङ्गुली, जानु, पाद
+├── lesson3.js        # Lesson 2 · मुखसम्बन्धि-शब्दाः — face, 7 words: ललाट, नयन, नासिका, कर्ण, मुख, दन्त, जिह्वा
+├── lesson1.js        # Lesson 3 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
+├── lesson4.js        # Lesson 4 · सङ्ख्याः — 5 numerals, neuter nom.-acc.: एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
+├── lesson5.js        # Lesson 5 · सङ्ख्याः — 5 numerals 6–10: षट्, सप्त, अष्ट, नव, दश
+├── lesson6.js        # Lesson 6 · सङ्ख्याः — 5 numerals 11–15: एकादश, द्वादश, त्रयोदश, चतुर्दश, पञ्चदश
+├── lesson7.js        # Lesson 7 · सङ्ख्याः — 5 numerals 16–20: षोडश, सप्तदश, अष्टादश, नवदश, विंशतिः
+├── lesson8.js        # Lesson 8 · सङ्ख्याः — 5 tens 10–50: दश, विंशतिः, त्रिंशत्, चत्वारिंशत्, पञ्चाशत्
+├── lesson9.js        # Lesson 9 · सङ्ख्याः — 5 tens 60–100: षष्टिः, सप्ततिः, अशीतिः, नवतिः, शतम्
+├── games-extra.js    # 19 extra practice games (solo / pair / word grids), registered via SAL.addGame()
+├── .nojekyll         # Direct static asset serving on GitHub Pages
+└── README.md         # Project documentation
 ```
+
+### Как показано количество
+
+До десяти количество показывают **бусины**: их можно сосчитать одним взглядом, и это остаётся
+в рамках Direct Method (ни арабских цифр, ни перевода). **После десяти бусины перестают
+работать** — двадцать бусин на карточке уже не сосчитать на глаз, — поэтому в уроках 6–9
+карточка и таблица чисел показывают **арабскую цифру**. Перевода на карточках по-прежнему нет:
+цифра — это запись количества, а не перевод слова. Тесты следят за правилом в обе стороны:
+в уроках 4–5 на карточках только бусины, в уроках 6–9 — только цифры.
+
+### Adding a New Lesson
+Lessons 2+ are **pure data** — no code changes are needed:
+
+1. Create `lessonN.js` with a single `SAL.registerLesson({ ... })` call (copy `lesson5.js` as a template:
+   it is the fullest one — numerals, `syll`, `decoys`, `sortFeatures`, `extraGames`). A lesson may also
+   declare `unionSprint: ["L2", "L3"]` to get a fifth production mode: one timed sprint over the words
+   of the listed lessons (see «Спринт по двум урокам» above).
+2. Add `<script src="lessonN.js?v=N"></script>` to `index.html` before `app.js`, plus an empty
+   `<div id="view-lessonN" class="view-pane" style="display: none;" hidden></div>` next to the other lesson panes.
+3. Register the pane in the `panes` map inside `switchView()` in `app.js`. The lesson dropdown in the
+   top bar picks the new lesson up by itself (from `SAL.registerLesson` + `num`); add a short label to
+   `NAV_LABELS` in `lesson-engine.js` only if you want one.
+4. Add the key to the lists in `tests/regression.js` (script list, lesson sweep, rules sweep).
+
+The engine automatically provides all 4 presentation modes, all 12 practice games and all 4 production
+modes for the new word list — in both RU and EN.
+
+### Навигация по урокам
+
+Все девять уроков живут в одном **выпадающем списке** в верхней строке каждой панели (подпись
+«Выбрать номер урока:» / «Choose a lesson:»): строка кнопок перестала помещаться, как только
+появился пятый урок. Список строится сам — движок собирает его из зарегистрированных уроков
+(`SAL.registerLesson`) плюс отдельный урок «Части тела (12)», у которого свой движок и панель
+`view-lesson3`; сортировка по полю `num`. Новый урок появится в списке автоматически — уроки 6–9
+не потребовали ни строчки в навигации.
+Короткие подписи лежат в `NAV_LABELS` в `lesson-engine.js`; если подписи для ключа нет,
+берётся «Урок N: <название>» из данных урока. Переход делает `SAL.gotoLesson(value)`:
+`'lesson3'` переключает панель через `switchView`, остальные значения — через `SAL.openLesson`.
+Панель урока 3 (12 слов) размечается в `index.html` пустым слотом `<span data-lesson-nav></span>`,
+который заполняет `fillNavSlots()` — поэтому список один и тот же во всех девяти панелях и
+переводится вместе с интерфейсом.
+
+### Спринт по двум урокам (урок 2)
+
+Пятый режим Production есть только в уроке 2 «Лицо»: **«5. Спринт: тело + лицо ⏱ (13)»**.
+Это тот же спринт на время, но не по семи словам урока, а по **всем 13 словам уроков 1 и 2** —
+сначала 6 частей тела, потом 7 слов лица. На каждую картинку даётся **4, 3 или 2 секунды**:
+ученик называет санскритское слово вслух, пока идёт отсчёт, и проверяет себя кнопками ✓ / ✕.
+Переключатели: «1→2 по урокам» и «🔀 Вперемешку», длительность (4s / 3s / 2s) и вид картинки —
+отдельная карточка или 🏹 стрелка на схеме. Схема берётся **своего урока**: для слов тела —
+человек в полный рост, для слов лица — лицо крупным планом.
+
+Подключается одной строкой в данных урока — движок сам собирает список слов в порядке уроков:
+
+```js
+unionSprint: ["L2", "L3"],   /* ключи уроков, чьи слова входят в спринт */
+```
+
+На финальном экране — счёт, общее время и секунд на слово; рекорд (забег без ошибок) лежит
+в localStorage. Ошибка уходит в копилку ошибок **своего** урока: не названное `शीर्ष` попадёт
+в копилку урока 1, а не урока 2. Уход на вкладку игры останавливает таймер — спринт не должен
+вдруг заговорить, пока ученик занимается другим.
+
+### Правила в каждой игре
+
+Над любой игрой Practice — сворачиваемая панель **«ℹ Правила игры / How to play»**:
+**Цель**, **Как играть** (нумерованные шаги), **Счёт и ошибки** (что именно начисляется и
+куда попадают ошибки), для парных игр — **Вдвоём**, иногда — **Преподавателю**.
+Правила для 12 общих игр лежат в реестре `RULES` в `lesson-engine.js`, правила 19 игр
+4–9‑го уроков — в `RULES_EXTRA` в `games-extra.js` (регистрируются через `SAL.addRules`).
+Панелью управляет действие `toggleRules`; урок 3 (12 слов) подключает её через
+`SAL.rulesPanel(gameKey)`. Панель раскрыта по умолчанию, переводится вместе с интерфейсом
+и не содержит цифр и слов, привязанных к конкретному уроку.
+
+### Extra Practice Games (`games-extra.js`)
+`games-extra.js` adds 19 further practice games (tabs 13–31) built on `SAL.addGame()`. A lesson opts in
+by listing them in `extraGames`; the six numeral lessons 4–9 (1–5, 6–10, 11–15, 16–20, tens 10–50, tens 60–100) all do, so
+the other lessons are untouched. A lesson may also bring its own `sortFeatures` (the yes/no questions for
+game 20), otherwise `games-extra.js` falls back to its generic Devanagari features.
+
+* **Solo (one student with a teacher):** 13 Hot Cards (streak, 3 lives) · 14 Mistake Pile · 15 Minimal
+  Pairs by Ear · 16 Snowball · 17 Drip Reveal · 18 Build the Word · 19 Type It · 20 Sort into Boxes ·
+  21 Flash Count · 22 Blind Board.
+* **Pairs (two students, one device):** 23 Battleship on Coordinates · 24 Bingo · 25 Duel ·
+  26 Describe & Guess · 27 Order Relay · 28 Co-op Memory · 29 Tic-Tac-Toe with a Quiz.
+  Switch with the 👥 «2 ученика» toggle above the tabs; 🔑 reveals the answers for a student acting as teacher.
+* **Grids:** 30 Word Grid 10 × 10 (find the lesson words among 100) · 31 Word Search (words hidden
+  part by part in a 10 × 10 grid).
+
+Every wrong answer in any game drops that word into a shared **mistake pile** (localStorage); game 14
+drills the pile until each word has been answered right twice in a row.
 
 ### How to Publish on GitHub Pages
 1. Open the repository on GitHub and go to **Settings** → **Pages** (in the left sidebar).
@@ -110,3 +212,21 @@ sanskrit-in-action/
 ---
 
 *Note: CELTA® and Delta® are registered trademarks of Cambridge University Press & Assessment. This independent educational project is inspired by modern communicative language teaching and CEFR standards and is not affiliated with or endorsed by Cambridge University Press & Assessment.*
+
+---
+
+## Tests / Тесты
+
+A jsdom harness walks all three lessons end to end — presentation modes, all 12
+practice games, all 4 production modes — and locks in the details that mattered in
+class (arrow direction, A/B/C/D option letters, memory-board coordinates,
+second-try scoring, the exact mistake being explained).
+
+Автотест на jsdom проходит все три урока целиком и проверяет мелочи, которые
+важны в классе: направление стрелки, буквы A/B/C/D у вариантов, координаты
+карточек в «Мемори», вторую попытку, показ конкретной ошибки.
+
+```bash
+npm init -y && npm install jsdom
+node tests/regression.js      # ALL CHECKS PASSED
+```

@@ -470,6 +470,8 @@ let matchMatchedCount = 0;
 let matchScore = 12;
 let matchFailedPairIds = new Set();
 let matchFinished = false;
+let matchHintText = '';
+let matchHintTimerId = null;
 
 // Game 7: Classic Memory (Face-down Pairs) state
 let memoryCards = [];
@@ -601,25 +603,124 @@ let tfFinished = false;
 let producedWordsSet = new Set(['nayana']);
 let activeProdWordId = 'nayana';
 
+// ---------------------------------------------------------------------------
+// Click feedback helpers
+// Students regularly report "I press a button and nothing happens". Most of
+// those clicks are not broken — they are audio-only (🔊 / card tap) or they are
+// silently ignored while a game is in a locked state. The helpers below make
+// sure every such click produces a visible reaction.
+// ---------------------------------------------------------------------------
+let audioToastTimerId = null;
+
+function speechIsSupported() {
+  return typeof window !== 'undefined'
+    && 'speechSynthesis' in window
+    && typeof window.SpeechSynthesisUtterance === 'function';
+}
+
+function showAudioToast(message) {
+  if (!document.body) return;
+  let toast = document.getElementById('audio-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'audio-toast';
+    toast.className = 'audio-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('show');
+  if (audioToastTimerId) clearTimeout(audioToastTimerId);
+  audioToastTimerId = setTimeout(() => {
+    toast.classList.remove('show');
+    audioToastTimerId = null;
+  }, 1800);
+}
+
+// Brief green ring around a stage — used when the user re-clicks the mode that
+// is already open, so the click never feels like a no-op.
+function pulseStage(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.classList.remove('stage-pulse');
+  void el.offsetWidth;
+  el.classList.add('stage-pulse');
+  setTimeout(() => el.classList.remove('stage-pulse'), 750);
+}
+
+// Restart/reset buttons do nothing visible when the game is already at the start.
+// Acknowledge the click with the same green ring (bubble phase, i.e. after the
+// game has re-rendered).
+document.addEventListener('click', (event) => {
+  const trigger = event.target && event.target.closest ? event.target.closest('[onclick]') : null;
+  if (!trigger) return;
+  const handler = (trigger.getAttribute('onclick') || '').trim();
+  // "Already selected" controls (same game view, same duration, same step…) and
+  // restart buttons are legitimate no-ops — acknowledge them with the same ring.
+  if (!/^(restart|initMatchGame|initMemoryGame|resetMaskedGrid|resetAudioFirst|setMemoryPairsCount|setMaskedModeView|setPresStep|setProdSprint)/.test(handler)) return;
+  if (/^(restartProd|restartProductionStage|setProdSprint)/.test(handler)) {
+    pulseStage('lesson1-production-stage');
+  } else if (/^(resetAudioFirst|setPresStep)/.test(handler)) {
+    pulseStage('lesson1-vocab-grid');
+  } else {
+    pulseStage('lesson1-practice-arena');
+  }
+});
+
+// Keeps the game/mode stage in view after the user switches tabs. On phones the
+// tab row can sit at the bottom of the screen, so the new game renders entirely
+// below the fold and the click looks like a no-op.
+function ensureStageVisible(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el || typeof el.getBoundingClientRect !== 'function') return;
+  const rect = el.getBoundingClientRect();
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+  if (!viewportHeight || !rect.height) return;
+  const header = document.querySelector('.site-header');
+  const headerHeight = header ? header.getBoundingClientRect().height : 0;
+  const topVisible = rect.top >= headerHeight && rect.top <= viewportHeight - 80;
+  if (!topVisible) {
+    const targetTop = Math.max(0, rect.top + (window.pageYOffset || 0) - headerHeight - 12);
+    if (typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: targetTop, behavior: 'smooth' });
+    }
+  }
+}
+
 // Audio Speech Helper (Web Speech API — pronounces pure stem without case/gender endings)
 function speakSanskritWord(devaText) {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(devaText);
-    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-    const saVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('sa'));
-    const hiVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('hi'));
-    if (saVoice) {
-      utter.voice = saVoice;
-      utter.lang = saVoice.lang;
-    } else if (hiVoice) {
-      utter.voice = hiVoice;
-      utter.lang = 'hi-IN';
-    } else {
-      utter.lang = 'hi-IN';
-    }
-    utter.rate = 0.85;
+  const isRu = (typeof currentLang === 'undefined') ? true : currentLang === 'ru';
+  if (!speechIsSupported()) {
+    // Older / restricted in-app browsers have no speech synthesis at all:
+    // without this message the 🔊 buttons look completely dead.
+    showAudioToast('🔇 ' + devaText + (isRu
+      ? ' · звук не поддерживается этим браузером'
+      : ' · audio is not supported in this browser'));
+    return;
+  }
+  showAudioToast('🔊 ' + devaText);
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(devaText);
+  const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  const saVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('sa'));
+  const hiVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('hi'));
+  if (saVoice) {
+    utter.voice = saVoice;
+    utter.lang = saVoice.lang;
+  } else if (hiVoice) {
+    utter.voice = hiVoice;
+    utter.lang = 'hi-IN';
+  } else {
+    utter.lang = 'hi-IN';
+  }
+  utter.rate = 0.85;
+  try {
     window.speechSynthesis.speak(utter);
+  } catch (e) {
+    showAudioToast('🔇 ' + devaText + (isRu
+      ? ' · не удалось воспроизвести звук'
+      : ' · could not play audio'));
   }
 }
 
@@ -674,11 +775,14 @@ function toggleTeacherGuide(stageKey) {
 
 // 1. Render Stage 1: PRESENTATION (4 CELTA Modes: 1. Step-by-Step [default], 2. Hotspots, 3. Audio-First, 4. Full Poster)
 function selectPresentationMode(mode) {
+  const alreadyOpen = currentPresentationMode === mode;
   currentPresentationMode = mode;
   document.querySelectorAll('.practice-tab-btn[data-pres-mode]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.presMode === mode);
   });
   renderPresentationStage();
+  ensureStageVisible('lesson1-vocab-grid');
+  if (alreadyOpen) pulseStage('lesson1-vocab-grid');
 }
 
 function renderVocabCardItemHtml(item, large = false) {
@@ -764,11 +868,10 @@ function setPresStep(idx) {
 function playCurrentStepAudio() {
   const step = presentationSteps[presStepIndex] || presentationSteps[0];
   const items = step.wordIds.map(id => bodyPartsVocab.find(w => w.id === id)).filter(Boolean);
-  items.forEach((item, i) => {
-    setTimeout(() => {
-      speakSanskritWord(item.ttsText);
-    }, i * 1150);
-  });
+  if (!items.length) return;
+  // Speak both words as ONE utterance: a delayed second speak() falls outside the
+  // iOS/Safari user-gesture window and silently never plays.
+  speakSanskritWord(items.map(item => item.ttsText).join(', '));
 }
 
 function renderHotspotPinGroupHtml(pos, activeId) {
@@ -1139,6 +1242,7 @@ function toggleIast() {
 
 // 2. Render Stage 2: PRACTICE (ELT Games — zero translations)
 function selectPracticeGame(gameKey) {
+  const alreadyOpen = currentPracticeGame === gameKey;
   currentPracticeGame = gameKey;
   document.querySelectorAll('.practice-tab-btn[data-game]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.game === gameKey);
@@ -1156,6 +1260,8 @@ function selectPracticeGame(gameKey) {
     prepareTrueFalseRound();
   }
   renderPracticeArena();
+  ensureStageVisible('lesson1-practice-arena');
+  if (alreadyOpen) pulseStage('lesson1-practice-arena');
 }
 
 function renderPracticeArena() {
@@ -1187,6 +1293,10 @@ function renderPracticeArena() {
   } else if (currentPracticeGame === 'truefalse') {
     renderTrueFalseGame(arena);
   }
+
+  // Rules panel: the same manual the engine shows above every game (lesson-engine.js)
+  const rulesPanel = (typeof SAL !== 'undefined' && SAL.rulesPanel) ? SAL.rulesPanel(currentPracticeGame) : '';
+  if (rulesPanel) arena.insertAdjacentHTML('afterbegin', rulesPanel);
 }
 
 // GAME 2: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio + Self-Score)
@@ -1400,6 +1510,7 @@ function renderFillGapsGame(arena) {
 
   const optionsHtml = options.map((opt, idx) => `
     <button type="button" class="quiz-opt-btn" id="gap-opt-${idx}" onclick="checkGapAnswer('${opt.deva}', ${idx})">
+      <span class="opt-letter">${'ABCD'[idx]}</span>
       <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;">${opt.deva}</div>
       <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.9rem;color:var(--accent-saffron);">${opt.iast}</div>
     </button>
@@ -1505,8 +1616,9 @@ function renderPictureQuizGame(arena) {
   ];
   const options = [item, ...distractors].sort((a, b) => a.id.localeCompare(b.id));
 
-  const optionsHtml = options.map(opt => `
+  const optionsHtml = options.map((opt, idx) => `
     <button type="button" class="quiz-opt-btn" id="pq-opt-${opt.id}" onclick="checkPicQuizAnswer('${opt.id}')">
+      <span class="opt-letter">${'ABCD'[idx]}</span>
       <div style="font-family:var(--font-deva);font-size:1.5rem;font-weight:700;">${opt.deva}</div>
       <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.82rem;color:var(--accent-saffron);">${opt.iast}</div>
     </button>
@@ -1593,8 +1705,9 @@ function renderWordToPicQuizGame(arena) {
   ];
   const options = [item, ...distractors].sort((a, b) => a.id.localeCompare(b.id));
 
-  const optionsHtml = options.map(opt => `
+  const optionsHtml = options.map((opt, idx) => `
     <button type="button" class="quiz-opt-btn" id="wq-opt-${opt.id}" onclick="checkWordQuizAnswer('${opt.id}')" style="display:flex;flex-direction:column;align-items:center;">
+      <span class="opt-letter">${'ABCD'[idx]}</span>
       <div class="vocab-svg-box" style="margin:0;width:95px;height:95px;">${opt.svg}</div>
     </button>
   `).join('');
@@ -1673,6 +1786,11 @@ function initMatchGame() {
   matchScore = 12;
   matchFailedPairIds = new Set();
   matchFinished = false;
+  matchHintText = '';
+  if (matchHintTimerId) {
+    clearTimeout(matchHintTimerId);
+    matchHintTimerId = null;
+  }
   setupMatchStageBoard();
 }
 
@@ -1730,6 +1848,7 @@ function renderMatchPairsGame(arena) {
     </div>
 
     <div class="match-grid">${tilesHtml}</div>
+    ${matchHintText ? `<div class="game-hint" role="status">${matchHintText}</div>` : ''}
   `;
 }
 
@@ -1767,7 +1886,20 @@ function clickMatchTile(idx) {
     } else {
       matchFailedPairIds.add(firstTile.pairId);
       matchFirstIdx = null;
+      matchHintText = firstTile.type === tile.type
+        ? (currentLang === 'ru'
+          ? '🙈 Здесь нужна пара «картинка + слово» — выберите карточку другого типа.'
+          : '🙈 A pair is a picture + a word — pick a tile of the other type.')
+        : (currentLang === 'ru'
+          ? '🙈 Не совпало — попробуйте другую пару.'
+          : '🙈 Not a match — try another pair.');
       renderPracticeArena();
+      if (matchHintTimerId) clearTimeout(matchHintTimerId);
+      matchHintTimerId = setTimeout(() => {
+        matchHintText = '';
+        matchHintTimerId = null;
+        renderPracticeArena();
+      }, 2200);
     }
   }
 }
@@ -1818,7 +1950,11 @@ function renderMemoryGame(arena) {
 
     let innerContent = '';
     if (!isVisible) {
-      innerContent = `<div class="memory-card-back-emblem">सं</div>`;
+      /* the board is 4 columns wide (see .memory-grid in styles.css):
+         the letter is the row, the number is the column — e.g. b2 */
+      const memoryCols = 4;
+      const cellName = 'abcdef'[Math.floor(idx / memoryCols)] + ((idx % memoryCols) + 1);
+      innerContent = `<div class="memory-card-back-emblem memory-coord">${cellName}</div>`;
     } else if (c.type === 'pic') {
       innerContent = `<div class="vocab-svg-box" style="margin:0;width:74px;height:74px;">${c.item.svg}</div>`;
     } else {
@@ -1853,6 +1989,15 @@ function renderMemoryGame(arena) {
     </div>
 
     <div class="memory-grid">${cardsHtml}</div>
+    ${memoryLock ? `<div class="game-hint" role="status">${currentLang === 'ru'
+      ? '🙈 Не совпало — карточки переворачиваются обратно…'
+      : '🙈 No match — the cards are flipping back…'}</div>` : ''}
+
+    <div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);text-align:center;">
+      ${currentLang === 'ru'
+        ? 'Называйте карточку по клетке: буква — ряд, цифра — столбец (например <strong>b2</strong>).'
+        : 'Name the card by its square — the letter is the row, the number is the column (for example <strong>b2</strong>).'}
+    </div>
   `;
 }
 
@@ -1949,6 +2094,7 @@ function renderWrongLabelGame(arena) {
     return `
       <button type="button" class="quiz-opt-btn" id="wl-card-${idx}" onclick="checkWrongLabelCard(${idx})"
               style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <span class="opt-letter">${'ABC'[idx]}</span>
         <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.picItem.svg}</div>
         ${!showCorrection ? `
           <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.labelItem.deva}</div>
@@ -2062,6 +2208,7 @@ function renderTypoGame(arena) {
     return `
       <button type="button" class="quiz-opt-btn" id="typo-card-${idx}" onclick="checkTypoCard(${idx})"
               style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">
+        <span class="opt-letter">${'ABC'[idx]}</span>
         <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.item.svg}</div>
         ${!showCorrection ? `
           <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.displayedDeva}</div>
@@ -2271,7 +2418,7 @@ function restartCategoriesGame() {
 // GAME 11: Missing Syllable / Devanagari Spelling Drill (12 rounds + Final Score)
 function renderSpellingGame(arena) {
   if (spFinished) {
-    renderFinalScoreScreen(arena, '10. Missing Letters', spScore, bodyPartsVocab.length, 'restartSpellingGame()');
+    renderFinalScoreScreen(arena, '11. Missing Letters', spScore, bodyPartsVocab.length, 'restartSpellingGame()');
     return;
   }
 
@@ -2280,6 +2427,7 @@ function renderSpellingGame(arena) {
 
   const choicesHtml = item.missingChoices.map((ch, i) => `
     <button type="button" class="quiz-opt-btn" id="sp-opt-${i}" onclick="checkSpellingAnswer('${ch}', ${i})">
+      <span class="opt-letter">${'ABCD'[i]}</span>
       <div style="font-family:var(--font-deva);font-size:1.65rem;font-weight:700;">${ch}</div>
     </button>
   `).join('');
@@ -2287,7 +2435,7 @@ function renderSpellingGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">10. Missing Letters</strong>
+        <strong style="font-size:1.05rem;">11. Missing Letters</strong>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <button type="button" class="chip-btn" onclick="restartSpellingGame()">${resetText}</button>
@@ -2368,7 +2516,7 @@ function prepareTrueFalseRound() {
 
 function renderTrueFalseGame(arena) {
   if (tfFinished) {
-    renderFinalScoreScreen(arena, '11. आम् / न', tfScore, bodyPartsVocab.length, 'restartTrueFalseGame()');
+    renderFinalScoreScreen(arena, '12. आम् / न', tfScore, bodyPartsVocab.length, 'restartTrueFalseGame()');
     return;
   }
 
@@ -2379,7 +2527,7 @@ function renderTrueFalseGame(arena) {
   arena.innerHTML = `
     <div class="game-top-bar">
       <div>
-        <strong style="font-size:1.05rem;">11. आम् / न</strong>
+        <strong style="font-size:1.05rem;">12. आम् / न</strong>
       </div>
       <div style="display:flex;align-items:center;gap:0.5rem;">
         <button type="button" class="chip-btn" onclick="restartTrueFalseGame()">${resetText}</button>
@@ -2396,9 +2544,11 @@ function renderTrueFalseGame(arena) {
 
     <div class="quiz-options-grid">
       <button type="button" class="quiz-opt-btn" id="tf-btn-true" onclick="checkTrueFalse(true)">
+        <span class="opt-letter">A</span>
         <div style="font-family:var(--font-deva);font-size:1.55rem;font-weight:700;color:#15803d;">✓ आम्<span class="iast-text" style="font-family:var(--font-mono);font-size:0.85rem;"> (ām)</span></div>
       </button>
       <button type="button" class="quiz-opt-btn" id="tf-btn-false" onclick="checkTrueFalse(false)">
+        <span class="opt-letter">B</span>
         <div style="font-family:var(--font-deva);font-size:1.55rem;font-weight:700;color:#dc2626;">✕ न<span class="iast-text" style="font-family:var(--font-mono);font-size:0.85rem;"> (na)</span></div>
       </button>
     </div>
@@ -2517,11 +2667,14 @@ function stopAllProductionTimers() {
 
 function selectProductionMode(mode) {
   stopAllProductionTimers();
+  const alreadyOpen = currentProductionMode === mode;
   currentProductionMode = mode;
   document.querySelectorAll('.practice-tab-btn[data-prod-mode]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.prodMode === mode);
   });
   renderProductionStage();
+  ensureStageVisible('lesson1-production-stage');
+  if (alreadyOpen) pulseStage('lesson1-production-stage');
 }
 
 // MODE 1: Speed Sprint ⏱ (See picture only -> Say word aloud before timer hits 0)
