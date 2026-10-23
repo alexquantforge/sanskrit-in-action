@@ -1101,17 +1101,392 @@
           tx({ ru: 'Неверно — клетка свободна, ход переходит.', en: 'Wrong — the square stays free and the turn passes.' }) + '</div>' : ''));
   }
 
-  /* ================================================= 30. WORD GRID 10 × 10 */
+  /* =========================================================================
+     30–31. ФИЛВОРДЫ: РАЗМЕР ПОЛЯ И «ТРУДНЫЕ» СОСЕДИ
+     -------------------------------------------------------------------------
+     Два поля: «среди слов» (wordgrid) и «среди букв» (wordsearch). У обоих
+     есть выбор размера: 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5.
+
+     ГЛАВНОЕ ПРАВИЛО ЗАПОЛНЕНИЯ (см. DEV_* ниже):
+     свободные клетки заполняются НЕ случайными буквами, а «почти-двойниками»
+     букв, которые уже стоят в слове. Ученик не может отличить слово от
+     ловушки «на глаз»: нужно точно знать долготу гласной и варгу согласной.
+     Ровно те ошибки, которые преподаватель слышит на уроке:
+
+       1. ДОЛГОТА ГЛАСНОЙ: ि ↔ ी, ु ↔ ू, े ↔ ै, ो ↔ ौ, अ ↔ आ
+          त्रीणि против त्रिणि (trīṇi против triṇi) — «короткая и» вместо «длинной».
+       2. ऋ И РИ (r с точкой внизу против «ри»):
+          तृ ↔ त्रि, कृ ↔ क्रि; отдельная ऋ ↔ रि.
+          तृणि (tṛṇi) читается почти как त्रीणि — классическая ловушка.
+       3. ВАРГА (место образования): ण ↔ न ↔ म, ट ↔ त ↔ प, ड ↔ द ↔ ब …
+          ण — церебральная (ट-варга), न — зубная (त-варга): «н из другой варги».
+       4. ОДНА ВАРГА, ДРУГАЯ КОЛОНКА: क ↔ ख ↔ ग ↔ घ (звонкость/придыхание).
+       5. ШИПЯЩИЕ: श ↔ ष ↔ स.   НОСОВЫЕ: ं ↔ ँ ↔ ः.
+       6. ПОХОЖИЕ НАЧЕРТАНИЯ: भ ↔ म, ध ↔ घ, व ↔ ब, प ↔ ष, र ↔ ल.
+       7. ВИРАМА: षट् ↔ षट (потерянный ्).
+
+     Ловушка ставится рядом с правильной частью слова (в том числе прямо по
+     линии продолжения), а не в случайном месте сетки: поэтому «следующая
+     буква» после найденной части — всегда почти-правильная, а не случайная.
+     ========================================================================= */
+  var WS_SIZES = [10, 9, 8, 7, 6, 5];
+
+  /* пять варг (рядов) — колонки это звонкость и придыхание */
+  var DEV_VARGAS = [
+    ['क', 'ख', 'ग', 'घ', 'ङ'],
+    ['च', 'छ', 'ज', 'झ', 'ञ'],
+    ['ट', 'ठ', 'ड', 'ढ', 'ण'],
+    ['त', 'थ', 'द', 'ध', 'न'],
+    ['प', 'फ', 'ब', 'भ', 'म']
+  ];
+  /* те же колонки, но поперёк варг — место образования:
+     ण (церебральная) ↔ न (зубная) ↔ म (губная) ↔ ङ ↔ ञ */
+  var DEV_COLUMNS = [
+    ['क', 'च', 'ट', 'त', 'प'],
+    ['ख', 'छ', 'ठ', 'थ', 'फ'],
+    ['ग', 'ज', 'ड', 'द', 'ब'],
+    ['घ', 'झ', 'ढ', 'ध', 'भ'],
+    ['ङ', 'ञ', 'ण', 'न', 'म']
+  ];
+  /* долгота независимых гласных */
+  var DEV_LONG = {
+    'अ': 'आ', 'आ': 'अ', 'इ': 'ई', 'ई': 'इ', 'उ': 'ऊ', 'ऊ': 'उ',
+    'ऋ': 'ॠ', 'ॠ': 'ऋ', 'ए': 'ऐ', 'ऐ': 'ए', 'ओ': 'औ', 'औ': 'ओ'
+  };
+  /* долгота огласовок (matras) */
+  var DEV_MATRA_LONG = {
+    'ि': 'ी', 'ी': 'ि', 'ु': 'ू', 'ू': 'ु',
+    'ृ': 'ॄ', 'ॄ': 'ृ', 'े': 'ै', 'ै': 'े', 'ो': 'ौ', 'ौ': 'ो'
+  };
+  /* носовые и висарга: ं / ँ / ः */
+  var DEV_SIGNS = ['ं', 'ँ', 'ः'];
+  /* похожие начертания и близкие на слух пары */
+  var DEV_SHAPE = [
+    ['भ', 'म'], ['ध', 'घ'], ['व', 'ब'], ['प', 'ष'], ['य', 'थ'],
+    ['र', 'ल'], ['ज', 'झ'], ['ट', 'ड'], ['द', 'ड'], ['श', 'स'], ['ष', 'स']
+  ];
+
+  /* inCluster = буква стоит рядом с вирамой (्), т.е. входит в лигатуру.
+     Тогда меняем её только внутри варги: क→ख/ग/घ остаётся читаемым кластером,
+     а ण→न внутри лигатуры дало бы невозможное написание и ловушка была бы
+     слишком заметной. У одиночной согласной доступны и другие варги (ण ↔ न). */
+  function devaAltsOfConsonant(ch, inCluster) {
+    var out = [];
+    DEV_VARGAS.forEach(function (row) {          /* та же варга: звонкость/придыхание */
+      if (row.indexOf(ch) >= 0) row.forEach(function (x) { if (x !== ch) out.push(x); });
+    });
+    if (!inCluster) {
+      DEV_COLUMNS.forEach(function (col) {       /* та же колонка: другая варга (ण ↔ न) */
+        if (col.indexOf(ch) >= 0) col.forEach(function (x) { if (x !== ch) out.push(x); });
+      });
+    }
+    DEV_SHAPE.forEach(function (pair) {          /* похожие начертания */
+      if (pair[0] === ch) out.push(pair[1]);
+      if (pair[1] === ch) out.push(pair[0]);
+    });
+    return out;
+  }
+
+  function devaAltsOfChar(ch, inCluster) {
+    var out = [];
+    if (DEV_LONG[ch]) out.push(DEV_LONG[ch]);
+    if (DEV_MATRA_LONG[ch]) out.push(DEV_MATRA_LONG[ch]);
+    if (DEV_SIGNS.indexOf(ch) >= 0) {
+      DEV_SIGNS.forEach(function (s) { if (s !== ch) out.push(s); });
+    }
+    return out.concat(devaAltsOfConsonant(ch, inCluster));
+  }
+
+  function uniq(list) {
+    var seen = {}, out = [];
+    list.forEach(function (v) {
+      if (!v || seen[v]) return;
+      seen[v] = true;
+      out.push(v);
+    });
+    return out;
+  }
+
+  /* Все «почти-двойники» одной части слова.
+     Возвращает строки той же длины в буквах, кроме ऋ ↔ रि, где длина меняется:
+     तृ → त्रि (tṛ → tri), त्रि → तृ. Именно эти пары и путают ученики. */
+  function devaVariants(chunk) {
+    if (!chunk) return [];
+    var chars = chunk.split('');
+    var out = [];
+    chars.forEach(function (ch, i) {
+      var inCluster = chars[i - 1] === '्' || chars[i + 1] === '्';
+      devaAltsOfChar(ch, inCluster).forEach(function (alt) {
+        out.push(chars.slice(0, i).join('') + alt + chars.slice(i + 1).join(''));
+      });
+    });
+    /* ऋ ↔ रि  и  ृ ↔ ्रि  — «r с точкой внизу» против «ри» */
+    if (chunk.indexOf('ृ') >= 0) out.push(chunk.split('ृ').join('्रि'));
+    if (chunk.indexOf('्रि') >= 0) out.push(chunk.split('्रि').join('ृ'));
+    if (chunk.indexOf('ऋ') >= 0) out.push(chunk.split('ऋ').join('रि'));
+    if (chunk.indexOf('रि') >= 0) out.push(chunk.split('रि').join('ऋ'));
+    /* долгота на конце: द ↔ दा, का ↔ क */
+    var last = chars[chars.length - 1];
+    if (last === 'ा') out.push(chunk.slice(0, -1));
+    else if (last && devaAltsOfConsonant(last).length) out.push(chunk + 'ा');
+    /* ровно ОДИН признак на ловушку: заменили долготу — варгу уже не трогаем,
+       иначе ученик отличит подделку по второй ошибке и правило перестанет работать */
+    return uniq(out).filter(function (v) { return v !== chunk; });
+  }
+
+  /* Перестановка для поля: слова ставим от длинных к коротким, но начало
+     и направление каждый раз случайные — доска не повторяется. */
+  function orderedWords(cfg) {
+    return shuffle(cfg.words.slice()).sort(function (a, b) {
+      return chunks(b).length - chunks(a).length;
+    });
+  }
+
+  function placeWord(grid, n, w, ch, places) {
+    var starts = [];
+    for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) starts.push([r, c]);
+    starts = shuffle(starts);
+    var dirs = shuffle(DIRS.slice());
+    for (var s = 0; s < starts.length; s++) {
+      for (var d = 0; d < dirs.length; d++) {
+        var dr = dirs[d][1], dc = dirs[d][0];
+        var row = starts[s][0], col = starts[s][1];
+        if (row + dr * (ch.length - 1) >= n || col + dc * (ch.length - 1) >= n) continue;
+        var cells = [], fits = true;
+        for (var k = 0; k < ch.length; k++) {
+          var idx = (row + dr * k) * n + (col + dc * k);
+          /* клетка занята — можно встать крест-накрест, если буква та же */
+          if (grid[idx] !== '' && grid[idx] !== ch[k]) { fits = false; break; }
+          cells.push(idx);
+        }
+        if (!fits) continue;
+        cells.forEach(function (idx2, k2) { grid[idx2] = ch[k2]; });
+        places.push({ id: w.id, cells: cells, dr: dr, dc: dc });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function stepIdx(n, idx, dr, dc) {
+    var r = Math.floor(idx / n) + dr, c = (idx % n) + dc;
+    if (r < 0 || c < 0 || r >= n || c >= n) return -1;
+    return r * n + c;
+  }
+
+  function neighboursOf(n, idx) {
+    var out = [];
+    for (var dr = -1; dr <= 1; dr++) for (var dc = -1; dc <= 1; dc++) {
+      if (!dr && !dc) continue;
+      var j = stepIdx(n, idx, dr, dc);
+      if (j >= 0) out.push(j);
+    }
+    return out;
+  }
+
+  /* по возможности берём вариант, которого на поле ещё нет: иначе одна и та же
+     ловушка повторяется и бросается в глаза раньше, чем нужно */
+  function pickFresh(list, grid) {
+    var seen = {};
+    grid.forEach(function (v) { if (v) seen[v] = true; });
+    var fresh = list.filter(function (v) { return !seen[v]; });
+    var from = fresh.length ? fresh : list;
+    return from[Math.floor(Math.random() * from.length)];
+  }
+
+  /* Заполнение поля: сначала ловушки у самих слов, потом «почти-двойники»
+     букв с доски. Ни одной случайной буквы — всё выглядит как санскрит. */
+  function fillBoard(grid, n, places, cfg) {
+    var onBoard = [];
+    places.forEach(function (p) {
+      p.chunks = chunks(byId(cfg, p.id));
+      p.chunks.forEach(function (c) { onBoard.push(c); });
+    });
+
+    function put(idx, value) {
+      if (idx === null || idx < 0 || typeof idx === 'undefined') return false;
+      if (grid[idx] !== '') return false;
+      grid[idx] = value;
+      return true;
+    }
+
+    /* 1) рядом с каждой частью слова — почти-двойник СЛЕДУЮЩЕЙ части:
+          именно эту клетку ученик и хочется нажать вместо правильной */
+    places.forEach(function (p) {
+      p.chunks.forEach(function (part, k) {
+        var next = p.chunks[k + 1] || p.chunks[k];
+        var alts = devaVariants(next);
+        if (!alts.length) return;
+        var cand = shuffle(neighboursOf(n, p.cells[k]));
+        /* продолжение линии за концом слова и клетка перед началом */
+        if (k === p.chunks.length - 1) cand.unshift(stepIdx(n, p.cells[k], p.dr, p.dc));
+        if (k === 0) cand.push(stepIdx(n, p.cells[k], -p.dr, -p.dc));
+        var made = false;
+        for (var i = 0; i < cand.length && !made; i++) {
+          var near = [];
+          if (cand[i] >= 0) neighboursOf(n, cand[i]).forEach(function (j) { if (j !== cand[i]) near.push(grid[j]); });
+          made = put(cand[i], pickFresh(alts, near));
+        }
+        if (!made) {                              /* соседи заняты — кладём в первую свободную */
+          for (var f = 0; f < n * n && !made; f++) made = put(f, pickFresh(alts, grid));
+        }
+      });
+    });
+
+    /* 2) остальное — тоже не «мусор», а варианты частей с этого поля */
+    var pool = [];
+    onBoard.forEach(function (c) { pool = pool.concat(devaVariants(c)); });
+    if (!pool.length) pool = onBoard.slice();
+    for (var i = 0; i < n * n; i++) {
+      if (grid[i] === '') grid[i] = pickFresh(pool, grid) || onBoard[0] || '';
+    }
+    return grid;
+  }
+
+  /* Все прямые цепочки заданной длины, читающиеся как данное слово */
+  function findRuns(grid, n, chunkList) {
+    var text = chunkList.join(''), len = chunkList.length, hits = [];
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        for (var d = 0; d < DIRS.length; d++) {
+          if (len === 1 && d > 0) break;          /* одна клетка — все три направления дали бы её же */
+          var dr = DIRS[d][1], dc = DIRS[d][0];
+          if (r + dr * (len - 1) >= n || c + dc * (len - 1) >= n) continue;
+          var cells = [], s = '';
+          for (var k = 0; k < len; k++) {
+            var idx = (r + dr * k) * n + (c + dc * k);
+            cells.push(idx);
+            s += grid[idx];
+          }
+          if (s === text) hits.push(cells);
+        }
+      }
+    }
+    return hits;
+  }
+
+  /* Ловушка не должна случайно сложить настоящее слово: если после заполнения
+     слово читается где-то ещё, портим одну из «лишних» клеток. Проходов
+     несколько: одна правка может убрать одно вхождение и создать другое. */
+  function repairBoard(grid, n, places, cfg) {
+    var used = {};
+    places.forEach(function (p) { p.cells.forEach(function (i) { used[i] = true; }); });
+
+    function intended(cells, p) {
+      return cells.length === p.cells.length &&
+        cells.every(function (v, i) { return v === p.cells[i]; });
+    }
+
+    for (var pass = 0; pass < 4; pass++) {
+      var fixed = false;
+      places.forEach(function (p) {
+        var ch = chunks(byId(cfg, p.id));
+        var hits = findRuns(grid, n, ch);
+        if (hits.length < 2) return;
+        hits.forEach(function (cells) {
+          if (intended(cells, p)) return;
+          var want = findRuns(grid, n, ch).length;
+          if (want < 2) return;
+          for (var i = 0; i < cells.length; i++) {
+            if (used[cells[i]]) continue;
+            var old = grid[cells[i]];
+            var alts = devaVariants(old);
+            for (var a = 0; a < alts.length; a++) {
+              grid[cells[i]] = alts[a];
+              if (findRuns(grid, n, ch).length < want) { fixed = true; return; }
+              grid[cells[i]] = old;
+            }
+          }
+        });
+      });
+      if (!fixed) break;
+    }
+    return grid;
+  }
+
+  /* сколько лишних вхождений настоящих слов осталось на поле */
+  function boardPenalty(grid, n, places, cfg) {
+    var dup = 0;
+    places.forEach(function (p) {
+      var ch = chunks(byId(cfg, p.id));
+      dup += Math.max(0, findRuns(grid, n, ch).length - 1);
+    });
+    return dup;
+  }
+
+  function buildSearch(cfg, size) {
+    var n = size || 10;
+    var best = null;
+    for (var attempt = 0; attempt < 40; attempt++) {
+      var grid = [], i;
+      for (i = 0; i < n * n; i++) grid.push('');
+      var places = [];
+      var words = orderedWords(cfg);
+      words.forEach(function (w) {
+        var ch = chunks(w);
+        if (ch.length > n) return;                 /* слово не влезает в поле */
+        placeWord(grid, n, w, ch, places);
+      });
+      var maxLen = 1;
+      places.forEach(function (p) { maxLen = Math.max(maxLen, chunks(byId(cfg, p.id)).length); });
+      var worth = places.length * 100;
+      if (!best || worth > best.worth) {
+        fillBoard(grid, n, places, cfg);
+        repairBoard(grid, n, places, cfg);
+        best = { grid: grid, places: places, maxLen: maxLen,
+                 worth: worth - boardPenalty(grid, n, places, cfg) };
+      }
+      if (places.length === cfg.words.length && best.worth === best.places.length * 100) break;
+    }
+    delete best.worth;
+    return best;
+  }
+
+  /* Пул отвлекающих слов для «филворда среди слов»: настоящие санскритские
+     слова из данных урока плюс почти-двойники слов этого урока. */
+  function decoyPool(cfg) {
+    var real = cfg.words.map(function (w) { return w.deva; });
+    var out = (cfg.decoys || []).slice();
+    cfg.words.forEach(function (w) {
+      out = out.concat(devaVariants(w.deva));
+    });
+    return uniq(out).filter(function (s) { return real.indexOf(s) < 0; });
+  }
+
+  /* ряд кнопок 10…5 — одинаковый у обоих филвордов */
+  function sizeRow(cfg, action, current) {
+    var chips = WS_SIZES.map(function (s) {
+      return chip(cfg, action, String(s), s + ' × ' + s, current === s);
+    }).join(' ');
+    return '<div class="ws-size-row"><span class="ws-size-label">' +
+      tx({ ru: 'Размер поля:', en: 'Grid size:' }) + '</span>' + chips + '</div>';
+  }
+
+  var TRAP_NOTE = {
+    ru: '🪤 Свободные клетки — не случайные буквы, а «почти-двойники» слов урока: ' +
+        'долгая и краткая гласная (ि / ी), ण и न из разных варг, ऋ и रि (तृ / त्रि), ं и ः. ' +
+        'Слово нужно читать точно — соседняя клетка почти всегда выглядит правильной.',
+    en: '🪤 The empty cells are not random letters but near-misses of the lesson words: ' +
+        'long and short vowels (ि / ी), ण and न from different vargas, ऋ and रि (तृ / त्रि), ं and ः. ' +
+        'Read exactly — the neighbouring cell almost always looks right.'
+  };
+
+  /* ================================================= 30. WORD GRID (words) */
   function renderWordGrid(cfg) {
     var g = K.gst(cfg, 'wordgrid');
-    var N = cfg.words.length;
+    if (!g.size) g.size = 10;
+    var n = g.size;
+    var totalCells = n * n;
     if (!g.grid) {
       var targets = [];
       cfg.words.forEach(function (w) { targets.push(w.id); targets.push(w.id); });
-      var decoys = shuffle(cfg.decoys || []);
+      if (targets.length > totalCells || targets.length > Math.floor(totalCells * 0.6)) {
+        targets = cfg.words.map(function (w) { return w.id; });   /* маленькое поле — по одному разу */
+      }
+      var decoys = shuffle(decoyPool(cfg));
       var cells = [];
-      for (var i = 0; i < 100; i++) cells.push(null);
-      shuffle(targets).forEach(function (id, k) {
+      for (var i = 0; i < totalCells; i++) cells.push(null);
+      shuffle(targets).forEach(function (id) {
         var free = [];
         cells.forEach(function (c, idx) { if (c === null) free.push(idx); });
         cells[free[Math.floor(Math.random() * free.length)]] = { t: 1, id: id };
@@ -1125,76 +1500,51 @@
     var found = Object.keys(g.found).length;
     if (g.finished || found >= g.total) {
       return done(cfg, 'wordgrid', tx({ ru: 'Филворд — найдено всё', en: 'Word grid — all found' }),
-        found, g.total, tx({ ru: 'Лишних нажатий', en: 'Wrong taps' }) + ': ' + Object.keys(g.wrong).length);
+        found, g.total, tx({ ru: 'Лишних нажатий', en: 'Wrong taps' }) + ': ' + Object.keys(g.wrong).length) +
+        sizeRow(cfg, 'wgSize', g.size);
     }
     var cellsHtml = g.grid.map(function (c, idx) {
       var txt = c.t ? byId(cfg, c.id).deva : c.s;
       var cls = 'wcell' + (g.found[idx] ? ' found' : '') + (g.wrong[idx] ? ' wrong' : '') +
         (keyOn(cfg) && c.t ? ' hint' : '');
       return '<button type="button" class="' + cls + '"' + call(cfg, 'wgTap', String(idx)) + '>' +
-        devaSpan(txt, '0.78rem') + '</button>';
+        devaSpan(txt, (1.3 - n * 0.055).toFixed(2) + 'rem') + '</button>';
     }).join('');
     return K.topBar(
       K.pill(tx({ ru: 'Найдено', en: 'Found' }) + ': ' + found + '/' + g.total) + ' ' +
         K.pill(tx({ ru: 'Мимо', en: 'Misses' }) + ': ' + Object.keys(g.wrong).length),
       chip(cfg, 'wgReveal', '', '👁 ' + tx({ ru: 'Показать всё', en: 'Reveal all' })) + ' ' + restartChip(cfg, 'wordgrid')) +
+      sizeRow(cfg, 'wgSize', n) +
       K.centerCard(
-        '<div class="grid-10">' + cellsHtml + '</div>' +
+        '<div class="grid-10" style="grid-template-columns: repeat(' + n + ', 1fr); --ws-max: ' +
+          Math.min(620, n * 66) + 'px;">' + cellsHtml + '</div>' +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
-          tx({ ru: 'В поле 100 слов — и только ' + g.total + ' из них были на уроке (каждое дважды). Найдите их: остальные звучат похоже, но в уроке их не было.',
-               en: 'The grid holds 100 words and only ' + g.total + ' of them were in the lesson (each twice). Find them: the rest look alike but were never taught.' }) + '</div>');
+          tx({ ru: 'В поле ' + totalCells + ' слов — и только ' + g.total + ' из них были на уроке' +
+                (g.total === cfg.words.length * 2 ? ' (каждое дважды)' : '') +
+                '. Найдите их: остальные отличаются на одну букву — долгота, варга, ऋ / रि.',
+               en: 'The grid holds ' + totalCells + ' words and only ' + g.total + ' of them were in the lesson' +
+                (g.total === cfg.words.length * 2 ? ' (each twice)' : '') +
+                '. Find them: the rest differ by one letter — vowel length, varga, ऋ / रि.' }) + '</div>' +
+        '<div style="margin-top:0.5rem;font-size:0.83rem;color:var(--text-secondary);">' +
+          tx(TRAP_NOTE) + '</div>');
   }
 
   /* ============================================= 31. WORD SEARCH (letters) */
   var DIRS = [[1, 0], [0, 1], [1, 1]];
-  function buildSearch(cfg) {
-    var grid = [];
-    var i;
-    for (i = 0; i < 100; i++) grid.push('');
-    var places = [];
-    var pool = [];
-    cfg.words.forEach(function (w) { chunks(w).forEach(function (c) { pool.push(c); }); });
-    var starts = [];
-    for (var r = 0; r < 10; r++) for (var c = 0; c < 10; c++) starts.push([r, c]);
-    starts = shuffle(starts);
-    var dirs = shuffle(DIRS.slice());
-    /* try random spots first (so the board looks different every time), then fall
-       back to a full scan so every word really does get placed */
-    cfg.words.forEach(function (w) {
-      var ch = chunks(w);
-      var placed = false;
-      for (var sIdx = 0; sIdx < starts.length && !placed; sIdx++) {
-        for (var d = 0; d < dirs.length && !placed; d++) {
-          var row = starts[sIdx][0], col = starts[sIdx][1], dr = dirs[d][1], dc = dirs[d][0];
-          if (row + dr * (ch.length - 1) > 9 || col + dc * (ch.length - 1) > 9) continue;
-          var cells = [];
-          var fits = true;
-          for (var k = 0; k < ch.length; k++) {
-            var idx = (row + dr * k) * 10 + (col + dc * k);
-            if (grid[idx] !== '') { fits = false; break; }
-            cells.push(idx);
-          }
-          if (!fits) continue;
-          cells.forEach(function (idx2, k2) { grid[idx2] = ch[k2]; });
-          places.push({ id: w.id, cells: cells });
-          placed = true;
-        }
-      }
-    });
-    for (i = 0; i < 100; i++) if (grid[i] === '') grid[i] = pool[Math.floor(Math.random() * pool.length)];
-    return { grid: grid, places: places };
-  }
+
   function renderWordSearch(cfg) {
     var g = K.gst(cfg, 'wordsearch');
+    if (!g.size) g.size = 10;
     if (!g.grid) {
-      var built = buildSearch(cfg);
+      var built = buildSearch(cfg, g.size);
       g.grid = built.grid;
       g.places = built.places;
+      g.maxLen = built.maxLen;
     }
     var foundN = Object.keys(g.found).length;
-    if (g.finished || foundN >= g.places.length) {
+    if (g.finished || (g.places.length && foundN >= g.places.length)) {
       return done(cfg, 'wordsearch', tx({ ru: 'Филворд — все слова найдены', en: 'Word search — complete' }),
-        foundN, g.places.length);
+        foundN, g.places.length) + sizeRow(cfg, 'wsSize', g.size);
     }
     var marked = {};
     g.places.forEach(function (p) {
@@ -1207,22 +1557,28 @@
     var cellsHtml = g.grid.map(function (c, idx) {
       var cls = 'wcell' + (marked[idx] ? ' ' + marked[idx] : '');
       return '<button type="button" class="' + cls + '"' + call(cfg, 'wsTap', String(idx)) + '>' +
-        devaSpan(c, '0.95rem') + '</button>';
+        devaSpan(c, g.size <= 6 ? '1rem' : '0.95rem') + '</button>';
     }).join('');
     var legend = g.places.map(function (p) {
       var w = byId(cfg, p.id);
       return '<span class="ws-legend' + (g.found[p.id] ? ' done' : '') + '">' +
         (g.found[p.id] ? '✓ ' : '') + devaSpan(w.deva) + '</span>';
     }).join('');
+    var notPlaced = cfg.words.length - g.places.length;
     return K.topBar(
-      K.pill(tx({ ru: 'Найдено', en: 'Found' }) + ': ' + foundN + '/' + g.places.length),
+      K.pill(tx({ ru: 'Найдено', en: 'Found' }) + ': ' + foundN + '/' + g.places.length) +
+        (notPlaced > 0 ? ' ' + K.pill(tx({ ru: 'не влезло', en: 'did not fit' }) + ': ' + notPlaced) : ''),
       chip(cfg, 'wsClear', '', '↺ ' + tx({ ru: 'Сбросить выбор', en: 'Clear' })) + ' ' + restartChip(cfg, 'wordsearch')) +
+      sizeRow(cfg, 'wsSize', g.size) +
       K.centerCard(
-        '<div class="grid-10">' + cellsHtml + '</div>' +
+        '<div class="grid-10" style="grid-template-columns: repeat(' + g.size + ', 1fr); --ws-max: ' +
+          Math.min(620, g.size * 66) + 'px;">' + cellsHtml + '</div>' +
         '<div class="ws-legend-row">' + legend + '</div>' +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           tx({ ru: 'Слова спрятаны по частям: слева направо, сверху вниз и по диагонали. Нажимайте клетки по порядку.',
-               en: 'The words are hidden part by part: left to right, top to bottom and diagonally. Tap the cells in order.' }) + '</div>');
+               en: 'The words are hidden part by part: left to right, top to bottom and diagonally. Tap the cells in order.' }) + '</div>' +
+        '<div style="margin-top:0.5rem;font-size:0.83rem;color:var(--text-secondary);">' +
+          tx(TRAP_NOTE) + '</div>');
   }
 
   /* ------------------------------------------------------- register (pair) */
@@ -1465,17 +1821,36 @@
     }
   });
 
+  /* смена размера: поле и прогресс строятся заново с нуля */
+  function setGridSize(cfg, game, raw) {
+    var g = K.gst(cfg, game);
+    var n = parseInt(raw, 10);
+    if (WS_SIZES.indexOf(n) < 0 || g.size === n) return;
+    g.size = n;
+    g.grid = null;
+    g.places = null;
+    g.found = {};
+    g.wrong = {};
+    g.sel = [];
+    g.total = 0;
+    g.maxLen = 2;
+    g.finished = false;
+    K.clearAfter();
+  }
+
   SAL.addGame('wordgrid', {
-    labelRu: 'Филворд 10 × 10 (среди слов)',
-    labelEn: 'Word Grid 10 × 10 (among words)',
-    init: function () { return { grid: null, found: {}, wrong: {}, total: 0, finished: false }; },
+    labelRu: 'Филворд (среди слов)',
+    labelEn: 'Word Grid (among words)',
+    init: function () { return { grid: null, found: {}, wrong: {}, total: 0, size: 10, finished: false }; },
     render: renderWordGrid,
     actions: {
+      wgSize: function (cfg, st, a) { setGridSize(cfg, 'wordgrid', a); },
       wgTap: function (cfg, st, a) {
         var g = K.gst(cfg, 'wordgrid');
         var idx = parseInt(a, 10);
-        var c = g.grid[idx];
-        if (g.found[idx] || g.wrong[idx]) return;
+        /* поле могли пересобрать другим размером — устаревшее нажатие просто игнорируем */
+        var c = g.grid && g.grid[idx];
+        if (!c || g.found[idx] || g.wrong[idx]) return;
         if (c.t) {
           g.found[idx] = true;
           SAL.speak(byId(cfg, c.id).ttsText);
@@ -1495,21 +1870,25 @@
   SAL.addGame('wordsearch', {
     labelRu: 'Филворд (среди букв)',
     labelEn: 'Word Search (among letters)',
-    init: function () { return { grid: null, places: null, found: {}, sel: [], finished: false }; },
+    init: function () { return { grid: null, places: null, found: {}, sel: [], size: 10, maxLen: 2, finished: false }; },
     render: renderWordSearch,
     actions: {
+      wsSize: function (cfg, st, a) { setGridSize(cfg, 'wordsearch', a); },
       wsTap: function (cfg, st, a) {
         var g = K.gst(cfg, 'wordsearch');
+        var n = g.size || 10;
         var idx = parseInt(a, 10);
+        if (!g.grid || !g.grid[idx]) return;       /* клетка из поля другого размера */
         if (g.sel.length >= 2) {
-          var d0 = { r: Math.floor(g.sel[1] / 10) - Math.floor(g.sel[0] / 10), c: (g.sel[1] % 10) - (g.sel[0] % 10) };
-          var dn = { r: Math.floor(idx / 10) - Math.floor(g.sel[g.sel.length - 1] / 10),
-                     c: (idx % 10) - (g.sel[g.sel.length - 1] % 10) };
+          var d0 = { r: Math.floor(g.sel[1] / n) - Math.floor(g.sel[0] / n), c: (g.sel[1] % n) - (g.sel[0] % n) };
+          var dn = { r: Math.floor(idx / n) - Math.floor(g.sel[g.sel.length - 1] / n),
+                     c: (idx % n) - (g.sel[g.sel.length - 1] % n) };
           if (d0.r !== dn.r || d0.c !== dn.c) g.sel = [];
         }
         if (g.sel.indexOf(idx) >= 0) { g.sel = []; return; }
         g.sel.push(idx);
-        if (g.sel.length > 5) g.sel = [idx];
+        /* цепочка не длиннее самого длинного слова (+2 как допуск на промах) */
+        if (g.sel.length > (g.maxLen || 2) + 2) g.sel = [idx];
         var seq = g.sel.map(function (i) { return g.grid[i]; }).join('');
         var hit = null;
         g.places.forEach(function (p) {
@@ -1781,32 +2160,36 @@
               en: 'For two players: the first is ✕, the second ◯. 🔑 marks the right option in advance.' }
     },
     wordgrid: {
-      aim: { ru: 'Найти среди сотни слов те, что были на уроке, — и не попасться на похожие.',
-             en: 'Find the words of the lesson among a hundred — without falling for the look-alikes.' },
-      how: { ru: ['Поле 10 × 10: сто клеток, в каждой — слово в деванагари.',
-                  'Нажимайте клетки, в которых написаны слова урока: каждое встречается дважды.',
+      aim: { ru: 'Найти среди слов поля те, что были на уроке, — и не попасться на похожие.',
+             en: 'Find the words of the lesson on the board — without falling for the look-alikes.' },
+      how: { ru: ['Размер поля выбирается кнопками 10 × 10 … 5 × 5: чем меньше поле, тем легче удержать взгляд.',
+                  'В клетке — целое слово в деванагари. Нажимайте клетки со словами урока: на большом поле каждое встречается дважды.',
                   'Верно — клетка зелёная; мимо — красная, и это считается промахом.',
-                  'Многие слова‑ловушки отличаются от нужных одной буквой (ऐकम्, द्वै, पन्च) — смотрите внимательно.'],
-             en: ['A 10 × 10 board: a hundred cells, each holding a word in Devanagari.',
-                  'Press the cells that hold words from the lesson: each appears twice.',
+                  '🪤 Пустые клетки заполнены не случайными буквами, а почти‑двойниками слов урока: долгая и краткая гласная (ि / ी), ण и न из разных варг, ऋ и रि, ं и ः. Слово нужно читать точно.'],
+             en: ['Pick the board size with the 10 × 10 … 5 × 5 buttons: the smaller the board, the easier to hold it in view.',
+                  'Each cell holds a whole word in Devanagari. Press the cells with lesson words: on a big board each appears twice.',
                   'Right — the cell turns green; a miss — red, and it counts against you.',
-                  'Many decoys differ from the real word by one letter (ऐकम्, द्वै, पन्च) — look closely.'] },
+                  '🪤 The empty cells are not random letters but near-misses of the lesson words: long and short vowels (ि / ी), ण and न from different vargas, ऋ and रि, ं and ः. Read exactly.'] },
       score: { ru: 'Счёт — сколько нужных клеток найдено (каждое слово спрятано дважды); промахи показаны отдельно. 👁 «Показать всё» завершает раунд и открывает все нужные клетки.',
                en: 'The score is how many of the target cells were found (each word is hidden twice); misses are counted separately. 👁 “Reveal all” ends the round and opens every target cell.' },
       tip: { ru: 'Хорошо работает как финальный дрилль урока: весь словарь перед глазами, ответить нужно точно.',
              en: 'It works well as the final drill of a lesson: the whole vocabulary in view, every answer has to be exact.' }
     },
     wordsearch: {
-      aim: { ru: 'Классический филворд: слова спрятаны по частям в сетке 10 × 10.',
-             en: 'A classic word search: the words are hidden part by part in a 10 × 10 grid.' },
-      how: { ru: ['Слова разложены по прямой: слева направо, сверху вниз и по диагонали.',
+      aim: { ru: 'Классический филворд: слова спрятаны по частям в квадратной сетке от 10 × 10 до 5 × 5.',
+             en: 'A classic word search: the words are hidden part by part on a square board from 10 × 10 down to 5 × 5.' },
+      how: { ru: ['Размер поля — кнопки 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5 над сеткой.',
+                  'Слова разложены по прямой: слева направо, сверху вниз и по диагонали.',
                   'Нажимайте клетки подряд — так, чтобы получить нужное слово.',
                   'Нашли — цепочка зелёная, слово вычёркивается из списка под сеткой.',
-                  'Сбились — нажмите ↺ «Сбросить выбор» и начните цепочку заново.'],
-             en: ['The words lie in a straight line: left to right, top to bottom and diagonally.',
+                  'Сбились — нажмите ↺ «Сбросить выбор» и начните цепочку заново.',
+                  '🪤 Свободные клетки — не случайные буквы, а почти‑двойники слов урока: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः. Следующая клетка цепочки почти всегда выглядит правильной — читайте точно.'],
+             en: ['Board size — the 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5 buttons above the grid.',
+                  'The words lie in a straight line: left to right, top to bottom and diagonally.',
                   'Press the cells one after another to spell out a word.',
                   'Found — the chain turns green and the word is crossed off the list under the grid.',
-                  'Lost the thread — press ↺ “Clear” and start the chain again.'] },
+                  'Lost the thread — press ↺ “Clear” and start the chain again.',
+                  '🪤 The empty cells are not random letters but near-misses of the lesson words: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः. The next cell of the chain almost always looks right — read exactly.'] },
       score: { ru: 'Счёт — сколько слов найдено из всех слов урока. 🔑 ключ учителя подсвечивает все спрятанные цепочки.',
                en: 'The score is how many of the lesson words were found. 🔑 outlines every hidden chain.' }
     }

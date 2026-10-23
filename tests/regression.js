@@ -598,6 +598,23 @@ SAL.do('L4', 'toggleKey');
 ck(/hint/.test(arenaOf('L4').innerHTML), 'филворд: 🔑 ключ учителя подсвечивает нужные клетки');
 SAL.do('L4', 'toggleKey');
 
+/* размер поля «среди слов»: 10, 9, 8, 7, 6, 5 по горизонтали и вертикали */
+['9', '8', '7', '6', '5', '10'].forEach(sz => {
+  const n2 = parseInt(sz, 10);
+  SAL.do('L4', 'wgSize', sz);
+  const g2 = gst('L4', 'wordgrid');
+  ck(g2.size === n2 && g2.grid.length === n2 * n2 &&
+     g2.grid.every(c => !!(c.t ? wById(c.id).deva : c.s)),
+    'филворд: поле ' + n2 + ' × ' + n2 + ' — ' + (n2 * n2) + ' клеток, пустых нет');
+  ck(g2.grid.filter(c => c.t).length === g2.total && g2.total >= L4.words.length,
+    'филворд: на поле ' + n2 + ' × ' + n2 + ' цель — ' + g2.total + ' клеток со словами урока');
+  ck(Object.keys(g2.found).length === 0 && Object.keys(g2.wrong).length === 0,
+    'филворд: смена размера сбрасывает прогресс');
+});
+const wgDecoys = gst('L4', 'wordgrid').grid.filter(c => !c.t).map(c => c.s);
+ck(wgDecoys.length > 0 && wgDecoys.some(s2 => L4.decoys.indexOf(s2) < 0),
+  'филворд: часть ловушек — почти-двойники слов урока (ि/ी, ण/न, ऋ/रि), а не только готовый список');
+
 /* ---------- 31. word search (among letters) ---------- */
 SAL.do('L4', 'restart', 'wordsearch');
 const ws = gst('L4', 'wordsearch');
@@ -612,6 +629,42 @@ const straight = ws.places.every(p => {
   return line && built === ch;
 });
 ck(straight, 'филворд по частям: каждое слово лежит по прямой и читается верно');
+/* размер поля «среди букв»: те же шесть вариантов, клетки пересчитываются через n */
+['9', '8', '7', '6', '5', '10'].forEach(sz => {
+  const n2 = parseInt(sz, 10);
+  SAL.do('L4', 'wsSize', sz);
+  const g2 = gst('L4', 'wordsearch');
+  ck(g2.size === n2 && g2.grid.length === n2 * n2 && g2.grid.every(c => c && c.length),
+    'филворд по частям: поле ' + n2 + ' × ' + n2 + ' — ' + (n2 * n2) + ' клеток, пустых нет');
+  ck(g2.places.length === L4.words.length,
+    'филворд по частям: на поле ' + n2 + ' × ' + n2 + ' поместились все ' + L4.words.length + ' слов');
+  const straight2 = g2.places.every(p => {
+    const ch = wById(p.id).syll.join('');
+    if (p.cells.map(i => g2.grid[i]).join('') !== ch) return false;
+    if (p.cells.length < 2) return true;
+    const r0 = Math.floor(p.cells[0] / n2), c0 = p.cells[0] % n2;
+    const dr = Math.floor(p.cells[1] / n2) - r0, dc = (p.cells[1] % n2) - c0;
+    return p.cells.every((idx, k) => idx === (r0 + dr * k) * n2 + (c0 + dc * k));
+  });
+  ck(straight2, 'филворд по частям: на ' + n2 + ' × ' + n2 + ' каждое слово лежит по прямой и читается верно');
+  ck(Object.keys(g2.found).length === 0 && g2.sel.length === 0,
+    'филворд по частям: смена размера начинает раунд заново');
+});
+
+/* ловушки: у слов урока в поле стоит почти-двойник, а не случайная буква */
+const g10 = gst('L4', 'wordsearch');
+const lessonText = L4.words.map(w => w.syll.join('')).join('|');
+const boardText = g10.grid.join('');
+[['ि', 'ी'], ['ु', 'ू'], ['े', 'ै'], ['ो', 'ौ'], ['ण', 'न']].forEach(pair => {
+  const a = pair[0], b = pair[1];
+  const inLesson = ch => lessonText.indexOf(ch) >= 0;
+  if (inLesson(a) !== inLesson(b)) {
+    const miss = inLesson(a) ? b : a;
+    ck(boardText.indexOf(miss) >= 0,
+      'филворд по частям: в поле стоит ловушка ' + miss + ' (в словах урока только ' + (inLesson(a) ? a : b) + ')');
+  }
+});
+
 ws.places.forEach(p => p.cells.forEach(i => SAL.do('L4', 'wsTap', String(i))));
 ck(Object.keys(gst('L4', 'wordsearch').found).length === L4.words.length,
   'филворд по частям: нажатие клеток по порядку находит слово');

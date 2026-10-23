@@ -2090,7 +2090,8 @@ body.hide-iast .level-sample-iast {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   gap: 4px;
-  max-width: 620px;
+  /* филворды задают --ws-max под выбранный размер поля (10×10 … 5×5) */
+  max-width: var(--ws-max, 620px);
   margin: 0 auto;
 }
 .wcell, .bcell {
@@ -2156,6 +2157,15 @@ body.hide-iast .level-sample-iast {
 .ttt-cell.own-1 { color: var(--accent-cambridge); background: #EFF6FF; border-color: var(--accent-cambridge); cursor: default; }
 .ttt-cell.own-2 { color: #B45309; background: #FFFBEB; border-color: #B45309; cursor: default; }
 .ttt-cell.asked { box-shadow: 0 0 0 2px var(--accent-cambridge); }
+/* word search / word grid: выбор размера поля */
+.ws-size-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0.35rem; flex-wrap: wrap; margin: 0.55rem 0 0.85rem;
+}
+.ws-size-label {
+  font-size: 0.86rem; font-weight: 700; color: var(--text-secondary);
+  margin-right: 0.15rem;
+}
 /* word search legend */
 .ws-legend-row { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-top: 0.85rem; }
 .ws-legend {
