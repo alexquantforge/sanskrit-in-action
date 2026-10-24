@@ -52,12 +52,11 @@ var RC_ICON = {
     '<ellipse cx="43" cy="55" rx="5" ry="7" fill="#94A3B8" opacity="0.35"/>',
   mouth: '<path d="M20 50c9-13 51-13 60 0-9 15-51 15-60 0Z" fill="#DC2626" stroke="#14213D" stroke-width="3"/>' +
     '<path d="M22 50h56" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>',
-  belly: '<circle cx="50" cy="19" r="9.5" fill="#FDE68A" stroke="#14213D" stroke-width="2.4"/>' +
-    '<path d="M50 29v7" stroke="#14213D" stroke-width="3" stroke-linecap="round"/>' +
-    '<path d="M34 40h32c4 8 7 16 7 26 0 14-10 24-23 24s-23-10-23-24c0-10 3-18 7-26Z" fill="#F8FAFC" stroke="#14213D" stroke-width="3"/>' +
-    '<ellipse cx="50" cy="66" rx="15" ry="14" fill="#1F3A5F" stroke="#14213D" stroke-width="2.4"/>' +
-    '<circle cx="50" cy="67" r="2.4" fill="#0B1220" opacity="0.55"/>' +
-    '<ellipse cx="45" cy="61" rx="4.6" ry="3" fill="#AFC4DE" opacity="0.6"/>'
+  /* живот: округлый силуэт торса без головы — только сам живот цвета श्याम */
+  belly: '<path d="M28 32C28 26 36 23 50 23C64 23 72 26 72 32C72 42 80 52 82 62C84 76 70 88 50 88C30 88 16 76 18 62C20 52 28 42 28 32Z" fill="#F8FAFC" stroke="#14213D" stroke-width="3"/>' +
+    '<ellipse cx="50" cy="58" rx="19" ry="17" fill="#1F3A5F" stroke="#14213D" stroke-width="2.4"/>' +
+    '<circle cx="50" cy="61" r="2.8" fill="#0B1220" opacity="0.55"/>' +
+    '<ellipse cx="42" cy="48" rx="5" ry="3.4" fill="#AFC4DE" opacity="0.55"/>'
 };
 
 var RC_COMPOUNDS = [
