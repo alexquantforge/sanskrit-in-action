@@ -551,6 +551,12 @@ console.log('\n===== Урок 3: цвета =====');
   ck(w === 'श्वेत कृष्ण रक्त नील श्याम गौर', 'урок 3: шесть цветов — ' + w);
   ck(SAL.lessons.LC.words.every(x => x.iast && x.typoDeva && x.typoIast && x.svg),
     'урок 3: у каждого цвета есть IAST, опечатка и картинка');
+  /* श्याम — цвет грозовой тучи, тёмно-синий (а не зелёный) */
+  const shyamaCard = SAL.lessons.LC.words.filter(x => x.id === 'shyama')[0];
+  ck(/#1F3A5F/.test(shyamaCard.svg) && !/#14532D|#86EFAC/i.test(shyamaCard.svg),
+    'श्याम нарисован грозовым тёмно-синим, зелёного в карточке нет');
+  ck(/грозов/i.test(SAL.lessons.LC.topicRu) && /storm/i.test(SAL.lessons.LC.topicEn),
+    'описание урока говорит про грозовую тучу');
   /* пятый режим продакшна — спринт по всему пройденному словарю */
   SAL.openLesson('LC');
   ck(SAL.lessons.LC.unionSprint.join() === 'L2,L3,LC', 'урок 3: спринт собирает уроки 1, 2 и 3');
@@ -600,6 +606,9 @@ console.log('\n===== Урок 3: повторение «цвет + часть т
   ck(shim.words.every(w => w.syll && w.syll.join('') === w.deva),
     'слово нарезано на части, которые складываются обратно');
   ck(!SAL.lessons.LCRC, 'служебная конфигурация повторения не попадает в список уроков');
+  const belly = shim.words.filter(w => w.id === 'shyamaudara')[0];
+  ck(/#1F3A5F/.test(belly.svg) && !/#14532D|#86EFAC/i.test(belly.svg),
+    'श्याम-उदर: живот того же грозового тёмно-синего цвета, без зелёного');
 
   /* данные согласованы так же, как у слов основного урока */
   const nospace = t => String(t).replace(/[\s\u200d\u200c]/g, '');

@@ -21,7 +21,8 @@
    R E C Y C L I N G · ЦВЕТ + ЧАСТЬ ТЕЛА (уроки 1–2)
    Сдвоенные слова через тире: गौर-शीर्ष «золотая голова», नील-नयन «синий
    глаз», श्वेत-दन्त «белый зуб», कृष्ण-पाद «чёрная нога», रक्त-मुख «красный
-   рот», श्याम-उदर «тёмно-зелёный живот». Это спиральное повторение лексики
+   рот», श्याम-उदर «живот цвета грозовой тучи» (тёмно-синий). Это спиральное
+   повторение лексики
    уроков 1 и 2: цвет из этого урока плюс часть тела или лица.
    ========================================================================= */
 function rcSvg(tint, inner) {
@@ -54,9 +55,9 @@ var RC_ICON = {
   belly: '<circle cx="50" cy="19" r="9.5" fill="#FDE68A" stroke="#14213D" stroke-width="2.4"/>' +
     '<path d="M50 29v7" stroke="#14213D" stroke-width="3" stroke-linecap="round"/>' +
     '<path d="M34 40h32c4 8 7 16 7 26 0 14-10 24-23 24s-23-10-23-24c0-10 3-18 7-26Z" fill="#F8FAFC" stroke="#14213D" stroke-width="3"/>' +
-    '<ellipse cx="50" cy="66" rx="15" ry="14" fill="#14532D" stroke="#14213D" stroke-width="2.4"/>' +
+    '<ellipse cx="50" cy="66" rx="15" ry="14" fill="#1F3A5F" stroke="#14213D" stroke-width="2.4"/>' +
     '<circle cx="50" cy="67" r="2.4" fill="#0B1220" opacity="0.55"/>' +
-    '<ellipse cx="45" cy="61" rx="4.6" ry="3" fill="#86EFAC" opacity="0.5"/>'
+    '<ellipse cx="45" cy="61" rx="4.6" ry="3" fill="#AFC4DE" opacity="0.6"/>'
 };
 
 var RC_COMPOUNDS = [
@@ -154,7 +155,7 @@ var RC_COMPOUNDS = [
     missingDisplay: "श्याम-उ_र", missingAnswer: "द",
     missingChoices: ["द", "ड", "त", "ध"],
     syll: ["श्या", "म", "-", "उ", "द", "र"],
-    svg: rcSvg("#ECFDF5", RC_ICON.belly)
+    svg: rcSvg("#EDF2F9", RC_ICON.belly)
   }
 ];
 
@@ -181,10 +182,10 @@ SAL.registerLesson({
   titleDeva: "वर्णाः",
   titleRu: "Цвета",
   titleEn: "Colours",
-  topicRu: "белый, чёрный, красный, синий, тёмно-зелёный, золотистый",
-  topicEn: "white, black, red, blue, dark green, golden",
-  introRu: "Третий урок — шесть цветов: <code>श्वेत</code> (белый), <code>कृष्ण</code> (чёрный), <code>रक्त</code> (красный), <code>नील</code> (синий), <code>श्याम</code> (тёмно-зелёный), <code>गौर</code> (золотистый, светлый). Слова короткие, поэтому тренируем точность: долгота гласной (<code>नील</code> / <code>निल</code>), придыхание и варга (<code>कृष्ण</code>). Цвета сразу работают как определения к знакомым словам уроков 1–2.",
-  introEn: "The third lesson brings six colours: <code>श्वेत</code> (white), <code>कृष्ण</code> (black), <code>रक्त</code> (red), <code>नील</code> (blue), <code>श्याम</code> (dark green), <code>गौर</code> (golden, fair). The words are short, so the focus is precision: vowel length (<code>नील</code> / <code>निल</code>) and aspiration and varga (<code>कृष्ण</code>). The colours work straight away as attributes of the body and face words from lessons 1–2.",
+  topicRu: "белый, чёрный, красный, синий, тёмно-синий как грозовая туча, золотистый",
+  topicEn: "white, black, red, blue, storm-cloud dark blue, golden",
+  introRu: "Третий урок — шесть цветов: <code>श्वेत</code> (белый), <code>कृष्ण</code> (чёрный), <code>रक्त</code> (красный), <code>नील</code> (синий), <code>श्याम</code> (тёмно-синий, цвет грозовой тучи), <code>गौर</code> (золотистый, светлый). Слова короткие, поэтому тренируем точность: долгота гласной (<code>नील</code> / <code>निल</code>), придыхание и варга (<code>कृष्ण</code>). Цвета сразу работают как определения к знакомым словам уроков 1–2.",
+  introEn: "The third lesson brings six colours: <code>श्वेत</code> (white), <code>कृष्ण</code> (black), <code>रक्त</code> (red), <code>नील</code> (blue), <code>श्याम</code> (storm-cloud dark blue), <code>गौर</code> (golden, fair). The words are short, so the focus is precision: vowel length (<code>नील</code> / <code>निल</code>) and aspiration and varga (<code>कृष्ण</code>). The colours work straight away as attributes of the body and face words from lessons 1–2.",
   words: [
     {
       id: "shveta", deva: "श्वेत", iast: "śveta", ttsText: "श्वेत",
@@ -259,7 +260,7 @@ SAL.registerLesson({
       ],
       missingDisplay: "श्या _", missingAnswer: "म",
       missingChoices: ["म", "न", "भ", "म्"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#ECFDF5\"/>\n      <path d=\"M52 18C68 17 82 31 82 49C82 68 68 82 50 82C32 82 18 69 18 51C18 33 34 19 52 18Z\" fill=\"#14532D\" stroke=\"#14213D\" stroke-width=\"3\"/>\n      <ellipse cx=\"41\" cy=\"36\" rx=\"8\" ry=\"4.6\" fill=\"#86EFAC\" opacity=\"0.4\"/>\n    </svg>"
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#EDF2F9\"/>\n      <path d=\"M52 18C68 17 82 31 82 49C82 68 68 82 50 82C32 82 18 69 18 51C18 33 34 19 52 18Z\" fill=\"#1F3A5F\" stroke=\"#14213D\" stroke-width=\"3\"/>\n      <ellipse cx=\"41\" cy=\"36\" rx=\"8\" ry=\"4.6\" fill=\"#AFC4DE\" opacity=\"0.55\"/>\n    </svg>"
     },
     {
       id: "gaura", deva: "गौर", iast: "gaura", ttsText: "गौर",
@@ -297,7 +298,7 @@ SAL.registerLesson({
         captionRu: "Палитра: шесть цветов (1–6)",
         captionEn: "Palette: Six Colours (1–6)",
         viewBox: "0 0 320 230",
-        art: "<rect x=\"6\" y=\"6\" width=\"308\" height=\"218\" rx=\"14\" fill=\"#F8EFE6\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n  <path d=\"M24 108C24 56 78 20 160 20C242 20 296 56 296 108C296 160 242 196 160 196C78 196 24 160 24 108Z\" fill=\"#FDF6EC\" stroke=\"#E5DEC9\" stroke-width=\"0\"/>\n  <circle cx=\"62\" cy=\"66\" r=\"32\" fill=\"#FFFFFF\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"160\" cy=\"66\" r=\"32\" fill=\"#0B1220\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"258\" cy=\"66\" r=\"32\" fill=\"#DC2626\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"62\" cy=\"164\" r=\"32\" fill=\"#2563EB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"160\" cy=\"164\" r=\"32\" fill=\"#14532D\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"258\" cy=\"164\" r=\"32\" fill=\"#F2C46B\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <ellipse cx=\"52\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#CBD5E1\"/>\n  <ellipse cx=\"150\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#64748B\" opacity=\"0.7\"/>\n  <ellipse cx=\"248\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.55\"/>\n  <ellipse cx=\"52\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.55\"/>\n  <ellipse cx=\"150\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#86EFAC\" opacity=\"0.45\"/>\n  <ellipse cx=\"248\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.65\"/>",
+        art: "<rect x=\"6\" y=\"6\" width=\"308\" height=\"218\" rx=\"14\" fill=\"#F8EFE6\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n  <path d=\"M24 108C24 56 78 20 160 20C242 20 296 56 296 108C296 160 242 196 160 196C78 196 24 160 24 108Z\" fill=\"#FDF6EC\" stroke=\"#E5DEC9\" stroke-width=\"0\"/>\n  <circle cx=\"62\" cy=\"66\" r=\"32\" fill=\"#FFFFFF\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"160\" cy=\"66\" r=\"32\" fill=\"#0B1220\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"258\" cy=\"66\" r=\"32\" fill=\"#DC2626\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"62\" cy=\"164\" r=\"32\" fill=\"#2563EB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"160\" cy=\"164\" r=\"32\" fill=\"#1F3A5F\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"258\" cy=\"164\" r=\"32\" fill=\"#F2C46B\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <ellipse cx=\"52\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#CBD5E1\"/>\n  <ellipse cx=\"150\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#64748B\" opacity=\"0.7\"/>\n  <ellipse cx=\"248\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.55\"/>\n  <ellipse cx=\"52\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.55\"/>\n  <ellipse cx=\"150\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#AFC4DE\" opacity=\"0.6\"/>\n  <ellipse cx=\"248\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.65\"/>",
         pins: [
           { id: "shveta", num: 1, x: 30, y: 34, tx: 62, ty: 66 },
           { id: "krishna", num: 2, x: 160, y: 20, tx: 160, ty: 66 },
