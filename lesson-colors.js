@@ -296,12 +296,6 @@ SAL.registerLesson({
   ],
   /* те же игры, что у урока 2: 12 классических + два филворда */
   extraGames: ['wordgrid', 'wordsearch'],
-  /* пятый режим Production — как в уроке 2: спринт по накопленному словарю */
-  unionSprint: ["L2", "L3", "LC"],
-  unionLabel: {
-    ru: "5. Спринт: Тело + Лицо + Цвета ⏱",
-    en: "5. Sprint: Body + Face + Colours ⏱"
-  },
   steps: [
     { wordIds: ["shveta", "krishna"] },
     { wordIds: ["rakta", "nila"] },

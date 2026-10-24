@@ -537,12 +537,20 @@ console.log('\n===== Урок 3: цвета =====');
                .replace(/все \d+ слов/g, 'все N слов')
                .replace(/из \d+\)/g, 'из N)')
                .replace(/(Спринт|Sprint): [^⏱]*⏱/g, '$1: … ⏱'));
+  const prodFor = k => [...win.document.querySelectorAll('#view-lesson' + SAL.lessons[k].num +
+    ' .practice-tab-btn[data-prod-mode]')].map(b => b.getAttribute('data-prod-mode'));
   const l2tabs = tabsFor('L3');
   const l3tabs = tabsFor('LC');
-  ck(l2tabs.length === 23 && l3tabs.length === 23,
-    'урок 3: 23 вкладки — как у урока 2 (найдено ' + l3tabs.length + ')');
-  ck(l2tabs.join('|') === l3tabs.join('|'),
-    'урок 3: названия и порядок вкладок в точности как в уроке 2');
+  const l3games = l3tabs.filter(t => !/^(1\. Спринт на время|2\. Произнеси в микрофон|3\. Что пропало|4\. Ритм-чант|5\. Спринт)/.test(t));
+  const l2games = l2tabs.filter(t => !/^(1\. Спринт на время|2\. Произнеси в микрофон|3\. Что пропало|4\. Ритм-чант|5\. Спринт)/.test(t));
+  ck(l2games.length === 18 && l3games.length === 18 &&
+     l2games.join('|') === l3games.join('|'),
+    'урок 3: 18 игр Practice — те же и в том же порядке, что у урока 2');
+  /* Production у урока цветов короче: сквозного спринта по трём урокам там нет */
+  ck(prodFor('L3').join() === 'sprint,mic,missingpart,chant,union',
+    'урок 2: пять режимов Production, последний — спринт по двум урокам');
+  ck(prodFor('LC').join() === 'sprint,mic,missingpart,chant',
+    'урок 3: четыре режима Production — без сквозного спринта (всего вкладок ' + l3tabs.length + ')');
   const gamesOf = k => [...win.document.querySelectorAll('#view-lesson' + SAL.lessons[k].num +
     ' .practice-tab-btn[data-game]')].map(b => b.getAttribute('data-game'));
   ck(gamesOf('LC').join() === GAMES.concat(['wordgrid', 'wordsearch']).join(),
@@ -576,12 +584,15 @@ console.log('\n===== Урок 3: цвета =====');
   ck([...win.document.querySelectorAll('#view-lesson3 h2.section-title')].pop().textContent.trim() ===
      'Freer Production: Say All 6 Words Aloud', 'EN: заголовок Production переведён');
   win.setLanguage('ru');
-  /* пятый режим продакшна — спринт по всему пройденному словарю */
+  /* у урока цветов ровно четыре режима Production — сквозного спринта нет */
   SAL.openLesson('LC');
-  ck(SAL.lessons.LC.unionSprint.join() === 'L2,L3,LC', 'урок 3: спринт собирает уроки 1, 2 и 3');
-  const uTab = win.document.querySelector('#view-lesson3 [data-prod-mode="union"]');
-  ck(uTab && /19/.test(uTab.textContent), 'урок 3: в спринте 19 слов (6 + 7 + 6)');
-  ck(uTab && /Цвета/.test(uTab.textContent), 'урок 3: подпись спринта называет цвета, а не только тело и лицо');
+  ck(!SAL.lessons.LC.unionSprint, 'урок 3: сквозного спринта по урокам нет');
+  const lcProd = [...win.document.querySelectorAll('#view-lesson3 [data-prod-mode]')]
+    .map(b => b.getAttribute('data-prod-mode'));
+  ck(lcProd.join() === 'sprint,mic,missingpart,chant',
+    'урок 3: четыре режима Production — ' + lcProd.join(', '));
+  ck(!win.document.querySelector('#view-lesson3 [data-prod-mode="union"]'),
+    'урок 3: пятой вкладки «Спринт: Тело + Лицо + Цвета» больше нет');
   /* «Что пропало?»: пропавший цвет оставляет пустое место, а не белый шарик */
   SAL.do('LC', 'setProdMode', 'missingpart');
   const missStage = win.document.getElementById('LC-production-stage');
@@ -598,10 +609,9 @@ console.log('\n===== Урок 3: цвета =====');
     'урок 3: после проверки показан пропавший цвет — श्वेत');
   SAL.do('LC', 'missingRestart');   /* возвращаем основной урок в исходное состояние */
 
-  SAL.do('LC', 'setProdMode', 'union');
-  ck(!!win.document.getElementById('LC-production-stage').innerHTML.trim(),
-    'урок 3: спринт по трём урокам отрисовывается');
   SAL.do('LC', 'setProdMode', 'sprint');
+  ck(!!win.document.getElementById('LC-production-stage').innerHTML.trim(),
+    'урок 3: спринт по своим словам отрисовывается');
   /* филворды на своих данных */
   SAL.do('LC', 'restart', 'wordsearch');
   const ws3 = SAL.lessons.LC._st.g.wordsearch;
@@ -618,11 +628,11 @@ console.log('\n===== Урок 3: цвета =====');
   ck(SAL.lessons.LC._st.g.wordsearch.grid.length === 36, 'урок 3: и второй филворд меняет размер');
   /* подписи режимов Production переводятся вместе с сайтом */
   win.setLanguage('en');
-  const uTabEn = win.document.querySelector('#view-lesson3 [data-prod-mode="union"]');
-  ck(uTabEn && uTabEn.textContent.trim() === '5. Sprint: Body + Face + Colours ⏱ (19)',
-    'урок 3: подпись спринта переведена на английский — ' + (uTabEn && uTabEn.textContent.trim()));
+  const chantTabEn = win.document.querySelector('#view-lesson3 [data-prod-mode="chant"]');
+  ck(chantTabEn && chantTabEn.textContent.trim() === '4. TPR Chant & Checklist 6/6 ↑↓',
+    'урок 3: подпись ритм-чанта переведена на английский — ' + (chantTabEn && chantTabEn.textContent.trim()));
   win.setLanguage('ru');
-  ck(uTabEn.textContent.trim() === '5. Спринт: Тело + Лицо + Цвета ⏱ (19)',
+  ck(chantTabEn.textContent.trim() === '4. Ритм-чант и Чек-лист 6/6 ↑↓',
     'урок 3: и возвращается на русский');
 }
 
