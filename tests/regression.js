@@ -1063,6 +1063,44 @@ ck(noRulesL1.length === 0, 'урок 3 (12 слов): правила есть в
   (noRulesL1.length ? ' — без правил: ' + noRulesL1.join(', ') : ''));
 
 
+/* ===== URL уроков: #/<язык>/<урок> ===== */
+console.log('\n===== Адреса уроков =====');
+win.switchView('lesson5');
+ck(win.location.hash === '#/ru/lesson5', 'адрес урока 5 по-русски: #/ru/lesson5');
+win.setLanguage('en');
+ck(win.location.hash === '#/en/lesson5', 'переключение на EN меняет адрес: #/en/lesson5');
+win.switchView('lesson3');
+ck(win.location.hash === '#/en/lesson3', 'урок 3 по-английски: #/en/lesson3');
+win.setLanguage('ru');
+ck(win.location.hash === '#/ru/lesson3', 'обратно на RU: #/ru/lesson3');
+win.switchView('details');
+ck(win.location.hash === '#/ru/details', 'раздел «о методе» тоже с адресом: #/ru/details');
+win.switchView('home');
+ck(win.location.hash === '#/ru/home', 'главная: #/ru/home');
+ck(win.parseRoute('#/en/lesson9').lang === 'en' && win.parseRoute('#/en/lesson9').view === 'lesson9',
+  'адрес #/en/lesson9 разбирается в язык и урок');
+ck(win.parseRoute('#playground') === null && win.parseRoute('#/xx/lesson5') === null &&
+   win.parseRoute('') === null && win.parseRoute('#/ru/nosuchview') === null,
+  'якоря и неверные адреса маршрутом не считаются');
+
+/* прямой адрес открывает нужный урок на нужном языке */
+win.location.hash = '#/en/lesson7';
+win.dispatchEvent(new win.Event('popstate'));
+ck(win.location.hash === '#/en/lesson7' && win.document.documentElement.lang === 'en' &&
+   win.document.getElementById('view-lesson7').classList.contains('active'),
+  'прямая ссылка #/en/lesson7 открывает урок 7 по-английски');
+ck(/Lesson 7/.test(win.document.getElementById('view-lesson7').textContent) ||
+   win.document.getElementById('view-lesson7').textContent.indexOf('Choose a lesson') >= 0,
+  'содержимое урока 7 отрисовано на английском');
+win.location.hash = '#/ru/lesson7';
+win.dispatchEvent(new win.Event('popstate'));
+ck(win.document.documentElement.lang === 'ru' &&
+   win.document.getElementById('view-lesson7').classList.contains('active'),
+  'прямая ссылка #/ru/lesson7 переключает тот же урок на русский');
+win.setLanguage('ru');
+win.switchView('home');
+ck(win.location.hash === '#/ru/home', 'после проверок адрес снова #/ru/home');
+
 /* ===== озвучка: хинди-движок не должен «съедать» конечную короткую «а» ===== */
 console.log('\n===== Озвучка: конечная «а» =====');
 const ttsNorm = win.sanskritTtsText;

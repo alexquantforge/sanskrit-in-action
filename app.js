@@ -917,7 +917,82 @@ function setPratyaya(pratyayaKey) {
 }
 
 // Switch between "home" (Главная), "lesson1"/"lesson2"/"lesson3" (PPP lesson slots 1-3) and "details" (Подробнее) tabs
+/* =========================================================================
+   URL-маршруты: у каждого урока свой адрес, у языка — свой префикс
+   -------------------------------------------------------------------------
+   #/ru/lesson5   — урок 5 по-русски
+   #/en/lesson5   — урок 5 по-английски
+   #/ru/home      — главная, #/en/details — раздел «о методе»
+
+   Ссылку можно отправить ученику: он откроет её и попадёт сразу в нужный
+   урок на нужном языке. Кнопки «назад/вперёд» браузера работают: адрес
+   меняется через history, страница не перезагружается.
+   ========================================================================= */
+const ROUTE_VIEWS = ['home', 'details', 'lesson1', 'lesson2', 'lesson3', 'lesson4',
+                     'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9'];
+let activeView = 'home';
+let routeLock = false;          // URL применяется — обратно не пишем
+
+function parseRoute(hash) {
+  const m = /^#\/(ru|en)\/([a-z0-9]+)\/?$/.exec(String(hash || ''));
+  if (!m || ROUTE_VIEWS.indexOf(m[2]) < 0) return null;
+  return { lang: m[1], view: m[2] };
+}
+
+function writeRoute(lang, view, replace) {
+  if (routeLock) return;
+  const hash = '#/' + lang + '/' + view;
+  if (location.hash === hash) return;
+  /* первый заход и «якорные» ссылки (#top, #playground) не плодят историю */
+  const doReplace = replace || !parseRoute(location.hash);
+  try {
+    if (doReplace) history.replaceState(null, '', hash);
+    else history.pushState(null, '', hash);
+  } catch (e) {
+    location.hash = hash;
+  }
+}
+
+/* какому уроку движка соответствует адрес: view-lesson5 → L5.
+   Урок 3 — отдельная страница из 12 слов, у неё своего ключа нет. */
+function lessonKeyForView(view) {
+  const m = /^lesson(\d+)$/.exec(String(view || ''));
+  if (!m || !window.SAL || !window.SAL.lessons) return null;
+  const num = parseInt(m[1], 10);
+  const keys = Object.keys(window.SAL.lessons);
+  for (let i = 0; i < keys.length; i++) {
+    if (window.SAL.lessons[keys[i]].num === num) return keys[i];
+  }
+  return null;
+}
+
+/* открыть урок по адресу: через движок, чтобы панель была собрана и отрисована */
+function showRouteView(view) {
+  const key = lessonKeyForView(view);
+  if (key && window.SAL && typeof window.SAL.openLesson === 'function') {
+    window.SAL.openLesson(key);
+    return;
+  }
+  switchView(view);
+}
+
+/* применить адрес из строки браузера */
+function applyRoute(hash) {
+  const r = parseRoute(hash);
+  if (!r) return false;
+  routeLock = true;
+  try {
+    if (currentLang !== r.lang) setLanguage(r.lang);
+    if (activeView !== r.view || lessonKeyForView(r.view)) showRouteView(r.view);
+  } finally {
+    routeLock = false;
+  }
+  return true;
+}
+
 function switchView(viewName, targetSectionId = null) {
+  if (ROUTE_VIEWS.indexOf(viewName) >= 0) activeView = viewName;
+  writeRoute(currentLang, activeView);
   const panes = {
     home: document.getElementById('view-home'),
     lesson1: document.getElementById('view-lesson1'),
@@ -999,6 +1074,7 @@ function setLanguage(lang) {
   if (window.SAL && typeof window.SAL.refresh === 'function') {
     window.SAL.refresh();
   }
+  writeRoute(lang, activeView);
 }
 
 // Copy helper for GitHub Description snippets
@@ -1046,6 +1122,39 @@ function copyTextById(elementId, btnEl) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+/* открыть то, что написано в адресе; без адреса — русская главная */
+function initRouteFromLocation() {
+  const r = parseRoute(location.hash);
+  if (r) {
+    routeLock = true;
+    try {
+      setLanguage(r.lang);
+      showRouteView(r.view);
+    } finally {
+      routeLock = false;
+    }
+    return;
+  }
   setLanguage('ru');
+  switchView('home');
+}
+
+/* скрипт подключён в конце страницы, но порядок загрузки бывает разным:
+   если DOM уже готов — применяем адрес сразу, иначе ждём DOMContentLoaded */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initRouteFromLocation);
+} else {
+  initRouteFromLocation();
+}
+
+/* «назад/вперёд» браузера и ручная правка адреса */
+window.addEventListener('popstate', () => { applyRoute(location.hash); });
+window.addEventListener('hashchange', () => {
+  if (applyRoute(location.hash)) return;
+  /* якорь внутри страницы (#playground) или мусор в адресе:
+     возвращаем канонический адрес урока, сам переход по якорю не трогаем */
+  const hash = String(location.hash || '');
+  if (hash && hash !== '#' && ROUTE_VIEWS.length) {
+    try { history.replaceState(null, '', '#/' + currentLang + '/' + activeView); } catch (e) {}
+  }
 });
