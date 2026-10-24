@@ -17,8 +17,8 @@ SAL.registerLesson({
   titleEn: "Body Parts — 2",
   topicRu: "голова, живот, рука, палец, колено, стопа",
   topicEn: "head, belly, hand, finger, knee, foot",
-  introRu: "Первый урок цикла <strong>शरीरसम्बन्धि-शब्दाः</strong>. 6 слов — чистые основы (без падежных окончаний и без указания рода), значение передаётся только картинкой и звуком (<em>Direct Method</em>). Начинаем с крупных частей тела: голова, живот, руки и ноги. В Уроке 3 к ним прибавится лицо, и весь набор из 12 слов соберётся вместе — так работает <strong>спиральное повторение</strong>.",
-  introEn: "The first lesson of the <strong>शरीरसम्बन्धि-शब्दाः</strong> cycle: 6 pure stems (no case endings, no gender), with meaning conveyed only through pictures and sound (<em>Direct Method</em>). We start with the large parts of the body: head, belly, arms and legs. In Lesson 3 the face joins them and the full set of 12 words comes together — that is <strong>spiral revision</strong>.",
+  introRu: "Первый урок цикла <strong>शरीरसम्बन्धि-शब्दाः</strong>. 6 слов — чистые основы (без падежных окончаний и без указания рода), значение передаётся только картинкой и звуком (<em>Direct Method</em>). Начинаем с крупных частей тела: голова, живот, руки и ноги. В Уроке 4 к ним прибавится лицо, и весь набор из 12 слов соберётся вместе — так работает <strong>спиральное повторение</strong>.",
+  introEn: "The first lesson of the <strong>शरीरसम्बन्धि-शब्दाः</strong> cycle: 6 pure stems (no case endings, no gender), with meaning conveyed only through pictures and sound (<em>Direct Method</em>). We start with the large parts of the body: head, belly, arms and legs. In Lesson 4 the face joins them and the full set of 12 words comes together — that is <strong>spiral revision</strong>.",
   words: [
     {
       id: "shirsha", deva: "शीर्ष", iast: "śīrṣa", ttsText: "शीर्षा",

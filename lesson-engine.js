@@ -255,13 +255,14 @@ var SAL = (window.SAL = window.SAL || {});
   var NAV_LABELS = {
     L2: { ru: 'Урок 1: Тело', en: 'Lesson 1: Body' },
     L3: { ru: 'Урок 2: Лицо', en: 'Lesson 2: Face' },
-    lesson3: { ru: 'Урок 3: Части тела (12)', en: 'Lesson 3: Body Parts (12)' },
-    L4: { ru: 'Урок 4: Цифры 1–5', en: 'Lesson 4: Numbers 1–5' },
-    L5: { ru: 'Урок 5: Цифры 6–10', en: 'Lesson 5: Numbers 6–10' },
-    L6: { ru: 'Урок 6: Цифры 11–15', en: 'Lesson 6: Numbers 11–15' },
-    L7: { ru: 'Урок 7: Цифры 16–20', en: 'Lesson 7: Numbers 16–20' },
-    L8: { ru: 'Урок 8: Десятки 10–50', en: 'Lesson 8: Tens 10–50' },
-    L9: { ru: 'Урок 9: Десятки 60–100', en: 'Lesson 9: Tens 60–100' }
+    LC: { ru: 'Урок 3: Цвета', en: 'Lesson 3: Colours' },
+    lesson4: { ru: 'Урок 4: Части тела (12)', en: 'Lesson 4: Body Parts (12)' },
+    L4: { ru: 'Урок 5: Цифры 1–5', en: 'Lesson 5: Numbers 1–5' },
+    L5: { ru: 'Урок 6: Цифры 6–10', en: 'Lesson 6: Numbers 6–10' },
+    L6: { ru: 'Урок 7: Цифры 11–15', en: 'Lesson 7: Numbers 11–15' },
+    L7: { ru: 'Урок 8: Цифры 16–20', en: 'Lesson 8: Numbers 16–20' },
+    L8: { ru: 'Урок 9: Десятки 10–50', en: 'Lesson 9: Tens 10–50' },
+    L9: { ru: 'Урок 10: Десятки 60–100', en: 'Lesson 10: Tens 60–100' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
@@ -273,11 +274,11 @@ var SAL = (window.SAL = window.SAL || {});
                ru: lab ? lab.ru : ('Урок ' + c.num + ': ' + c.titleRu),
                en: lab ? lab.en : ('Lesson ' + c.num + ': ' + c.titleEn) };
     });
-    rows.push({ v: 'lesson3', num: 3, ru: NAV_LABELS.lesson3.ru, en: NAV_LABELS.lesson3.en });
+    rows.push({ v: 'lesson4', num: 4, ru: NAV_LABELS.lesson4.ru, en: NAV_LABELS.lesson4.en });
     rows.sort(function (a, b) { return a.num - b.num; });
     return rows;
   }
-  /* current = the lesson this nav bar belongs to ('lesson3' for the 12-word lesson) */
+  /* current = the lesson this nav bar belongs to ('lesson4' for the 12-word lesson) */
   function navSelectHtml(current) {
     var opts = navRows().map(function (r) {
       return '<option value="' + r.v + '"' + (r.v === current ? ' selected' : '') +
@@ -295,7 +296,7 @@ var SAL = (window.SAL = window.SAL || {});
     var slots = document.querySelectorAll('[data-lesson-nav]');
     for (var i = 0; i < slots.length; i++) {
       if (slots[i].getAttribute('data-filled') === '1') continue;
-      slots[i].innerHTML = navSelectHtml('lesson3');
+      slots[i].innerHTML = navSelectHtml('lesson4');
       slots[i].setAttribute('data-filled', '1');
     }
   }
@@ -402,12 +403,15 @@ var SAL = (window.SAL = window.SAL || {});
       ['missingpart', ru('3. What Is Missing? ❓', '3. Что пропало на рисунке? ❓')],
       ['chant', ru('4. TPR Chant & Checklist ' + N + '/' + N + ' ↑↓', '4. Ритм-чант и Чек-лист ' + N + '/' + N + ' ↑↓')]
     ];
-    /* Lesson 2 declares `unionSprint`: one more production mode — a timed run
-       over every word of lessons 1 and 2 together (6 body + 7 face words). */
+    /* A lesson may declare `unionSprint`: one more production mode — a timed run
+       over the words of several lessons at once (спиральное повторение).
+       cfg.unionLabel задаёт свою подпись, иначе остаётся «тело + лицо». */
     if (cfg.unionSprint) {
       var uTotal = unionWords(cfg).length;
-      prodList.push(['union', ru('5. Sprint: Body + Face ⏱ (' + uTotal + ')',
-        '5. Спринт: тело + лицо ⏱ (' + uTotal + ')')]);
+      var uLab = cfg.unionLabel
+        ? tx(cfg.unionLabel) + ' (' + uTotal + ')'
+        : ru('5. Sprint: Body + Face ⏱ (' + uTotal + ')', '5. Спринт: тело + лицо ⏱ (' + uTotal + ')');
+      prodList.push(['union', uLab]);
     }
     var prodTabs = prodList.map(function (p) {
       return '<button type="button" class="practice-tab-btn' + (p[0] === 'sprint' ? ' active' : '') + '" data-prod-mode="' + p[0] +
@@ -1399,9 +1403,9 @@ var SAL = (window.SAL = window.SAL || {});
 
   /* =========================================================================
      SPRINT ACROSS LESSONS — production mode 5, only for a lesson that
-     declares `unionSprint: ['L2', 'L3']` (Lesson 2 · the face).
-     One timed run over every word of the listed lessons: the 6 body words of
-     Lesson 1 plus the 7 face words of Lesson 2. 4 / 3 / 2 seconds a picture;
+     declares `unionSprint` (Lesson 2 · the face: L2 + L3; Lesson 3 · colours:
+     L2 + L3 + LC). One timed run over every word of the listed lessons.
+     4 / 3 / 2 seconds a picture;
      the student names the word aloud, then checks it himself (✓ / ✕).
      ========================================================================= */
   var UNION_BEST = 'sal.unionSprint.best.';
@@ -2709,7 +2713,7 @@ var SAL = (window.SAL = window.SAL || {});
     return true;
   };
 
-  /* the lesson dropdown: 'lesson3' is the standalone 12-word lesson, everything
+  /* the lesson dropdown: 'lesson4' is the standalone 12-word lesson, everything
      else is a key registered by a lesson data file */
   /* название урока для адреса, закладки и заголовка вкладки:
      SAL.lessonLabel('L5', 'ru') → «Урок 5: Цифры 6–10» */
@@ -2720,7 +2724,7 @@ var SAL = (window.SAL = window.SAL || {});
   };
 
   SAL.gotoLesson = function (v) {
-    if (v === 'lesson3') { if (typeof switchView === 'function') switchView('lesson3'); return; }
+    if (v === 'lesson4') { if (typeof switchView === 'function') switchView('lesson4'); return; }
     SAL.openLesson(v);
   };
 

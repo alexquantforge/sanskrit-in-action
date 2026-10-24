@@ -916,7 +916,7 @@ function setPratyaya(pratyayaKey) {
   renderDhatuForge();
 }
 
-// Switch between "home" (Главная), "lesson1"/"lesson2"/"lesson3" (PPP lesson slots 1-3) and "details" (Подробнее) tabs
+// Switch between "home" (Главная), the PPP lesson slots (lesson1 … lesson10) and "details" (Подробнее)
 /* =========================================================================
    URL-маршруты: у каждого урока свой адрес, у языка — свой префикс
    -------------------------------------------------------------------------
@@ -929,7 +929,7 @@ function setPratyaya(pratyayaKey) {
    меняется через history, страница не перезагружается.
    ========================================================================= */
 const ROUTE_VIEWS = ['home', 'details', 'lesson1', 'lesson2', 'lesson3', 'lesson4',
-                     'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9'];
+                     'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9', 'lesson10'];
 let activeView = 'home';
 let routeLock = false;          // URL применяется — обратно не пишем
 
@@ -1032,7 +1032,7 @@ function routeMeta(view, lang) {
             : 'Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2)');
     return { title: title, description: ru ? d.ru : d.en };
   }
-  const key = lessonKeyForView(view) || (view === 'lesson3' ? 'lesson3' : null);
+  const key = lessonKeyForView(view) || (view === 'lesson4' ? 'lesson4' : null);
   if (!key) return null;
   const label = (window.SAL && typeof window.SAL.lessonLabel === 'function' && window.SAL.lessonLabel(key, lang)) ||
     (ru ? 'Урок' : 'Lesson');
@@ -1147,13 +1147,11 @@ function switchView(viewName, targetSectionId = null) {
     lesson7: document.getElementById('view-lesson7'),
     lesson8: document.getElementById('view-lesson8'),
     lesson9: document.getElementById('view-lesson9'),
+    lesson10: document.getElementById('view-lesson10'),
     details: document.getElementById('view-details')
   };
   const buttons = {
     home: document.getElementById('tab-btn-home'),
-    lesson1: document.getElementById('tab-btn-lesson1'),
-    lesson2: document.getElementById('tab-btn-lesson2'),
-    lesson3: document.getElementById('tab-btn-lesson3'),
     details: document.getElementById('tab-btn-details')
   };
 

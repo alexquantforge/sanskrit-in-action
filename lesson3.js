@@ -17,8 +17,8 @@ SAL.registerLesson({
   titleEn: "The Face",
   topicRu: "лоб, глаз, нос, ухо, рот, зуб, язык",
   topicEn: "forehead, eye, nose, ear, mouth, tooth, tongue",
-  introRu: "Второй урок: всё лицо целиком — 7 слов на одной схеме, от <code>ललाट</code> (лоб) до <code>जिह्वा</code> (язык). К 6 словам Урока 1 прибавляется лицо, включая новое слово <code>मुख</code> (рот/лицо). В Уроке 3 тело и лицо соберутся в один набор из 12 слов.",
-  introEn: "The second lesson zooms into the face: 7 words on a single diagram, from <code>ललाट</code> (forehead) to <code>जिह्वा</code> (tongue). The 6 words of Lesson 1 are joined by the face, including the new word <code>मुख</code> (mouth / face). In Lesson 3 body and face come together as one set of 12 words.",
+  introRu: "Второй урок: всё лицо целиком — 7 слов на одной схеме, от <code>ललाट</code> (лоб) до <code>जिह्वा</code> (язык). К 6 словам Урока 1 прибавляется лицо, включая новое слово <code>मुख</code> (рот/лицо). В Уроке 4 тело и лицо соберутся в один набор из 12 слов.",
+  introEn: "The second lesson zooms into the face: 7 words on a single diagram, from <code>ललाट</code> (forehead) to <code>जिह्वा</code> (tongue). The 6 words of Lesson 1 are joined by the face, including the new word <code>मुख</code> (mouth / face). In Lesson 4 body and face come together as one set of 12 words.",
   words: [
     {
       id: "lalata", deva: "ललाट", iast: "lalāṭa", ttsText: "ललाटा",
