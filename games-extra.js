@@ -1170,6 +1170,15 @@
      Тогда меняем её только внутри варги: क→ख/ग/घ остаётся читаемым кластером,
      а ण→न внутри лигатуры дало бы невозможное написание и ловушка была бы
      слишком заметной. У одиночной согласной доступны и другие варги (ण ↔ न). */
+  /* согласные, к которым можно приписать ा (у гласной ए или матры ि так нельзя:
+     получилось бы एा — несуществующее написание) */
+  var DEV_CONSONANTS = (function () {
+    var out = {};
+    DEV_VARGAS.forEach(function (row) { row.forEach(function (x) { out[x] = true; }); });
+    ['य', 'र', 'ल', 'व', 'श', 'ष', 'स', 'ह', 'ळ'].forEach(function (x) { out[x] = true; });
+    return out;
+  })();
+
   function devaAltsOfConsonant(ch, inCluster) {
     var out = [];
     DEV_VARGAS.forEach(function (row) {          /* та же варга: звонкость/придыхание */
@@ -1268,6 +1277,148 @@
     return false;
   }
 
+  /* ---------------------------------------------------------------------
+     СЛОВА-ДВОЙНИКИ (главный источник сложности)
+     Настоящее слово лежит в поле — и в ДРУГОМ месте поля лежит оно же, но
+     с одной заменённой буквой: त्रीणि ↔ त्रिणि, चत्वारि ↔ चत्वरि, एकम् ↔ एकम.
+     Двойник занимает столько же клеток, лежит так же по прямой, и его нельзя
+     отличить «на глаз» — только точно прочитав признак. Нажатие двойника не
+     засчитывается, зато под сеткой объясняется, чем он отличается.
+     Ровно один признак на двойник: заменили долготу — варгу не трогаем.
+     --------------------------------------------------------------------- */
+  var TWIN_RULES = [
+    ['length', 'ि', 'ी'], ['length', 'ी', 'ि'],
+    ['length', 'ु', 'ू'], ['length', 'ू', 'ु'],
+    ['length', 'े', 'ै'], ['length', 'ै', 'े'],
+    ['length', 'ो', 'ौ'], ['length', 'ौ', 'ो'],
+    ['varga', 'ण', 'न'], ['varga', 'न', 'ण'],
+    ['varga', 'ट', 'त'], ['varga', 'त', 'ट'],
+    ['varga', 'ड', 'द'], ['varga', 'द', 'ड'],
+    ['sibilant', 'ष', 'श'], ['sibilant', 'श', 'ष'],
+    ['sibilant', 'स', 'ष'], ['sibilant', 'ष', 'स'],
+    ['sign', 'ं', 'ँ'], ['sign', 'ँ', 'ं'], ['sign', 'ं', 'ः'], ['sign', 'ः', 'ं'],
+    ['virama', '्', '']
+  ];
+  var TWIN_KINDS = {
+    length: { ru: 'долгота гласной', en: 'vowel length' },
+    varga: { ru: 'другая варга', en: 'another varga' },
+    rvowel: { ru: 'ऋ и रि', en: 'ऋ vs रि' },
+    sign: { ru: 'ं и ः', en: 'ं vs ः' },
+    sibilant: { ru: 'шипящая', en: 'sibilant' },
+    virama: { ru: 'вирама', en: 'virama' }
+  };
+
+  /* Все двойники слова: массив { parts, kind, from, to }. parts — те же клетки,
+     что у слова, но в одной из них заменён ровно один признак. */
+  function devaTwinList(parts) {
+    var out = [], seen = {};
+    function add(list, k, kind, from, to) {
+      var copy = parts.slice();
+      copy[k] = list;
+      var text = copy.join('');
+      if (seen[text] || text === parts.join('')) return;
+      seen[text] = true;
+      out.push({ parts: copy, kind: kind, from: from, to: to });
+    }
+    parts.forEach(function (part, k) {
+      /* ऋ ↔ रि и ृ ↔ ्रि: «r с точкой внизу» против «ри» */
+      if (part.indexOf('ृ') >= 0) {
+        add(part.replace('ृ', '्रि'), k, 'rvowel', 'ृ', '्रि');
+        add(part.replace('ृ', 'रि'), k, 'rvowel', 'ृ', 'रि');
+      }
+      if (part.indexOf('्रि') >= 0) add(part.replace('्रि', 'ृ'), k, 'rvowel', '्रि', 'ृ');
+      if (part.indexOf('ऋ') >= 0) add(part.replace('ऋ', 'रि'), k, 'rvowel', 'ऋ', 'रि');
+      /* долгота ā на конце части: द ↔ दा */
+      if (part.slice(-1) === 'ा') add(part.slice(0, -1), k, 'length', 'ा', '');
+      else if (DEV_CONSONANTS[part.slice(-1)]) add(part + 'ा', k, 'length', '', 'ा');
+      /* остальные признаки — по одному на двойник */
+      TWIN_RULES.forEach(function (rule) {
+        var at = part.indexOf(rule[1]);
+        if (at < 0) return;
+        add(part.slice(0, at) + rule[2] + part.slice(at + rule[1].length),
+          k, rule[0], rule[1], rule[2]);
+      });
+    });
+    return out;
+  }
+
+  /* Насколько двойник «ученический»: ि/ी и ऋ/रि путают чаще всего, потерянная
+     вирама — реже. Сортируем, чтобы на поле попадали в первую очередь
+     настоящие минимальные пары, а не редкие подделки. */
+  function twinScore(t) {
+    var both = t.from + t.to;
+    if (t.kind === 'rvowel') return 50;
+    if (t.kind === 'length' && /[िीुूेैोौ]/.test(both)) return 45;
+    if (t.kind === 'varga') return 40;
+    if (t.kind === 'sign') return 30;
+    if (t.kind === 'sibilant') return 28;
+    if (t.kind === 'virama') return 20;
+    return 10;                                  /* долгота ā: слабее всего */
+  }
+
+  /* Положить готовую цепочку частей по прямой. mustBeEmpty — двойнику нужны
+     только свободные клетки, чтобы не переписать настоящее слово. */
+  function placeRun(grid, n, parts, mustBeEmpty) {
+    var starts = [];
+    for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) starts.push([r, c]);
+    starts = shuffle(starts);
+    var dirs = shuffle(DIRS.slice());
+    for (var s = 0; s < starts.length; s++) {
+      for (var d = 0; d < dirs.length; d++) {
+        var dr = dirs[d][1], dc = dirs[d][0];
+        var row = starts[s][0], col = starts[s][1];
+        if (row + dr * (parts.length - 1) >= n || col + dc * (parts.length - 1) >= n) continue;
+        var cells = [], fits = true;
+        for (var k = 0; k < parts.length; k++) {
+          var idx = (row + dr * k) * n + (col + dc * k);
+          if (mustBeEmpty && grid[idx] !== '') { fits = false; break; }
+          if (!mustBeEmpty && grid[idx] !== '' && grid[idx] !== parts[k]) { fits = false; break; }
+          cells.push(idx);
+        }
+        if (!fits) continue;
+        cells.forEach(function (idx2, k2) { grid[idx2] = parts[k2]; });
+        return { cells: cells, dr: dr, dc: dc };
+      }
+    }
+    return null;
+  }
+
+  /* Расставляем двойники по одному на слово: сначала большие поля, на малых
+     меньше — там каждый двойник отнимает место у настоящих слов. */
+  function placeTwins(grid, n, cfg) {
+    var out = [], usedText = {}, real = {};
+    cfg.words.forEach(function (w) { real[w.deva] = true; });
+    /* сколько двойников пытаемся поставить: на большом поле — по два на слово,
+       на малом — хотя бы два-три, иначе игра снова становится «прочитай слово» */
+    var perWord = n >= 9 ? 2 : (n >= 7 ? 1 : 1);
+    var target = Math.max(n >= 7 ? 3 : 2, Math.min(cfg.words.length * perWord, n >= 9 ? 10 : 5));
+    var queue = shuffle(cfg.words.slice());
+    for (var round = 0; round < perWord && out.length < target; round++) {
+      queue.forEach(function (w) {
+        if (out.length >= target) return;
+        var candidates = devaTwinList(chunks(w)).sort(function (a, b) {
+          return twinScore(b) - twinScore(a);
+        });
+        /* среди равных по силе — случайный порядок: доска не повторяется */
+        var top = candidates.filter(function (c) { return twinScore(c) === twinScore(candidates[0] || c); });
+        candidates = shuffle(top).concat(candidates);
+        for (var i = 0; i < candidates.length; i++) {
+          var t = candidates[i];
+          var text = t.parts.join('');
+          if (real[text] || usedText[text]) continue;
+          if (out.some(function (o) { return o.id === w.id && o.parts.join('') === text; })) continue;
+          var spot = placeRun(grid, n, t.parts, true);
+          if (!spot) continue;
+          usedText[text] = true;
+          out.push({ id: w.id, parts: t.parts, cells: spot.cells, dr: spot.dr, dc: spot.dc,
+                     kind: t.kind, from: t.from, to: t.to });
+          break;
+        }
+      });
+    }
+    return out;
+  }
+
   function stepIdx(n, idx, dr, dc) {
     var r = Math.floor(idx / n) + dr, c = (idx % n) + dc;
     if (r < 0 || c < 0 || r >= n || c >= n) return -1;
@@ -1294,13 +1445,12 @@
     return from[Math.floor(Math.random() * from.length)];
   }
 
-  /* Заполнение поля: сначала ловушки у самих слов, потом «почти-двойники»
-     букв с доски. Ни одной случайной буквы — всё выглядит как санскрит. */
-  function fillBoard(grid, n, places, cfg) {
+  /* Заполнение поля: сначала ловушки у самих слов и у двойников, потом
+     «почти-двойники» частей с доски. Ни одной случайной буквы. */
+  function fillBoard(grid, n, runs) {
     var onBoard = [];
-    places.forEach(function (p) {
-      p.chunks = chunks(byId(cfg, p.id));
-      p.chunks.forEach(function (c) { onBoard.push(c); });
+    runs.forEach(function (run) {
+      (run.parts || []).forEach(function (c) { onBoard.push(c); });
     });
 
     function put(idx, value) {
@@ -1312,15 +1462,15 @@
 
     /* 1) рядом с каждой частью слова — почти-двойник СЛЕДУЮЩЕЙ части:
           именно эту клетку ученик и хочется нажать вместо правильной */
-    places.forEach(function (p) {
-      p.chunks.forEach(function (part, k) {
-        var next = p.chunks[k + 1] || p.chunks[k];
+    runs.forEach(function (run) {
+      run.parts.forEach(function (part, k) {
+        var next = run.parts[k + 1] || run.parts[k];
         var alts = devaVariants(next);
         if (!alts.length) return;
-        var cand = shuffle(neighboursOf(n, p.cells[k]));
+        var cand = shuffle(neighboursOf(n, run.cells[k]));
         /* продолжение линии за концом слова и клетка перед началом */
-        if (k === p.chunks.length - 1) cand.unshift(stepIdx(n, p.cells[k], p.dr, p.dc));
-        if (k === 0) cand.push(stepIdx(n, p.cells[k], -p.dr, -p.dc));
+        if (k === run.parts.length - 1) cand.unshift(stepIdx(n, run.cells[k], run.dr, run.dc));
+        if (k === 0) cand.push(stepIdx(n, run.cells[k], -run.dr, -run.dc));
         var made = false;
         for (var i = 0; i < cand.length && !made; i++) {
           var near = [];
@@ -1368,9 +1518,11 @@
   /* Ловушка не должна случайно сложить настоящее слово: если после заполнения
      слово читается где-то ещё, портим одну из «лишних» клеток. Проходов
      несколько: одна правка может убрать одно вхождение и создать другое. */
-  function repairBoard(grid, n, places, cfg) {
+  function repairBoard(grid, n, places, cfg, twins) {
     var used = {};
     places.forEach(function (p) { p.cells.forEach(function (i) { used[i] = true; }); });
+    /* двойник — тоже готовая цепочка: правка клетки сломала бы его */
+    (twins || []).forEach(function (t) { t.cells.forEach(function (i) { used[i] = true; }); });
 
     function intended(cells, p) {
       return cells.length === p.cells.length &&
@@ -1427,16 +1579,32 @@
         if (ch.length > n) return;                 /* слово не влезает в поле */
         placeWord(grid, n, w, ch, places);
       });
+      /* двойники — до заполнения ловушками: они должны выглядеть как слова */
+      var twins = placeTwins(grid, n, cfg);
       var maxLen = 1;
       places.forEach(function (p) { maxLen = Math.max(maxLen, chunks(byId(cfg, p.id)).length); });
-      var worth = places.length * 100;
-      if (!best || worth > best.worth) {
-        fillBoard(grid, n, places, cfg);
-        repairBoard(grid, n, places, cfg);
-        best = { grid: grid, places: places, maxLen: maxLen,
-                 worth: worth - boardPenalty(grid, n, places, cfg) };
+
+      var runs = [];
+      places.forEach(function (p) {
+        runs.push({ parts: chunks(byId(cfg, p.id)), cells: p.cells, dr: p.dr, dc: p.dc });
+      });
+      twins.forEach(function (t) {
+        runs.push({ parts: t.parts, cells: t.cells, dr: t.dr, dc: t.dc });
+      });
+      fillBoard(grid, n, runs);
+      repairBoard(grid, n, places, cfg, twins);
+
+      var penalty = boardPenalty(grid, n, places, cfg);
+      var allWords = places.length === cfg.words.length;
+      var candidate = {
+        grid: grid, places: places, twins: twins, maxLen: maxLen,
+        worth: places.length * 1000 + twins.length * 50 - penalty * 100
+      };
+      if (!best || candidate.worth > best.worth) best = candidate;
+      if (allWords && twins.length >= Math.min(2, cfg.words.length) && penalty === 0) {
+        best = candidate;
+        break;
       }
-      if (places.length === cfg.words.length && best.worth === best.places.length * 100) break;
     }
     delete best.worth;
     return best;
@@ -1558,8 +1726,10 @@
       var built = buildSearch(cfg, g.size);
       g.grid = built.grid;
       g.places = built.places;
+      g.twins = built.twins || [];
       g.maxLen = built.maxLen;
     }
+    if (!g.twins) g.twins = [];
     var foundN = Object.keys(g.found).length;
     if (g.finished || (g.places.length && foundN >= g.places.length)) {
       return done(cfg, 'wordsearch', tx({ ru: 'Филворд — все слова найдены', en: 'Word search — complete' }),
@@ -1570,6 +1740,14 @@
       if (g.found[p.id]) p.cells.forEach(function (idx) { marked[idx] = 'found'; });
     });
     g.sel.forEach(function (idx) { if (!marked[idx]) marked[idx] = 'sel'; });
+    /* клетки двойников: промах — красным, при 🧩 «Ловушки» — пунктиром */
+    g.twins.forEach(function (t, ti) {
+      if (g.twinsMiss && g.twinsMiss[ti]) {
+        t.cells.forEach(function (idx) { if (!marked[idx]) marked[idx] = 'wrong'; });
+      } else if (g.showTwins) {
+        t.cells.forEach(function (idx) { if (!marked[idx]) marked[idx] = 'twin'; });
+      }
+    });
     if (keyOn(cfg)) g.places.forEach(function (p) {
       if (!g.found[p.id]) p.cells.forEach(function (idx) { if (!marked[idx]) marked[idx] = 'hint'; });
     });
@@ -1590,6 +1768,37 @@
           return '<span class="ws-legend' + (g.found[p.id] ? ' done' : '') + '">' +
             (g.found[p.id] ? '✓ ' : '') + devaSpan(w.deva) + '</span>';
         }).join('') + '</div>';
+    var twinNote = '';
+    if (g.twinsMiss && Object.keys(g.twinsMiss).length) {
+      var lastTwin = null;
+      g.twins.forEach(function (t, ti) { if (g.twinsMiss[ti]) lastTwin = t; });
+      if (lastTwin) {
+        var trueWord = byId(cfg, lastTwin.id).deva;
+        var kind = TWIN_KINDS[lastTwin.kind] || TWIN_KINDS.length;
+        var diff = lastTwin.from && lastTwin.to ? ' (' + lastTwin.from + ' → ' + lastTwin.to + ')'
+          : lastTwin.to ? ' (' + tx({ ru: 'добавлена ' + lastTwin.to, en: 'added ' + lastTwin.to }) + ')'
+          : lastTwin.from ? ' (' + tx({ ru: 'убрана ' + lastTwin.from, en: 'dropped ' + lastTwin.from }) + ')'
+          : '';
+        twinNote = '<div class="ws-twin-note">' +
+          tx({ ru: 'Двойник: в поле стоит ' + devaSpan(lastTwin.parts.join('')) +
+                ' — это не ' + devaSpan(trueWord) + '. Отличие: ' + tx(kind) + diff +
+                '. Такое слово не засчитывается, ищите настоящее написание.',
+               en: 'A near-miss: the board says ' + devaSpan(lastTwin.parts.join('')) +
+                ' — not ' + devaSpan(trueWord) + '. Difference: ' + tx(kind) + diff +
+                '. It does not score; look for the real spelling.' }) + '</div>';
+      }
+    }
+    var twinList = '';
+    if (g.showTwins && g.twins.length) {
+      twinList = '<div class="ws-twin-list"><div class="ws-twin-title">' +
+        tx({ ru: 'Ловушки на этом поле — не слова урока:', en: 'Near-misses on this board — not lesson words:' }) +
+        '</div>' + g.twins.map(function (t) {
+          /* если список слов спрятан, не выдаём и настоящее слово — только ловушку */
+          var right = g.hideWords ? '' : ' <span class="ws-twin-vs">≠</span> ' + devaSpan(byId(cfg, t.id).deva);
+          return '<div class="ws-twin-item">' + devaSpan(t.parts.join('')) + right +
+            ' — ' + tx(TWIN_KINDS[t.kind] || TWIN_KINDS.length) + '</div>';
+        }).join('') + '</div>';
+    }
     var notPlaced = cfg.words.length - g.places.length;
     return K.topBar(
       K.pill(tx({ ru: 'Найдено', en: 'Found' }) + ': ' + foundN + '/' + g.places.length) +
@@ -1598,10 +1807,14 @@
         chip(cfg, 'wsWords', '', g.hideWords
           ? '👁 ' + tx({ ru: 'Показать слова', en: 'Show words' })
           : '🙈 ' + tx({ ru: 'Спрятать слова', en: 'Hide words' })) + ' ' +
+        chip(cfg, 'wsTwins', '', (g.showTwins ? '🔍 ' : '🧩 ') +
+          tx({ ru: 'Ловушки', en: 'Near-misses' }), g.showTwins) + ' ' +
         restartChip(cfg, 'wordsearch')) +
       sizeRow(cfg, 'wsSize', g.size) +
       K.centerCard(
         boardHtml(g.size, cells) +
+        twinList +
+        twinNote +
         legend +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           tx({ ru: 'Слова спрятаны по частям: слева направо и сверху вниз. Нажимайте клетки по порядку.',
@@ -1858,6 +2071,9 @@
     g.size = n;
     g.grid = null;
     g.places = null;
+    g.twins = [];
+    g.twinsMiss = {};
+    g.showTwins = false;
     g.found = {};
     g.wrong = {};
     g.sel = [];
@@ -1899,7 +2115,8 @@
   SAL.addGame('wordsearch', {
     labelRu: 'Филворд (среди букв)',
     labelEn: 'Word Search (among letters)',
-    init: function () { return { grid: null, places: null, found: {}, sel: [], size: 10, maxLen: 2, hideWords: false, finished: false }; },
+    init: function () { return { grid: null, places: null, twins: [], twinsMiss: {}, found: {}, sel: [],
+                                 size: 10, maxLen: 2, hideWords: false, showTwins: false, finished: false }; },
     render: renderWordSearch,
     actions: {
       wsSize: function (cfg, st, a) { setGridSize(cfg, 'wordsearch', a); },
@@ -1925,16 +2142,29 @@
           var w = byId(cfg, p.id);
           if (chunks(w).join('') === seq) hit = p;
         });
+        /* цепочка совпала с двойником: слово почти правильное, но не то */
+        var twinHit = null;
+        (g.twins || []).forEach(function (t, ti) {
+          if (twinHit !== null) return;
+          if (t.parts.join('') === seq) twinHit = ti;
+        });
         if (hit) {
           g.found[hit.id] = true;
           SAL.speak(byId(cfg, hit.id).ttsText);
           g.sel = [];
           if (Object.keys(g.found).length >= g.places.length) g.finished = true;
+        } else if (twinHit !== null) {
+          if (!g.twinsMiss) g.twinsMiss = {};
+          g.twinsMiss[twinHit] = true;
+          SAL.speak(byId(cfg, g.twins[twinHit].id).ttsText);
+          g.sel = [];
         }
       },
       wsClear: function (cfg) { K.gst(cfg, 'wordsearch').sel = []; },
       /* 🙈 спрятать список слов под сеткой: поле превращается в задание «вспомни слова» */
-      wsWords: function (cfg) { var g = K.gst(cfg, 'wordsearch'); g.hideWords = !g.hideWords; }
+      wsWords: function (cfg) { var g = K.gst(cfg, 'wordsearch'); g.hideWords = !g.hideWords; },
+      /* 🧩 показать двойников: учитель разбирает их с учеником */
+      wsTwins: function (cfg) { var g = K.gst(cfg, 'wordsearch'); g.showTwins = !g.showTwins; }
     }
   });
 
@@ -2218,7 +2448,9 @@
                   'Нашли — цепочка зелёная, слово вычёркивается из списка под сеткой.',
                   '🙈 «Спрятать слова» убирает список под сеткой: сначала вспомните слова урока, потом ищите их в поле. 👁 возвращает список.',
                   'Сбились — нажмите ↺ «Сбросить выбор» и начните цепочку заново.',
-                  '🪤 Свободные клетки — не случайные буквы, а почти‑двойники слов урока: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः. Следующая клетка цепочки почти всегда выглядит правильной — читайте точно.'],
+                  '🪤 В поле лежат слова-двойники: त्रीणि и त्रिणि, चत्वारि и चत्वरी, एकम् и एकम. Двойник отличается ровно одной буквой — долготой, варгой (ण ↔ न) или ऋ / रि — и не засчитывается. Именно поэтому слово нельзя узнать «по общему виду», его нужно прочитать.',
+                  '🧩 «Ловушки» показывает все двойники на поле и что в каждом не так — для разбора с учеником.',
+                  'Свободные клетки тоже заполнены не случайными буквами, а вариантами частей с этого поля: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः.'],
              en: ['Board size — the 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5 buttons above the grid.',
                   'The words lie in a straight line in two directions only: left to right and top to bottom. Nothing is hidden diagonally.',
                   'The cells are labelled: numbers 1–10 across the top, letters a, b, c… down the left. You can name a cell out loud — “c4”.',
@@ -2226,7 +2458,9 @@
                   'Found — the chain turns green and the word is crossed off the list under the grid.',
                   '🙈 “Hide words” removes the list under the grid: recall the lesson words first, then look for them. 👁 brings the list back.',
                   'Lost the thread — press ↺ “Clear” and start the chain again.',
-                  '🪤 The empty cells are not random letters but near-misses of the lesson words: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः. The next cell of the chain almost always looks right — read exactly.'] },
+                  '🪤 The board holds near-miss twins: त्रीणि and त्रिणि, चत्वारि and चत्वरी, एकम् and एकम. A twin differs in exactly one letter — vowel length, varga (ण ↔ न) or ऋ / रि — and does not score. That is why a word cannot be recognised by its overall look; it has to be read.',
+                  '🧩 “Near-misses” shows every twin on the board and what is wrong with it — for a talk-through with the student.',
+                  'The empty cells are filled with variants of the parts on this board too: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः.'] },
       score: { ru: 'Счёт — сколько слов найдено из всех слов урока. 🔑 ключ учителя подсвечивает все спрятанные цепочки.',
                en: 'The score is how many of the lesson words were found. 🔑 outlines every hidden chain.' }
     }

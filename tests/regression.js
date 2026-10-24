@@ -644,6 +644,57 @@ const onlyStraightAxes = ws.places.every(p => {
 });
 ck(onlyStraightAxes, 'филворд по частям: слов по диагонали нет — только → и ↓');
 
+/* слова-двойники: в другом месте поля лежит почти то же слово, но с одной
+   заменой — именно это и делает филворд неочевидным */
+const wsTwins = ws.twins || [];
+ck(wsTwins.length >= 2, 'филворд по частям: на поле есть слова-двойники (' + wsTwins.length + ')');
+const twinChecks = wsTwins.map(tw => {
+  const trueWord = wById(tw.id).syll.join('');
+  const text = tw.parts.join('');
+  const differs = tw.parts.filter((p, k) => p !== wById(tw.id).syll[k]).length;
+  const straight = tw.cells.map(i => ws.grid[i]).join('') === text;
+  return { text, trueWord, differs, straight, kind: tw.kind };
+});
+ck(twinChecks.every(t => t.straight), 'филворд по частям: каждый двойник читается по своим клеткам');
+ck(twinChecks.every(t => t.text !== t.trueWord), 'филворд по частям: двойник не совпадает с настоящим словом');
+ck(twinChecks.every(t => t.differs === 1), 'филворд по частям: двойник отличается ровно одной частью');
+ck(twinChecks.every(t => !!t.kind), 'филворд по частям: у двойника записан признак замены');
+const twinKinds = twinChecks.map(t => t.kind);
+ck(twinKinds.indexOf('length') >= 0 || twinKinds.indexOf('varga') >= 0 || twinKinds.indexOf('rvowel') >= 0,
+  'филворд по частям: среди ловушек есть долгота / варга / ऋ-रि (' + twinKinds.join(',') + ')');
+
+/* нажатие на двойника не засчитывается и объясняется */
+const tw0 = wsTwins[0];
+tw0.cells.forEach(i => SAL.do('L4', 'wsTap', String(i)));
+const afterTwin = gst('L4', 'wordsearch');
+ck(afterTwin.found[tw0.id] !== true, 'филворд по частям: двойник не засчитывается как слово');
+ck(!!(afterTwin.twinsMiss && afterTwin.twinsMiss[0]), 'филворд по частям: двойник помечается промахом');
+ck(arenaOf('L4').querySelectorAll('.wcell.wrong').length === tw0.cells.length,
+  'филворд по частям: клетки двойника краснеют');
+ck(/Двойник/.test(arenaOf('L4').textContent) && /это не/.test(arenaOf('L4').textContent),
+  'филворд по частям: под сеткой объяснено, чем двойник отличается');
+
+/* 🧩 «Ловушки» — учитель показывает двойников */
+SAL.do('L4', 'wsTwins');
+const twinArena = arenaOf('L4');
+ck(gst('L4', 'wordsearch').showTwins === true &&
+   twinArena.querySelectorAll('.wcell.twin').length >= wsTwins.length,
+  'филворд по частям: 🧩 «Ловушки» подсвечивает двойников');
+ck(twinArena.querySelectorAll('.ws-twin-item').length === wsTwins.length,
+  'филворд по частям: список ловушек показывает каждый двойник и его отличие');
+/* со скрытым списком слов ловушки не выдают настоящие слова урока
+   (showTwins здесь ещё включён с прошлой проверки) */
+SAL.do('L4', 'wsWords');
+const twinListEl = arenaOf('L4').querySelector('.ws-twin-list');
+const leakText = twinListEl ? twinListEl.textContent : '';
+ck(twinListEl !== null && !L4.words.some(w => leakText.indexOf(w.deva) >= 0),
+  'филворд по частям: при скрытом списке 🧩 не показывает настоящие слова');
+SAL.do('L4', 'wsWords');
+SAL.do('L4', 'wsTwins');
+ck(gst('L4', 'wordsearch').showTwins === false &&
+   arenaOf('L4').querySelectorAll('.wcell.twin').length === 0,
+  'филворд по частям: режим ловушек выключается');
+
 /* координаты поля: цифры сверху, буквы слева */
 const coordsOf = k => {
   const board = arenaOf(k).querySelector('.ws-board');
