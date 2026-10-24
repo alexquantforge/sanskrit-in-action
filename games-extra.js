@@ -2238,7 +2238,11 @@
     topicRu: '12 частей тела: лицо, руки, ноги',
     topicEn: 'twelve body parts: face, arms, legs',
     words: (typeof bodyPartsVocab !== 'undefined' ? bodyPartsVocab : []),
-    extraGames: ['wordsearch']
+    extraGames: ['wordsearch'],
+    /* на вкладке урока 1 игра называется иначе, чем в уроках числительных */
+    gameLabels: {
+      wordsearch: { ru: 'Филворд (ищи слова по частям)', en: 'Word Search (find the words)' }
+    }
   });
 
   /* =========================================================================

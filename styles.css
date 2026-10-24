@@ -2244,6 +2244,16 @@ body.hide-iast .level-sample-iast {
 }
 
 /* rules panel above every practice game */
+/* Название игры с номером — над блоком правил, как на вкладке */
+.game-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
 .game-rules {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);

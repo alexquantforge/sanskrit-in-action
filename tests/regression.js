@@ -1410,6 +1410,49 @@ ck(/Правила игры/.test(arenaOf('L4').querySelector('.game-rules-head'
    /Счёт/.test(arenaOf('L4').querySelector('.game-rules').textContent),
   'правила возвращаются на русский');
 
+/* ---------- над правилами — название игры и её номер, как на вкладке ---------- */
+SAL.openLesson('L4');
+SAL.do('L4', 'restart', 'tictactoe');
+const tttHead = arenaOf('L4').querySelector('.game-title');
+ck(tttHead && tttHead.textContent.trim() === '29. Крестики-нолики с проверкой',
+  'над правилами крестиков-ноликов — название с номером («' + (tttHead && tttHead.textContent.trim()) + '»)');
+ck(arenaOf('L4').firstElementChild === tttHead &&
+   arenaOf('L4').children[1].classList.contains('game-rules'),
+  'название игры стоит первым, правила — сразу под ним');
+SAL.do('L4', 'restart', 'masked');
+ck(arenaOf('L4').querySelector('.game-title').textContent.trim() === '1. Закрыто квадратом ■ (Угадай слово)',
+  'заголовок меняется вместе с игрой');
+win.setLanguage('en');
+SAL.do('L4', 'restart', 'tictactoe');
+ck(arenaOf('L4').querySelector('.game-title').textContent.trim() === '29. Tic-Tac-Toe with a Quiz',
+  'EN: название игры переводится вместе с вкладкой');
+win.setLanguage('ru');
+
+/* заголовок каждой игры равен подписи её вкладки — ни один номер не разъехался */
+const headDrift = [];
+['L2', 'L3', 'LC', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'].forEach(k => {
+  SAL.openLesson(k);
+  const pane = win.document.getElementById('view-lesson' + SAL.lessons[k].num);
+  [...pane.querySelectorAll('.practice-tab-btn[data-game]')].forEach(btn => {
+    const gm = btn.getAttribute('data-game');
+    SAL.do(k, 'restart', gm);
+    const head = arenaOf(k).querySelector('.game-title');
+    const tabText = btn.textContent.replace(/\s+/g, ' ').trim();
+    if (!head) headDrift.push(k + ' · ' + gm + ': нет заголовка');
+    else if (head.textContent.replace(/\s+/g, ' ').trim() !== tabText)
+      headDrift.push(k + ' · ' + gm + ': «' + head.textContent.trim() + '» ≠ «' + tabText + '»');
+  });
+});
+ck(headDrift.length === 0, 'у каждой игры заголовок совпадает с вкладкой (номер и название)' +
+  (headDrift.length ? ' — ' + headDrift.join('; ') : ''));
+
+/* блок повторения тоже показывает название и номер своей игры */
+SAL.openLesson('LC');
+SAL.do('LC', 'rcGame', 'wordsearch');
+const rcHead = win.document.getElementById('LCRC-practice-arena').querySelector('.game-title');
+ck(rcHead && /^14\. Филворд/.test(rcHead.textContent.trim()),
+  'повторение: над правилами — название игры с номером («' + (rcHead && rcHead.textContent.trim()) + '»)');
+
 /* the standalone 12-word lesson shares the same rules via SAL.rulesPanel() */
 win.switchView('lesson4');
 const noRulesL1 = GAMES.filter(gm => {
@@ -1418,6 +1461,20 @@ const noRulesL1 = GAMES.filter(gm => {
 });
 ck(noRulesL1.length === 0, 'урок 4 (12 слов): правила есть во всех 12 играх' +
   (noRulesL1.length ? ' — без правил: ' + noRulesL1.join(', ') : ''));
+/* и здесь над правилами стоит название игры с номером из её вкладки */
+const noTitleL1 = GAMES.filter(gm => {
+  win.selectPracticeGame(gm);
+  const head = l1arena.querySelector('.game-title');
+  const tab = [...win.document.querySelectorAll('#view-lesson4 .practice-tab-btn[data-game]')]
+    .filter(b => b.getAttribute('data-game') === gm)[0];
+  return !head || !tab || head.textContent.replace(/\s+/g, ' ').trim() !== tab.textContent.replace(/\s+/g, ' ').trim();
+});
+ck(noTitleL1.length === 0, 'урок 4 (12 слов): у каждой игры свой заголовок с номером' +
+  (noTitleL1.length ? ' — без заголовка: ' + noTitleL1.join(', ') : ''));
+win.selectPracticeGame('wordsearch');
+ck(/^13\. Филворд \(ищи слова по частям\)$/
+    .test(win.document.getElementById('L1B-practice-arena').querySelector('.game-title').textContent.trim()),
+  'урок 4 (12 слов): у филворда заголовок 13 — как на вкладке');
 
 /* ---- 13-я вкладка: филворд на странице урока 4 ---- */
 console.log('\n===== Урок 4: филворд на отдельной странице =====');
@@ -1552,7 +1609,10 @@ ck(fired[0].route === '#/ru/lesson5' && fired[0].view === 'lesson5' && fired[0].
 ck(fired[1].route === '#/en/lesson5' && fired[1].lang === 'en', 'переключение языка даёт отдельный page_view');
 ck(fired.every(ev => ev.type === 'page_view' && typeof ev.ts === 'number' && ev.title),
   'у каждого события есть тип, время и заголовок');
-ck(win.salPageViews().length === before + 3, 'журнал просмотров пополняется');
+const pvTail = win.salPageViews().slice(-3).map(ev => ev.route).join(', ');
+ck(pvTail === '#/ru/lesson5, #/en/lesson5, #/en/lesson9' &&
+   win.salPageViews().length === Math.min(100, before + 3),
+  'журнал просмотров пополняется тремя адресами подряд (' + pvTail + ')');
 win.setLanguage('ru');
 win.switchView('lesson7');
 const gtagEvents = [];

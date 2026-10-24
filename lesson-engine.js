@@ -451,8 +451,37 @@ var SAL = (window.SAL = window.SAL || {});
     var arena = document.getElementById(shim.key + '-practice-arena');
     if (!arena) return;
     var fn = GAME_RENDER[st.game] || renderMasked;
-    arena.innerHTML = rulesHtml(shim, st) + fn(shim, st);
+    arena.innerHTML = gameTitleHtml(pane, '[data-rc-game="' + st.game + '"]', shim, st.game) + rulesHtml(shim, st) + fn(shim, st);
   }
+
+  /* The heading above every game: its number and name, taken from the very tab the
+     student pressed — so a heading can never drift away from its tab. A hidden
+     configuration without a tabbed pane (L1B: the word search of lesson 1) falls
+     back to the same labels the tabs would have carried. */
+  function gameTitleHtml(pane, sel, cfg, game) {
+    var btn = pane ? pane.querySelector('.practice-tab-btn' + sel) : null;
+    var ruLabel = '', enLabel = '', label = '';
+    if (btn) {
+      label = String(btn.textContent || '').replace(/\s+/g, ' ').trim();
+      ruLabel = btn.getAttribute('data-i18n-ru') || '';
+      enLabel = btn.getAttribute('data-i18n-en') || '';
+    }
+    if (!label && cfg && game && cfg.extraGames && cfg.extraGames.indexOf(game) >= 0) {
+      var lab = (cfg.gameLabels && cfg.gameLabels[game]) || EXTRA_LABELS[game];
+      var num = 12 + cfg.extraGames.indexOf(game) + 1 + '. ';
+      if (lab) { ruLabel = num + lab.ru; enLabel = num + lab.en; label = tx({ ru: ruLabel, en: enLabel }); }
+    }
+    if (!label) return '';
+    var esc = function (t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    return '<h3 class="game-title"' + (ruLabel && enLabel
+      ? ' data-i18n-ru="' + esc(ruLabel) + '" data-i18n-en="' + esc(enLabel) + '"' : '') + '>' +
+      esc(label) + '</h3>';
+  }
+  SAL.gameTitle = function (label) {
+    if (!label) return '';
+    return '<h3 class="game-title">' +
+      String(label).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</h3>';
+  };
 
   function renderRecycleProd(cfg) {
     var shim = recycleOf(cfg);
@@ -518,7 +547,7 @@ var SAL = (window.SAL = window.SAL || {});
     ];
     /* lessons may add their own games (see SAL.addGame in games-extra.js) */
     var extraTabs = (cfg.extraGames || []).map(function (k, i) {
-      var lab = EXTRA_LABELS[k] || { ru: k, en: k };
+      var lab = (cfg.gameLabels && cfg.gameLabels[k]) || EXTRA_LABELS[k] || { ru: k, en: k };
       var num = (defGames.length + i + 1) + '. ';
       return [k, num + tx(lab), num + lab.ru, num + lab.en];
     });
@@ -1527,7 +1556,7 @@ var SAL = (window.SAL = window.SAL || {});
     var arena = document.getElementById(cfg.key + '-practice-arena');
     if (!arena) return;
     var fn = GAME_RENDER[st.game] || renderMasked;
-    arena.innerHTML = rulesHtml(cfg, st) + fn(cfg, st);
+    arena.innerHTML = gameTitleHtml(pane, '[data-game="' + st.game + '"]', cfg, st.game) + rulesHtml(cfg, st) + fn(cfg, st);
   }
 
   /* =========================================================================

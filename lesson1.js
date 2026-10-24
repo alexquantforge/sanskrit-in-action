@@ -1293,6 +1293,7 @@ function renderPracticeArena() {
     arena.style.display = useEngine ? 'none' : '';
     if (useEngine && window.SAL && typeof window.SAL.showGame === 'function') {
       window.SAL.showGame('L1B', 'wordsearch');
+      /* заголовок рисует движок: у скрытой конфигурации L1B своя подпись (gameLabels) */
       return;
     }
   }
@@ -1324,8 +1325,13 @@ function renderPracticeArena() {
   }
 
   // Rules panel: the same manual the engine shows above every game (lesson-engine.js)
+  // and, above it, the name of the running game with its number — taken from its own tab
   const rulesPanel = (typeof SAL !== 'undefined' && SAL.rulesPanel) ? SAL.rulesPanel(currentPracticeGame) : '';
-  if (rulesPanel) arena.insertAdjacentHTML('afterbegin', rulesPanel);
+  const tabsRow = arena.closest('.container') ? arena.closest('.container').querySelector('.practice-tabs') : null;
+  const gameTab = tabsRow ? tabsRow.querySelector('[data-game="' + currentPracticeGame + '"]') : null;
+  const gameTitle = (gameTab && typeof SAL !== 'undefined' && SAL.gameTitle)
+    ? SAL.gameTitle(gameTab.textContent.trim()) : '';
+  if (gameTitle + rulesPanel) arena.insertAdjacentHTML('afterbegin', gameTitle + rulesPanel);
 }
 
 // GAME 2: Flashcards (Front: Picture only -> Back: Sanskrit word + Audio + Self-Score)
