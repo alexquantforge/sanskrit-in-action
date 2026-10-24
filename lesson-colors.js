@@ -171,9 +171,20 @@ var RC_POSTER_ART = (function () {
 })();
 
 var RC_PINS = RC_COMPOUNDS.map(function (w, i) {
-  var cx = 56 + (i % 3) * 104, cy = 56 + Math.floor(i / 3) * 108;
-  return { id: w.id, num: i + 1, x: cx - 30, y: cy - 30, tx: cx, ty: cy };
+  var x = 10 + (i % 3) * 104, y = 10 + Math.floor(i / 3) * 108;
+  var cx = x + 46, cy = y + 46;
+  /* «Что пропало?»: картинка этой карточки закрашивается её же фоном —
+     остаётся пустая карточка, без призрака пропавшего слова */
+  var tint = (w.svg.match(/<rect[^>]*fill="(#[0-9A-Fa-f]{6})"/) || [])[1] || '#FFFFFF';
+  var erase = '<rect x="' + (x + 2) + '" y="' + (y + 2) + '" width="88" height="88" rx="11" fill="' + tint + '"/>';
+  return { id: w.id, num: i + 1, x: cx - 30, y: cy - 30, tx: cx, ty: cy, erase: erase };
 });
+
+/* «Что пропало?»: дырка на месте шарика палитры. Фон под шариками — светлый
+   #FDF6EC, поэтому пропавший цвет оставляет после себя пустое место. */
+function paletteHole(cx, cy) {
+  return '<circle cx="' + cx + '" cy="' + cy + '" r="35" fill="#FDF6EC"/>';
+}
 
 SAL.registerLesson({
   key: "LC",
@@ -305,12 +316,12 @@ SAL.registerLesson({
         viewBox: "0 0 320 230",
         art: "<rect x=\"6\" y=\"6\" width=\"308\" height=\"218\" rx=\"14\" fill=\"#F8EFE6\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n  <path d=\"M24 108C24 56 78 20 160 20C242 20 296 56 296 108C296 160 242 196 160 196C78 196 24 160 24 108Z\" fill=\"#FDF6EC\" stroke=\"#E5DEC9\" stroke-width=\"0\"/>\n  <circle cx=\"62\" cy=\"66\" r=\"32\" fill=\"#FFFFFF\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"160\" cy=\"66\" r=\"32\" fill=\"#0B1220\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"258\" cy=\"66\" r=\"32\" fill=\"#DC2626\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"62\" cy=\"164\" r=\"32\" fill=\"#2563EB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"160\" cy=\"164\" r=\"32\" fill=\"#1F3A5F\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <circle cx=\"258\" cy=\"164\" r=\"32\" fill=\"#F2C46B\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <ellipse cx=\"52\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#CBD5E1\"/>\n  <ellipse cx=\"150\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#64748B\" opacity=\"0.7\"/>\n  <ellipse cx=\"248\" cy=\"55\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.55\"/>\n  <ellipse cx=\"52\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.55\"/>\n  <ellipse cx=\"150\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#AFC4DE\" opacity=\"0.6\"/>\n  <ellipse cx=\"248\" cy=\"153\" rx=\"8\" ry=\"4.4\" fill=\"#FFFFFF\" opacity=\"0.65\"/>",
         pins: [
-          { id: "shveta", num: 1, x: 30, y: 34, tx: 62, ty: 66 },
-          { id: "krishna", num: 2, x: 160, y: 20, tx: 160, ty: 66 },
-          { id: "rakta", num: 3, x: 290, y: 34, tx: 258, ty: 66 },
-          { id: "nila", num: 4, x: 30, y: 198, tx: 62, ty: 164 },
-          { id: "shyama", num: 5, x: 160, y: 210, tx: 160, ty: 164 },
-          { id: "gaura", num: 6, x: 290, y: 198, tx: 258, ty: 164 }
+          { id: "shveta", num: 1, x: 30, y: 34, tx: 62, ty: 66, erase: paletteHole(62, 66) },
+          { id: "krishna", num: 2, x: 160, y: 20, tx: 160, ty: 66, erase: paletteHole(160, 66) },
+          { id: "rakta", num: 3, x: 290, y: 34, tx: 258, ty: 66, erase: paletteHole(258, 66) },
+          { id: "nila", num: 4, x: 30, y: 198, tx: 62, ty: 164, erase: paletteHole(62, 164) },
+          { id: "shyama", num: 5, x: 160, y: 210, tx: 160, ty: 164, erase: paletteHole(160, 164) },
+          { id: "gaura", num: 6, x: 290, y: 198, tx: 258, ty: 164, erase: paletteHole(258, 164) }
         ]
       }
     ]

@@ -1903,6 +1903,9 @@ var SAL = (window.SAL = window.SAL || {});
     all.sort(function (a, b) { return a.pin.num - b.pin.num; });
     return all;
   }
+  /* «Что пропало на рисунке?»: у пина может быть свой `erase` — фигура, которой
+     закрашивается пропавший предмет фоном. Иначе (например, на портрете лица)
+     рисунок остаётся целым и знак «?» только указывает место. */
   function renderMissing(cfg, st) {
     var m = st.prod.missing;
     var all = allPinsOf(cfg);
@@ -1912,6 +1915,7 @@ var SAL = (window.SAL = window.SAL || {});
     }
     var cur = all[m.i];
     var w = byId(cfg, cur.pin.id);
+    var erase = cur.pin.erase || '';
     var marker = '<g><line x1="' + cur.pin.x + '" y1="' + cur.pin.y + '" x2="' + cur.pin.tx + '" y2="' + cur.pin.ty +
       '" stroke="#DC2626" stroke-width="2.8"/>' +
       '<circle cx="' + cur.pin.tx + '" cy="' + cur.pin.ty + '" r="11" fill="#FEF08A" stroke="#DC2626" stroke-width="2.5" stroke-dasharray="3,2"/>' +
@@ -1929,7 +1933,7 @@ var SAL = (window.SAL = window.SAL || {});
       ru('Look where the red ? points and say that word aloud',
          'Посмотрите, куда указывает красный знак «?», и назовите это слово вслух') + '</div>' +
       '<svg viewBox="' + cur.fig.viewBox + '" style="width:100%;max-width:320px;height:auto;display:block;margin:0 auto;" fill="none"' +
-      ' xmlns="http://www.w3.org/2000/svg">' + cur.fig.art + marker + '</svg>' +
+      ' xmlns="http://www.w3.org/2000/svg">' + cur.fig.art + erase + marker + '</svg>' +
       (m.revealed
         ? '<div style="margin-top:0.75rem;" class="vocab-svg-box" style="width:96px;height:96px;margin:0.75rem auto 0.25rem;">' + w.svg + '</div>' +
           '<div class="vocab-deva" style="font-size:2.2rem;color:#15803d;margin-bottom:0.15rem;">' + w.deva + '</div>' +

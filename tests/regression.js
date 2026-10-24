@@ -582,6 +582,22 @@ console.log('\n===== Урок 3: цвета =====');
   const uTab = win.document.querySelector('#view-lesson3 [data-prod-mode="union"]');
   ck(uTab && /19/.test(uTab.textContent), 'урок 3: в спринте 19 слов (6 + 7 + 6)');
   ck(uTab && /Цвета/.test(uTab.textContent), 'урок 3: подпись спринта называет цвета, а не только тело и лицо');
+  /* «Что пропало?»: пропавший цвет оставляет пустое место, а не белый шарик */
+  SAL.do('LC', 'setProdMode', 'missingpart');
+  const missStage = win.document.getElementById('LC-production-stage');
+  const missSvg = missStage.querySelector('svg').innerHTML;
+  ck(/<circle[^>]*r="35"[^>]*fill="#FDF6EC"/.test(missSvg),
+    'урок 3: на месте пропавшего цвета — дырка цвета фона, шарика нет');
+  const missPinId = SAL.lessons.LC._st.prod.missing.i;
+  ck(missPinId === 0, 'урок 3: «Что пропало?» начинается с первого пина');
+  const holeIdx = missSvg.indexOf('r="35"');
+  const markerIdx = missSvg.indexOf('stroke-dasharray="3,2"');
+  ck(holeIdx > 0 && markerIdx > holeIdx, 'урок 3: дырка нарисована до знака «?», он виден поверх');
+  SAL.do('LC', 'missingReveal');
+  ck(/श्वेत/.test(win.document.getElementById('LC-production-stage').textContent),
+    'урок 3: после проверки показан пропавший цвет — श्वेत');
+  SAL.do('LC', 'missingRestart');   /* возвращаем основной урок в исходное состояние */
+
   SAL.do('LC', 'setProdMode', 'union');
   ck(!!win.document.getElementById('LC-production-stage').innerHTML.trim(),
     'урок 3: спринт по трём урокам отрисовывается');
