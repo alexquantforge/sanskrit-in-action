@@ -575,6 +575,14 @@ console.log('\n===== Урок 3: цвета =====');
   SAL.do('LC', 'restart', 'wordsearch');
   SAL.do('LC', 'wsSize', '6');
   ck(SAL.lessons.LC._st.g.wordsearch.grid.length === 36, 'урок 3: и второй филворд меняет размер');
+  /* подписи режимов Production переводятся вместе с сайтом */
+  win.setLanguage('en');
+  const uTabEn = win.document.querySelector('#view-lesson3 [data-prod-mode="union"]');
+  ck(uTabEn && uTabEn.textContent.trim() === '5. Sprint: Body + Face + Colours ⏱ (19)',
+    'урок 3: подпись спринта переведена на английский — ' + (uTabEn && uTabEn.textContent.trim()));
+  win.setLanguage('ru');
+  ck(uTabEn.textContent.trim() === '5. Спринт: Тело + Лицо + Цвета ⏱ (19)',
+    'урок 3: и возвращается на русский');
 }
 
 /* ==========================================================================

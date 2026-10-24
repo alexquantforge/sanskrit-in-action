@@ -397,24 +397,31 @@ var SAL = (window.SAL = window.SAL || {});
         ' onclick="SAL.do(\'' + key + '\',\'setGame\',\'' + g[0] + '\')">' + g[1] + '</button>';
     }).join('');
 
+    /* [mode, label in the current language, label ru, label en] — the ru/en pair
+       goes into data-i18n-* so the tab is translated without re-rendering. */
     var prodList = [
-      ['sprint', ru('1. Speed Sprint ⏱ (No Text)', '1. Спринт на время ⏱ (Без текста)')],
-      ['mic', ru('2. Speak into Microphone 🎙', '2. Произнеси в микрофон 🎙')],
-      ['missingpart', ru('3. What Is Missing? ❓', '3. Что пропало на рисунке? ❓')],
-      ['chant', ru('4. TPR Chant & Checklist ' + N + '/' + N + ' ↑↓', '4. Ритм-чант и Чек-лист ' + N + '/' + N + ' ↑↓')]
+      ['sprint', ru('1. Speed Sprint ⏱ (No Text)', '1. Спринт на время ⏱ (Без текста)'),
+        '1. Спринт на время ⏱ (Без текста)', '1. Speed Sprint ⏱ (No Text)'],
+      ['mic', ru('2. Speak into Microphone 🎙', '2. Произнеси в микрофон 🎙'),
+        '2. Произнеси в микрофон 🎙', '2. Speak into Microphone 🎙'],
+      ['missingpart', ru('3. What Is Missing? ❓', '3. Что пропало на рисунке? ❓'),
+        '3. Что пропало на рисунке? ❓', '3. What Is Missing? ❓'],
+      ['chant', ru('4. TPR Chant & Checklist ' + N + '/' + N + ' ↑↓', '4. Ритм-чант и Чек-лист ' + N + '/' + N + ' ↑↓'),
+        '4. Ритм-чант и Чек-лист ' + N + '/' + N + ' ↑↓', '4. TPR Chant & Checklist ' + N + '/' + N + ' ↑↓']
     ];
     /* A lesson may declare `unionSprint`: one more production mode — a timed run
        over the words of several lessons at once (спиральное повторение).
        cfg.unionLabel задаёт свою подпись, иначе остаётся «тело + лицо». */
     if (cfg.unionSprint) {
       var uTotal = unionWords(cfg).length;
-      var uLab = cfg.unionLabel
-        ? tx(cfg.unionLabel) + ' (' + uTotal + ')'
-        : ru('5. Sprint: Body + Face ⏱ (' + uTotal + ')', '5. Спринт: тело + лицо ⏱ (' + uTotal + ')');
-      prodList.push(['union', uLab]);
+      var uRu = (cfg.unionLabel ? cfg.unionLabel.ru : '5. Спринт: тело + лицо ⏱') + ' (' + uTotal + ')';
+      var uEn = (cfg.unionLabel ? cfg.unionLabel.en : '5. Sprint: Body + Face ⏱') + ' (' + uTotal + ')';
+      prodList.push(['union', L() === 'ru' ? uRu : uEn, uRu, uEn]);
     }
     var prodTabs = prodList.map(function (p) {
+      var safe = function (t) { return String(t).replace(/"/g, '&quot;'); };
       return '<button type="button" class="practice-tab-btn' + (p[0] === 'sprint' ? ' active' : '') + '" data-prod-mode="' + p[0] +
+        '" data-i18n-ru="' + safe(p[2]) + '" data-i18n-en="' + safe(p[3]) +
         '" onclick="SAL.do(\'' + key + '\',\'setProdMode\',\'' + p[0] + '\')">' + p[1] + '</button>';
     }).join('');
 
