@@ -22,6 +22,8 @@ SAL.registerLesson({
   introEn: "The sixth lesson: the numerals six to ten — <code>ṣaṭ</code>, <code>sapta</code>, <code>aṣṭa</code>, <code>nava</code>, <code>daśa</code>. In this form (neuter nominative-accusative) they do not change: the stem IS the counting form. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
+  prodTitleRu: "Живая речь: назовите вслух все {n} числительных",
+  prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
       id: "shat", deva: "षट्", iast: "ṣaṭ", ttsText: "षट्",

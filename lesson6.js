@@ -21,6 +21,8 @@ SAL.registerLesson({
   introEn: "The seventh lesson: eleven to fifteen — <code>ekādaśa</code>, <code>dvādaśa</code>, <code>trayodaśa</code>, <code>caturdaśa</code>, <code>pañcadaśa</code>. They are all built on <code>daśa</code> “ten”: the stem of the first number plus “ten”. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
+  prodTitleRu: "Живая речь: назовите вслух все {n} числительных",
+  prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
       id: "ekadasa", deva: "एकादश", iast: "ekādaśa", ttsText: "एकादश",

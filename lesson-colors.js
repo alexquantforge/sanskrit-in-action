@@ -185,6 +185,12 @@ SAL.registerLesson({
   topicEn: "white, black, red, blue, storm-cloud dark blue, golden",
   introRu: "Третий урок — шесть цветов: <code>श्वेत</code> (белый), <code>कृष्ण</code> (чёрный), <code>रक्त</code> (красный), <code>नील</code> (синий), <code>श्याम</code> (тёмно-синий, цвет грозовой тучи), <code>गौर</code> (золотистый, светлый). Слова короткие, поэтому тренируем точность: долгота гласной (<code>नील</code> / <code>निल</code>), придыхание и варга (<code>कृष्ण</code>). Цвета сразу работают как определения к знакомым словам уроков 1–2.",
   introEn: "The third lesson brings six colours: <code>श्वेत</code> (white), <code>कृष्ण</code> (black), <code>रक्त</code> (red), <code>नील</code> (blue), <code>श्याम</code> (storm-cloud dark blue), <code>गौर</code> (golden, fair). The words are short, so the focus is precision: vowel length (<code>नील</code> / <code>निल</code>) and aspiration and varga (<code>कृष्ण</code>). The colours work straight away as attributes of the body and face words from lessons 1–2.",
+  /* Цвет нельзя «показать у себя» — поэтому жеста в этом уроке нет, а заголовок
+     Production называет только то, что нужно сделать: назвать слова вслух. */
+  gestureRu: "",
+  gestureEn: "",
+  prodTitleRu: "Живая речь: назовите вслух все {n} слов",
+  prodTitleEn: "Freer Production: Say All {n} Words Aloud",
   words: [
     {
       id: "shveta", deva: "श्वेत", iast: "śveta", ttsText: "श्वेत",
@@ -335,6 +341,8 @@ SAL.registerLesson({
   recycle: {
     titleRu: "Повторение: цвет + часть тела",
     titleEn: "Recycling: colour + body part",
+    gestureRu: "коснитесь той части тела, о которой говорится в слове",
+    gestureEn: "touch the body part the word names",
     descRu: "Соедините цвет из этого урока с частью тела или лица из уроков 1–2 — и получится одно сдвоенное слово через тире: <code>गौर</code> + <code>शीर्ष</code> = <code>गौर-शीर्ष</code>. Те же игры, что выше, но карточки уже составные: это спиральное повторение всей лексики.",
     descEn: "Join a colour from this lesson with a body or face part from lessons 1–2 — and one hyphenated compound word appears: <code>गौर</code> + <code>शीर्ष</code> = <code>गौर-शीर्ष</code>. The same games as above, but every card is now a compound: spiral revision of all the vocabulary.",
     words: RC_COMPOUNDS,

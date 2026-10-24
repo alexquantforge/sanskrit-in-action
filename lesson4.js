@@ -22,6 +22,8 @@ SAL.registerLesson({
   introEn: "The fifth lesson: the first five Sanskrit numerals in the neuter nominative-accusative — <code>ekam</code>, <code>dve</code>, <code>trīṇi</code>, <code>catvāri</code>, <code>pañca</code>. This is the form used for counting things. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
+  prodTitleRu: "Живая речь: назовите вслух все {n} числительных",
+  prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
       id: "ekam", deva: "एकम्", iast: "ekam", ttsText: "एकं",

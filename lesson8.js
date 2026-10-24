@@ -21,6 +21,8 @@ SAL.registerLesson({
   introEn: "The ninth lesson: the tens from ten to fifty — <code>daśa</code>, <code>viṃśatiḥ</code>, <code>triṃśat</code>, <code>catvāriṃśat</code>, <code>pañcāśat</code>. Note the two different endings: <code>-tiḥ</code> for twenty and <code>-śat</code> for thirty, forty and fifty. Quantity is shown by Arabic digits: still no translation.",
   gestureRu: "хлопните в ладоши столько раз, сколько десятков",
   gestureEn: "clap once for every ten",
+  prodTitleRu: "Живая речь: назовите вслух все {n} числительных",
+  prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
       id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश",

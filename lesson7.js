@@ -21,6 +21,8 @@ SAL.registerLesson({
   introEn: "The eighth lesson: sixteen to twenty — <code>ṣoḍaśa</code>, <code>saptadaśa</code>, <code>aṣṭādaśa</code>, <code>navadaśa</code>, <code>viṃśatiḥ</code>. The first four are still built on <code>daśa</code>, while “twenty” is a separate word ending in a visarga. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
+  prodTitleRu: "Живая речь: назовите вслух все {n} числительных",
+  prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
       id: "shodasa", deva: "षोडश", iast: "ṣoḍaśa", ttsText: "षोडश",

@@ -557,6 +557,25 @@ console.log('\n===== Урок 3: цвета =====');
     'श्याम нарисован грозовым тёмно-синим, зелёного в карточке нет');
   ck(/грозов/i.test(SAL.lessons.LC.topicRu) && /storm/i.test(SAL.lessons.LC.topicEn),
     'описание урока говорит про грозовую тучу');
+  /* цвет нельзя «показать у себя» — Production зовёт только назвать слова */
+  SAL.openLesson('LC');
+  const prodH2 = [...win.document.querySelectorAll('#view-lesson3 h2.section-title')]
+    .map(h => h.textContent.trim());
+  ck(prodH2[prodH2.length - 1] === 'Живая речь: назовите вслух все 6 слов',
+    'урок 3: заголовок Production — «' + prodH2[prodH2.length - 1] + '»');
+  ck(win.document.getElementById('view-lesson3').textContent.indexOf('покажите у себя') < 0 &&
+     win.document.getElementById('view-lesson3').textContent.indexOf('коснитесь этой части тела') < 0,
+    'урок 3: ни в заголовке, ни в подсказках нет «покажите у себя»');
+  const prodDesc = [...win.document.querySelectorAll('#view-lesson3 .section-desc')].pop().textContent.trim();
+  ck(prodDesc.indexOf('выберите слово и уверенно произнесите') >= 0,
+    'урок 3: описание этапа без жеста — «' + prodDesc.slice(0, 80) + '…»');
+  SAL.do('LC', 'setProdMode', 'sprint');
+  ck(/ДО окончания таймера:/.test(win.document.getElementById('LC-production-stage').textContent.trim()),
+    'урок 3: спринт просит назвать слово, без скобок с жестом');
+  win.setLanguage('en');
+  ck([...win.document.querySelectorAll('#view-lesson3 h2.section-title')].pop().textContent.trim() ===
+     'Freer Production: Say All 6 Words Aloud', 'EN: заголовок Production переведён');
+  win.setLanguage('ru');
   /* пятый режим продакшна — спринт по всему пройденному словарю */
   SAL.openLesson('LC');
   ck(SAL.lessons.LC.unionSprint.join() === 'L2,L3,LC', 'урок 3: спринт собирает уроки 1, 2 и 3');
@@ -728,9 +747,22 @@ console.log('\n===== Урок 3: повторение «цвет + часть т
     'повторение: и возвращаются на русский');
 
   /* блок есть только у урока цветов */
+  /* у компаундов жест — «коснитесь той части тела, о которой говорится в слове» */
+  SAL.do('LC', 'rcProd', 'sprint');
+  ck(/коснитесь той части тела, о которой говорится в слове/.test(
+    win.document.getElementById('LCRC-production-stage').textContent),
+    'повторение: подсказка спринта говорит про часть тела внутри слова');
+
   SAL.openLesson('L4');
   ck(!win.document.getElementById('L4-recycle-practice') && !win.document.getElementById('L4-recycle-production'),
     'у других уроков блока повторения нет');
+  /* числительные тоже не «показываются у себя»: там хлопки */
+  const numH2 = [...win.document.querySelectorAll('#view-lesson5 h2.section-title')].pop().textContent.trim();
+  ck(numH2 === 'Живая речь: назовите вслух все 5 числительных',
+    'урок 5: заголовок Production — «' + numH2 + '»');
+  SAL.do('L4', 'setProdMode', 'sprint');
+  ck(/хлопните в ладоши/.test(win.document.getElementById('L4-production-stage').textContent),
+    'урок 5: в спринте жест — хлопки, а не «коснитесь части тела»');
   SAL.openLesson('LC');
 }
 

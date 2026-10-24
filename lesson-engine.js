@@ -180,8 +180,11 @@ var SAL = (window.SAL = window.SAL || {});
 
   /* ------------------------------------------------------- tiny html pieces */
   /* The TPR gesture of the lesson: touching a body part, clapping N times, ...
-     each lesson can define its own in gestureRu / gestureEn. */
+     each lesson can define its own in gestureRu / gestureEn. A lesson whose
+     words cannot be shown on the body (colours) passes '' — then every prompt
+     simply drops the gesture instead of saying something impossible. */
   function gesture(cfg) {
+    if (cfg.gestureRu === '' || cfg.gestureEn === '') return '';
     return tx({
       ru: cfg.gestureRu || 'коснитесь этой части тела у себя',
       en: cfg.gestureEn || 'touch that part of your body'
@@ -376,6 +379,9 @@ var SAL = (window.SAL = window.SAL || {});
         key: shimKey, num: cfg.num, hidden: true, _recycleOf: cfg.key,
         titleDeva: rc.titleDeva || cfg.titleDeva,
         titleRu: rc.titleRu, titleEn: rc.titleEn,
+        /* свой жест и свой заголовок Production: у компаунда это часть тела */
+        gestureRu: rc.gestureRu, gestureEn: rc.gestureEn,
+        prodTitleRu: rc.prodTitleRu, prodTitleEn: rc.prodTitleEn,
         words: rc.words, decoys: rc.decoys || [],
         categories: rc.categories || [], groups: rc.groups || [],
         steps: rc.steps || [], hotspots: rc.hotspots
@@ -550,6 +556,20 @@ var SAL = (window.SAL = window.SAL || {});
         '" onclick="SAL.do(\'' + key + '\',\'setProdMode\',\'' + p[0] + '\')">' + p[1] + '</button>';
     }).join('');
 
+    /* Production headline and its description: the gesture is optional */
+    var tpr = gesture(cfg);
+    function withN(t) { return String(t).replace(/\{n\}/g, N); }
+    var prodTitleRu = withN(cfg.prodTitleRu ||
+      'Живая речь: покажите у себя и назовите вслух все ' + N + ' слов');
+    var prodTitleEn = withN(cfg.prodTitleEn ||
+      'Freer Production: Point &amp; Name All ' + N + ' Words Aloud');
+    var prodDescRu = tpr
+      ? 'Финальный этап <strong>PPP</strong>: выберите слово, ' + tpr + ' и уверенно произнесите чистую основу вслух.'
+      : 'Финальный этап <strong>PPP</strong>: выберите слово и уверенно произнесите чистую основу вслух.';
+    var prodDescEn = tpr
+      ? 'The final <strong>PPP</strong> stage: pick a word, ' + tpr + ', and say the Sanskrit stem aloud.'
+      : 'The final <strong>PPP</strong> stage: pick a word and say the Sanskrit stem aloud.';
+
     var presTabs = [
       ['stepbystep', ru('1. Step-by-Step (2 Words)', '1. Пошагово (по 2 слова)')],
       ['hotspots', ru('2. Diagram (Hotspots)', '2. Схема (Hotspots)')],
@@ -668,13 +688,10 @@ var SAL = (window.SAL = window.SAL || {});
           '<button type="button" class="teacher-guide-btn" id="' + key + '-tgb-production" onclick="SAL.toggleGuide(\'' + key + '\',\'production\')"' +
             ' data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher\'s Guide">👩‍🏫 ' + ru('Teacher\'s Guide', 'Инструкция для преподавателя') + '</button>' +
         '</div>' +
-        '<h2 class="section-title" data-i18n-ru="Живая речь: покажите у себя и назовите вслух все ' + N + ' слов"' +
-          ' data-i18n-en="Freer Production: Point &amp; Name All ' + N + ' Words Aloud">' +
-          ru('Freer Production: Point &amp; Name All ' + N + ' Words Aloud', 'Живая речь: покажите у себя и назовите вслух все ' + N + ' слов') + '</h2>' +
-        '<p class="section-desc" data-i18n-ru="Финальный этап <strong>PPP</strong>: выберите слово, ' + gesture(cfg) + ' и уверенно произнесите чистую основу вслух."' +
-          ' data-i18n-en="The final <strong>PPP</strong> stage: pick a word, ' + gesture(cfg) + ', and say the Sanskrit stem aloud.">' +
-          ru('The final <strong>PPP</strong> stage: pick a word, ' + gesture(cfg) + ', and say the Sanskrit stem aloud.',
-             'Финальный этап <strong>PPP</strong>: выберите слово, ' + gesture(cfg) + ' и уверенно произнесите чистую основу вслух.') + '</p>' +
+        '<h2 class="section-title" data-i18n-ru="' + prodTitleRu + '" data-i18n-en="' + prodTitleEn + '">' +
+          (L() === 'ru' ? prodTitleRu : prodTitleEn) + '</h2>' +
+        '<p class="section-desc" data-i18n-ru="' + prodDescRu + '" data-i18n-en="' + prodDescEn + '">' +
+          (L() === 'ru' ? prodDescRu : prodDescEn) + '</p>' +
       '</div>' +
 
       tgBox(cfg, 'production',
@@ -685,8 +702,8 @@ var SAL = (window.SAL = window.SAL || {});
            '<strong>1. Stage Aim (Freer Production &amp; Fluency):</strong><br/>Activate all ' + N + ' words in speech without written prompts. Core CELTA principle: <strong>high Student Talking Time, low Teacher Talking Time</strong>.'],
           ['<strong>2. Тренажёр 1 «Спринт» — три режима таймера:</strong><br/><code>✋ Таймер вручную</code> (учитель запускает таймер сам), <code>⚡ Авто-таймер</code> (после оценки карточка и таймер запускаются сами), <code>⏩ Авто-смена картинок</code> (чистый TPR-поток: картинки меняются каждые 4 / 3 / 2 сек без текста и звука). Вид: <code>🖼 отдельная картинка</code> или <code>🏹 стрелка на схеме</code>.',
            '<strong>2. Trainer 1 "Speed Sprint" — three timer modes:</strong><br/><code>✋ Manual Timer</code> (the teacher starts the countdown), <code>⚡ Auto Timer</code> (the next card and countdown start automatically), <code>⏩ Auto-Advance Pictures</code> (pure TPR flow: pictures change every 4 / 3 / 2 s with no text and no sound). View: <code>🖼 isolated picture</code> or <code>🏹 arrow on the diagram</code>.'],
-          ['<strong>3. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча показывает карточку (или ' + gesture(cfg) + '), ученик Б мгновенно называет слово на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
-           '<strong>2. Activity A — Living Mirror in Pairs (4 min):</strong><br/>Partner A silently shows a card (or ' + gesture(cfg) + '), Partner B names the word in Sanskrit at once. Swap roles after ' + Math.ceil(N / 2) + ' words.'],
+          ['<strong>3. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча показывает карточку' + (tpr ? ' (или ' + tpr + ')' : '') + ', ученик Б мгновенно называет слово на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
+           '<strong>2. Activity A — Living Mirror in Pairs (4 min):</strong><br/>Partner A silently shows a card' + (tpr ? ' (or ' + tpr + ')' : '') + ', Partner B names the word in Sanskrit at once. Swap roles after ' + Math.ceil(N / 2) + ' words.'],
           ['<strong>4. Активность Б — «Ловушка ведущего» (Simon Says, 4 мин):</strong><br/>Ведущий называет одно слово, а показывает другое. Ученики слушают ушами, реагируют на названное слово и хором его повторяют.',
            '<strong>3. Activity B — Listen, Don\'t Copy (Simon Says, 4 min):</strong><br/>The leader says one word but shows another. Learners must listen, react to the word they hear, and repeat it in chorus.'],
           ['<strong>5. Активность В — Индивидуальный зачёт ' + N + '/' + N + ' (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже до результата <code>' + N + ' из ' + N + '</code>. Не перебивайте — разберите ошибки в конце (<em>Delayed Error Correction</em>).',
@@ -1761,11 +1778,15 @@ var SAL = (window.SAL = window.SAL || {});
     var startText = ru('▶ Start Timer', '▶ Запустить таймер') + ' (' + p.duration + 's)';
     var pauseText = ru('⏸ Pause', '⏸ Пауза');
     var revealText = ru('🔊 I Said It! Check Answer', '🔊 Я назвал вслух! Проверить');
+    var sprintGesture = gesture(cfg);
     var promptText = p.subMode === 'slideshow'
       ? ru('Pictures advance automatically every ' + p.duration + 's with no text and no sound — say all ' + N + ' words aloud in time!',
            'Картинки сменяют друг друга каждые ' + p.duration + ' сек без текста и звука — успевайте называть все ' + N + ' слов вслух!')
-      : ru('Say the Sanskrit word aloud BEFORE time runs out (' + gesture(cfg) + '):',
-           'Назовите слово вслух ДО окончания таймера (' + gesture(cfg) + '):');
+      : (sprintGesture
+          ? ru('Say the Sanskrit word aloud BEFORE time runs out (' + sprintGesture + '):',
+               'Назовите слово вслух ДО окончания таймера (' + sprintGesture + '):')
+          : ru('Say the Sanskrit word aloud BEFORE time runs out:',
+               'Назовите слово вслух ДО окончания таймера:'));
     var visualHtml = p.visual === 'arrow'
       ? sprintArrowHtml(cfg, w.id)
       : '<div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">' + w.svg + '</div>';
@@ -1949,8 +1970,11 @@ var SAL = (window.SAL = window.SAL || {});
         'text-align:left;font-size:0.88rem;line-height:1.55;">' +
         '<div style="font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;font-size:0.94rem;">🎓 ' +
         ru('Student instructions (TPR Chant)', 'Инструкция для ученика (ритм-чант)') + ':</div>' +
-        '<div><strong>1.</strong> ' + ru('Tap the words in order, ' + gesture(cfg).toUpperCase() + ' and say the word aloud.',
-          'Нажимайте слова по порядку, ' + gesture(cfg).toUpperCase() + ' и называйте слово вслух.') + '</div>' +
+        '<div><strong>1.</strong> ' + (gesture(cfg)
+          ? ru('Tap the words in order, ' + gesture(cfg).toUpperCase() + ' and say the word aloud.',
+               'Нажимайте слова по порядку, ' + gesture(cfg).toUpperCase() + ' и называйте слово вслух.')
+          : ru('Tap the words in order and say the word aloud.',
+               'Нажимайте слова по порядку и называйте слово вслух.')) + '</div>' +
         '<div><strong>2.</strong> ' + ru('Press Auto-Chant: cards advance every 1.6 s — keep up with the rhythm!',
           'Нажмите «Авто-ритм»: карточки переключаются каждые 1,6 сек — успевайте в ритм!') + '</div>' +
         '<div><strong>3.</strong> ' + ru('Mark ✓ every word you can say from memory.',

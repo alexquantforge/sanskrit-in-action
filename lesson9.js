@@ -21,6 +21,8 @@ SAL.registerLesson({
   introEn: "The tenth lesson: the tens from sixty to a hundred — <code>ṣaṣṭiḥ</code>, <code>saptatiḥ</code>, <code>aśītiḥ</code>, <code>navatiḥ</code>, <code>śatam</code>. Four of them end in <code>-tiḥ</code> with a visarga, while “hundred” is a neuter word in <code>-m</code>. Quantity is shown by Arabic digits: still no translation.",
   gestureRu: "хлопните в ладоши столько раз, сколько десятков",
   gestureEn: "clap once for every ten",
+  prodTitleRu: "Живая речь: назовите вслух все {n} числительных",
+  prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
       id: "shashti", deva: "षष्टिः", iast: "ṣaṣṭiḥ", ttsText: "षष्टिः",
