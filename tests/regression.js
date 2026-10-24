@@ -531,7 +531,7 @@ console.log('\n===== Урок 3: цвета =====');
   SAL.openLesson('L3');
   SAL.openLesson('LC');
   const tabsFor = k => [...win.document.querySelectorAll('#view-lesson' + SAL.lessons[k].num +
-    ' .practice-tab-btn')].map(b => b.textContent.trim())
+    ' .practice-tab-btn:not([data-rc-game]):not([data-rc-prod])')].map(b => b.textContent.trim())
     .map(t => t.replace(/\(\d+\)/g, '(N)')
                .replace(/\b\d+\/\d+\b/g, 'N/N')
                .replace(/все \d+ слов/g, 'все N слов')
@@ -583,6 +583,143 @@ console.log('\n===== Урок 3: цвета =====');
   win.setLanguage('ru');
   ck(uTabEn.textContent.trim() === '5. Спринт: Тело + Лицо + Цвета ⏱ (19)',
     'урок 3: и возвращается на русский');
+}
+
+
+/* ---------- Lesson 3 · recycling: colour + body part ---------- */
+console.log('\n===== Урок 3: повторение «цвет + часть тела» =====');
+{
+  const rc = SAL.lessons.LC.recycle;
+  const shim = win.SAL.recycleCfg('LC');
+  const WANT = ['गौर-शीर्ष', 'नील-नयन', 'श्वेत-दन्त', 'कृष्ण-पाद', 'रक्त-मुख', 'श्याम-उदर'];
+  ck(!!rc && !!shim && shim.words.length === 6, 'урок 3: блок повторения из 6 сдвоенных слов');
+  ck(shim.words.map(w => w.deva).join(' ') === WANT.join(' '),
+    'компаунды: ' + shim.words.map(w => w.deva).join(' '));
+  ck(shim.words.every(w => w.deva.indexOf('-') > 0 && w.iast.indexOf('-') > 0),
+    'каждое слово записано через тире — и в деванагари, и в IAST');
+  ck(shim.words.every(w => w.syll && w.syll.join('') === w.deva),
+    'слово нарезано на части, которые складываются обратно');
+  ck(!SAL.lessons.LCRC, 'служебная конфигурация повторения не попадает в список уроков');
+
+  /* данные согласованы так же, как у слов основного урока */
+  const nospace = t => String(t).replace(/[\s\u200d\u200c]/g, '');
+  const editDist = (a, b) => {
+    a = [...a]; b = [...b];
+    const d = [];
+    for (let i = 0; i <= a.length; i++) d.push([i].concat(new Array(b.length).fill(0)));
+    for (let j = 0; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  };
+  const broken = [];
+  shim.words.forEach(w => {
+    if (w.maskedPrefix + w.maskedHidden !== w.deva) broken.push(w.deva + ': masked');
+    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== w.deva) broken.push(w.deva + ': gap');
+    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== w.deva) broken.push(w.deva + ': missing');
+    if (!w.gapChoices.some(c => c.deva === w.gapAnswer)) broken.push(w.deva + ': gapChoices');
+    if (!w.missingChoices.includes(w.missingAnswer)) broken.push(w.deva + ': missingChoices');
+    if (editDist(w.deva, w.typoDeva) !== 1) broken.push(w.deva + ': опечатка не в одну букву');
+    if (!w.svg || !w.iast) broken.push(w.deva + ': нет картинки или IAST');
+  });
+  ck(broken.length === 0, 'данные компаундов согласованы (тире, пропуски, опечатка в одну букву)' +
+    (broken.length ? ' — ' + broken.join('; ') : ''));
+
+  /* блок в Practice: те же вкладки, своя арена */
+  SAL.openLesson('LC');
+  const pane = win.document.getElementById('view-lesson3');
+  const rcArena = win.document.getElementById('LCRC-practice-arena');
+  const rcStage = win.document.getElementById('LCRC-production-stage');
+  const mainArena = win.document.getElementById('LC-practice-arena');
+  ck(!!rcArena && !!rcStage, 'у блока повторения свои арены в Practice и Production');
+  ck(pane.querySelectorAll('[data-rc-game]').length === 14, 'в Practice повторения — те же 14 игр');
+  ck(rcArena.innerHTML.length > 500, 'игра повторения отрисована сразу');
+  ck(pane.querySelector('[data-rc-game="masked"]').classList.contains('active'),
+    'открыта та же первая игра — «Закрыто квадратом»');
+
+  /* каждая вкладка переключается и не ломает основной урок */
+  const mainGameBefore = SAL.lessons.LC._st.game;
+  const badRc = [];
+  ['masked', 'flashcards', 'gaps', 'picquiz', 'wordquiz', 'match', 'memory',
+   'wronglabel', 'typo', 'categories', 'spelling', 'truefalse', 'wordgrid', 'wordsearch'].forEach(gm => {
+    SAL.do('LC', 'rcGame', gm);
+    if (!rcArena.innerHTML.trim()) badRc.push(gm + ' (пусто)');
+    if (rcArena.textContent.indexOf('undefined') >= 0 || rcArena.textContent.indexOf('NaN') >= 0) badRc.push(gm + ' (мусор)');
+    if (!pane.querySelector('[data-rc-game="' + gm + '"]').classList.contains('active')) badRc.push(gm + ' (вкладка не активна)');
+  });
+  ck(badRc.length === 0, 'все 14 игр повторения открываются' + (badRc.length ? ' — ' + badRc.join(', ') : ''));
+  ck(SAL.lessons.LC._st.game === mainGameBefore, 'переключение игр повторения не трогает основной урок');
+  ck(mainArena.textContent.indexOf('गौर-शीर्ष') < 0, 'в основной арене нет компаундов — блок отдельный');
+  ck(rcArena.textContent.indexOf('गौर-शीर्ष') >= 0 || rcArena.textContent.indexOf('गौर') >= 0,
+    'в арене повторения — составные слова');
+
+  /* правильный ответ в Fill in the Gaps (действия идут по ключу LCRC) */
+  SAL.do('LC', 'rcGame', 'gaps');
+  const gGap = shim._st.g.gaps;
+  const wGap = shim.words[gGap.i];
+  SAL.do('LCRC', 'gapPick', wGap.gapAnswer);
+  ck(shim._st.g.gaps.answered === true && shim._st.g.gaps.score === 1,
+    'ответ в игре повторения засчитывается (' + wGap.deva + ')');
+  ck(SAL.lessons.LC._st.g.gaps === undefined || SAL.lessons.LC._st.g.gaps.score !== 1,
+    'очко не утекает в основной урок');
+
+  /* филворды на компаундах: тире — тоже клетка поля, слово читается целиком */
+  SAL.do('LCRC', 'restart', 'wordsearch');
+  const rcWs = shim._st.g.wordsearch;
+  ck(rcWs.grid.length === 100 && rcWs.places.length === 6, 'повторение: в филворде все 6 компаундов');
+  ck(rcWs.places.every(pl => pl.cells.map(i => rcWs.grid[i]).join('') ===
+    shim.words.filter(x => x.id === pl.id)[0].deva), 'повторение: слово читается в сетке целиком, вместе с тире');
+  const rcPlace = rcWs.places[0];
+  rcPlace.cells.forEach(i => SAL.do('LCRC', 'wsTap', String(i)));
+  ck(shim._st.g.wordsearch.found[rcPlace.id] === true, 'повторение: нажатие клеток находит компаунд');
+  ck((shim._st.g.wordsearch.twins || []).length >= 2, 'повторение: у компаундов есть двойники-ловушки');
+  SAL.do('LCRC', 'wsSize', '6');
+  ck(shim._st.g.wordsearch.grid.length === 36, 'повторение: размер поля переключается');
+  SAL.do('LCRC', 'restart', 'wordgrid');
+  ck(shim._st.g.wordgrid.grid.length === 100 && shim._st.g.wordgrid.total === 12,
+    'повторение: второй филворд 10 × 10, цель — каждое слово дважды');
+
+  /* блок в Production: те же 4 режима и свои арены */
+  const prodModes = [...pane.querySelectorAll('[data-rc-prod]')].map(b => b.getAttribute('data-rc-prod'));
+  ck(prodModes.join() === 'sprint,mic,missingpart,chant', 'в Production повторения — 4 режима: ' + prodModes.join(', '));
+  const badProd = [];
+  prodModes.forEach(m => {
+    SAL.do('LC', 'rcProd', m);
+    if (!rcStage.innerHTML.trim()) badProd.push(m + ' (пусто)');
+    if (!pane.querySelector('[data-rc-prod="' + m + '"]').classList.contains('active')) badProd.push(m + ' (вкладка не активна)');
+  });
+  ck(badProd.length === 0, 'все режимы Production повторения отрисовываются' + (badProd.length ? ' — ' + badProd.join(', ') : ''));
+  SAL.do('LC', 'rcProd', 'sprint');
+  SAL.do('LCRC', 'sprintVisual', 'arrow');
+  ck(rcStage.innerHTML.indexOf('sprint-arrow-head-LCRC') >= 0, 'повторение: спринт умеет показывать стрелку на схеме');
+  SAL.do('LCRC', 'sprintVisual', 'card');
+  SAL.do('LCRC', 'sprintBegin');
+  ck(shim._st.prod.sprint.running === true || shim._st.prod.sprint.started === true,
+    'повторение: таймер спринта запускается');
+  SAL.do('LCRC', 'sprintRestart');
+  SAL.do('LC', 'rcProd', 'missingpart');
+  SAL.do('LCRC', 'missingReveal');
+  ck(rcStage.textContent.indexOf('गौर-शीर्ष') >= 0 || rcStage.textContent.indexOf('नील-नयन') >= 0,
+    'повторение: «Что пропало?» показывает компаунд после проверки');
+  ck(!SAL.lessons.LC._st.prod.missing || SAL.lessons.LC._st.prod.missing.revealed !== true,
+    'режимы Production повторения не меняют основной урок');
+
+  /* язык: заголовок блока и подписи вкладок переводятся */
+  win.setLanguage('en');
+  ck(/RECYCLING · LESSONS 1–2/.test(win.document.getElementById('LC-recycle-practice').textContent),
+    'повторение: бейдж переводится на английский');
+  ck(pane.querySelector('[data-rc-game="masked"]').textContent.trim() === '1. Covered Square ■ (Guess Word)',
+    'повторение: подписи игр переводятся');
+  win.setLanguage('ru');
+  ck(/ПОВТОРЕНИЕ · УРОКИ 1–2/.test(win.document.getElementById('LC-recycle-practice').textContent),
+    'повторение: и возвращаются на русский');
+
+  /* блок есть только у урока цветов */
+  SAL.openLesson('L4');
+  ck(!win.document.getElementById('L4-recycle-practice') && !win.document.getElementById('L4-recycle-production'),
+    'у других уроков блока повторения нет');
+  SAL.openLesson('LC');
 }
 
 /* ==========================================================================

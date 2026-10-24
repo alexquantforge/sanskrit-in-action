@@ -11,7 +11,169 @@
  *
  * Спиральное повторение: цвета описывают то, что уже знакомо, — предметы,
  * части тела и лица из уроков 1–2.
+ *
+ * Дополнительный блок `recycle` (ниже) — те же игры и те же режимы Production,
+ * но со сдвоенными словами через тире: गौर-शीर्ष, नील-नयन, श्वेत-दन्त,
+ * कृष्ण-पाद, रक्त-मुख, श्याम-उदर. Движок рисует его отдельной панелью.
  */
+
+/* ============================================================================
+   R E C Y C L I N G · ЦВЕТ + ЧАСТЬ ТЕЛА (уроки 1–2)
+   Сдвоенные слова через тире: गौर-शीर्ष «золотая голова», नील-नयन «синий
+   глаз», श्वेत-दन्त «белый зуб», कृष्ण-पाद «чёрная нога», रक्त-मुख «красный
+   рот», श्याम-उदर «тёмно-зелёный живот». Это спиральное повторение лексики
+   уроков 1 и 2: цвет из этого урока плюс часть тела или лица.
+   ========================================================================= */
+function rcSvg(tint, inner) {
+  return '<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="100" height="100" rx="14" fill="' + tint + '"/>' + inner + '</svg>';
+}
+
+var RC_ICON = {
+  head: '<circle cx="50" cy="50" r="25" fill="#F2C46B" stroke="#14213D" stroke-width="3"/>' +
+    '<path d="M25 46c-7-1-8 11 0 12" stroke="#14213D" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M75 46c7-1 8 11 0 12" stroke="#14213D" stroke-width="3" stroke-linecap="round"/>' +
+    '<circle cx="41" cy="45" r="2.8" fill="#14213D"/><circle cx="59" cy="45" r="2.8" fill="#14213D"/>' +
+    '<path d="M43 59c4.5 3.6 9.5 3.6 14 0" stroke="#14213D" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<ellipse cx="37" cy="33" rx="6" ry="3.4" fill="#FFFFFF" opacity="0.55"/>',
+  eye: '<path d="M14 50c12-17 60-17 72 0-12 17-60 17-72 0Z" fill="#FFFFFF" stroke="#14213D" stroke-width="3"/>' +
+    '<circle cx="50" cy="50" r="14" fill="#2563EB" stroke="#14213D" stroke-width="2.4"/>' +
+    '<circle cx="50" cy="50" r="6" fill="#0B1220"/>' +
+    '<circle cx="45" cy="45" r="2.6" fill="#FFFFFF" opacity="0.9"/>',
+  tooth: '<path d="M32 22h36c4 0 6 3 6 7 0 12-3 18-6 30-2 8-3 16-7 16s-5-10-7-16h-8c-2 6-3 16-7 16s-5-8-7-16c-3-12-6-18-6-30 0-4 2-7 6-7Z" fill="#FFFFFF" stroke="#14213D" stroke-width="3"/>' +
+    '<path d="M38 34c6-2 18-2 24 0" stroke="#CBD5E1" stroke-width="2.4" stroke-linecap="round"/>',
+  foot: '<ellipse cx="49" cy="63" rx="20" ry="26" fill="#0B1220" stroke="#14213D" stroke-width="3"/>' +
+    '<circle cx="31" cy="28" r="6" fill="#0B1220" stroke="#14213D" stroke-width="2.4"/>' +
+    '<circle cx="43" cy="21" r="5.2" fill="#0B1220" stroke="#14213D" stroke-width="2.4"/>' +
+    '<circle cx="54" cy="19" r="4.8" fill="#0B1220" stroke="#14213D" stroke-width="2.4"/>' +
+    '<circle cx="64" cy="22" r="4.2" fill="#0B1220" stroke="#14213D" stroke-width="2.4"/>' +
+    '<circle cx="72" cy="29" r="3.8" fill="#0B1220" stroke="#14213D" stroke-width="2.4"/>' +
+    '<ellipse cx="43" cy="55" rx="5" ry="7" fill="#94A3B8" opacity="0.35"/>',
+  mouth: '<path d="M20 50c9-13 51-13 60 0-9 15-51 15-60 0Z" fill="#DC2626" stroke="#14213D" stroke-width="3"/>' +
+    '<path d="M22 50h56" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round"/>',
+  belly: '<circle cx="50" cy="19" r="9.5" fill="#FDE68A" stroke="#14213D" stroke-width="2.4"/>' +
+    '<path d="M50 29v7" stroke="#14213D" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M34 40h32c4 8 7 16 7 26 0 14-10 24-23 24s-23-10-23-24c0-10 3-18 7-26Z" fill="#F8FAFC" stroke="#14213D" stroke-width="3"/>' +
+    '<ellipse cx="50" cy="66" rx="15" ry="14" fill="#14532D" stroke="#14213D" stroke-width="2.4"/>' +
+    '<circle cx="50" cy="67" r="2.4" fill="#0B1220" opacity="0.55"/>' +
+    '<ellipse cx="45" cy="61" rx="4.6" ry="3" fill="#86EFAC" opacity="0.5"/>'
+};
+
+var RC_COMPOUNDS = [
+  {
+    id: "gaurashirsha", deva: "गौर-शीर्ष", iast: "gaura-śīrṣa", ttsText: "गौर-शीर्ष",
+    typoDeva: "गौर-शीर्श", typoIast: "gaura-śīrśa",
+    maskedPrefix: "गौर-", maskedHidden: "शीर्ष",
+    gapDeva: "गौर-_", gapIast: "gaura-_", gapAnswer: "शीर्ष",
+    gapChoices: [
+      { deva: "शीर्ष", iast: "śīrṣa" },
+      { deva: "नयन", iast: "nayana" },
+      { deva: "दन्त", iast: "danta" },
+      { deva: "पाद", iast: "pāda" }
+    ],
+    missingDisplay: "गौर-शी _", missingAnswer: "र्ष",
+    missingChoices: ["र्ष", "ष", "र्श", "षी"],
+    syll: ["गौ", "र", "-", "शी", "र्ष"],
+    svg: rcSvg("#FFFBEB", RC_ICON.head)
+  },
+  {
+    id: "nilanayana", deva: "नील-नयन", iast: "nīla-nayana", ttsText: "नील-नयन",
+    typoDeva: "निल-नयन", typoIast: "nila-nayana",
+    maskedPrefix: "नील-", maskedHidden: "नयन",
+    gapDeva: "नील-_", gapIast: "nīla-_", gapAnswer: "नयन",
+    gapChoices: [
+      { deva: "नयन", iast: "nayana" },
+      { deva: "दन्त", iast: "danta" },
+      { deva: "मुख", iast: "mukha" },
+      { deva: "शीर्ष", iast: "śīrṣa" }
+    ],
+    missingDisplay: "नील-न_न", missingAnswer: "य",
+    missingChoices: ["य", "ि", "व", "न"],
+    syll: ["नी", "ल", "-", "न", "य", "न"],
+    svg: rcSvg("#EFF6FF", RC_ICON.eye)
+  },
+  {
+    id: "shvetadanta", deva: "श्वेत-दन्त", iast: "śveta-danta", ttsText: "श्वेत-दन्त",
+    typoDeva: "श्वेट-दन्त", typoIast: "śveṭa-danta",
+    maskedPrefix: "श्वेत-", maskedHidden: "दन्त",
+    gapDeva: "श्वेत-_", gapIast: "śveta-_", gapAnswer: "दन्त",
+    gapChoices: [
+      { deva: "दन्त", iast: "danta" },
+      { deva: "पाद", iast: "pāda" },
+      { deva: "उदर", iast: "udara" },
+      { deva: "नयन", iast: "nayana" }
+    ],
+    missingDisplay: "श्वेत-द_त", missingAnswer: "न्",
+    missingChoices: ["न्", "न", "ण्", "म्"],
+    syll: ["श्वे", "त", "-", "द", "न्", "त"],
+    svg: rcSvg("#F1F5F9", RC_ICON.tooth)
+  },
+  {
+    id: "krishnapada", deva: "कृष्ण-पाद", iast: "kṛṣṇa-pāda", ttsText: "कृष्ण-पाद",
+    typoDeva: "कृश्ण-पाद", typoIast: "kṛśṇa-pāda",
+    maskedPrefix: "कृष्ण-", maskedHidden: "पाद",
+    gapDeva: "कृष्ण-_", gapIast: "kṛṣṇa-_", gapAnswer: "पाद",
+    gapChoices: [
+      { deva: "पाद", iast: "pāda" },
+      { deva: "मुख", iast: "mukha" },
+      { deva: "शीर्ष", iast: "śīrṣa" },
+      { deva: "दन्त", iast: "danta" }
+    ],
+    missingDisplay: "कृष्ण-प_द", missingAnswer: "ा",
+    missingChoices: ["ा", "अ", "ि", "ी"],
+    syll: ["कृ", "ष्ण", "-", "पा", "द"],
+    svg: rcSvg("#E2E8F0", RC_ICON.foot)
+  },
+  {
+    id: "raktamukha", deva: "रक्त-मुख", iast: "rakta-mukha", ttsText: "रक्त-मुख",
+    typoDeva: "रक्त-मुक", typoIast: "rakta-muka",
+    maskedPrefix: "रक्त-", maskedHidden: "मुख",
+    gapDeva: "रक्त-_", gapIast: "rakta-_", gapAnswer: "मुख",
+    gapChoices: [
+      { deva: "मुख", iast: "mukha" },
+      { deva: "उदर", iast: "udara" },
+      { deva: "नयन", iast: "nayana" },
+      { deva: "पाद", iast: "pāda" }
+    ],
+    missingDisplay: "रक्त-मु_", missingAnswer: "ख",
+    missingChoices: ["ख", "क", "घ", "ग"],
+    syll: ["र", "क्त", "-", "मु", "ख"],
+    svg: rcSvg("#FEF2F2", RC_ICON.mouth)
+  },
+  {
+    id: "shyamaudara", deva: "श्याम-उदर", iast: "śyāma-udara", ttsText: "श्याम-उदर",
+    typoDeva: "स्याम-उदर", typoIast: "syāma-udara",
+    maskedPrefix: "श्याम-", maskedHidden: "उदर",
+    gapDeva: "श्याम-_", gapIast: "śyāma-_", gapAnswer: "उदर",
+    gapChoices: [
+      { deva: "उदर", iast: "udara" },
+      { deva: "शीर्ष", iast: "śīrṣa" },
+      { deva: "दन्त", iast: "danta" },
+      { deva: "मुख", iast: "mukha" }
+    ],
+    missingDisplay: "श्याम-उ_र", missingAnswer: "द",
+    missingChoices: ["द", "ड", "त", "ध"],
+    syll: ["श्या", "म", "-", "उ", "द", "र"],
+    svg: rcSvg("#ECFDF5", RC_ICON.belly)
+  }
+];
+
+/* постер «шесть компаундов» для стрелки на схеме и игры «Что пропало?» */
+var RC_POSTER_ART = (function () {
+  var art = '<rect x="4" y="4" width="312" height="222" rx="16" fill="#F8EFE6" stroke="#E5DEC9" stroke-width="1.5"/>';
+  RC_COMPOUNDS.forEach(function (w, i) {
+    var x = 10 + (i % 3) * 104, y = 10 + Math.floor(i / 3) * 108;
+    var inner = w.svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
+    art += '<rect x="' + x + '" y="' + y + '" width="92" height="92" rx="12" fill="#FFFFFF" stroke="#E5DEC9" stroke-width="1.5"/>' +
+      '<svg x="' + (x + 2) + '" y="' + (y + 2) + '" width="88" height="88" viewBox="0 0 100 100">' + inner + '</svg>';
+  });
+  return art;
+})();
+
+var RC_PINS = RC_COMPOUNDS.map(function (w, i) {
+  var cx = 56 + (i % 3) * 104, cy = 56 + Math.floor(i / 3) * 108;
+  return { id: w.id, num: i + 1, x: cx - 30, y: cy - 30, tx: cx, ty: cy };
+});
 
 SAL.registerLesson({
   key: "LC",
@@ -162,5 +324,40 @@ SAL.registerLesson({
     { titleRu: "Долгая гласная (ा / ी)", titleEn: "Long Vowel (ा / ी)", wordIds: ["shyama", "nila"] },
     { titleRu: "Есть звук «क» (ka)", titleEn: "Words with \"क\" (ka)", wordIds: ["krishna", "rakta"] },
     { titleRu: "Есть носовой (ण / न / म)", titleEn: "With a Nasal (ण / न / म)", wordIds: ["krishna", "nila", "shyama"] }
-  ]
+  ],
+  /* ==========================================================================
+     ДОПОЛНИТЕЛЬНЫЙ БЛОК: повторение лексики уроков 1–2
+     --------------------------------------------------------------------------
+     Движок рисует этот набор отдельной панелью в Practice (те же 14 игр) и
+     отдельной панелью в Production (те же 4 режима). Состояние игр хранится
+     у служебной конфигурации LCRC, поэтому основной урок цветов не меняется.
+     ========================================================================== */
+  recycle: {
+    titleRu: "Повторение: цвет + часть тела",
+    titleEn: "Recycling: colour + body part",
+    descRu: "Соедините цвет из этого урока с частью тела или лица из уроков 1–2 — и получится одно сдвоенное слово через тире: <code>गौर</code> + <code>शीर्ष</code> = <code>गौर-शीर्ष</code>. Те же игры, что выше, но карточки уже составные: это спиральное повторение всей лексики.",
+    descEn: "Join a colour from this lesson with a body or face part from lessons 1–2 — and one hyphenated compound word appears: <code>गौर</code> + <code>शीर्ष</code> = <code>गौर-शीर्ष</code>. The same games as above, but every card is now a compound: spiral revision of all the vocabulary.",
+    words: RC_COMPOUNDS,
+    decoys: ["गौर-नयन", "नील-मुख", "श्वेत-पाद", "कृष्ण-उदर", "रक्त-दन्त", "श्याम-शीर्ष"],
+    categories: [
+      { titleRu: "Часть лица", titleEn: "Part of the Face", wordIds: ["nilanayana", "shvetadanta", "raktamukha"] },
+      { titleRu: "Часть тела", titleEn: "Part of the Body", wordIds: ["gaurashirsha", "krishnapada", "shyamaudara"] },
+      { titleRu: "Светлые тона", titleEn: "Light Colours", wordIds: ["shvetadanta", "gaurashirsha"] },
+      { titleRu: "Тёмные тона", titleEn: "Dark Colours", wordIds: ["krishnapada", "shyamaudara"] },
+      { titleRu: "Есть звук «श» (śa)", titleEn: "With «श» (śa)", wordIds: ["gaurashirsha", "shvetadanta", "shyamaudara"] },
+      { titleRu: "Долгая гласная в цвете (ा / ी / ौ)", titleEn: "Long Vowel in the Colour (ा / ी / ौ)", wordIds: ["gaurashirsha", "nilanayana", "shyamaudara"] }
+    ],
+    hotspots: {
+      figures: [
+        {
+          key: "compounds",
+          captionRu: "Шесть сдвоенных слов (1–6)",
+          captionEn: "Six Compound Words (1–6)",
+          viewBox: "0 0 320 230",
+          art: RC_POSTER_ART,
+          pins: RC_PINS
+        }
+      ]
+    }
+  }
 });

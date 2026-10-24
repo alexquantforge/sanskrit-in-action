@@ -356,6 +356,117 @@ var SAL = (window.SAL = window.SAL || {});
       '</span></div>';
   }
 
+  /* =========================================================================
+     RECYCLING BLOCK — a lesson may declare
+       recycle: { words, categories, hotspots, titleRu/En, descRu/En }
+     — a second set of tasks inside the SAME Practice and Production stages,
+     built from the vocabulary of earlier lessons (Lesson 3 · colours + body
+     parts: गौर-शीर्ष, नील-नयन, śveta-danta …). The games are exactly the same;
+     only the word list changes. Their state lives in a shim config
+     (`<key>RC`) so the main lesson never loses its own scores.
+     ========================================================================= */
+  var recycleShims = {};
+
+  function recycleOf(cfg) {
+    if (!cfg || !cfg.recycle) return null;
+    var shimKey = cfg.key + 'RC';
+    if (!recycleShims[shimKey]) {
+      var rc = cfg.recycle;
+      recycleShims[shimKey] = {
+        key: shimKey, num: cfg.num, hidden: true, _recycleOf: cfg.key,
+        titleDeva: rc.titleDeva || cfg.titleDeva,
+        titleRu: rc.titleRu, titleEn: rc.titleEn,
+        words: rc.words, decoys: rc.decoys || [],
+        categories: rc.categories || [], groups: rc.groups || [],
+        steps: rc.steps || [], hotspots: rc.hotspots
+      };
+    }
+    return recycleShims[shimKey];
+  }
+  SAL.recycleCfg = function (key) { return recycleOf(lessons[key]); };
+
+  function attrSafe(t) { return String(t == null ? '' : t).replace(/"/g, '&quot;'); }
+
+  function recycleHeadHtml(cfg, badgeRu, badgeEn) {
+    var rc = cfg.recycle;
+    return '<div class="cycle-banner" style="padding:1.4rem 1.6rem;margin-bottom:1.25rem;text-align:left;">' +
+      '<span class="badge badge-gold" data-i18n-ru="' + attrSafe(badgeRu) + '" data-i18n-en="' + attrSafe(badgeEn) + '">' +
+        tx({ ru: badgeRu, en: badgeEn }) + '</span>' +
+      '<h3 style="margin:0.6rem 0 0.35rem;font-size:1.22rem;" data-i18n-ru="' + attrSafe(rc.titleRu) +
+        '" data-i18n-en="' + attrSafe(rc.titleEn) + '">' + tx({ ru: rc.titleRu, en: rc.titleEn }) + '</h3>' +
+      '<p style="margin:0;font-size:0.92rem;color:var(--text-secondary);line-height:1.55;" data-i18n-ru="' +
+        attrSafe(rc.descRu) + '" data-i18n-en="' + attrSafe(rc.descEn) + '">' +
+        tx({ ru: rc.descRu, en: rc.descEn }) + '</p>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.45rem;margin-top:0.9rem;">' +
+        rc.words.map(function (w) {
+          return '<span class="chip-btn" style="cursor:default;">' +
+            '<span style="font-family:var(--font-deva);font-weight:700;">' + w.deva + '</span>' +
+            ' <em style="font-size:0.76rem;color:var(--text-secondary);">' + w.iast + '</em></span>';
+        }).join('') +
+      '</div></div>';
+  }
+
+  function recyclePracticeHtml(cfg, games) {
+    if (!cfg.recycle) return '';
+    var tabs = games.map(function (g) {
+      return '<button type="button" class="practice-tab-btn" data-rc-game="' + g[0] + '"' +
+        ' data-i18n-ru="' + attrSafe(g[2]) + '" data-i18n-en="' + attrSafe(g[3]) + '"' +
+        ' onclick="SAL.do(\'' + cfg.key + '\',\'rcGame\',\'' + g[0] + '\')">' + g[1] + '</button>';
+    }).join('');
+    return '<div id="' + cfg.key + '-recycle-practice" style="margin-top:2.75rem;padding-top:2rem;border-top:2px dashed var(--border-strong);">' +
+      recycleHeadHtml(cfg, '♻️ ПОВТОРЕНИЕ · УРОКИ 1–2', '♻️ RECYCLING · LESSONS 1–2') +
+      '<div class="practice-tabs" role="tablist">' + tabs + '</div>' +
+      '<div id="' + cfg.key + 'RC-practice-arena" class="practice-arena"></div></div>';
+  }
+
+  function recycleProdHtml(cfg, modes) {
+    if (!cfg.recycle) return '';
+    var tabs = modes.filter(function (m) { return m[0] !== 'union'; }).map(function (m) {
+      return '<button type="button" class="practice-tab-btn" data-rc-prod="' + m[0] + '"' +
+        ' data-i18n-ru="' + attrSafe(m[2]) + '" data-i18n-en="' + attrSafe(m[3]) + '"' +
+        ' onclick="SAL.do(\'' + cfg.key + '\',\'rcProd\',\'' + m[0] + '\')">' + m[1] + '</button>';
+    }).join('');
+    return '<div id="' + cfg.key + '-recycle-production" style="margin-top:2.75rem;padding-top:2rem;border-top:2px dashed var(--border-strong);">' +
+      recycleHeadHtml(cfg, '🗣 PRODUCTION · ПОВТОРЕНИЕ', '🗣 PRODUCTION · RECYCLING') +
+      '<div class="practice-tabs" role="tablist">' + tabs + '</div>' +
+      '<div id="' + cfg.key + 'RC-production-stage" class="practice-arena"></div></div>';
+  }
+
+  function renderRecyclePractice(cfg) {
+    var shim = recycleOf(cfg);
+    if (!shim) return;
+    var st = state(shim);
+    var pane = document.getElementById('view-lesson' + cfg.num);
+    if (pane) {
+      pane.querySelectorAll('[data-rc-game]').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-rc-game') === st.game);
+      });
+    }
+    var arena = document.getElementById(shim.key + '-practice-arena');
+    if (!arena) return;
+    var fn = GAME_RENDER[st.game] || renderMasked;
+    arena.innerHTML = rulesHtml(shim, st) + fn(shim, st);
+  }
+
+  function renderRecycleProd(cfg) {
+    var shim = recycleOf(cfg);
+    if (!shim) return;
+    var st = state(shim);
+    var pane = document.getElementById('view-lesson' + cfg.num);
+    if (pane) {
+      pane.querySelectorAll('[data-rc-prod]').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-rc-prod') === st.prod.mode);
+      });
+    }
+    var box = document.getElementById(shim.key + '-production-stage');
+    if (!box) return;
+    var m = st.prod.mode;
+    if (m === 'mic') box.innerHTML = renderMic(shim, st);
+    else if (m === 'missingpart') box.innerHTML = renderMissing(shim, st);
+    else if (m === 'chant') box.innerHTML = renderChant(shim, st);
+    else box.innerHTML = renderSprint(shim, st);
+  }
+
   function skeletonHtml(cfg) {
     var N = cfg.words.length;
     var devaList = cfg.words.map(function (w) { return w.deva; }).join(' · ');
@@ -371,19 +482,33 @@ var SAL = (window.SAL = window.SAL || {});
         '<p class="iast-text"><em>' + words.map(function (w) { return w.iast; }).join(' · ') + '</em></p></div>';
     }).join('');
 
+    /* [game, label in the current language, label ru, label en] — the ru/en pair
+       goes into data-i18n-* so every tab is translated without re-rendering. */
     var defGames = [
-      ['masked', ru('1. Covered Square ■ (Guess Word)', '1. Закрыто квадратом ■ (Угадай слово)')],
-      ['flashcards', ru('2. Flashcards', '2. Flashcards (Карточки)')],
-      ['gaps', ru('3. Fill in the Gaps', '3. Fill in the Gaps (Пропуски)')],
-      ['picquiz', ru('4. Picture Quiz', '4. Picture Quiz (Картинка → Слово)')],
-      ['wordquiz', ru('5. Word → Picture', '5. Read & Match (Слово → Картинка)')],
-      ['match', ru('6. Match Pairs', '6. Match Pairs (Найди пары)')],
-      ['memory', ru('7. Classic Memory', '7. Классическое «Мемори»')],
-      ['wronglabel', ru('8. Spot the Wrong Word', '8. Где ошибка? (3 картинки)')],
-      ['typo', ru('9. Spot the 1-Letter Typo', '9. Ошибка в 1 букве (3 картинки)')],
-      ['categories', ru('10. Categories', '10. Категории (Выбери из ' + N + ')')],
-      ['spelling', ru('11. Missing Letters', '11. Missing Letters (Буквы)')],
-      ['truefalse', ru('12. आम् / न (True / False)', '12. आम् / न (Да / Нет)')]
+      ['masked', ru('1. Covered Square ■ (Guess Word)', '1. Закрыто квадратом ■ (Угадай слово)'),
+        '1. Закрыто квадратом ■ (Угадай слово)', '1. Covered Square ■ (Guess Word)'],
+      ['flashcards', ru('2. Flashcards', '2. Flashcards (Карточки)'),
+        '2. Flashcards (Карточки)', '2. Flashcards'],
+      ['gaps', ru('3. Fill in the Gaps', '3. Fill in the Gaps (Пропуски)'),
+        '3. Fill in the Gaps (Пропуски)', '3. Fill in the Gaps'],
+      ['picquiz', ru('4. Picture Quiz', '4. Picture Quiz (Картинка → Слово)'),
+        '4. Picture Quiz (Картинка → Слово)', '4. Picture Quiz'],
+      ['wordquiz', ru('5. Word → Picture', '5. Read & Match (Слово → Картинка)'),
+        '5. Read & Match (Слово → Картинка)', '5. Word → Picture'],
+      ['match', ru('6. Match Pairs', '6. Match Pairs (Найди пары)'),
+        '6. Match Pairs (Найди пары)', '6. Match Pairs'],
+      ['memory', ru('7. Classic Memory', '7. Классическое «Мемори»'),
+        '7. Классическое «Мемори»', '7. Classic Memory'],
+      ['wronglabel', ru('8. Spot the Wrong Word', '8. Где ошибка? (3 картинки)'),
+        '8. Где ошибка? (3 картинки)', '8. Spot the Wrong Word'],
+      ['typo', ru('9. Spot the 1-Letter Typo', '9. Ошибка в 1 букве (3 картинки)'),
+        '9. Ошибка в 1 букве (3 картинки)', '9. Spot the 1-Letter Typo'],
+      ['categories', ru('10. Categories', '10. Категории (Выбери из ' + N + ')'),
+        '10. Категории (Выбери из ' + N + ')', '10. Categories'],
+      ['spelling', ru('11. Missing Letters', '11. Missing Letters (Буквы)'),
+        '11. Missing Letters (Буквы)', '11. Missing Letters'],
+      ['truefalse', ru('12. आम् / न (True / False)', '12. आम् / न (Да / Нет)'),
+        '12. आम् / न (Да / Нет)', '12. आम् / न (True / False)']
     ];
     /* lessons may add their own games (see SAL.addGame in games-extra.js) */
     var extraTabs = (cfg.extraGames || []).map(function (k, i) {
@@ -393,7 +518,7 @@ var SAL = (window.SAL = window.SAL || {});
     });
     var gameTabs = defGames.concat(extraTabs).map(function (g) {
       return '<button type="button" class="practice-tab-btn' + (g[0] === 'masked' ? ' active' : '') + '" data-game="' + g[0] +
-        '"' + (g[2] ? ' data-i18n-ru="' + g[2] + '" data-i18n-en="' + g[3] + '"' : '') +
+        '"' + (g[2] ? ' data-i18n-ru="' + attrSafe(g[2]) + '" data-i18n-en="' + attrSafe(g[3]) + '"' : '') +
         ' onclick="SAL.do(\'' + key + '\',\'setGame\',\'' + g[0] + '\')">' + g[1] + '</button>';
     }).join('');
 
@@ -531,6 +656,7 @@ var SAL = (window.SAL = window.SAL || {});
       (((cfg.extraGames && cfg.extraGames.length) ? extraBarHtml(cfg) : '')) +
       '<div class="practice-tabs" role="tablist">' + gameTabs + '</div>' +
       '<div id="' + key + '-practice-arena" class="practice-arena"></div>' +
+      recyclePracticeHtml(cfg, defGames.concat(extraTabs)) +
     '</div></section>' +
 
     /* ------------------------------------------------------------ PRODUCTION */
@@ -569,6 +695,7 @@ var SAL = (window.SAL = window.SAL || {});
 
       '<div class="practice-tabs" role="tablist">' + prodTabs + '</div>' +
       '<div id="' + key + '-production-stage" class="practice-arena"></div>' +
+      recycleProdHtml(cfg, prodList) +
     '</div></section>';
   }
 
@@ -1916,6 +2043,19 @@ var SAL = (window.SAL = window.SAL || {});
       }
       st.rulesOpen = st.rulesOpen === false;
     },
+    /* recycling block — same games, the compound word list */
+    rcGame: function (cfg, st, a) {
+      var shim = recycleOf(cfg);
+      if (shim) { stopTimers(); clearExtra(); state(shim).game = a; }
+    },
+    rcProd: function (cfg, st, a) {
+      var shim = recycleOf(cfg);
+      if (!shim) return;
+      stopTimers();
+      var pst = state(shim);
+      if (pst.prod.sprint) pst.prod.sprint.running = false;
+      pst.prod.mode = a;
+    },
     restart: function (cfg, st, a) {
       clearExtra();
       st.g[a] = (GAME_INIT[a] || function () { return {}; })(cfg, st);
@@ -2639,10 +2779,13 @@ var SAL = (window.SAL = window.SAL || {});
   function stageIdFor(cfg, action) {
     if (action === 'setPresMode') return cfg.key + '-pres-grid';
     if (action === 'setProdMode') return cfg.key + '-production-stage';
+    if (action === 'rcGame') return cfg.key + 'RC-practice-arena';
+    if (action === 'rcProd') return cfg.key + 'RC-production-stage';
     return cfg.key + '-practice-arena';
   }
   function ackClick(cfg, action, unchanged, domBefore) {
-    var isSwitch = action === 'setGame' || action === 'setPresMode' || action === 'setProdMode';
+    var isSwitch = action === 'setGame' || action === 'setPresMode' || action === 'setProdMode' ||
+      action === 'rcGame' || action === 'rcProd';
     var isRestart = action === 'restart' || /Restart$/.test(action) || action === 'memorySize' || action === 'matchNext';
     var id = stageIdFor(cfg, action);
     if (isSwitch || isRestart) {
@@ -2659,7 +2802,7 @@ var SAL = (window.SAL = window.SAL || {});
   }
 
   SAL.do = function (key, action, a, b) {
-    var cfg = lessons[key];
+    var cfg = lessons[key] || recycleShims[key];
     if (!cfg) return;
     var fn = ACTIONS[action];
     if (!fn) return;
@@ -2674,6 +2817,14 @@ var SAL = (window.SAL = window.SAL || {});
     }
     fn(cfg, st, a, b);
     if (action === 'speak') return;
+    if (cfg._recycleOf) {
+      /* the compound block has its own arenas: redraw them, leave the main
+         Practice/Production exactly as the student left it */
+      var parent = lessons[cfg._recycleOf];
+      if (parent) { renderRecyclePractice(parent); renderRecycleProd(parent); }
+      ackClick(cfg, action, before !== '' && before === a, domBefore);
+      return;
+    }
     SAL.refresh();
     ackClick(cfg, action, before !== '' && before === a, domBefore);
   };
@@ -2742,6 +2893,7 @@ var SAL = (window.SAL = window.SAL || {});
     renderPres(cfg);
     renderPractice(cfg);
     renderProd(cfg);
+    if (cfg.recycle) { renderRecyclePractice(cfg); renderRecycleProd(cfg); }
     syncIastButtons();
   };
 
