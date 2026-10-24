@@ -64,9 +64,23 @@
     return K.finalScreen(cfg, game, title, score, total, extra);
   }
   function restartChip(cfg, game) { return chip(cfg, 'restart', game, '↺'); }
+  /* Деванагари на акшары (орфографические слоги): «शीर्ष» → शी + र्ष,
+     «ललाट» → ल + ला + ट, «जिह्वा» → जि + ह्वा. Нужно урокам 1–3: в их данных
+     нет готового поля syll, а филворд по частям без нарезки выродился бы в
+     «нажми одну клетку». */
+  var AKSHARA_RE = /(?:[\u0915-\u0939](?:\u094d[\u0915-\u0939])*\u094d?|[\u0905-\u0914])[\u093e-\u094c\u0901\u0902\u0903]*/g;
+  function devaAksharas(text) {
+    var src = String(text || '');
+    var out = src.match(AKSHARA_RE);
+    /* если хоть один знак не попал в нарезку — не рискуем и отдаём слово целиком */
+    if (!out || !out.length || out.join('') !== src) return [src];
+    return out;
+  }
+
   /* the word split into the chunks a learner assembles it from (data: syll) */
   function chunks(w) {
-    return (w.syll && w.syll.length) ? w.syll.slice() : [w.deva];
+    if (w.syll && w.syll.length) return w.syll.slice();
+    return devaAksharas(w.deva);
   }
   function orderOf(cfg, g) {
     if (!g.order) g.order = shuffle(cfg.words.map(function (w) { return w.id; }));
@@ -2166,6 +2180,27 @@
       /* 🧩 показать двойников: учитель разбирает их с учеником */
       wsTwins: function (cfg) { var g = K.gst(cfg, 'wordsearch'); g.showTwins = !g.showTwins; }
     }
+  });
+
+  /* ---------------------------------------------------------------------
+     УРОК 3 — отдельная страница из 12 слов (view-lesson3 в index.html).
+     Она свёрстана вручную и живёт мимо движка, но филворд у неё должен быть
+     тем же, что в уроках 4–9. Поэтому заводим служебную конфигурацию:
+     слова берём из bodyPartsVocab (урок 1), в выпадающий список уроков она
+     не попадает (hidden), а панели view-lesson33 не существует — движок её
+     не строит и ничего не перезаписывает.
+     --------------------------------------------------------------------- */
+  SAL.registerLesson({
+    key: 'L1B',
+    num: 33,
+    hidden: true,
+    titleDeva: 'शरीरसम्बन्धि-शब्दाः',
+    titleRu: 'Части тела (12)',
+    titleEn: 'Body Parts (12)',
+    topicRu: '12 частей тела: лицо, руки, ноги',
+    topicEn: 'twelve body parts: face, arms, legs',
+    words: (typeof bodyPartsVocab !== 'undefined' ? bodyPartsVocab : []),
+    extraGames: ['wordsearch']
   });
 
   /* =========================================================================

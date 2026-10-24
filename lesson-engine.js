@@ -265,7 +265,9 @@ var SAL = (window.SAL = window.SAL || {});
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
-    var rows = Object.keys(lessons).map(function (k) {
+    /* hidden: true — служебные конфигурации (например, страница урока 3,
+       у которой своя вёрстка): они нужны движку, но не выпадающему списку */
+    var rows = Object.keys(lessons).filter(function (k) { return !lessons[k].hidden; }).map(function (k) {
       var c = lessons[k], lab = NAV_LABELS[k];
       return { v: k, num: c.num,
                ru: lab ? lab.ru : ('Урок ' + c.num + ': ' + c.titleRu),
@@ -2692,6 +2694,19 @@ var SAL = (window.SAL = window.SAL || {});
     if (!box) return;
     var open = box.classList.toggle('open');
     if (btn) btn.classList.toggle('active', open);
+  };
+
+  /* Отрисовать игру скрытой конфигурации в её арену и сделать её активной:
+     так филворд попадает на страницу урока 3, у которой своя вёрстка и нет
+     панели движка (см. games-extra.js, конфигурация L1B). */
+  SAL.showGame = function (key, game) {
+    var cfg = lessons[key];
+    if (!cfg) return false;
+    activeKey = key;
+    clearExtra();
+    state(cfg).game = game;
+    renderPractice(cfg);
+    return true;
   };
 
   /* the lesson dropdown: 'lesson3' is the standalone 12-word lesson, everything

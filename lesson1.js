@@ -1284,6 +1284,19 @@ function renderPracticeArena() {
   const arena = document.getElementById('lesson1-practice-arena');
   if (!arena) return;
 
+  /* 13. Филворд: рисует движок (он же обслуживает уроки 4–9) в отдельную арену,
+     чтобы 12 собственных игр этой страницы остались нетронутыми */
+  const engineArena = document.getElementById('L1B-practice-arena');
+  if (engineArena) {
+    const useEngine = currentPracticeGame === 'wordsearch';
+    engineArena.style.display = useEngine ? '' : 'none';
+    arena.style.display = useEngine ? 'none' : '';
+    if (useEngine && window.SAL && typeof window.SAL.showGame === 'function') {
+      window.SAL.showGame('L1B', 'wordsearch');
+      return;
+    }
+  }
+
   if (currentPracticeGame === 'flashcards') {
     renderFlashcardsGame(arena);
   } else if (currentPracticeGame === 'masked') {

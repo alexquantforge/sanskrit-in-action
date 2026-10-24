@@ -111,6 +111,8 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFFFF\"/>\n      <path d=\"M48 12C46 26 45 42 47 56C48 61 42 65 32 69C23 72 17 75 17 80C17 84 24 85 35 85C46 85 52 82 59 83C66 84 74 85 78 81C82 77 80 69 75 64C71 59 69 52 71 36C72 25 71 17 69 12\" fill=\"#F3C6A8\" stroke=\"#14213D\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n      <path d=\"M62 60C60 64 62 68 66 68\" stroke=\"#14213D\" stroke-width=\"2.2\" stroke-linecap=\"round\"/>\n      <path d=\"M22 76C25 75 28 76 28 79\" stroke=\"#14213D\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n      <path d=\"M24 84C24 81 26 79 28 79 M31 85C31 82 32 80 34 80 M37 85C37 82 38 81 40 81\" stroke=\"#14213D\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>\n    </svg>"
     }
   ],
+  /* филворды: те же две игры, что в уроках 4–9 (см. games-extra.js) */
+  extraGames: ['wordgrid', 'wordsearch'],
   steps: [
     { wordIds: ["shirsha", "udara"] },
     { wordIds: ["hasta", "anguli"] },

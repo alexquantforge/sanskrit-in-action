@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-build="v65">
+<html lang="ru" data-build="v66">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=65" />
+  <link rel="stylesheet" href="styles.css?v=66" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -354,12 +354,18 @@
                     data-i18n-ru="11. Missing Letters (Буквы)" data-i18n-en="11. Missing Letters">11. Missing Letters (Буквы)</button>
             <button type="button" class="practice-tab-btn" data-game="truefalse" onclick="selectPracticeGame('truefalse')"
                     data-i18n-ru="12. आम् / न (Да / Нет)" data-i18n-en="12. आम् / न (True / False)">12. आम् / न (Да / Нет)</button>
+            <button type="button" class="practice-tab-btn" data-game="wordsearch" onclick="selectPracticeGame('wordsearch')"
+                    data-i18n-ru="13. Филворд (ищи слова по частям)" data-i18n-en="13. Word Search (find the words)">13. Филворд (ищи слова по частям)</button>
           </div>
 
           <!-- Active Practice Game Arena -->
           <div id="lesson1-practice-arena" class="practice-arena">
             <!-- Populated by lesson1.js -->
           </div>
+
+          <!-- Филворд для этой страницы рисует движок (уроки 4–9): своя арена,
+               см. конфигурацию L1B в games-extra.js -->
+          <div id="L1B-practice-arena" class="practice-arena" style="display:none;"></div>
         </div>
       </section>
 
@@ -1256,18 +1262,18 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=65"></script>
-  <script src="lesson-engine.js?v=65"></script>
-  <script src="lesson2.js?v=65"></script>
-  <script src="lesson3.js?v=65"></script>
-  <script src="lesson4.js?v=65"></script>
-  <script src="lesson5.js?v=65"></script>
-  <script src="lesson6.js?v=65"></script>
-  <script src="lesson7.js?v=65"></script>
-  <script src="lesson8.js?v=65"></script>
-  <script src="lesson9.js?v=65"></script>
-  <script src="games-extra.js?v=65"></script>
-  <script src="app.js?v=65"></script>
+  <script src="lesson1.js?v=66"></script>
+  <script src="lesson-engine.js?v=66"></script>
+  <script src="lesson2.js?v=66"></script>
+  <script src="lesson3.js?v=66"></script>
+  <script src="lesson4.js?v=66"></script>
+  <script src="lesson5.js?v=66"></script>
+  <script src="lesson6.js?v=66"></script>
+  <script src="lesson7.js?v=66"></script>
+  <script src="lesson8.js?v=66"></script>
+  <script src="lesson9.js?v=66"></script>
+  <script src="games-extra.js?v=66"></script>
+  <script src="app.js?v=66"></script>
 
   <!-- ===================================================================
        Stale-cache guard (GitHub Pages + aggressive browser caches).

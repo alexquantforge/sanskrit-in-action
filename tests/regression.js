@@ -542,10 +542,46 @@ const l4tabs = tabsOf('L4');
 ck(l4tabs.length === 12 + EXTRA.length, 'урок 4: вкладок ' + l4tabs.length + ' (12 классических + ' + EXTRA.length + ' новых)');
 ck(EXTRA.every(g => l4tabs.indexOf(g) >= 0), 'урок 4: все новые игры есть во вкладках');
 ck(l4tabs.slice(0, 12).join() === GAMES.join(), 'урок 4: первые 12 вкладок — классические игры, порядок не сбит');
+/* уроки 1 и 2 получили только два филворда — остальные новые игры им не нужны */
 ['L2', 'L3'].forEach(k => {
   const t = tabsOf(k);
-  ck(t.length === 12 && !t.some(g => EXTRA.indexOf(g) >= 0),
-    k + ': новых игр нет, вкладок ' + t.length + ' (как было)');
+  const words = t.filter(g => g === 'wordgrid' || g === 'wordsearch');
+  ck(t.length === 14 && words.length === 2, k + ': вкладок ' + t.length + ' (12 классических + 2 филворда)');
+  ck(t.slice(0, 12).join() === GAMES.join(), k + ': первые 12 вкладок — классические игры, порядок не сбит');
+  ck(!t.some(g => EXTRA.indexOf(g) >= 0 && g !== 'wordgrid' && g !== 'wordsearch'),
+    k + ': чужих новых игр нет');
+});
+
+/* филворд в уроках 1 и 2 действительно работает: слова нарезаны на акшары */
+['L2', 'L3'].forEach(k => {
+  const L = SAL.lessons[k];
+  SAL.openLesson(k);
+  SAL.do(k, 'setGame', 'wordsearch');
+  const g = SAL.lessons[k]._st.g.wordsearch;
+  ck(g.grid.length === 100 && g.places.length === L.words.length,
+    k + ': филворд собрал поле 10 × 10 и спрятал все ' + L.words.length + ' слов');
+  ck(g.places.every(p => p.cells.length >= 2), k + ': каждое слово занимает минимум две клетки');
+  const readBack = g.places.every(p => {
+    const parts = L.words.filter(w => w.id === p.id)[0].syll || [];
+    const txt = p.cells.map(i => g.grid[i]).join('');
+    return parts.length ? txt === parts.join('') : txt.length > 1;
+  });
+  ck(readBack, k + ': слово на поле читается теми же частями, что и в задании');
+  ck((g.twins || []).length >= 2, k + ': у слов есть двойники (' + (g.twins || []).length + ')');
+  /* нажатие по клеткам находит слово */
+  const first = g.places[0];
+  first.cells.forEach(i => SAL.do(k, 'wsTap', String(i)));
+  ck(SAL.lessons[k]._st.g.wordsearch.found[first.id] === true, k + ': нажатие клеток находит слово');
+  /* все шесть размеров */
+  const sizes = [9, 8, 7, 6, 5, 10].map(n => {
+    SAL.do(k, 'wsSize', String(n));
+    return SAL.lessons[k]._st.g.wordsearch.grid.length;
+  });
+  ck(sizes.join() === '81,64,49,36,25,100', k + ': работают все шесть размеров поля');
+  SAL.do(k, 'setGame', 'wordgrid');
+  const wg = SAL.lessons[k]._st.g.wordgrid;
+  ck(wg.grid.length === 100 && wg.total >= L.words.length,
+    k + ': филворд среди слов собрал поле и цели (' + wg.total + ')');
 });
 
 /* ---------- every new game renders and survives being clicked ---------- */
@@ -1061,6 +1097,35 @@ const noRulesL1 = GAMES.filter(gm => {
 });
 ck(noRulesL1.length === 0, 'урок 3 (12 слов): правила есть во всех 12 играх' +
   (noRulesL1.length ? ' — без правил: ' + noRulesL1.join(', ') : ''));
+
+/* ---- 13-я вкладка: филворд на странице урока 3 ---- */
+console.log('\n===== Урок 3: филворд на отдельной странице =====');
+const l3tabs = [...win.document.querySelectorAll('#view-lesson3 .practice-tab-btn[data-game]')]
+  .map(b => b.getAttribute('data-game'));
+ck(l3tabs.length === 13 && l3tabs[12] === 'wordsearch', 'урок 3: 13-я вкладка — филворд');
+ck(!!SAL.lessons.L1B && SAL.lessons.L1B.hidden === true, 'урок 3: конфигурация филворда скрыта от списка уроков');
+const navOptions = [...win.document.querySelectorAll('.lesson-select option')].map(o => o.value);
+ck(navOptions.indexOf('L1B') < 0, 'урок 3: служебный урок не попал в выпадающий список');
+win.selectPracticeGame('wordsearch');
+const engineArena = win.document.getElementById('L1B-practice-arena');
+const staticArena = win.document.getElementById('lesson1-practice-arena');
+ck(engineArena.style.display !== 'none' && staticArena.style.display === 'none',
+  'урок 3: филворд рисуется в своей арене, 12 старых игр не тронуты');
+const g1b = SAL.lessons.L1B._st.g.wordsearch;
+ck(g1b.grid.length === 100 && g1b.places.length === 12,
+  'урок 3: в филворде все 12 слов (' + g1b.places.length + ')');
+ck(engineArena.querySelectorAll('.ws-board .wcell').length === 100 &&
+   engineArena.querySelectorAll('.ws-coord.col').length === 10,
+  'урок 3: поле с координатами и сотней клеток');
+const bFirst = g1b.places[0];
+bFirst.cells.forEach(i => SAL.do('L1B', 'wsTap', String(i)));
+ck(SAL.lessons.L1B._st.g.wordsearch.found[bFirst.id] === true, 'урок 3: нажатие клеток находит слово');
+ck((SAL.lessons.L1B._st.g.wordsearch.twins || []).length >= 2, 'урок 3: у слов есть двойники-ловушки');
+SAL.do('L1B', 'wsSize', '6');
+ck(SAL.lessons.L1B._st.g.wordsearch.grid.length === 36, 'урок 3: размер поля переключается');
+win.selectPracticeGame('masked');
+ck(staticArena.style.display !== 'none' && engineArena.style.display === 'none',
+  'урок 3: возврат к обычной игре прячет арену филворда');
 
 
 /* ===== URL уроков: #/<язык>/<урок> ===== */
