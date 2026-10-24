@@ -2190,6 +2190,26 @@ body.hide-iast .level-sample-iast {
   line-height: 1.5;
   color: var(--text-secondary);
 }
+/* эстафета порядка: на карточке — числительное словом, без картинки */
+.relay-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96px;
+  padding: 0.5rem 0.4rem;
+  cursor: pointer;
+}
+.relay-slot.relay-done { background: #FFFBEB; border-color: #B45309; cursor: default; }
+.relay-slot.relay-empty { border-style: dashed; opacity: 0.6; cursor: default; }
+.relay-word {
+  font-family: var(--font-deva);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+.relay-slot-num { font-size: 1.6rem; font-weight: 800; color: var(--text-secondary); }
 /* числительные: в вопросе — слово, в вариантах ответа — количество */
 .ttt-ask-word {
   font-family: var(--font-deva);

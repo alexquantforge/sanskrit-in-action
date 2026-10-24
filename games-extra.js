@@ -1036,30 +1036,33 @@
           ? tx({ ru: 'Счёт', en: 'Score' }) + ' — 1: ' + g.scores[0] + ' · 2: ' + g.scores[1]
           : '');
     }
+    /* Здесь проверяем порядок счёта, поэтому на карточке — само числительное
+       словом. Картинка (бусины или цифра) сразу выдавала бы значение: бусины
+       можно пересчитать, цифру — прочитать, и слово уже не нужно. */
     var placed = g.placed.map(function (id) {
       var w = byId(cfg, id);
-      return '<div class="vocab-item-card" style="opacity:.95;">' + K.svgBox(w, 64) +
-        '<div style="font-family:var(--font-deva);font-size:1.05rem;font-weight:700;">' + w.deva + '</div></div>';
+      return '<div class="vocab-item-card relay-slot relay-done">' +
+        '<div class="relay-word">' + w.deva + '</div></div>';
     }).join('');
     var left = g.order.filter(function (id) { return g.placed.indexOf(id) < 0; }).map(function (id) {
       var w = byId(cfg, id);
-      var cls = 'vocab-item-card' + (g.wrong === id ? ' wrong-card' : '');
-      return '<button type="button" class="' + cls + '" style="cursor:pointer;"' + call(cfg, 'relayTap', id) + '>' +
-        K.svgBox(w, 74) + '</button>';
+      var cls = 'vocab-item-card relay-slot' + (g.wrong === id ? ' wrong-card' : '');
+      return '<button type="button" class="' + cls + '"' + call(cfg, 'relayTap', id) + '>' +
+        '<div class="relay-word">' + w.deva + '</div></button>';
     }).join('');
     return K.topBar(
       K.pill(tx({ ru: 'Выложено', en: 'Placed' }) + ': ' + g.placed.length + '/' + N) + ' ' + scorePills(cfg, g),
       restartChip(cfg, 'orderrelay')) +
       K.centerCard(
         '<div class="vocab-grid-6" style="margin-bottom:0.9rem;">' + placed +
-          '<div class="vocab-item-card" style="border-style:dashed;opacity:.6;">' +
-          '<div style="font-size:1.6rem;">' + (g.placed.length + 1) + '</div></div></div>' +
+          '<div class="vocab-item-card relay-slot relay-empty">' +
+          '<div class="relay-slot-num">' + (g.placed.length + 1) + '</div></div></div>' +
         '<div class="vocab-grid-6">' + left + '</div>' +
         (g.wrong ? '<div style="margin-top:0.6rem;color:#dc2626;font-weight:800;">✕ ' +
           tx({ ru: 'Не в том порядке — ход переходит.', en: 'Wrong order — the turn passes.' }) + '</div>' : '') +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
-          tx({ ru: 'Выложите слова по порядку: один, два, три… Игроки ходят по одному слову; ошибка передаёт ход.',
-               en: 'Lay the words out in order: one, two, three… Players take one word each; a miss passes the turn.' }) + '</div>');
+          tx({ ru: 'На карточках — сами числительные словами. Выложите их по порядку: один, два, три… Игроки ходят по одному слову; ошибка передаёт ход.',
+               en: 'The cards show the numerals themselves in words. Lay them out in order: one, two, three… Players take one word each; a miss passes the turn.' }) + '</div>');
   }
 
   /* ======================================================= 28. CO-OP MEMORY */
@@ -2472,10 +2475,12 @@
       aim: { ru: 'Порядок счёта: выложить числительные одно за другим, как они идут.',
              en: 'The order of counting: lay the numerals out one after another as they come.' },
       how: { ru: ['Внизу — все слова вперемешку, сверху — полка, куда они выкладываются по порядку.',
+                  'На каждой карточке написано само числительное словом — картинки нет: значение нужно вспомнить, а не пересчитать.',
                   'Нажмите слово, которое идёт следующим (в начале — первым).',
                   'Верно — слово встаёт на полку и звучит; неверно — ход переходит.',
                   'Цель — выложить весь ряд по порядку, от первого слова до последнего.'],
              en: ['Below are all the words, shuffled; above is the shelf where they are laid out in order.',
+                  'Each card carries the numeral itself in words — there is no picture: recall the value instead of counting it.',
                   'Press the word that comes next (the first one at the start).',
                   'Right — the word goes on the shelf and is spoken; wrong — the turn passes.',
                   'The aim is to lay out the whole row in order, from the first word to the last.'] },

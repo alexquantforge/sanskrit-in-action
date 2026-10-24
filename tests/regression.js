@@ -1241,6 +1241,40 @@ SAL.do('L4', 'restart', 'orderrelay');
 SAL.do('L4', 'relayTap', L4.words[L4.words.length - 1].id);
 ck(gst('L4', 'orderrelay').placed.length === 0 && gst('L4', 'orderrelay').wrong !== null,
   'эстафета: не в том порядке — ход не засчитывается');
+/* на карточке — само числительное словом, а не картинка: бусины и цифры
+   выдавали бы значение, и порядок выкладывался бы без слов */
+const relayCards = k => {
+  SAL.openLesson(k);
+  SAL.do(k, 'restart', 'orderrelay');
+  const rows = arenaOf(k).querySelectorAll('.vocab-grid-6');
+  return {
+    shelf: [...rows[0].querySelectorAll('.relay-word')].map(e => e.textContent.trim()),
+    pool: [...rows[1].querySelectorAll('.relay-word')].map(e => e.textContent.trim()),
+    svg: arenaOf(k).querySelectorAll('.vocab-grid-6 svg').length,
+    empty: rows[0].querySelector('.relay-slot-num'),
+    arena: arenaOf(k)
+  };
+};
+[['L4', 5], ['L5', 5], ['L6', 5], ['L7', 5], ['L8', 5], ['L9', 5]].forEach(([k, n]) => {
+  const r = relayCards(k);
+  const words = SAL.lessons[k].words.map(w => w.deva);
+  ck(r.svg === 0, 'эстафета (' + k + '): на карточках нет картинок — ни бусин, ни цифр');
+  ck(r.pool.length === n && r.pool.every(d => words.indexOf(d) >= 0),
+    'эстафета (' + k + '): внизу лежат сами числительные словами');
+  ck(r.empty && r.empty.textContent.trim() === '1',
+    'эстафета (' + k + '): пустая полка подписана номером места');
+});
+SAL.openLesson('L4');
+SAL.do('L4', 'restart', 'orderrelay');
+SAL.do('L4', 'relayTap', 'ekam');
+const afterOne = arenaOf('L4').querySelectorAll('.vocab-grid-6');
+ck(afterOne[0].querySelectorAll('.relay-word').length === 1 &&
+   afterOne[0].querySelector('.relay-word').textContent.trim() === 'एकम्' &&
+   afterOne[1].querySelectorAll('.relay-word').length === 4,
+  'эстафета: верное слово уходит на полку и остаётся словом, а не картинкой');
+ck(/словом/.test(arenaOf('L4').querySelector('.rules-list').textContent),
+  'эстафета: в правилах сказано, что на карточке числительное словом');
+SAL.do('L4', 'restart', 'orderrelay');
 
 /* ---------- 20. sorting: every box has at least two words ---------- */
 const feats = [
