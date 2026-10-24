@@ -984,15 +984,158 @@ function applyRoute(hash) {
   try {
     if (currentLang !== r.lang) setLanguage(r.lang);
     if (activeView !== r.view || lessonKeyForView(r.view)) showRouteView(r.view);
+    noteRoute(r.view, r.lang);
   } finally {
     routeLock = false;
   }
   return true;
 }
 
+/* =========================================================================
+   Метаданные страницы для каждого маршрута
+   -------------------------------------------------------------------------
+   Заголовок вкладки, description, canonical и og:-теги меняются вместе с
+   уроком и языком: «Урок 5: Цифры 6–10 — Sanskrit in Action».
+
+   canonical всегда указывает на сам документ без фрагмента: hash-адреса —
+   это один и тот же index.html, и поисковику не нужно видеть в них дубли.
+   ========================================================================= */
+const SITE_DESCRIPTIONS = {
+  home: {
+    ru: 'Sanskrit in Action с Алексом Виджая — санскрит по-кембриджски: коммуникативный метод, CEFR A1–C2, 4 навыка × 5 систем, шастры и интерактивные игры.',
+    en: 'Sanskrit in Action with Alex Vijaya — Sanskrit the Cambridge way: communicative, task-based, CEFR A1–C2, 4 skills × 5 systems, śāstra-based texts, interactive games.'
+  },
+  details: {
+    ru: 'Как устроен курс: метод CELTA/Delta, схема PPP (Presentation – Practice – Production), матрица 4 навыка × 5 систем и уровни CEFR A1–C2.',
+    en: 'How the course works: the CELTA/Delta method, PPP (Presentation – Practice – Production), the 4 skills × 5 systems matrix and CEFR levels A1–C2.'
+  }
+};
+const SITE_NAME = 'Sanskrit in Action';
+
+/* абсолютный адрес документа без фрагмента и параметров */
+function canonicalUrl() {
+  try {
+    return location.origin + location.pathname;
+  } catch (e) {
+    return 'https://alexquantforge.github.io/sanskrit-in-action/';
+  }
+}
+
+/* заголовок и описание для маршрута; null — если маршрут неизвестен */
+function routeMeta(view, lang) {
+  const ru = lang !== 'en';
+  if (view === 'home' || view === 'details') {
+    const d = SITE_DESCRIPTIONS[view];
+    const title = view === 'details'
+      ? (ru ? 'Метод и программа курса — ' + SITE_NAME : 'Method and syllabus — ' + SITE_NAME)
+      : (ru ? 'Sanskrit in Action с Алексом Виджая — Санскрит по-кембриджски (CEFR A1–C2)'
+            : 'Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2)');
+    return { title: title, description: ru ? d.ru : d.en };
+  }
+  const key = lessonKeyForView(view) || (view === 'lesson3' ? 'lesson3' : null);
+  if (!key) return null;
+  const label = (window.SAL && typeof window.SAL.lessonLabel === 'function' && window.SAL.lessonLabel(key, lang)) ||
+    (ru ? 'Урок' : 'Lesson');
+  const cfg = (window.SAL && window.SAL.lessons && window.SAL.lessons[key]) || null;
+  const topic = cfg ? (ru ? (cfg.topicRu || '') : (cfg.topicEn || '')) : '';
+  const description = topic
+    ? (ru ? label + ' — ' + topic + '. Интерактивный урок санскрита: презентация, игры и устная речь.'
+          : label + ' — ' + topic + '. An interactive Sanskrit lesson: presentation, games and speaking.')
+    : (ru ? label + '. Интерактивный урок санскрита: презентация, игры и устная речь.'
+          : label + '. An interactive Sanskrit lesson: presentation, games and speaking.');
+  return { title: label + ' — ' + SITE_NAME, description: description };
+}
+
+/* обновить (или создать) мета-тег в <head> */
+function setHeadTag(tag, keyAttr, key, attr, value) {
+  let el = document.head.querySelector(tag + '[' + keyAttr + '="' + key + '"]');
+  if (!el) {
+    el = document.createElement(tag);
+    el.setAttribute(keyAttr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute(attr, value);
+}
+
+function applyRouteMeta(view, lang) {
+  const meta = routeMeta(view, lang);
+  if (!meta) return;
+  document.title = meta.title;
+  setHeadTag('meta', 'name', 'description', 'content', meta.description);
+  const canonical = canonicalUrl();
+  setHeadTag('link', 'rel', 'canonical', 'href', canonical);
+  /* превью в мессенджерах: у каждого урока свой заголовок и описание */
+  setHeadTag('meta', 'property', 'og:type', 'content', 'website');
+  setHeadTag('meta', 'property', 'og:site_name', 'content', SITE_NAME);
+  setHeadTag('meta', 'property', 'og:title', 'content', meta.title);
+  setHeadTag('meta', 'property', 'og:description', 'content', meta.description);
+  setHeadTag('meta', 'property', 'og:url', 'content', canonical);
+  setHeadTag('meta', 'property', 'og:locale', 'content', lang === 'en' ? 'en_GB' : 'ru_RU');
+  setHeadTag('meta', 'name', 'twitter:card', 'content', 'summary');
+}
+
+/* =========================================================================
+   Метрика: событие page_view на каждый переход между адресами
+   -------------------------------------------------------------------------
+   Провайдер пока не подключён, поэтому обработчик универсальный: если на
+   странице появится gtag / dataLayer (GA4), plausible или Яндекс.Метрика —
+   событие уйдёт в них автоматически. Плюс всегда летит DOM-событие
+   sal:pageview, к которому можно прицепить любой счётчик:
+       document.addEventListener('sal:pageview', e => console.log(e.detail));
+   ========================================================================= */
+const pageViewLog = [];
+let lastTrackedRoute = '';
+
+function trackPageView(view, lang) {
+  const route = lang + '/' + view;
+  if (route === lastTrackedRoute) return;       // повторный вход в тот же урок не считается
+  lastTrackedRoute = route;
+  const meta = routeMeta(view, lang) || { title: document.title };
+  const detail = {
+    type: 'page_view',
+    route: '#/' + route,
+    view: view,
+    lang: lang,
+    isLesson: /^lesson\d+$/.test(view),
+    title: meta.title,
+    url: canonicalUrl() + '#/' + route,
+    referrer: document.referrer || '',
+    ts: Date.now()
+  };
+  pageViewLog.push(detail);
+  if (pageViewLog.length > 100) pageViewLog.shift();
+  try {
+    document.dispatchEvent(new CustomEvent('sal:pageview', { detail: detail }));
+  } catch (e) { /* очень старый браузер — просто нет события */ }
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', 'page_view', {
+      page_path: '#/' + route,
+      page_title: meta.title,
+      page_language: lang
+    });
+  }
+  if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+    window.dataLayer.push({ event: 'page_view', page_path: '#/' + route, page_title: meta.title, page_language: lang });
+  }
+  if (typeof window.plausible === 'function') {
+    window.plausible('page_view', { u: detail.url, props: { lang: lang, view: view } });
+  }
+  if (typeof window.ym === 'function' && window.YM_COUNTER_ID) {
+    window.ym(window.YM_COUNTER_ID, 'hit', detail.url, { title: meta.title });
+  }
+}
+window.salPageViews = function () { return pageViewLog.slice(); };
+
+/* одно место, где обновляются метаданные и метрика для текущего маршрута */
+function noteRoute(view, lang) {
+  applyRouteMeta(view, lang);
+  trackPageView(view, lang);
+}
+
 function switchView(viewName, targetSectionId = null) {
   if (ROUTE_VIEWS.indexOf(viewName) >= 0) activeView = viewName;
   writeRoute(currentLang, activeView);
+  noteRoute(activeView, currentLang);
   const panes = {
     home: document.getElementById('view-home'),
     lesson1: document.getElementById('view-lesson1'),
@@ -1075,6 +1218,7 @@ function setLanguage(lang) {
     window.SAL.refresh();
   }
   writeRoute(lang, activeView);
+  noteRoute(activeView, lang);
 }
 
 // Copy helper for GitHub Description snippets

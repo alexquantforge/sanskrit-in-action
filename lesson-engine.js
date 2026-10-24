@@ -2696,6 +2696,14 @@ var SAL = (window.SAL = window.SAL || {});
 
   /* the lesson dropdown: 'lesson3' is the standalone 12-word lesson, everything
      else is a key registered by a lesson data file */
+  /* название урока для адреса, закладки и заголовка вкладки:
+     SAL.lessonLabel('L5', 'ru') → «Урок 5: Цифры 6–10» */
+  SAL.lessonLabel = function (key, lang) {
+    var lab = NAV_LABELS[key];
+    if (!lab) return null;
+    return lang === 'en' ? lab.en : lab.ru;
+  };
+
   SAL.gotoLesson = function (v) {
     if (v === 'lesson3') { if (typeof switchView === 'function') switchView('lesson3'); return; }
     SAL.openLesson(v);

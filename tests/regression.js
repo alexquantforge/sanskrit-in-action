@@ -1101,6 +1101,74 @@ win.setLanguage('ru');
 win.switchView('home');
 ck(win.location.hash === '#/ru/home', 'после проверок адрес снова #/ru/home');
 
+/* ===== заголовок, description и canonical под каждый урок ===== */
+console.log('\n===== Метаданные страницы =====');
+const metaOf = () => ({
+  title: win.document.title,
+  desc: (win.document.querySelector('meta[name="description"]') || {}).content || '',
+  canonical: (win.document.querySelector('link[rel="canonical"]') || {}).href || '',
+  ogTitle: (win.document.querySelector('meta[property="og:title"]') || {}).content || '',
+  ogLocale: (win.document.querySelector('meta[property="og:locale"]') || {}).content || ''
+});
+win.switchView('lesson5');
+let mm = metaOf();
+ck(mm.title === 'Урок 5: Цифры 6–10 — Sanskrit in Action',
+  'заголовок вкладки для урока 5: «' + mm.title + '»');
+ck(mm.desc.indexOf('Урок 5: Цифры 6–10') === 0 && mm.desc.indexOf('шесть') > 0,
+  'description урока 5 собран из названия и темы');
+ck(mm.canonical.indexOf('#') < 0 && mm.canonical === win.location.origin + win.location.pathname,
+  'canonical указывает на сам документ без фрагмента: ' + mm.canonical);
+ck((win.document.querySelector('link[rel="canonical"]') || {}).rel === 'canonical' &&
+   win.document.querySelector('link[rel="canonical"]') !== null,
+  'link rel=canonical есть в <head> (не создаётся заново при переходах)');
+ck(mm.ogTitle === mm.title && mm.ogLocale === 'ru_RU', 'og:title и локаль обновлены (RU)');
+win.setLanguage('en');
+mm = metaOf();
+ck(mm.title === 'Lesson 5: Numbers 6–10 — Sanskrit in Action', 'EN: заголовок «' + mm.title + '»');
+ck(mm.desc.indexOf('Lesson 5: Numbers 6–10') === 0 && mm.ogLocale === 'en_GB',
+  'EN: description и og:locale');
+win.setLanguage('ru');
+win.switchView('lesson3');
+ck(metaOf().title === 'Урок 3: Части тела (12) — Sanskrit in Action',
+  'заголовок отдельной страницы из 12 слов');
+win.switchView('details');
+ck(/^Метод и программа курса — /.test(metaOf().title), 'заголовок раздела «о методе»');
+win.switchView('home');
+ck(/^Sanskrit in Action/.test(metaOf().title), 'заголовок главной восстановлен');
+
+/* ===== метрика: page_view на переход между адресами ===== */
+console.log('\n===== Метрика: page_view =====');
+ck(typeof win.salPageViews === 'function', 'есть журнал просмотров salPageViews()');
+const before = win.salPageViews().length;
+const fired = [];
+const onPageView = e => fired.push(e.detail);
+win.document.addEventListener('sal:pageview', onPageView);
+win.switchView('lesson5');
+win.switchView('lesson5');          // тот же урок — повтора быть не должно
+win.setLanguage('en');
+win.switchView('lesson9');
+ck(fired.length === 3, 'page_view сработал на каждый новый адрес, без повторов (' + fired.length + ')');
+ck(fired[0].route === '#/ru/lesson5' && fired[0].view === 'lesson5' && fired[0].lang === 'ru',
+  'событие несёт адрес, урок и язык');
+ck(fired[1].route === '#/en/lesson5' && fired[1].lang === 'en', 'переключение языка даёт отдельный page_view');
+ck(fired.every(ev => ev.type === 'page_view' && typeof ev.ts === 'number' && ev.title),
+  'у каждого события есть тип, время и заголовок');
+ck(win.salPageViews().length === before + 3, 'журнал просмотров пополняется');
+win.setLanguage('ru');
+win.switchView('lesson7');
+const gtagEvents = [];
+const savedGtag = win.gtag;
+win.gtag = (cmd, name, params) => gtagEvents.push({ cmd, name, params });
+win.switchView('lesson8');
+ck(gtagEvents.length === 1 && gtagEvents[0].name === 'page_view' &&
+   gtagEvents[0].params.page_path === '#/ru/lesson8' &&
+   gtagEvents[0].params.page_title === 'Урок 8: Десятки 10–50 — Sanskrit in Action',
+  'при наличии gtag событие уходит в GA4 с page_path и page_title (' +
+   JSON.stringify(gtagEvents.map(g => g.params.page_path)) + ')');
+win.gtag = savedGtag;
+win.document.removeEventListener('sal:pageview', onPageView);
+win.switchView('home');
+
 /* ===== озвучка: хинди-движок не должен «съедать» конечную короткую «а» ===== */
 console.log('\n===== Озвучка: конечная «а» =====');
 const ttsNorm = win.sanskritTtsText;
