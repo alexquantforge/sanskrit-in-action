@@ -1530,7 +1530,10 @@
   }
 
   /* ============================================= 31. WORD SEARCH (letters) */
-  var DIRS = [[1, 0], [0, 1], [1, 1]];
+  /* только два направления: слева направо и сверху вниз.
+     Диагоналей в этом филворде нет — слово, разложенное наискосок, ученик
+     ищет глазами совсем иначе, и ловушки «следующая буква» перестают работать. */
+  var DIRS = [[1, 0], [0, 1]];
 
   function renderWordSearch(cfg) {
     var g = K.gst(cfg, 'wordsearch');
@@ -1559,24 +1562,33 @@
       return '<button type="button" class="' + cls + '"' + call(cfg, 'wsTap', String(idx)) + '>' +
         devaSpan(c, g.size <= 6 ? '1rem' : '0.95rem') + '</button>';
     }).join('');
-    var legend = g.places.map(function (p) {
-      var w = byId(cfg, p.id);
-      return '<span class="ws-legend' + (g.found[p.id] ? ' done' : '') + '">' +
-        (g.found[p.id] ? '✓ ' : '') + devaSpan(w.deva) + '</span>';
-    }).join('');
+    var legend = g.hideWords
+      ? '<div class="ws-legend-row"><span class="ws-legend-hidden">' +
+          tx({ ru: 'Слова скрыты — вспомните их сами. 👁 «Показать слова» вернёт список.',
+               en: 'Words are hidden — recall them yourself. 👁 “Show words” brings the list back.' }) +
+        '</span></div>'
+      : '<div class="ws-legend-row">' + g.places.map(function (p) {
+          var w = byId(cfg, p.id);
+          return '<span class="ws-legend' + (g.found[p.id] ? ' done' : '') + '">' +
+            (g.found[p.id] ? '✓ ' : '') + devaSpan(w.deva) + '</span>';
+        }).join('') + '</div>';
     var notPlaced = cfg.words.length - g.places.length;
     return K.topBar(
       K.pill(tx({ ru: 'Найдено', en: 'Found' }) + ': ' + foundN + '/' + g.places.length) +
         (notPlaced > 0 ? ' ' + K.pill(tx({ ru: 'не влезло', en: 'did not fit' }) + ': ' + notPlaced) : ''),
-      chip(cfg, 'wsClear', '', '↺ ' + tx({ ru: 'Сбросить выбор', en: 'Clear' })) + ' ' + restartChip(cfg, 'wordsearch')) +
+      chip(cfg, 'wsClear', '', '↺ ' + tx({ ru: 'Сбросить выбор', en: 'Clear' })) + ' ' +
+        chip(cfg, 'wsWords', '', g.hideWords
+          ? '👁 ' + tx({ ru: 'Показать слова', en: 'Show words' })
+          : '🙈 ' + tx({ ru: 'Спрятать слова', en: 'Hide words' })) + ' ' +
+        restartChip(cfg, 'wordsearch')) +
       sizeRow(cfg, 'wsSize', g.size) +
       K.centerCard(
         '<div class="grid-10" style="grid-template-columns: repeat(' + g.size + ', 1fr); --ws-max: ' +
           Math.min(620, g.size * 66) + 'px;">' + cellsHtml + '</div>' +
-        '<div class="ws-legend-row">' + legend + '</div>' +
+        legend +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
-          tx({ ru: 'Слова спрятаны по частям: слева направо, сверху вниз и по диагонали. Нажимайте клетки по порядку.',
-               en: 'The words are hidden part by part: left to right, top to bottom and diagonally. Tap the cells in order.' }) + '</div>' +
+          tx({ ru: 'Слова спрятаны по частям: слева направо и сверху вниз. Нажимайте клетки по порядку.',
+               en: 'The words are hidden part by part: left to right and top to bottom. Tap the cells in order.' }) + '</div>' +
         '<div style="margin-top:0.5rem;font-size:0.83rem;color:var(--text-secondary);">' +
           tx(TRAP_NOTE) + '</div>');
   }
@@ -1870,7 +1882,7 @@
   SAL.addGame('wordsearch', {
     labelRu: 'Филворд (среди букв)',
     labelEn: 'Word Search (among letters)',
-    init: function () { return { grid: null, places: null, found: {}, sel: [], size: 10, maxLen: 2, finished: false }; },
+    init: function () { return { grid: null, places: null, found: {}, sel: [], size: 10, maxLen: 2, hideWords: false, finished: false }; },
     render: renderWordSearch,
     actions: {
       wsSize: function (cfg, st, a) { setGridSize(cfg, 'wordsearch', a); },
@@ -1903,7 +1915,9 @@
           if (Object.keys(g.found).length >= g.places.length) g.finished = true;
         }
       },
-      wsClear: function (cfg) { K.gst(cfg, 'wordsearch').sel = []; }
+      wsClear: function (cfg) { K.gst(cfg, 'wordsearch').sel = []; },
+      /* 🙈 спрятать список слов под сеткой: поле превращается в задание «вспомни слова» */
+      wsWords: function (cfg) { var g = K.gst(cfg, 'wordsearch'); g.hideWords = !g.hideWords; }
     }
   });
 
@@ -2179,15 +2193,17 @@
       aim: { ru: 'Классический филворд: слова спрятаны по частям в квадратной сетке от 10 × 10 до 5 × 5.',
              en: 'A classic word search: the words are hidden part by part on a square board from 10 × 10 down to 5 × 5.' },
       how: { ru: ['Размер поля — кнопки 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5 над сеткой.',
-                  'Слова разложены по прямой: слева направо, сверху вниз и по диагонали.',
+                  'Слова разложены по прямой в двух направлениях: слева направо и сверху вниз. По диагонали слов нет.',
                   'Нажимайте клетки подряд — так, чтобы получить нужное слово.',
                   'Нашли — цепочка зелёная, слово вычёркивается из списка под сеткой.',
+                  '🙈 «Спрятать слова» убирает список под сеткой: сначала вспомните слова урока, потом ищите их в поле. 👁 возвращает список.',
                   'Сбились — нажмите ↺ «Сбросить выбор» и начните цепочку заново.',
                   '🪤 Свободные клетки — не случайные буквы, а почти‑двойники слов урока: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः. Следующая клетка цепочки почти всегда выглядит правильной — читайте точно.'],
              en: ['Board size — the 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5 buttons above the grid.',
-                  'The words lie in a straight line: left to right, top to bottom and diagonally.',
+                  'The words lie in a straight line in two directions only: left to right and top to bottom. Nothing is hidden diagonally.',
                   'Press the cells one after another to spell out a word.',
                   'Found — the chain turns green and the word is crossed off the list under the grid.',
+                  '🙈 “Hide words” removes the list under the grid: recall the lesson words first, then look for them. 👁 brings the list back.',
                   'Lost the thread — press ↺ “Clear” and start the chain again.',
                   '🪤 The empty cells are not random letters but near-misses of the lesson words: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः. The next cell of the chain almost always looks right — read exactly.'] },
       score: { ru: 'Счёт — сколько слов найдено из всех слов урока. 🔑 ключ учителя подсвечивает все спрятанные цепочки.',

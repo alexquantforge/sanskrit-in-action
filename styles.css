@@ -2177,6 +2177,11 @@ body.hide-iast .level-sample-iast {
   background: var(--bg-secondary);
 }
 .ws-legend.done { color: #16a34a; border-color: #16a34a; background: #F0FDF4; }
+.ws-legend-hidden {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  padding: 0.25rem 0;
+}
 @media (max-width: 640px) {
   .grid-10 { max-width: 100%; gap: 3px; }
   .wcell, .bcell { min-height: 28px; }

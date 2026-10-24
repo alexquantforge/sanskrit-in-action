@@ -629,6 +629,27 @@ const straight = ws.places.every(p => {
   return line && built === ch;
 });
 ck(straight, 'филворд по частям: каждое слово лежит по прямой и читается верно');
+
+/* диагоналей нет: разрешены только «слева направо» и «сверху вниз» */
+const onlyStraightAxes = ws.places.every(p => {
+  if (p.cells.length < 2) return true;
+  const dr = Math.floor(p.cells[1] / 10) - Math.floor(p.cells[0] / 10);
+  const dc = (p.cells[1] % 10) - (p.cells[0] % 10);
+  return (dr === 0 && dc === 1) || (dr === 1 && dc === 0);
+});
+ck(onlyStraightAxes, 'филворд по частям: слов по диагонали нет — только → и ↓');
+
+/* 🙈 кнопка прячет список слов под сеткой и возвращает его */
+ck(arenaOf('L4').querySelectorAll('.ws-legend').length === L4.words.length,
+  'филворд по частям: список слов под сеткой показан');
+SAL.do('L4', 'wsWords');
+ck(gst('L4', 'wordsearch').hideWords === true && arenaOf('L4').querySelectorAll('.ws-legend').length === 0,
+  'филворд по частям: кнопка 🙈 прячет список слов');
+ck(/Слова скрыты/.test(arenaOf('L4').textContent),
+  'филворд по частям: при скрытом списке показана подсказка, как его вернуть');
+SAL.do('L4', 'wsWords');
+ck(gst('L4', 'wordsearch').hideWords === false && arenaOf('L4').querySelectorAll('.ws-legend').length === L4.words.length,
+  'филворд по частям: 👁 возвращает список слов');
 /* размер поля «среди букв»: те же шесть вариантов, клетки пересчитываются через n */
 ['9', '8', '7', '6', '5', '10'].forEach(sz => {
   const n2 = parseInt(sz, 10);
