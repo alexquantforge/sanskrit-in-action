@@ -586,6 +586,11 @@ ck(targets.length === wg.total, 'филворд: в поле ровно ' + wg.t
 ck(targets.every(c => lessonDeva.indexOf(wById(c.id).deva) >= 0), 'филворд: все отмеченные клетки — слова урока');
 ck(wg.grid.filter(c => !c.t).every(c => lessonDeva.indexOf(c.s) < 0),
   'филворд: ни один отвлекающий вариант не совпадает со словом урока');
+const wgBoard = arenaOf('L4').querySelector('.ws-board');
+ck(wgBoard.querySelectorAll('.ws-coord.col').length === 10 &&
+   wgBoard.querySelectorAll('.ws-coord.row').length === 10 &&
+   wgBoard.querySelectorAll('.wcell').length === 100,
+  'филворд: сетка слов тоже с координатами (цифры сверху, буквы слева)');
 ck(L4.decoys.length >= 20 && new Set(L4.decoys).size === L4.decoys.length,
   'филворд: ' + L4.decoys.length + ' разных отвлекающих слов');
 const targetIdx = wg.grid.map((c, i) => c.t ? i : -1).filter(i => i >= 0);
@@ -638,6 +643,31 @@ const onlyStraightAxes = ws.places.every(p => {
   return (dr === 0 && dc === 1) || (dr === 1 && dc === 0);
 });
 ck(onlyStraightAxes, 'филворд по частям: слов по диагонали нет — только → и ↓');
+
+/* координаты поля: цифры сверху, буквы слева */
+const coordsOf = k => {
+  const board = arenaOf(k).querySelector('.ws-board');
+  return {
+    cols: Array.from(board.querySelectorAll('.ws-coord.col')).map(e => e.textContent),
+    rows: Array.from(board.querySelectorAll('.ws-coord.row')).map(e => e.textContent),
+    cells: board.querySelectorAll('.wcell').length,
+    corner: board.querySelector('.ws-coord.corner') !== null
+  };
+};
+const c10 = coordsOf('L4');
+ck(c10.cols.join(',') === '1,2,3,4,5,6,7,8,9,10', 'филворд по частям: цифры колонок 1…10 сверху');
+ck(c10.rows.join(',') === 'a,b,c,d,e,f,g,h,i,j', 'филворд по частям: буквы рядов a…j слева');
+ck(c10.cells === 100 && c10.corner, 'филворд по частям: подписи не попали в игровые клетки (100 + угол)');
+const firstCell = arenaOf('L4').querySelector('.ws-board .wcell');
+const lastCell = Array.from(arenaOf('L4').querySelectorAll('.ws-board .wcell')).pop();
+ck(/^a1 /.test(firstCell.getAttribute('aria-label')) && /^j10 /.test(lastCell.getAttribute('aria-label')),
+  'филворд по частям: клетки подписаны координатами (a1 … j10)');
+SAL.do('L4', 'wsSize', '5');
+const c5 = coordsOf('L4');
+ck(c5.cols.join(',') === '1,2,3,4,5' && c5.rows.join(',') === 'a,b,c,d,e' && c5.cells === 25,
+  'филворд по частям: на поле 5 × 5 координаты 1…5 и a…e');
+SAL.do('L4', 'wsSize', '10');
+ck(coordsOf('L4').cols.length === 10, 'филворд по частям: возврат на 10 × 10 восстанавливает координаты');
 
 /* 🙈 кнопка прячет список слов под сеткой и возвращает его */
 ck(arenaOf('L4').querySelectorAll('.ws-legend').length === L4.words.length,

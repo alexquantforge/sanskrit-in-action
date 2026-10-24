@@ -2157,6 +2157,23 @@ body.hide-iast .level-sample-iast {
 .ttt-cell.own-1 { color: var(--accent-cambridge); background: #EFF6FF; border-color: var(--accent-cambridge); cursor: default; }
 .ttt-cell.own-2 { color: #B45309; background: #FFFBEB; border-color: #B45309; cursor: default; }
 .ttt-cell.asked { box-shadow: 0 0 0 2px var(--accent-cambridge); }
+/* координаты поля: цифры сверху, буквы слева (как на шахматной доске) */
+.grid-10.ws-board { align-items: stretch; }
+.ws-coord {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text-secondary);
+  user-select: none;
+}
+.ws-coord.row { justify-content: flex-end; padding-right: 1px; text-transform: lowercase; }
+.ws-coord.col { align-items: flex-end; padding-bottom: 2px; }
+.ws-coord.corner { background: none; }
+
 /* word search / word grid: выбор размера поля */
 .ws-size-row {
   display: flex; align-items: center; justify-content: center;
@@ -2185,6 +2202,7 @@ body.hide-iast .level-sample-iast {
 @media (max-width: 640px) {
   .grid-10 { max-width: 100%; gap: 3px; }
   .wcell, .bcell { min-height: 28px; }
+  .ws-coord { font-size: 0.64rem; }
 }
 
 /* rules panel above every practice game */

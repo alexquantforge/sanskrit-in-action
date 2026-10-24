@@ -1453,6 +1453,21 @@
     return uniq(out).filter(function (s) { return real.indexOf(s) < 0; });
   }
 
+  /* Доска с координатами, как на шахматной: цифры 1…n сверху, буквы a, b, c…
+     слева. Нужно, чтобы клетку можно было назвать вслух — «c4» — не описывая
+     её словами, и чтобы ученик диктовал ход преподавателю. */
+  function boardHtml(n, cells) {
+    var html = '<div class="grid-10 ws-board" style="grid-template-columns: 1.1rem repeat(' + n +
+      ', 1fr); --ws-max: ' + Math.min(620, n * 66 + 26) + 'px;">';
+    html += '<span class="ws-coord corner"></span>';
+    for (var c = 1; c <= n; c++) html += '<span class="ws-coord col">' + c + '</span>';
+    for (var r = 0; r < n; r++) {
+      html += '<span class="ws-coord row">' + String.fromCharCode(97 + r) + '</span>';
+      for (var k = 0; k < n; k++) html += cells[r * n + k];
+    }
+    return html + '</div>';
+  }
+
   /* ряд кнопок 10…5 — одинаковый у обоих филвордов */
   function sizeRow(cfg, action, current) {
     var chips = WS_SIZES.map(function (s) {
@@ -1503,21 +1518,22 @@
         found, g.total, tx({ ru: 'Лишних нажатий', en: 'Wrong taps' }) + ': ' + Object.keys(g.wrong).length) +
         sizeRow(cfg, 'wgSize', g.size);
     }
-    var cellsHtml = g.grid.map(function (c, idx) {
+    var cells = g.grid.map(function (c, idx) {
       var txt = c.t ? byId(cfg, c.id).deva : c.s;
       var cls = 'wcell' + (g.found[idx] ? ' found' : '') + (g.wrong[idx] ? ' wrong' : '') +
         (keyOn(cfg) && c.t ? ' hint' : '');
-      return '<button type="button" class="' + cls + '"' + call(cfg, 'wgTap', String(idx)) + '>' +
+      var coord = String.fromCharCode(97 + Math.floor(idx / n)) + ((idx % n) + 1);
+      return '<button type="button" class="' + cls + '" aria-label="' + coord + ' ' + txt + '"' +
+        call(cfg, 'wgTap', String(idx)) + '>' +
         devaSpan(txt, (1.3 - n * 0.055).toFixed(2) + 'rem') + '</button>';
-    }).join('');
+    });
     return K.topBar(
       K.pill(tx({ ru: 'Найдено', en: 'Found' }) + ': ' + found + '/' + g.total) + ' ' +
         K.pill(tx({ ru: 'Мимо', en: 'Misses' }) + ': ' + Object.keys(g.wrong).length),
       chip(cfg, 'wgReveal', '', '👁 ' + tx({ ru: 'Показать всё', en: 'Reveal all' })) + ' ' + restartChip(cfg, 'wordgrid')) +
       sizeRow(cfg, 'wgSize', n) +
       K.centerCard(
-        '<div class="grid-10" style="grid-template-columns: repeat(' + n + ', 1fr); --ws-max: ' +
-          Math.min(620, n * 66) + 'px;">' + cellsHtml + '</div>' +
+        boardHtml(n, cells) +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           tx({ ru: 'В поле ' + totalCells + ' слов — и только ' + g.total + ' из них были на уроке' +
                 (g.total === cfg.words.length * 2 ? ' (каждое дважды)' : '') +
@@ -1557,11 +1573,13 @@
     if (keyOn(cfg)) g.places.forEach(function (p) {
       if (!g.found[p.id]) p.cells.forEach(function (idx) { if (!marked[idx]) marked[idx] = 'hint'; });
     });
-    var cellsHtml = g.grid.map(function (c, idx) {
+    var cells = g.grid.map(function (c, idx) {
       var cls = 'wcell' + (marked[idx] ? ' ' + marked[idx] : '');
-      return '<button type="button" class="' + cls + '"' + call(cfg, 'wsTap', String(idx)) + '>' +
+      var coord = String.fromCharCode(97 + Math.floor(idx / g.size)) + ((idx % g.size) + 1);
+      return '<button type="button" class="' + cls + '" aria-label="' + coord + ' ' + c + '"' +
+        call(cfg, 'wsTap', String(idx)) + '>' +
         devaSpan(c, g.size <= 6 ? '1rem' : '0.95rem') + '</button>';
-    }).join('');
+    });
     var legend = g.hideWords
       ? '<div class="ws-legend-row"><span class="ws-legend-hidden">' +
           tx({ ru: 'Слова скрыты — вспомните их сами. 👁 «Показать слова» вернёт список.',
@@ -1583,8 +1601,7 @@
         restartChip(cfg, 'wordsearch')) +
       sizeRow(cfg, 'wsSize', g.size) +
       K.centerCard(
-        '<div class="grid-10" style="grid-template-columns: repeat(' + g.size + ', 1fr); --ws-max: ' +
-          Math.min(620, g.size * 66) + 'px;">' + cellsHtml + '</div>' +
+        boardHtml(g.size, cells) +
         legend +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           tx({ ru: 'Слова спрятаны по частям: слева направо и сверху вниз. Нажимайте клетки по порядку.',
@@ -2177,10 +2194,12 @@
       aim: { ru: 'Найти среди слов поля те, что были на уроке, — и не попасться на похожие.',
              en: 'Find the words of the lesson on the board — without falling for the look-alikes.' },
       how: { ru: ['Размер поля выбирается кнопками 10 × 10 … 5 × 5: чем меньше поле, тем легче удержать взгляд.',
+                  'Клетки подписаны: цифры 1…10 сверху, буквы a, b, c… слева.',
                   'В клетке — целое слово в деванагари. Нажимайте клетки со словами урока: на большом поле каждое встречается дважды.',
                   'Верно — клетка зелёная; мимо — красная, и это считается промахом.',
                   '🪤 Пустые клетки заполнены не случайными буквами, а почти‑двойниками слов урока: долгая и краткая гласная (ि / ी), ण и न из разных варг, ऋ и रि, ं и ः. Слово нужно читать точно.'],
              en: ['Pick the board size with the 10 × 10 … 5 × 5 buttons: the smaller the board, the easier to hold it in view.',
+                  'The cells are labelled: numbers 1–10 across the top, letters a, b, c… down the left.',
                   'Each cell holds a whole word in Devanagari. Press the cells with lesson words: on a big board each appears twice.',
                   'Right — the cell turns green; a miss — red, and it counts against you.',
                   '🪤 The empty cells are not random letters but near-misses of the lesson words: long and short vowels (ि / ी), ण and न from different vargas, ऋ and रि, ं and ः. Read exactly.'] },
@@ -2194,6 +2213,7 @@
              en: 'A classic word search: the words are hidden part by part on a square board from 10 × 10 down to 5 × 5.' },
       how: { ru: ['Размер поля — кнопки 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5 над сеткой.',
                   'Слова разложены по прямой в двух направлениях: слева направо и сверху вниз. По диагонали слов нет.',
+                  'Клетки подписаны: цифры 1…10 сверху, буквы a, b, c… слева. Клетку можно назвать вслух — «c4».',
                   'Нажимайте клетки подряд — так, чтобы получить нужное слово.',
                   'Нашли — цепочка зелёная, слово вычёркивается из списка под сеткой.',
                   '🙈 «Спрятать слова» убирает список под сеткой: сначала вспомните слова урока, потом ищите их в поле. 👁 возвращает список.',
@@ -2201,6 +2221,7 @@
                   '🪤 Свободные клетки — не случайные буквы, а почти‑двойники слов урока: ि ↔ ी, ण ↔ न, ऋ ↔ रि, ं ↔ ः. Следующая клетка цепочки почти всегда выглядит правильной — читайте точно.'],
              en: ['Board size — the 10 × 10, 9 × 9, 8 × 8, 7 × 7, 6 × 6, 5 × 5 buttons above the grid.',
                   'The words lie in a straight line in two directions only: left to right and top to bottom. Nothing is hidden diagonally.',
+                  'The cells are labelled: numbers 1–10 across the top, letters a, b, c… down the left. You can name a cell out loud — “c4”.',
                   'Press the cells one after another to spell out a word.',
                   'Found — the chain turns green and the word is crossed off the list under the grid.',
                   '🙈 “Hide words” removes the list under the grid: recall the lesson words first, then look for them. 👁 brings the list back.',
