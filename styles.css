@@ -2158,6 +2158,16 @@ body.hide-iast .level-sample-iast {
 .ttt-cell.own-1 { color: var(--accent-cambridge); background: #EFF6FF; border-color: var(--accent-cambridge); cursor: default; }
 .ttt-cell.own-2 { color: #B45309; background: #FFFBEB; border-color: #B45309; cursor: default; }
 .ttt-cell.asked { box-shadow: 0 0 0 2px var(--accent-cambridge); }
+/* крестики-нолики: знак хода в плашке и подсказка, откуда берётся ◯ */
+.ttt-mark { font-size: 1.02em; }
+.ttt-mark.mark-x { color: var(--accent-cambridge); }
+.ttt-mark.mark-o { color: #B45309; }
+.ttt-hint {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
 /* числительные: в вопросе — слово, в вариантах ответа — количество */
 .ttt-ask-word {
   font-family: var(--font-deva);

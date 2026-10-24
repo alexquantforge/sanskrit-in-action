@@ -1111,8 +1111,10 @@
       g.board = [null, null, null, null, null, null, null, null, null];
     }
     if (g.finished) {
+      var one = players(cfg) === 1;
       return done(cfg, 'tictactoe',
         g.winner === 'draw' ? tx({ ru: 'Ничья', en: 'Draw' })
+          : one ? tx({ ru: 'Три в ряд — есть!', en: 'Three in a row — done!' })
           : tx({ ru: 'Победил ученик ' + (g.winner + 1), en: 'Student ' + (g.winner + 1) + ' wins' }),
         1, 1, tx({ ru: 'Ходов', en: 'Moves' }) + ': ' + g.moves);
     }
@@ -1126,8 +1128,16 @@
     }).join('');
     var askW = g.ask === null ? null : byId(cfg, g.cells[g.ask]);
     var numeric = !!(askW && askW.value);
+    /* счёт — со знаками игроков, ход — тем же знаком: видно, чей он */
+    var marks = players(cfg) === 2
+      ? K.pill('<b class="ttt-mark mark-x">✕</b> ' + g.scores[0]) + ' ' +
+        K.pill('<b class="ttt-mark mark-o">◯</b> ' + g.scores[1]) + ' ' +
+        K.pill(tx({ ru: 'Ход', en: 'Turn' }) + ': ' +
+          '<b class="ttt-mark ' + (g.turn === 0 ? 'mark-x' : 'mark-o') + '">' +
+          (g.turn === 0 ? '✕' : '◯') + '</b>')
+      : scorePills(cfg, g);
     return K.topBar(
-      scorePills(cfg, g) + ' ' + K.pill(tx({ ru: 'Ход', en: 'Turn' }) + ': ' + (g.turn + 1)),
+      marks,
       restartChip(cfg, 'tictactoe')) +
       K.centerCard(
         '<div class="ttt-grid">' + cells + '</div>' +
@@ -1150,7 +1160,13 @@
             tx({ ru: 'Клетку можно занять, только назвав слово, которое в ней написано.',
                  en: 'You can only take a square by naming the word written in it.' }) + '</div>') +
         (g.miss ? '<div style="margin-top:0.6rem;color:#dc2626;font-weight:800;">✕ ' +
-          tx({ ru: 'Неверно — клетка свободна, ход переходит.', en: 'Wrong — the square stays free and the turn passes.' }) + '</div>' : ''));
+          tx({ ru: 'Неверно — клетка свободна, ход переходит.', en: 'Wrong — the square stays free and the turn passes.' }) + '</div>' : '') +
+        (players(cfg) === 2
+          ? '<div class="ttt-hint">' + tx({ ru: 'Ходят по очереди: ученик 1 ставит ✕, ученик 2 — ◯.',
+              en: 'Turns alternate: student 1 puts ✕, student 2 puts ◯.' }) + '</div>'
+          : '<div class="ttt-hint">' + tx({
+              ru: 'Играете один — на поле только ✕. Чтобы появились ◯ и ход по очереди, включите 👥 «2 ученика» над вкладками игр.',
+              en: 'Playing alone — only ✕ appears. To get ◯ and alternating turns, switch on 👥 “2 students” above the game tabs.' }) + '</div>'));
   }
 
   /* =========================================================================
@@ -2498,8 +2514,8 @@
                       'Three own squares in a row wins; a full board without one is a draw.'] },
           score: { ru: 'Побеждает тот, кто собрал тройку; ошибки в ответах отдают ход сопернику.',
                    en: 'Whoever makes a line of three wins; a wrong answer hands the turn to the opponent.' },
-          pair: { ru: 'Игра для двоих: первый игрок — ✕, второй — ◯. 🔑 ключ учителя помечает верное количество заранее.',
-                  en: 'For two players: the first is ✕, the second ◯. 🔑 marks the right quantity in advance.' }
+          pair: { ru: 'Игра для двоих: первый игрок — ✕, второй — ◯. Второй появляется, когда включён 👥 «2 ученика» над вкладками; при 👤 «1 ученик» на поле только ✕. 🔑 ключ учителя помечает верное количество заранее.',
+                  en: 'For two players: the first is ✕, the second ◯. The second one appears when 👥 “2 students” is on above the tabs; with 👤 “1 student” the board only gets ✕. 🔑 marks the right quantity in advance.' }
         };
       },
       aim: { ru: 'Клетку можно занять, только ответив: стратегия плюс дрилль.',
@@ -2514,8 +2530,8 @@
                   'Three own squares in a row wins; a full board without one is a draw.'] },
       score: { ru: 'Побеждает тот, кто собрал тройку; ошибки в ответах отдают ход сопернику.',
                en: 'Whoever makes a line of three wins; a wrong answer hands the turn to the opponent.' },
-      pair: { ru: 'Игра для двоих: первый игрок — ✕, второй — ◯. 🔑 ключ учителя помечает верный вариант заранее.',
-              en: 'For two players: the first is ✕, the second ◯. 🔑 marks the right option in advance.' }
+      pair: { ru: 'Игра для двоих: первый игрок — ✕, второй — ◯. Второй появляется, когда включён 👥 «2 ученика» над вкладками; при 👤 «1 ученик» на поле только ✕. 🔑 ключ учителя помечает верный вариант заранее.',
+              en: 'For two players: the first is ✕, the second ◯. The second one appears when 👥 “2 students” is on above the tabs; with 👤 “1 student” the board only gets ✕. 🔑 marks the right option in advance.' }
     },
     wordgrid: {
       aim: { ru: 'Найти среди слов поля те, что были на уроке, — и не попасться на похожие.',

@@ -918,6 +918,47 @@ const l5svg = [...arenaOf('L5').querySelectorAll('.quiz-opt-btn .qty-opt svg')];
 ck(l5svg.length === 4 && l5svg.every(s => s.querySelector('text')),
   'крестики-нолики: больше пяти — в вариантах арабские цифры, без бусин');
 ck(tttValues(arenaOf('L5')).every(v => v > 5 && v <= 10), 'крестики-нолики: цифры берутся из слов урока 6');
+/* ✕ и ◯: нолик появляется только в режиме «2 ученика» — и это сказано на экране */
+SAL.openLesson('L4');
+SAL.do('L4', 'setPlayers', '1');
+SAL.do('L4', 'restart', 'tictactoe');
+const soloHint = arenaOf('L4').querySelector('.ttt-hint');
+ck(soloHint && /2 ученика/.test(soloHint.textContent),
+  'крестики-нолики: один игрок видит подсказку, как включить второго (' +
+  (soloHint ? soloHint.textContent.trim().slice(0, 60) : '—') + '…)');
+ck(!arenaOf('L4').querySelector('.ttt-mark'),
+  'крестики-нолики: в одиночной игре плашки хода со знаком нет');
+SAL.do('L4', 'setPlayers', '2');
+SAL.do('L4', 'restart', 'tictactoe');
+const tttG = () => SAL.lessons.L4._st.g.tictactoe;
+SAL.do('L4', 'tttOpen', '0');
+SAL.do('L4', 'tttPick', tttG().cells[0]);
+const marksAfterOne = [...arenaOf('L4').querySelectorAll('.ttt-mark')];
+ck(marksAfterOne.length === 3 && marksAfterOne[2].textContent.trim() === '◯',
+  'крестики-нолики: после ✕ ход переходит к ◯ и это видно в плашке');
+SAL.do('L4', 'tttOpen', '4');
+SAL.do('L4', 'tttPick', tttG().cells[4]);
+const marksAfterTwo = [...arenaOf('L4').querySelectorAll('.ttt-mark')];
+ck(marksAfterTwo[2].textContent.trim() === '✕', 'крестики-нолики: после ◯ ход возвращается к ✕');
+ck(arenaOf('L4').querySelectorAll('.ttt-cell.own-1').length === 1 &&
+   arenaOf('L4').querySelectorAll('.ttt-cell.own-2').length === 1,
+  'крестики-нолики: на поле появляются и ✕, и ◯');
+SAL.lessons.L4._st.rulesOpen = true;      /* панель правил могла остаться свёрнутой */
+SAL.do('L4', 'restart', 'tictactoe');
+ck(/2 ученика/.test([...arenaOf('L4').querySelectorAll('.rules-row')].pop().textContent),
+  'крестики-нолики: в правилах сказано, что ◯ — для режима «2 ученика»');
+SAL.do('L4', 'restart', 'tictactoe');
+SAL.do('L4', 'setPlayers', '1');
+/* один игрок: три верных ответа подряд — победа без слов про «ученика 2» */
+SAL.do('L4', 'restart', 'tictactoe');
+[0, 1, 2].forEach(i => {
+  SAL.do('L4', 'tttOpen', String(i));
+  SAL.do('L4', 'tttPick', tttG().cells[i]);
+});
+ck(/Три в ряд/.test(arenaOf('L4').textContent) && !/Победил ученик/.test(arenaOf('L4').textContent),
+  'крестики-нолики: в одиночной игре финал — «Три в ряд — есть!», а не «победил ученик»');
+SAL.do('L4', 'restart', 'tictactoe');
+
 /* уроки слов не изменились: вопрос — картинка, варианты — слова */
 SAL.openLesson('L2');
 SAL.do('L2', 'restart', 'tictactoe');
