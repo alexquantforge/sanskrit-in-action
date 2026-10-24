@@ -847,30 +847,55 @@ console.log('\n===== Урок 4: ещё цвета =====');
   ck(/жёлт/.test(SAL.lessons.LC2.topicRu) && /yellow/i.test(SAL.lessons.LC2.topicEn),
     'урок 4: тема урока называет жёлтый');
 
-  /* पीत (насыщенный жёлтый) и गौर (пастельно-золотой) должны читаться по-разному */
+  /* पीत — светло-жёлтый, गौर — пастельно-золотой: дети не должны их путать.
+     Проверяем не «на глаз», а числами: тон (hue), светлота в Lab и полное
+     цветовое расстояние △E. */
   const pita = W.filter(w => w.id === 'pita')[0];
   const gaura = SAL.lessons.LC.words.filter(w => w.id === 'gaura')[0];
-  ck(/#FACC15/i.test(pita.svg), 'पीत нарисован насыщенным жёлтым #FACC15');
-  ck(/#F2C46B/i.test(gaura.svg) && !/#FACC15/i.test(gaura.svg),
-    'गौर из урока 3 остался пастельно-золотым #F2C46B');
-  const hslOf = hex => {
-    const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255,
-      b = parseInt(hex.slice(5, 7), 16) / 255;
-    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
-    return { s: d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1)), l: l };
+  const rgbOf = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const lin = c => c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const labOf = hex => {
+    const [r, g, b] = rgbOf(hex).map(lin);
+    const X = (r * 0.4124 + g * 0.3576 + b * 0.1805) / 0.95047;
+    const Y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+    const Z = (r * 0.0193 + g * 0.1192 + b * 0.9505) / 1.08883;
+    const f = t => t > 0.008856 ? Math.pow(t, 1 / 3) : 7.787 * t + 16 / 116;
+    const fx = f(X), fy = f(Y), fz = f(Z);
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
   };
-  const hp = hslOf('#FACC15'), hg = hslOf('#F2C46B');
-  ck(hg.l - hp.l >= 0.1 && hp.s - hg.s >= 0.08,
-    'पीत и गौर различаются и по светлоте, и по насыщенности (ΔL ' +
-    (hg.l - hp.l).toFixed(2) + ', ΔS ' + (hp.s - hg.s).toFixed(2) + ')');
+  const dE = (a, b) => { const A = labOf(a), B = labOf(b); return Math.hypot(A[0] - B[0], A[1] - B[1], A[2] - B[2]); };
+  const hueOf = hex => {
+    const [r, g, b] = rgbOf(hex);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    if (!d) return 0;
+    let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h *= 60;
+    return h < 0 ? h + 360 : h;
+  };
+  ck(/#FFEE58/i.test(pita.svg), 'पीत нарисован светло-жёлтым #FFEE58');
+  ck(/#F2C46B/i.test(gaura.svg) && !/#FFEE58/i.test(gaura.svg),
+    'गौर из урока 3 остался пастельно-золотым #F2C46B');
+  const hueDiff = Math.abs(hueOf('#FFEE58') - hueOf('#F2C46B'));
+  const lightDiff = labOf('#FFEE58')[0] - labOf('#F2C46B')[0];
+  ck(hueDiff >= 10,
+    'पीत и गौर разного тона: ' + hueOf('#FFEE58').toFixed(0) + '° против ' +
+    hueOf('#F2C46B').toFixed(0) + '° (Δhue ' + hueDiff.toFixed(0) + '°)');
+  ck(lightDiff >= 8,
+    'पीत светлее गौर на ' + lightDiff.toFixed(1) + ' по L* (светло-жёлтый, а не золотистый)');
+  ck(dE('#FFEE58', '#F2C46B') >= 25,
+    'पीत и गौर уверенно различимы: △E = ' + dE('#FFEE58', '#F2C46B').toFixed(1) + ' (порог 25)');
+  ck(dE('#FFEE58', '#FFFFFF') >= 30,
+    'पीत не читается как белый: △E до белого = ' + dE('#FFEE58', '#FFFFFF').toFixed(1));
 
   /* палитра урока 4 */
   const palette = SAL.lessons.LC2.hotspots.figures[0];
   ck(palette.pins.length === 6 && palette.pins.every((p, i) => p.num === i + 1),
     'урок 4: на палитре шесть точек с номерами 1–6');
-  ck(['#FACC15', '#16A34A', '#F97316', '#8B5E34', '#94A3B8', '#EC4899']
+  ck(['#FFEE58', '#16A34A', '#F97316', '#8B5E34', '#94A3B8', '#EC4899']
       .every(c => palette.art.toUpperCase().indexOf(c) >= 0),
     'урок 4: палитра нарисована шестью новыми цветами');
+  ck(palette.art.toUpperCase().indexOf('#F2C46B') < 0,
+    'урок 4: золотистого गौर на палитре нет — он живёт только в повторении урока 3');
   ck(palette.pins.every(p => /r="35"/.test(p.erase) && /#FDF6EC/i.test(p.erase)),
     '«Что пропало?» урока 4: на месте шарика — пустое место цвета фона');
 
@@ -909,7 +934,7 @@ console.log('\n===== Урок 4: ещё цвета =====');
     'каждый компаунд записан через тире и нарезан на складывающиеся части');
   ck(/#EC4899/i.test(rc0.words[0].svg) && /#8B5E34/i.test(rc0.words[1].svg) &&
      /#94A3B8/i.test(rc0.words[2].svg) && /#F97316/i.test(rc0.words[3].svg) &&
-     /#16A34A/i.test(rc0.words[4].svg) && /#FACC15/i.test(rc0.words[5].svg),
+     /#16A34A/i.test(rc0.words[4].svg) && /#FFEE58/i.test(rc0.words[5].svg),
     'часть тела в каждом компаунде нарисована цветом своего слова');
 
   /* ---------- блок повторения 2: шесть цветов прошлого урока ---------- */

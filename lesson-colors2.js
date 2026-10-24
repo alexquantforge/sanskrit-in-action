@@ -9,8 +9,10 @@
  *   (100% Direct Method).
  * - IAST скрыт по умолчанию и включается кнопкой 🔤.
  *
- * ВАЖНО: पीत (#FACC15, насыщенный жёлтый) и गौर (#F2C46B, пастельно-золотой из
- * урока 3) — разные цвета, и на экране они должны читаться по-разному.
+ * ВАЖНО: पीत (#FFEE58, светло-жёлтый, лимонный) и गौर (#F2C46B, пастельно-золотой
+ * из урока 3) — разные цвета, и на экране они должны читаться по-разному, чтобы
+ * дети их не путали: у पीत тон 54° (чистый жёлтый) и L* = 93, у गौर тон 40°
+ * (янтарный) и L* = 81. Разница △E ≈ 30 — это уверенно два разных цвета.
  *
  * Два блока повторения (движок рисует их отдельными панелями):
  *   `recycle`  — цвет + часть тела: पाटल-मुख, कपिश-हस्त, धूसर-पाद,
@@ -105,7 +107,7 @@ var RC2_ICON = {
     '<circle cx="50" cy="50" r="6" fill="#0B1220"/>' +
     '<circle cx="45" cy="45" r="2.6" fill="#FFFFFF" opacity="0.9"/>',
   /* жёлтый зуб (पीत) */
-  tooth: '<path d="M32 22h36c4 0 6 3 6 7 0 12-3 18-6 30-2 8-3 16-7 16s-5-10-7-16h-8c-2 6-3 16-7 16s-5-8-7-16c-3-12-6-18-6-30 0-4 2-7 6-7Z" fill="#FACC15" stroke="#14213D" stroke-width="3"/>' +
+  tooth: '<path d="M32 22h36c4 0 6 3 6 7 0 12-3 18-6 30-2 8-3 16-7 16s-5-10-7-16h-8c-2 6-3 16-7 16s-5-8-7-16c-3-12-6-18-6-30 0-4 2-7 6-7Z" fill="#FFEE58" stroke="#14213D" stroke-width="3"/>' +
     '<path d="M38 34c6-2 18-2 24 0" stroke="#D97706" stroke-width="2.4" stroke-linecap="round" opacity="0.7"/>'
 };
 
@@ -346,8 +348,8 @@ SAL.registerLesson({
   titleEn: "More Colours",
   topicRu: "жёлтый, зелёный, оранжевый, коричневый, серый, розовый",
   topicEn: "yellow, green, orange, brown, grey, pink",
-  introRu: "Четвёртый урок продолжает цвета: <code>पीत</code> (жёлтый), <code>हरित</code> (зелёный), <code>नारङ्ग</code> (оранжевый), <code>कपिश</code> (коричневый), <code>धूसर</code> (серый), <code>पाटल</code> (розовый). Это полный близнец урока 3: те же игры и кнопки, только словарь новый. Различаем похожие: <code>पीत</code> — насыщенный жёлтый, а <code>गौर</code> из урока 3 — пастельно-золотистый. Новые цвета сразу работают как определения к словам уроков 1–2, а шесть цветов урока 3 возвращаются в блоке повторения.",
-  introEn: "The fourth lesson carries on with colours: <code>पीत</code> (yellow), <code>हरित</code> (green), <code>नारङ्ग</code> (orange), <code>कपिश</code> (brown), <code>धूसर</code> (grey), <code>पाटल</code> (pink). It is a carbon copy of lesson 3 — the same games and buttons, only the word list is new. Keep similar colours apart: <code>पीत</code> is a saturated yellow, while <code>गौर</code> from lesson 3 is pastel gold. The new colours work straight away as attributes of the body and face words from lessons 1–2, and the six colours of lesson 3 come back in the recycling block.",
+  introRu: "Четвёртый урок продолжает цвета: <code>पीत</code> (жёлтый), <code>हरित</code> (зелёный), <code>नारङ्ग</code> (оранжевый), <code>कपिश</code> (коричневый), <code>धूसर</code> (серый), <code>पाटल</code> (розовый). Это полный близнец урока 3: те же игры и кнопки, только словарь новый. Различаем похожие: <code>पीत</code> — светло-жёлтый, лимонный, а <code>गौर</code> из урока 3 — пастельно-золотистый, янтарный. Новые цвета сразу работают как определения к словам уроков 1–2, а шесть цветов урока 3 возвращаются в блоке повторения.",
+  introEn: "The fourth lesson carries on with colours: <code>पीत</code> (yellow), <code>हरित</code> (green), <code>नारङ्ग</code> (orange), <code>कपिश</code> (brown), <code>धूसर</code> (grey), <code>पाटल</code> (pink). It is a carbon copy of lesson 3 — the same games and buttons, only the word list is new. Keep similar colours apart: <code>पीत</code> is a pale lemon yellow, while <code>गौर</code> from lesson 3 is pastel amber gold. The new colours work straight away as attributes of the body and face words from lessons 1–2, and the six colours of lesson 3 come back in the recycling block.",
   /* Цвет нельзя «показать у себя» — поэтому жеста в этом уроке нет, а заголовок
      Production называет только то, что нужно сделать: назвать слова вслух. */
   gestureRu: "",
@@ -368,7 +370,7 @@ SAL.registerLesson({
       ],
       missingDisplay: "पी _", missingAnswer: "त",
       missingChoices: ["त", "ट", "थ", "द"],
-      svg: lc2Blob("#FEFCE8", "#FACC15")
+      svg: lc2Blob("#FFFDE7", "#FFEE58")
     },
     {
       id: "harita", deva: "हरित", iast: "harita", ttsText: "हरिता",
@@ -461,7 +463,7 @@ SAL.registerLesson({
         captionEn: "Palette: Six Colours (1–6)",
         viewBox: "0 0 320 230",
         art: lc2PaletteArt([
-          { id: 'pita', fill: '#FACC15', hi: '#FDE68A' },
+          { id: 'pita', fill: '#FFEE58', hi: '#FFF9C4' },
           { id: 'harita', fill: '#16A34A', hi: '#86EFAC' },
           { id: 'naranga', fill: '#F97316', hi: '#FDBA74' },
           { id: 'kapisha', fill: '#8B5E34', hi: '#D6BFA6' },
