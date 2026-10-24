@@ -25,7 +25,7 @@ SAL.registerLesson({
   prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
-      id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश",
+      id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश", value: 10,
       syll: ["द", "श"],
       typoDeva: "दष", typoIast: "daṣa",
       maskedPrefix: "द", maskedHidden: "श",
@@ -41,7 +41,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">10</text>\n    </svg>"
     },
     {
-      id: "vimshati", deva: "विंशतिः", iast: "viṃśatiḥ", ttsText: "विंशतिः",
+      id: "vimshati", deva: "विंशतिः", iast: "viṃśatiḥ", ttsText: "विंशतिः", value: 20,
       syll: ["विं", "श", "तिः"],
       typoDeva: "विंशतीः", typoIast: "viṃśatīḥ",
       maskedPrefix: "विं", maskedHidden: "शतिः",
@@ -57,7 +57,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">20</text>\n    </svg>"
     },
     {
-      id: "trimshat", deva: "त्रिंशत्", iast: "triṃśat", ttsText: "त्रिंशत्",
+      id: "trimshat", deva: "त्रिंशत्", iast: "triṃśat", ttsText: "त्रिंशत्", value: 30,
       syll: ["त्रिं", "शत्"],
       typoDeva: "त्रिशत्", typoIast: "triśat",
       maskedPrefix: "त्रिं", maskedHidden: "शत्",
@@ -73,7 +73,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">30</text>\n    </svg>"
     },
     {
-      id: "catvarimshat", deva: "चत्वारिंशत्", iast: "catvāriṃśat", ttsText: "चत्वारिंशत्",
+      id: "catvarimshat", deva: "चत्वारिंशत्", iast: "catvāriṃśat", ttsText: "चत्वारिंशत्", value: 40,
       syll: ["च", "त्वा", "रिं", "शत्"],
       typoDeva: "चत्वारिंसत्", typoIast: "catvāriṃsat",
       maskedPrefix: "चत्वारिं", maskedHidden: "शत्",
@@ -89,7 +89,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">40</text>\n    </svg>"
     },
     {
-      id: "pancashat", deva: "पञ्चाशत्", iast: "pañcāśat", ttsText: "पञ्चाशत्",
+      id: "pancashat", deva: "पञ्चाशत्", iast: "pañcāśat", ttsText: "पञ्चाशत्", value: 50,
       syll: ["प", "ञ्चा", "शत्"],
       typoDeva: "पन्चाशत्", typoIast: "pancāśat",
       maskedPrefix: "पञ्चा", maskedHidden: "शत्",

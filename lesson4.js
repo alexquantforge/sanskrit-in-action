@@ -26,7 +26,7 @@ SAL.registerLesson({
   prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
-      id: "ekam", deva: "एकम्", iast: "ekam", ttsText: "एकं",
+      id: "ekam", deva: "एकम्", iast: "ekam", ttsText: "एकं", value: 1,
       syll: ["ए", "क", "म्"],
       typoDeva: "ऐकम्", typoIast: "aikam",
       maskedPrefix: "ए", maskedHidden: "कम्",
@@ -42,7 +42,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"50\" cy=\"52\" r=\"13\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.8\"/>\n      <circle cx=\"46\" cy=\"48\" r=\"3.2\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "dve", deva: "द्वे", iast: "dve", ttsText: "द्वे",
+      id: "dve", deva: "द्वे", iast: "dve", ttsText: "द्वे", value: 2,
       syll: ["द्व", "े"],
       typoDeva: "द्वै", typoIast: "dvai",
       maskedPrefix: "", maskedHidden: "द्वे",
@@ -58,7 +58,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"33\" cy=\"52\" r=\"13\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.8\"/>\n      <circle cx=\"29\" cy=\"48\" r=\"3.2\" fill=\"#FDE68A\"/>\n      <circle cx=\"67\" cy=\"52\" r=\"13\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.8\"/>\n      <circle cx=\"63\" cy=\"48\" r=\"3.2\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "trini", deva: "त्रीणि", iast: "trīṇi", ttsText: "त्रीणि",
+      id: "trini", deva: "त्रीणि", iast: "trīṇi", ttsText: "त्रीणि", value: 3,
       syll: ["त्री", "णि"],
       typoDeva: "त्रिणि", typoIast: "triṇi",
       maskedPrefix: "त्री", maskedHidden: "णि",
@@ -74,7 +74,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"25\" cy=\"52\" r=\"12\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.6\"/>\n      <circle cx=\"21\" cy=\"48\" r=\"3\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"52\" r=\"12\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.6\"/>\n      <circle cx=\"46\" cy=\"48\" r=\"3\" fill=\"#FDE68A\"/>\n      <circle cx=\"75\" cy=\"52\" r=\"12\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.6\"/>\n      <circle cx=\"71\" cy=\"48\" r=\"3\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "catvari", deva: "चत्वारि", iast: "catvāri", ttsText: "चत्वारि",
+      id: "catvari", deva: "चत्वारि", iast: "catvāri", ttsText: "चत्वारि", value: 4,
       syll: ["च", "त्वा", "रि"],
       typoDeva: "चत्वरि", typoIast: "catvari",
       maskedPrefix: "च", maskedHidden: "त्वारि",
@@ -90,7 +90,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"34\" cy=\"37\" r=\"12\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.6\"/>\n      <circle cx=\"30\" cy=\"33\" r=\"3\" fill=\"#FDE68A\"/>\n      <circle cx=\"66\" cy=\"37\" r=\"12\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.6\"/>\n      <circle cx=\"62\" cy=\"33\" r=\"3\" fill=\"#FDE68A\"/>\n      <circle cx=\"34\" cy=\"67\" r=\"12\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.6\"/>\n      <circle cx=\"30\" cy=\"63\" r=\"3\" fill=\"#FDE68A\"/>\n      <circle cx=\"66\" cy=\"67\" r=\"12\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.6\"/>\n      <circle cx=\"62\" cy=\"63\" r=\"3\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "panca", deva: "पञ्च", iast: "pañca", ttsText: "पञ्च",
+      id: "panca", deva: "पञ्च", iast: "pañca", ttsText: "पञ्च", value: 5,
       syll: ["प", "ञ्च"],
       typoDeva: "पन्च", typoIast: "panca",
       maskedPrefix: "प", maskedHidden: "ञ्च",

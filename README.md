@@ -166,6 +166,9 @@ game 20), otherwise `games-extra.js` falls back to its generic Devanagari featur
   21 Flash Count · 22 Blind Board.
 * **Pairs (two students, one device):** 23 Battleship on Coordinates · 24 Bingo · 25 Duel ·
   26 Describe & Guess · 27 Order Relay · 28 Co-op Memory · 29 Tic-Tac-Toe with a Quiz.
+  In the numeral lessons the squares hold the words, so the four answer options show the *quantity*
+  instead: one bead per unit up to five, an Arabic digit above that — the options never repeat the
+  words written in the grid.
   Switch with the 👥 «2 ученика» toggle above the tabs; 🔑 reveals the answers for a student acting as teacher.
 * **Grids:** 30 Word Grid 10 × 10 (find the lesson words among 100) · 31 Word Search (words hidden
   part by part in a 10 × 10 grid).

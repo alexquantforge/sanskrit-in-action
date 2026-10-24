@@ -2760,6 +2760,8 @@ var SAL = (window.SAL = window.SAL || {});
   function rulesHtml(cfg, st) {
     var r = RULES[st.game];
     if (!r) return '';
+    /* a game may describe itself differently per lesson (numerals: quantity options) */
+    if (typeof r.adapt === 'function') r = r.adapt(cfg) || r;
     return rulesBlock(r, st.rulesOpen !== false,
       'SAL.do(\'' + cfg.key + '\',\'toggleRules\')');
   }

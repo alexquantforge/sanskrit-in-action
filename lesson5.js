@@ -26,7 +26,7 @@ SAL.registerLesson({
   prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
-      id: "shat", deva: "षट्", iast: "ṣaṭ", ttsText: "षट्",
+      id: "shat", deva: "षट्", iast: "ṣaṭ", ttsText: "षट्", value: 6,
       syll: ["ष", "ट्"],
       typoDeva: "शट्", typoIast: "śaṭ",
       maskedPrefix: "ष", maskedHidden: "ट्",
@@ -42,7 +42,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"28\" cy=\"40\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.7\" cy=\"36.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"40\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.7\" cy=\"36.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"40\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.7\" cy=\"36.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"28\" cy=\"64\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.7\" cy=\"60.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"64\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.7\" cy=\"60.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"64\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.7\" cy=\"60.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "sapta", deva: "सप्त", iast: "sapta", ttsText: "सप्त",
+      id: "sapta", deva: "सप्त", iast: "sapta", ttsText: "सप्त", value: 7,
       syll: ["स", "प्त"],
       typoDeva: "सपत", typoIast: "sapata",
       maskedPrefix: "स", maskedHidden: "प्त",
@@ -58,7 +58,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"28\" cy=\"38\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.7\" cy=\"34.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"38\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.7\" cy=\"34.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"38\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.7\" cy=\"34.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"25\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"22\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"42\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"39\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"59\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"56\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"76\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"73\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "ashta", deva: "अष्ट", iast: "aṣṭa", ttsText: "अष्ट",
+      id: "ashta", deva: "अष्ट", iast: "aṣṭa", ttsText: "अष्ट", value: 8,
       syll: ["अ", "ष्ट"],
       typoDeva: "अष्ठ", typoIast: "aṣṭha",
       maskedPrefix: "अ", maskedHidden: "ष्ट",
@@ -74,7 +74,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"25\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"22\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"42\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"39\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"59\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"56\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"76\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"73\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"25\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"22\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"42\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"39\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"59\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"56\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"76\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"73\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "nava", deva: "नव", iast: "nava", ttsText: "नव",
+      id: "nava", deva: "नव", iast: "nava", ttsText: "नव", value: 9,
       syll: ["न", "व"],
       typoDeva: "नभ", typoIast: "nabha",
       maskedPrefix: "न", maskedHidden: "व",
@@ -90,7 +90,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"28\" cy=\"30\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.85\" cy=\"26.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"30\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.85\" cy=\"26.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"30\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.85\" cy=\"26.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"28\" cy=\"52\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.85\" cy=\"48.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"52\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.85\" cy=\"48.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"52\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.85\" cy=\"48.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"28\" cy=\"74\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.85\" cy=\"70.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"74\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.85\" cy=\"70.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"74\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.85\" cy=\"70.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश",
+      id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश", value: 10,
       syll: ["द", "श"],
       typoDeva: "दस", typoIast: "dasa",
       maskedPrefix: "द", maskedHidden: "श",

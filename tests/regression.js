@@ -882,6 +882,52 @@ ck(win.document.getElementById('view-lesson5').querySelector('[data-players="2"]
   'переключатель «2 ученика» подсвечен');
 SAL.do('L4', 'setPlayers', '1');
 
+/* ---------- 29. tic-tac-toe: варианты — количество, а не слова ---------- */
+/* числовое значение слова: нужно, чтобы показать количество в вариантах */
+[['L4', [1, 2, 3, 4, 5]], ['L5', [6, 7, 8, 9, 10]], ['L6', [11, 12, 13, 14, 15]],
+ ['L7', [16, 17, 18, 19, 20]], ['L8', [10, 20, 30, 40, 50]], ['L9', [60, 70, 80, 90, 100]]]
+  .forEach(([k, vals]) => {
+    ck(SAL.lessons[k].words.map(w => w.value).join() === vals.join(),
+      'урок ' + SAL.lessons[k].num + ': у числительных есть значение — ' + vals.join(', '));
+  });
+const tttValues = arena => [...arena.querySelectorAll('.quiz-opt-btn .qty-opt svg')].map(svg => {
+  const digit = svg.querySelector('text');
+  return digit ? parseInt(digit.textContent, 10) : svg.querySelectorAll('circle').length;
+});
+SAL.openLesson('L4');
+SAL.do('L4', 'restart', 'tictactoe');
+SAL.do('L4', 'tttOpen', '0');
+const tttA = arenaOf('L4');
+ck(!!tttA.querySelector('.ttt-ask-word') &&
+   /[\u0900-\u097F]/.test(tttA.querySelector('.ttt-ask-word').textContent),
+  'крестики-нолики: в вопросе — само числительное, а не картинка');
+ck(tttA.querySelectorAll('.quiz-opt-btn .qty-opt').length === 4,
+  'крестики-нолики: четыре варианта-количества');
+ck([...tttA.querySelectorAll('.quiz-opt-btn')].every(b => !/[\u0900-\u097F]/.test(b.textContent)),
+  'крестики-нолики: в вариантах нет санскритских слов — они больше не повторяют клетки');
+const askedId = gst('L4', 'tictactoe').cells[gst('L4', 'tictactoe').ask];
+const askedVal = wById(askedId).value;
+const l4vals = tttValues(tttA);
+ck(l4vals.every(v => v >= 1 && v <= 5), 'крестики-нолики: до пяти — кружочки, по одному на единицу');
+ck(l4vals.indexOf(askedVal) >= 0, 'крестики-нолики: среди вариантов есть верное количество (' + askedVal + ')');
+ck(new Set(l4vals).size === 4, 'крестики-нолики: все четыре варианта разные');
+SAL.openLesson('L5');
+SAL.do('L5', 'restart', 'tictactoe');
+SAL.do('L5', 'tttOpen', '0');
+const l5svg = [...arenaOf('L5').querySelectorAll('.quiz-opt-btn .qty-opt svg')];
+ck(l5svg.length === 4 && l5svg.every(s => s.querySelector('text')),
+  'крестики-нолики: больше пяти — в вариантах арабские цифры, без бусин');
+ck(tttValues(arenaOf('L5')).every(v => v > 5 && v <= 10), 'крестики-нолики: цифры берутся из слов урока 6');
+/* уроки слов не изменились: вопрос — картинка, варианты — слова */
+SAL.openLesson('L2');
+SAL.do('L2', 'restart', 'tictactoe');
+SAL.do('L2', 'tttOpen', '0');
+const tttWordArena = arenaOf('L2');
+ck(!tttWordArena.querySelector('.ttt-ask-word') && !tttWordArena.querySelector('.qty-opt'),
+  'урок 1: в крестиках-ноликах всё по-прежнему — картинка и слова');
+SAL.openLesson('L4');
+SAL.do('L4', 'restart', 'tictactoe');
+
 /* ---------- 30. word grid 10 x 10 ---------- */
 SAL.do('L4', 'restart', 'wordgrid');
 let wg = gst('L4', 'wordgrid');

@@ -35,6 +35,34 @@
   function wordOpt(cfg, w, action, cls, letter) {
     return K.wordBtn(cfg, w, action, w.id, cls, letter);
   }
+  /* Числительные: слово уже написано в клетке, поэтому варианты ответа — не слова,
+     а количество. До пяти — кружочки-бусины (их можно пересчитать), больше пяти —
+     арабская цифра: семь бусин в маленькой плашке считать уже неудобно. */
+  var QTY_DOTS = {
+    1: [[50, 50]],
+    2: [[34, 66], [66, 34]],
+    3: [[30, 70], [50, 50], [70, 30]],
+    4: [[34, 34], [66, 34], [34, 66], [66, 66]],
+    5: [[32, 32], [68, 32], [50, 50], [32, 68], [68, 68]]
+  };
+  function qtySvg(n) {
+    var card = '<rect width="100" height="100" rx="14" fill="#FFFBEB"/>' +
+      '<rect x="6" y="6" width="88" height="88" rx="10" fill="none" stroke="#E5DEC9" stroke-width="1.5"/>';
+    var inner;
+    if (n > 5 || !QTY_DOTS[n]) {
+      inner = '<text x="50" y="52" text-anchor="middle" dominant-baseline="central" ' +
+        'font-family="system-ui, -apple-system, Roboto, sans-serif" font-size="46" font-weight="700" ' +
+        'fill="#14213D">' + n + '</text>';
+    } else {
+      inner = QTY_DOTS[n].map(function (p) {
+        return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="11" fill="#F59E0B" stroke="#B45309" stroke-width="2.8"/>';
+      }).join('');
+    }
+    return '<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">' + card + inner + '</svg>';
+  }
+  function qtyOpt(cfg, w, action, cls, letter) {
+    return opt(cfg, action, w.id, '<span class="qty-opt">' + qtySvg(w.value) + '</span>', cls, letter);
+  }
   function devaSpan(txt, size) {
     return '<span style="font-family:var(--font-deva);font-weight:700;' +
       (size ? 'font-size:' + size + ';' : '') + '">' + txt + '</span>';
@@ -1097,17 +1125,27 @@
         (owner === null ? devaSpan(w.deva, '0.9rem') : (owner === 0 ? '✕' : '◯')) + '</button>';
     }).join('');
     var askW = g.ask === null ? null : byId(cfg, g.cells[g.ask]);
+    var numeric = !!(askW && askW.value);
     return K.topBar(
       scorePills(cfg, g) + ' ' + K.pill(tx({ ru: 'Ход', en: 'Turn' }) + ': ' + (g.turn + 1)),
       restartChip(cfg, 'tictactoe')) +
       K.centerCard(
         '<div class="ttt-grid">' + cells + '</div>' +
         (askW
-          ? '<div style="margin-top:0.9rem;font-weight:800;">' + tx({ ru: 'Назовите слово — и клетка ваша', en: 'Name the word and the square is yours' }) + '</div>' +
-            '<div style="margin:0.4rem 0;">' + K.svgBox(askW, 92) + '</div>' +
-            K.optGrid(shuffle([askW].concat(K.others(cfg, askW.id, 3))).map(function (o, i) {
-              return wordOpt(cfg, o, 'tttPick', keyOn(cfg) && o.id === askW.id ? 'correct' : '', i);
-            }).join(''))
+          ? (numeric
+            ? '<div style="margin-top:0.9rem;font-weight:800;">' +
+                tx({ ru: 'Назовите слово вслух — и покажите, сколько это', en: 'Say the word aloud and show how many that is' }) + '</div>' +
+              '<div class="ttt-ask-word">' + askW.deva + '</div>' +
+              '<div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.15rem;">' +
+                tx({ ru: 'Варианты A–D — это количество', en: 'Options A–D show the quantity' }) + '</div>' +
+              K.optGrid(shuffle([askW].concat(K.others(cfg, askW.id, 3))).map(function (o, i) {
+                return qtyOpt(cfg, o, 'tttPick', keyOn(cfg) && o.id === askW.id ? 'correct' : '', i);
+              }).join(''))
+            : '<div style="margin-top:0.9rem;font-weight:800;">' + tx({ ru: 'Назовите слово — и клетка ваша', en: 'Name the word and the square is yours' }) + '</div>' +
+              '<div style="margin:0.4rem 0;">' + K.svgBox(askW, 92) + '</div>' +
+              K.optGrid(shuffle([askW].concat(K.others(cfg, askW.id, 3))).map(function (o, i) {
+                return wordOpt(cfg, o, 'tttPick', keyOn(cfg) && o.id === askW.id ? 'correct' : '', i);
+              }).join('')))
           : '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
             tx({ ru: 'Клетку можно занять, только назвав слово, которое в ней написано.',
                  en: 'You can only take a square by naming the word written in it.' }) + '</div>') +
@@ -2440,6 +2478,26 @@
               en: 'A turn is shown for order, but the pair wins or loses together.' }
     },
     tictactoe: {
+      /* урок числительных: в клетках слова, в вариантах — количество */
+      adapt: function (cfg) {
+        if (!cfg.words || !cfg.words[0] || !cfg.words[0].value) return null;
+        return {
+          aim: { ru: 'Клетку можно занять, только ответив, сколько это: стратегия плюс счёт.',
+                 en: 'You may only take a square by saying how many it is: strategy plus counting.' },
+          how: { ru: ['Нажмите свободную клетку — в ней написано числительное.',
+                      'Игра показывает это слово, а четыре варианта A–D — количество: до пяти кружочками, больше — арабской цифрой.',
+                      'Верно — клетка ваша (✕ или ◯); неверно — клетка свободна, ход переходит.',
+                      'Три свои клетки подряд — победа; заполнено поле без тройки — ничья.'],
+                 en: ['Press a free square — a numeral is written in it.',
+                      'The game shows the word, and the four options A–D give the quantity: circles up to five, Arabic digits above.',
+                      'Right and the square is yours (✕ or ◯); wrong and it stays free, with the turn passing.',
+                      'Three own squares in a row wins; a full board without one is a draw.'] },
+          score: { ru: 'Побеждает тот, кто собрал тройку; ошибки в ответах отдают ход сопернику.',
+                   en: 'Whoever makes a line of three wins; a wrong answer hands the turn to the opponent.' },
+          pair: { ru: 'Игра для двоих: первый игрок — ✕, второй — ◯. 🔑 ключ учителя помечает верное количество заранее.',
+                  en: 'For two players: the first is ✕, the second ◯. 🔑 marks the right quantity in advance.' }
+        };
+      },
       aim: { ru: 'Клетку можно занять, только ответив: стратегия плюс дрилль.',
              en: 'You may only take a square by answering: strategy plus drill.' },
       how: { ru: ['Нажмите свободную клетку — в ней написано слово.',
