@@ -969,6 +969,39 @@ ck(!tttWordArena.querySelector('.ttt-ask-word') && !tttWordArena.querySelector('
 SAL.openLesson('L4');
 SAL.do('L4', 'restart', 'tictactoe');
 
+/* ---------- закрытые клетки: тёмная рубашка с координатой, а не белый квадрат ---------- */
+SAL.openLesson('L4');
+const backsOf = (gm) => {
+  SAL.do('L4', 'restart', gm);
+  const a = arenaOf('L4');
+  const emblems = [...a.querySelectorAll('.memory-card-back-emblem')];
+  const bare = emblems.filter(e => !e.closest('.card-back'));
+  return { total: emblems.length, bare: bare.length, a: a };
+};
+const mem = backsOf('coopmemory');
+ck(mem.total === 10 && mem.bare === 0,
+  'мемори вдвоём: у всех закрытых карточек есть тёмная рубашка (без неё — белый экран)');
+ck([...mem.a.querySelectorAll('.card-back')].every(c => /^[a-c][1-4]$/.test(c.textContent.trim())),
+  'мемори вдвоём: на рубашке читается координата (a1 … c4)');
+const bat = backsOf('battleship');
+ck(bat.total === 10 && bat.bare === 0, 'морской бой: закрытые клетки тоже под рубашкой');
+SAL.do('L4', 'restart', 'blindboard');
+const bbG = SAL.lessons.L4._st.g.blindboard;
+bbG.phase = 'ask';
+bbG.ask = 0;
+SAL.refresh();
+const bbBare = [...arenaOf('L4').querySelectorAll('.memory-card-back-emblem')]
+  .filter(e => !e.closest('.card-back'));
+ck(bbBare.length === 0 && arenaOf('L4').querySelectorAll('.wcell.card-back').length === 10,
+  'слепое поле: все закрытые клетки под рубашкой');
+SAL.do('L4', 'restart', 'blindboard');
+SAL.do('L4', 'restart', 'coopmemory');
+SAL.do('L4', 'coopFlip', '0');
+ck(arenaOf('L4').querySelectorAll('.bcell.card-back').length === 9 &&
+   !arenaOf('L4').querySelectorAll('.bcell')[0].classList.contains('card-back'),
+  'мемори вдвоём: открытая карточка рубашку теряет, остальные остаются закрытыми');
+SAL.do('L4', 'restart', 'coopmemory');
+
 /* ---------- 30. word grid 10 x 10 ---------- */
 SAL.do('L4', 'restart', 'wordgrid');
 let wg = gst('L4', 'wordgrid');

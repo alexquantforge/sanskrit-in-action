@@ -2110,6 +2110,28 @@ body.hide-iast .level-sample-iast {
   transition: all 0.15s ease;
 }
 .wcell:hover, .bcell:hover { border-color: var(--accent-cambridge); }
+/* Рубашка закрытой карточки: тёмная, чтобы координата (a1, b2 …) читалась.
+   Без этого клетка была почти белой, а подпись на ней — кремовой: пустой экран. */
+.wcell.card-back, .bcell.card-back {
+  background: linear-gradient(135deg, #14213D 0%, #1E3A5F 100%);
+  border: 1.5px solid #D4A373;
+}
+.wcell.card-back:hover, .bcell.card-back:hover {
+  border-color: #FBBF24;
+  background: linear-gradient(135deg, #1B2B4B 0%, #27486F 100%);
+}
+.wcell.card-back .memory-card-back-emblem, .bcell.card-back .memory-card-back-emblem {
+  width: 54px;
+  height: 54px;
+  border-color: rgba(254, 243, 199, 0.55);
+  font-size: 1.05rem;
+  color: #FEF3C7;
+}
+.wcell.card-back .memory-card-back-emblem.memory-coord,
+.bcell.card-back .memory-card-back-emblem.memory-coord {
+  font-size: 1.12rem;
+  color: #FEF3C7;
+}
 .wcell.found { background: #DCFCE7; border-color: #16a34a; }
 .wcell.wrong { background: #FEE2E2; border-color: #DC2626; opacity: 0.55; }
 .wcell.hint { box-shadow: inset 0 0 0 2px #F59E0B; }

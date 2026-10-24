@@ -794,7 +794,7 @@
     var cells = g.cards.map(function (id, idx) {
       var w = byId(cfg, id);
       var open = g.phase === 'show' || !!g.done[idx] || keyOn(cfg);
-      var cls = 'wcell' + (g.done[idx] ? ' found' : '');
+      var cls = 'wcell' + (g.done[idx] ? ' found' : '') + (open ? '' : ' card-back');
       if (g.phase === 'ask' && g.ask === idx) cls += ' asked';
       return '<button type="button" class="' + cls + '">' +
         (open ? devaSpan(w.deva, '0.95rem') : '<span class="memory-card-back-emblem memory-coord">' +
@@ -843,7 +843,8 @@
     var cells = g.board.map(function (id, idx) {
       var w = byId(cfg, id);
       var open = !!g.claimed[idx] || g.ask === idx;
-      var cls = 'bcell' + (g.claimed[idx] !== undefined ? ' captured' : '') + (g.ask === idx ? ' asked' : '');
+      var cls = 'bcell' + (g.claimed[idx] !== undefined ? ' captured' : '') +
+        (g.ask === idx ? ' asked' : '') + (open ? '' : ' card-back');
       var owner = g.claimed[idx];
       return '<button type="button" class="' + cls + '"' + (open ? '' : call(cfg, 'battleOpen', String(idx))) + '>' +
         (open
@@ -1082,7 +1083,7 @@
     var cells = g.cards.map(function (id, idx) {
       var w = byId(cfg, id);
       var flipped = g.flipped.indexOf(idx) >= 0 || g.matched[id];
-      var cls = 'bcell' + (g.matched[id] ? ' captured' : '');
+      var cls = 'bcell' + (g.matched[id] ? ' captured' : '') + (flipped ? '' : ' card-back');
       return '<button type="button" class="' + cls + '"' + call(cfg, 'coopFlip', String(idx)) + '>' +
         (flipped ? devaSpan(w.deva, '0.95rem')
                  : '<span class="memory-card-back-emblem memory-coord">' + K.cellName(idx, cols) + '</span>') + '</button>';
