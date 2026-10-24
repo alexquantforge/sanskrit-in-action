@@ -1063,6 +1063,41 @@ ck(noRulesL1.length === 0, 'урок 3 (12 слов): правила есть в
   (noRulesL1.length ? ' — без правил: ' + noRulesL1.join(', ') : ''));
 
 
+/* ===== озвучка: хинди-движок не должен «съедать» конечную короткую «а» ===== */
+console.log('\n===== Озвучка: конечная «а» =====');
+const ttsNorm = win.sanskritTtsText;
+ck(typeof ttsNorm === 'function', 'есть нормализация текста для озвучки');
+ck(ttsNorm('सप्त') === 'सप्ता', 'सप्त → सप्ता (звучит «сапта», а не «сапт»)');
+ck(ttsNorm('पञ्च') === 'पञ्चा', 'पञ्च → पञ्चा (звучит «панча», а не «панч»)');
+ck(ttsNorm('दश') === 'दशा' && ttsNorm('नव') === 'नवा' && ttsNorm('अष्ट') === 'अष्टा',
+  'दश → दशा, नव → नवा, अष्ट → अष्टा');
+ck(ttsNorm('षट्') === 'षट्' && ttsNorm('त्रिंशत्') === 'त्रिंशत्',
+  'слова на вираме (षट्, त्रिंशत्) не трогаются');
+ck(ttsNorm('विंशतिः') === 'विंशतिः' && ttsNorm('एकं') === 'एकं',
+  'висарга и анусвара не трогаются');
+ck(ttsNorm('नासिका') === 'नासिका' && ttsNorm('द्वे') === 'द्वे' && ttsNorm('त्रीणि') === 'त्रीणि',
+  'конечная долгая гласная не удваивается');
+ck(ttsNorm('') === '' && !ttsNorm(null), 'пустой текст не ломает озвучку');
+
+/* то, что реально уходит в движок */
+const heard = [];
+const realSynth = win.speechSynthesis;
+const realUtter = win.SpeechSynthesisUtterance;
+win.SpeechSynthesisUtterance = function (t) { this.text = t; };
+win.speechSynthesis = {
+  cancel() {}, getVoices() { return [{ lang: 'hi-IN', name: 'Hindi' }]; },
+  speak(u) { heard.push(u.text); }
+};
+SAL.speak('सप्त');
+SAL.speak('पञ्च');
+SAL.speak('षट्');
+ck(heard.join('|') === 'सप्ता|पञ्चा|षट्',
+  'в хинди-движок уходит सप्ता, पञ्चा, а षट् — как есть (' + heard.join('|') + ')');
+SAL.speak(L4.words.filter(w => w.deva === 'पञ्च')[0].ttsText);
+ck(heard[heard.length - 1] === 'पञ्चा', 'слово урока тоже озвучивается с конечной ा');
+win.speechSynthesis = realSynth;
+win.SpeechSynthesisUtterance = realUtter;
+
 console.log(errs.length ? '\nJS ERRORS: ' + errs.slice(0, 5).join(' | ') : '\nJS-ошибок нет');
 console.log(bad === 0 && errs.length === 0 ? 'ALL CHECKS PASSED' : bad + ' FAILURES');
 process.exit(bad || errs.length ? 1 : 0);

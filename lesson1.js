@@ -688,6 +688,22 @@ function ensureStageVisible(elementId) {
   }
 }
 
+// Hindi TTS applies schwa deletion and swallows a word-final short "a":
+// सप्त comes out as "sapt", पञ्च as "pañc", दश as "dash". Spelling that final
+// vowel as ā (सप्ता, पञ्चा, दशा) forces the engine to voice it, so the audio
+// matches the word on screen. Words that already end in a vowel sign, a
+// virama (षट्, त्रिंशत्), anusvara (एकं) or visarga (विंशतिः) are left as is —
+// there is no inherent "a" to rescue.
+function sanskritTtsText(devaText) {
+  if (!devaText) return devaText;
+  const text = String(devaText);
+  const code = text.slice(-1).charCodeAt(0);
+  const endsInConsonant = (code >= 0x0915 && code <= 0x0939) ||   // क … ह
+                          (code >= 0x0958 && code <= 0x095F);     // क़ … य़
+  return endsInConsonant ? text + 'ा' : text;
+}
+window.sanskritTtsText = sanskritTtsText;
+
 // Audio Speech Helper (Web Speech API — pronounces pure stem without case/gender endings)
 function speakSanskritWord(devaText) {
   const isRu = (typeof currentLang === 'undefined') ? true : currentLang === 'ru';
@@ -701,7 +717,7 @@ function speakSanskritWord(devaText) {
   }
   showAudioToast('🔊 ' + devaText);
   window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(devaText);
+  const utter = new SpeechSynthesisUtterance(sanskritTtsText(devaText));
   const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
   const saVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('sa'));
   const hiVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('hi'));

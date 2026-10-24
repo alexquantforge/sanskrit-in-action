@@ -80,7 +80,9 @@ var SAL = (window.SAL = window.SAL || {});
     }
     try {
       if (!window.speechSynthesis) return;
-      var u = new SpeechSynthesisUtterance(text);
+      /* хинди-движок «съедает» конечную короткую а — см. sanskritTtsText в lesson1.js */
+      var spoken = typeof window.sanskritTtsText === 'function' ? window.sanskritTtsText(text) : text;
+      var u = new SpeechSynthesisUtterance(spoken);
       var voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
       var v = voices.filter(function (x) { return x.lang && x.lang.toLowerCase().indexOf('sa') === 0; })[0] ||
               voices.filter(function (x) { return x.lang && x.lang.toLowerCase().indexOf('hi') === 0; })[0] ||
