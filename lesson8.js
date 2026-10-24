@@ -1,5 +1,5 @@
 /**
- * LESSON 9 · सङ्ख्याः · "Tens 10–50" (5 слов)
+ * LESSON 10 · सङ्ख्याः · "Tens 10–50" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
  * The same build as Lessons 4–7, for the tens 10–50:
  * - the counting forms: दश, विंशतिः, त्रिंशत्, चत्वारिंशत्, पञ्चाशत्
@@ -11,14 +11,14 @@
 
 SAL.registerLesson({
   key: "L8",
-  num: 9,
+  num: 10,
   titleDeva: "सङ्ख्याः",
   titleRu: "Десятки 10–50",
   titleEn: "Tens 10–50",
   topicRu: "десять, двадцать, тридцать, сорок, пятьдесят",
   topicEn: "ten, twenty, thirty, forty, fifty",
-  introRu: "Девятый урок: круглые десятки от десяти до пятидесяти — <code>दश</code>, <code>विंशतिः</code>, <code>त्रिंशत्</code>, <code>चत्वारिंशत्</code>, <code>पञ्चाशत्</code>. Обратите внимание на два разных конца: <code>-तिः</code> у двадцати и <code>-शत्</code> у тридцати, сорока и пятидесяти. Количество показывают арабские цифры: перевода по-прежнему нет.",
-  introEn: "The ninth lesson: the tens from ten to fifty — <code>daśa</code>, <code>viṃśatiḥ</code>, <code>triṃśat</code>, <code>catvāriṃśat</code>, <code>pañcāśat</code>. Note the two different endings: <code>-tiḥ</code> for twenty and <code>-śat</code> for thirty, forty and fifty. Quantity is shown by Arabic digits: still no translation.",
+  introRu: "Десятый урок: круглые десятки от десяти до пятидесяти — <code>दश</code>, <code>विंशतिः</code>, <code>त्रिंशत्</code>, <code>चत्वारिंशत्</code>, <code>पञ्चाशत्</code>. Обратите внимание на два разных конца: <code>-तिः</code> у двадцати и <code>-शत्</code> у тридцати, сорока и пятидесяти. Количество показывают арабские цифры: перевода по-прежнему нет.",
+  introEn: "The tenth lesson: the tens from ten to fifty — <code>daśa</code>, <code>viṃśatiḥ</code>, <code>triṃśat</code>, <code>catvāriṃśat</code>, <code>pañcāśat</code>. Note the two different endings: <code>-tiḥ</code> for twenty and <code>-śat</code> for thirty, forty and fifty. Quantity is shown by Arabic digits: still no translation.",
   gestureRu: "хлопните в ладоши столько раз, сколько десятков",
   gestureEn: "clap once for every ten",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",

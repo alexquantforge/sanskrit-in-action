@@ -1,7 +1,7 @@
 /**
- * LESSON 6 · सङ्ख्याः · "Numbers 6–10" (5 слов)
+ * LESSON 7 · सङ्ख्याः · "Numbers 6–10" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
- * The twin of Lesson 5 (Numbers 1–5), built for the second five Sanskrit numerals:
+ * The twin of Lesson 6 (Numbers 1–5), built for the second five Sanskrit numerals:
  * - the counting forms: neuter nominative-accusative षट्, सप्त, अष्ट, नव, दश
  * - 6–10 do not change in this form: the stem IS the counting form
  * - no Arabic digits on the cards: quantity is shown only by beads (Direct Method)
@@ -12,14 +12,14 @@
 
 SAL.registerLesson({
   key: "L5",
-  num: 6,
+  num: 7,
   titleDeva: "सङ्ख्याः",
   titleRu: "Цифры 6–10",
   titleEn: "Numbers 6–10",
   topicRu: "шесть, семь, восемь, девять, десять",
   topicEn: "six, seven, eight, nine, ten",
-  introRu: "Шестой урок: числительные от шести до десяти — <code>षट्</code>, <code>सप्त</code>, <code>अष्ट</code>, <code>नव</code>, <code>दश</code>. В этой форме (именительный-винительный падеж среднего рода) они не меняются: основа и есть счётная форма. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
-  introEn: "The sixth lesson: the numerals six to ten — <code>ṣaṭ</code>, <code>sapta</code>, <code>aṣṭa</code>, <code>nava</code>, <code>daśa</code>. In this form (neuter nominative-accusative) they do not change: the stem IS the counting form. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
+  introRu: "Седьмой урок: числительные от шести до десяти — <code>षट्</code>, <code>सप्त</code>, <code>अष्ट</code>, <code>नव</code>, <code>दश</code>. В этой форме (именительный-винительный падеж среднего рода) они не меняются: основа и есть счётная форма. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
+  introEn: "The seventh lesson: the numerals six to ten — <code>ṣaṭ</code>, <code>sapta</code>, <code>aṣṭa</code>, <code>nava</code>, <code>daśa</code>. In this form (neuter nominative-accusative) they do not change: the stem IS the counting form. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",

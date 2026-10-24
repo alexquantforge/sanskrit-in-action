@@ -3,7 +3,7 @@
  *
  * The engine keeps the 12 classic CELTA games. Everything here is an add-on
  * registered through SAL.addGame() and only shows up for lessons that list it
- * in `extraGames` (Lesson 4 · सङ्ख्याः, the numerals lesson).
+ * in `extraGames` (Lesson 6 · सङ्ख्याः, the numerals lesson).
  *
  * Two families:
  *   SOLO  — one student with a teacher: speed, recall without prompts,
@@ -2243,7 +2243,7 @@
   /* ---------------------------------------------------------------------
      УРОК 3 — отдельная страница из 12 слов (view-lesson3 в index.html).
      Она свёрстана вручную и живёт мимо движка, но филворд у неё должен быть
-     тем же, что в уроках 4–9. Поэтому заводим служебную конфигурацию:
+     тем же, что в уроках 5–10. Поэтому заводим служебную конфигурацию:
      слова берём из bodyPartsVocab (урок 1), в выпадающий список уроков она
      не попадает (hidden), а панели view-lesson33 не существует — движок её
      не строит и ничего не перезаписывает.

@@ -67,16 +67,18 @@ sanskrit-in-action/
 ├── index.html        # Interactive landing page (EN / RU switch, 4×5 matrix, CEFR A1–C2 explorer, mini-games)
 ├── styles.css        # Cambridge editorial & Sanskrit manuscript typography styles
 ├── app.js            # Bilingual i18n, CEFR level explorer, Sandhi Lab, Dialogue Simulator, Dhātu Forge
-├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 1, 2, 4–9
+├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 1–4 and 6–11
 ├── lesson2.js        # Lesson 1 · शरीरावयवाः — body, 6 words: शीर्ष, उदर, हस्त, अङ्गुली, जानु, पाद
 ├── lesson3.js        # Lesson 2 · मुखसम्बन्धि-शब्दाः — face, 7 words: ललाट, नयन, नासिका, कर्ण, मुख, दन्त, जिह्वा
-├── lesson1.js        # Lesson 3 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
-├── lesson4.js        # Lesson 4 · सङ्ख्याः — 5 numerals, neuter nom.-acc.: एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
-├── lesson5.js        # Lesson 5 · सङ्ख्याः — 5 numerals 6–10: षट्, सप्त, अष्ट, नव, दश
-├── lesson6.js        # Lesson 6 · सङ्ख्याः — 5 numerals 11–15: एकादश, द्वादश, त्रयोदश, चतुर्दश, पञ्चदश
-├── lesson7.js        # Lesson 7 · सङ्ख्याः — 5 numerals 16–20: षोडश, सप्तदश, अष्टादश, नवदश, विंशतिः
-├── lesson8.js        # Lesson 8 · सङ्ख्याः — 5 tens 10–50: दश, विंशतिः, त्रिंशत्, चत्वारिंशत्, पञ्चाशत्
-├── lesson9.js        # Lesson 9 · सङ्ख्याः — 5 tens 60–100: षष्टिः, सप्ततिः, अशीतिः, नवतिः, शतम्
+├── lesson-colors.js  # Lesson 3 · वर्णाः — colours, 6 words: श्वेत, कृष्ण, रक्त, नील, श्याम, गौर (+ повторение «цвет + часть тела»)
+├── lesson-colors2.js # Lesson 4 · वर्णाः — ещё 6 цветов: पीत, हरित, नारङ्ग, कपिश, धूसर, पाटल (+ два блока повторения)
+├── lesson1.js        # Lesson 5 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
+├── lesson4.js        # Lesson 6 · सङ्ख्याः — 5 numerals, neuter nom.-acc.: एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
+├── lesson5.js        # Lesson 7 · सङ्ख्याः — 5 numerals 6–10: षट्, सप्त, अष्ट, नव, दश
+├── lesson6.js        # Lesson 8 · सङ्ख्याः — 5 numerals 11–15: एकादश, द्वादश, त्रयोदश, चतुर्दश, पञ्चदश
+├── lesson7.js        # Lesson 9 · सङ्ख्याः — 5 numerals 16–20: षोडश, सप्तदश, अष्टादश, नवदश, विंशतिः
+├── lesson8.js        # Lesson 10 · सङ्ख्याः — 5 tens 10–50: दश, विंशतिः, त्रिंशत्, चत्वारिंशत्, पञ्चाशत्
+├── lesson9.js        # Lesson 11 · सङ्ख्याः — 5 tens 60–100: षष्टिः, सप्ततिः, अशीतिः, नवतिः, शतम्
 ├── games-extra.js    # 19 extra practice games (solo / pair / word grids), registered via SAL.addGame()
 ├── .nojekyll         # Direct static asset serving on GitHub Pages
 └── README.md         # Project documentation
@@ -86,10 +88,10 @@ sanskrit-in-action/
 
 До десяти количество показывают **бусины**: их можно сосчитать одним взглядом, и это остаётся
 в рамках Direct Method (ни арабских цифр, ни перевода). **После десяти бусины перестают
-работать** — двадцать бусин на карточке уже не сосчитать на глаз, — поэтому в уроках 6–9
+работать** — двадцать бусин на карточке уже не сосчитать на глаз, — поэтому в уроках 8–11
 карточка и таблица чисел показывают **арабскую цифру**. Перевода на карточках по-прежнему нет:
 цифра — это запись количества, а не перевод слова. Тесты следят за правилом в обе стороны:
-в уроках 4–5 на карточках только бусины, в уроках 6–9 — только цифры.
+в уроках 6–7 на карточках только бусины, в уроках 8–11 — только цифры.
 
 ### Adding a New Lesson
 Lessons 2+ are **pure data** — no code changes are needed:
@@ -110,11 +112,11 @@ modes for the new word list — in both RU and EN.
 
 ### Навигация по урокам
 
-Все девять уроков живут в одном **выпадающем списке** в верхней строке каждой панели (подпись
+Все уроки живут в одном **выпадающем списке** в верхней строке каждой панели (подпись
 «Выбрать номер урока:» / «Choose a lesson:»): строка кнопок перестала помещаться, как только
 появился пятый урок. Список строится сам — движок собирает его из зарегистрированных уроков
-(`SAL.registerLesson`) плюс отдельный урок «Части тела (12)», у которого свой движок и панель
-`view-lesson3`; сортировка по полю `num`. Новый урок появится в списке автоматически — уроки 6–9
+(`SAL.registerLesson`) плюс отдельный урок 5 «Части тела (12)», у которого свой движок и панель
+`view-lesson5`; сортировка по полю `num`. Новый урок появится в списке автоматически — уроки 6–9
 не потребовали ни строчки в навигации.
 Короткие подписи лежат в `NAV_LABELS` в `lesson-engine.js`; если подписи для ключа нет,
 берётся «Урок N: <название>» из данных урока. Переход делает `SAL.gotoLesson(value)`:
@@ -150,14 +152,14 @@ unionSprint: ["L2", "L3"],   /* ключи уроков, чьи слова вх�
 **Цель**, **Как играть** (нумерованные шаги), **Счёт и ошибки** (что именно начисляется и
 куда попадают ошибки), для парных игр — **Вдвоём**, иногда — **Преподавателю**.
 Правила для 12 общих игр лежат в реестре `RULES` в `lesson-engine.js`, правила 19 игр
-4–9‑го уроков — в `RULES_EXTRA` в `games-extra.js` (регистрируются через `SAL.addRules`).
-Панелью управляет действие `toggleRules`; урок 3 (12 слов) подключает её через
+6–11‑го уроков — в `RULES_EXTRA` в `games-extra.js` (регистрируются через `SAL.addRules`).
+Панелью управляет действие `toggleRules`; урок 5 (12 слов) подключает её через
 `SAL.rulesPanel(gameKey)`. Панель раскрыта по умолчанию, переводится вместе с интерфейсом
 и не содержит цифр и слов, привязанных к конкретному уроку.
 
 ### Extra Practice Games (`games-extra.js`)
 `games-extra.js` adds 19 further practice games (tabs 13–31) built on `SAL.addGame()`. A lesson opts in
-by listing them in `extraGames`; the six numeral lessons 4–9 (1–5, 6–10, 11–15, 16–20, tens 10–50, tens 60–100) all do, so
+by listing them in `extraGames`; the six numeral lessons 6–11 (1–5, 6–10, 11–15, 16–20, tens 10–50, tens 60–100) all do, so
 the other lessons are untouched. A lesson may also bring its own `sortFeatures` (the yes/no questions for
 game 20), otherwise `games-extra.js` falls back to its generic Devanagari features.
 

@@ -17,8 +17,8 @@ SAL.registerLesson({
   titleEn: "The Face",
   topicRu: "лоб, глаз, нос, ухо, рот, зуб, язык",
   topicEn: "forehead, eye, nose, ear, mouth, tooth, tongue",
-  introRu: "Второй урок: всё лицо целиком — 7 слов на одной схеме, от <code>ललाट</code> (лоб) до <code>जिह्वा</code> (язык). К 6 словам Урока 1 прибавляется лицо, включая новое слово <code>मुख</code> (рот/лицо). В Уроке 4 тело и лицо соберутся в один набор из 12 слов.",
-  introEn: "The second lesson zooms into the face: 7 words on a single diagram, from <code>ललाट</code> (forehead) to <code>जिह्वा</code> (tongue). The 6 words of Lesson 1 are joined by the face, including the new word <code>मुख</code> (mouth / face). In Lesson 4 body and face come together as one set of 12 words.",
+  introRu: "Второй урок: всё лицо целиком — 7 слов на одной схеме, от <code>ललाट</code> (лоб) до <code>जिह्वा</code> (язык). К 6 словам Урока 1 прибавляется лицо, включая новое слово <code>मुख</code> (рот/лицо). В Уроке 5 тело и лицо соберутся в один набор из 12 слов.",
+  introEn: "The second lesson zooms into the face: 7 words on a single diagram, from <code>ललाट</code> (forehead) to <code>जिह्वा</code> (tongue). The 6 words of Lesson 1 are joined by the face, including the new word <code>मुख</code> (mouth / face). In Lesson 5 body and face come together as one set of 12 words.",
   words: [
     {
       id: "lalata", deva: "ललाट", iast: "lalāṭa", ttsText: "ललाटा",
@@ -126,7 +126,7 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#F8EFE6\"/>\n      <path d=\"M22 36C34 28 66 28 78 36C74 52 66 58 50 58C34 58 26 52 22 36Z\" fill=\"#7F1D1D\" stroke=\"#14213D\" stroke-width=\"3\"/>\n      <path d=\"M32 39H68L65 65C64 78 56 85 50 85C44 85 36 78 35 65L32 39Z\" fill=\"#FB7185\" stroke=\"#14213D\" stroke-width=\"3.2\"/>\n      <path d=\"M50 42V74\" stroke=\"#BE123C\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n    </svg>"
     }
   ],
-  /* филворды: те же две игры, что в уроках 4–9 (см. games-extra.js) */
+  /* филворды: те же две игры, что в уроках 5–10 (см. games-extra.js) */
   extraGames: ['wordgrid', 'wordsearch'],
   /* Production mode 5: one timed sprint over every word of lessons 1 and 2
      (6 body words + 7 face words = 13 pictures, 4 / 3 / 2 seconds each). */

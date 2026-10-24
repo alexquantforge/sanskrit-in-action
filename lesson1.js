@@ -1284,7 +1284,7 @@ function renderPracticeArena() {
   const arena = document.getElementById('lesson1-practice-arena');
   if (!arena) return;
 
-  /* 13. Филворд: рисует движок (он же обслуживает уроки 4–9) в отдельную арену,
+  /* 13. Филворд: рисует движок (он же обслуживает уроки 5–10) в отдельную арену,
      чтобы 12 собственных игр этой страницы остались нетронутыми */
   const engineArena = document.getElementById('L1B-practice-arena');
   if (engineArena) {
