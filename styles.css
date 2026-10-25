@@ -1559,19 +1559,21 @@ body.hide-iast .level-sample-iast {
   border-color: var(--accent-cambridge);
 }
 
+/* «🙈 Скрыть подписи» — скрытие настоящее: подписи размыты, пока учитель не
+   вернёт их кнопкой. Раньше при наведении курсора карточка «подглядывала»
+   (filter: blur(0)), и проверка по карточкам теряла смысл: стоило повести
+   мышью на слово, как ответ проявлялся. */
 .labels-hidden .vocab-deva,
 .labels-hidden .vocab-iast,
-.labels-hidden .vocab-meaning {
+.labels-hidden .vocab-meaning,
+.labels-hidden .masked-word-line > span:first-child {
   filter: blur(7px);
   user-select: none;
   transition: filter 0.2s ease;
 }
 
-.labels-hidden .vocab-item-card:hover .vocab-deva,
-.labels-hidden .vocab-item-card:hover .vocab-iast,
-.labels-hidden .vocab-item-card:hover .vocab-meaning {
-  filter: blur(0);
-}
+/* розовый квадратик «закрытой части слова» остаётся чётким: в связке
+   🟪 + 🙈 ученик видит картинку и ■, но не видит ни одной буквы */
 
 /* Practice Stage: Game Selector Tabs & Arena */
 .practice-tabs {

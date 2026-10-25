@@ -2100,6 +2100,90 @@ win.speechSynthesis = realSynth;
 win.SpeechSynthesisUtterance = realUtter;
 
 /* ==========================================================================
+   «🙈 Скрыть подписи» действительно скрывает подписи — во всех режимах
+   --------------------------------------------------------------------------
+   Жалоба: в первом режиме Presentation кнопка нажималась, но на экране
+   ничего не менялось. Причина: класс labels-hidden вешался только на плакат.
+   ========================================================================== */
+console.log('\n===== Кнопка «Скрыть подписи» (все режимы Presentation) =====');
+{
+  const css = fs.readFileSync(path.join(REPO, 'styles.css'), 'utf8');
+  ck(/\.labels-hidden\s+\.vocab-deva/.test(css) && /filter:\s*blur\(/.test(css),
+    'стили: при labels-hidden подписи размываются (filter: blur)');
+  ck(!/\.labels-hidden[^{]*:hover/.test(css),
+    'скрытие настоящее: наведение курсора больше не проявляет подпись');
+  ck(/\.labels-hidden\s+\.masked-word-line\s*>\s*span:first-child/.test(css),
+    'в связке 🟪 + 🙈 размывается и видимая часть слова (квадратик остаётся чётким)');
+
+  const MODE_RU = { stepbystep: '1. Пошагово', hotspots: '2. Схема', audiofirst: '3. Сначала звук', poster: '4. Плакат' };
+  const labelsOn = key => /^👁/.test(win.document.getElementById(key + '-labels-btn').innerHTML);
+
+  for (const key of ['L2', 'L4', 'LC2']) {
+    SAL.openLesson(key);
+    const grid = win.document.getElementById(key + '-pres-grid');
+    const bad = [];
+    for (const mode of PRESMODES) {
+      SAL.do(key, 'setPresMode', mode);
+      /* включаем, если было выключено */
+      if (labelsOn(key)) SAL.do(key, 'toggleLabels');
+      if (grid.classList.contains('labels-hidden')) bad.push(mode + ': класс не снят');
+      if (!/🙈/.test(win.document.getElementById(key + '-labels-btn').innerHTML)) bad.push(mode + ': надпись кнопки');
+
+      SAL.do(key, 'toggleLabels');
+      if (!grid.classList.contains('labels-hidden')) bad.push(mode + ': подписи не скрылись');
+      if (!/^👁/.test(win.document.getElementById(key + '-labels-btn').innerHTML)) bad.push(mode + ': кнопка не сменилась на «Показать»');
+      if (!win.document.getElementById(key + '-labels-btn').classList.contains('active')) bad.push(mode + ': кнопка не подсвечена');
+
+      SAL.do(key, 'toggleLabels');
+      if (grid.classList.contains('labels-hidden')) bad.push(mode + ': подписи не вернулись');
+    }
+    SAL.do(key, 'setPresMode', 'stepbystep');
+    ck(bad.length === 0, key + ': «Скрыть подписи» срабатывает во всех четырёх режимах' +
+      (bad.length ? ' — ' + bad.join('; ') : ''));
+  }
+
+  /* в «Пошагово» и «Схеме» вкладки и точки тоже не выдают слова */
+  SAL.openLesson('L4');
+  SAL.do('L4', 'setPresMode', 'stepbystep');
+  SAL.do('L4', 'toggleLabels');
+  const stepChips = Array.from(win.document.getElementById('L4-pres-grid').querySelectorAll('.chip-btn'))
+    .map(b => b.textContent.trim()).filter(t => /^\d+/.test(t));
+  ck(stepChips.length > 0 && stepChips.every(t => /^\d+$/.test(t)),
+    '«Пошагово» при скрытых подписях: на вкладках шагов только номера (' + stepChips.slice(0, 4).join(' · ') + ')');
+  const anyDeva = /[\u0900-\u097F]/.test(win.document.getElementById('L4-pres-grid').textContent);
+  ck(anyDeva, '«Пошагово» при скрытых подписях: сами слова на карточках остались (их размывает CSS)');
+  SAL.do('L4', 'toggleLabels');
+  ck(/[\u0900-\u097F]/.test(Array.from(win.document.getElementById('L4-pres-grid').querySelectorAll('.chip-btn'))
+    .map(b => b.textContent).join(' ')), '«Пошагово»: подписи вернулись и на вкладках');
+
+  SAL.do('L4', 'setPresMode', 'hotspots');
+  SAL.do('L4', 'toggleLabels');
+  const hotChips = Array.from(win.document.getElementById('L4-pres-grid').querySelectorAll('.chip-btn'))
+    .map(b => b.textContent.trim()).filter(t => /^\d+$/.test(t));
+  ck(hotChips.length >= 4, '«Схема» при скрытых подписях: кнопки-точки показывают только номера');
+  SAL.do('L4', 'toggleLabels');
+
+  /* рукописная страница урока 5 — та же кнопка */
+  win.switchView('lesson5');
+  if (typeof win.setPresentationMode === 'function') win.setPresentationMode('stepbystep');
+  if (typeof win.toggleVocabLabels === 'function') {
+    if (win.document.getElementById('lesson1-vocab-grid').classList.contains('labels-hidden')) win.toggleVocabLabels();
+    win.toggleVocabLabels();
+    const g5 = win.document.getElementById('lesson1-vocab-grid');
+    const chips5 = Array.from(g5.querySelectorAll('.chip-btn')).map(b => b.textContent.trim()).filter(t => /^\d+/.test(t));
+    ck(g5.classList.contains('labels-hidden'), 'урок 5: «Скрыть подписи» ставит labels-hidden на сетку');
+    ck(chips5.length > 0 && chips5.every(t => /^\d+$/.test(t)),
+      'урок 5, «Пошагово»: на вкладках шагов тоже только номера');
+    ck(!/[\u0900-\u097F]/.test((g5.textContent.match(/Шаг \d+ из \d+/) || [''])[0]) &&
+       /Шаг \d+ из \d+/.test(g5.textContent),
+      'урок 5: заголовок шага при скрытых подписях — «Шаг N из 6», без слов');
+    win.toggleVocabLabels();
+    ck(!g5.classList.contains('labels-hidden'), 'урок 5: подписи возвращаются');
+  }
+  SAL.openLesson('L4');
+}
+
+/* ==========================================================================
    «Начать сначала» не прокручивает страницу
    --------------------------------------------------------------------------
    Жалоба: в Production (спринт на время) кнопка ↺ увозила экран вверх.

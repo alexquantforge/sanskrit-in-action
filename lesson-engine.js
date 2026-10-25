@@ -860,9 +860,11 @@ var SAL = (window.SAL = window.SAL || {});
     var s = steps[idx];
     var words = s.wordIds.map(function (id) { return byId(cfg, id); });
     var tabs = steps.map(function (ss, i) {
-      var sub = ss.wordIds.map(function (id) { return byId(cfg, id).deva; }).join(' · ');
+      /* при скрытых подписях вкладки не выдают слова — остаются только номера */
+      var sub = st.pres.labelsHidden ? ''
+        : '. ' + ss.wordIds.map(function (id) { return byId(cfg, id).deva; }).join(' · ');
       return '<button type="button" class="chip-btn' + (i === idx ? ' active' : '') +
-        '" onclick="SAL.do(\'' + cfg.key + '\',\'setStep\',\'' + i + '\')">' + (i + 1) + '. ' + sub + '</button>';
+        '" onclick="SAL.do(\'' + cfg.key + '\',\'setStep\',\'' + i + '\')">' + (i + 1) + sub + '</button>';
     }).join('');
     var tts = words.map(function (w) { return w.ttsText; }).join(' ');
     return '<div style="background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:18px;padding:1.5rem;margin-bottom:2rem;box-shadow:var(--shadow-sm);">' +
@@ -922,8 +924,11 @@ var SAL = (window.SAL = window.SAL || {});
     allPins.sort(function (a, b) { return a.num - b.num; });
     var chipsHtml = allPins.map(function (p) {
       var item = byId(cfg, p.id);
+      /* при скрытых подписях кнопки-точки не выдают слово — остаётся номер */
+      var label = st.pres.labelsHidden ? String(p.num) : p.num + '. ' + item.deva + iastSpan(item.iast);
       return '<button type="button" class="chip-btn' + (p.id === active ? ' active' : '') +
-        '" onclick="SAL.do(\'' + cfg.key + '\',\'hotspot\',\'' + p.id + '\')">' + p.num + '. ' + item.deva + iastSpan(item.iast) + '</button>';
+        '" onclick="SAL.do(\'' + cfg.key + '\',\'hotspot\',\'' + p.id + '\')"' +
+        (st.pres.labelsHidden ? ' title="' + p.num + '"' : '') + '>' + label + '</button>';
     }).join('');
 
     var wordHtml = st.pres.maskMode ? maskedMarkup(w, !!st.pres.revealed[w.id], '2.25rem') : devaLabel(w, '2.25rem');
@@ -989,14 +994,19 @@ var SAL = (window.SAL = window.SAL || {});
     }
     var grid = document.getElementById(cfg.key + '-pres-grid');
     if (!grid) return;
+    /* «🙈 Скрыть подписи» работает во ВСЕХ четырёх режимах. Раньше класс
+       labels-hidden вешался только на плакат: в «Пошагово», «Схеме» и «Сначала
+       звук» кнопка переключала состояние и меняла свою надпись, но на экране
+       ничего не происходило. */
+    var hideCls = st.pres.labelsHidden ? ' labels-hidden' : '';
     if (st.pres.mode === 'stepbystep') {
-      grid.className = ''; grid.innerHTML = stepHtml(cfg, st);
+      grid.className = hideCls.replace(/^ /, ''); grid.innerHTML = stepHtml(cfg, st);
     } else if (st.pres.mode === 'hotspots') {
-      grid.className = ''; grid.innerHTML = hotspotsHtml(cfg, st);
+      grid.className = hideCls.replace(/^ /, ''); grid.innerHTML = hotspotsHtml(cfg, st);
     } else if (st.pres.mode === 'audiofirst') {
-      grid.className = ''; grid.innerHTML = audioFirstHtml(cfg, st);
+      grid.className = hideCls.replace(/^ /, ''); grid.innerHTML = audioFirstHtml(cfg, st);
     } else {
-      grid.className = 'vocab-grid-6' + (st.pres.labelsHidden ? ' labels-hidden' : '');
+      grid.className = 'vocab-grid-6' + hideCls;
       grid.innerHTML = posterHtml(cfg, st);
     }
     var maskBtn = document.getElementById(cfg.key + '-mask-btn');

@@ -820,20 +820,24 @@ function renderVocabCardItemHtml(item, large = false) {
 
 function renderStepByStepPresentationHtml() {
   const step = presentationSteps[presStepIndex] || presentationSteps[0];
-  const stepTitle = currentLang === 'ru' ? step.titleRu : step.titleEn;
+  // при скрытых подписях заголовок шага не выдаёт слова («Шаг 1 из 6 · शीर्ष · ललाट»)
+  const stepTitle = labelsHidden
+    ? (currentLang === 'ru' ? `Шаг ${step.num} из ${presentationSteps.length}` : `Step ${step.num} of ${presentationSteps.length}`)
+    : (currentLang === 'ru' ? step.titleRu : step.titleEn);
   const playAllLabel = currentLang === 'ru' ? '🔊 Прослушать оба слова' : '🔊 Listen to Both Words';
   const prevLabel = currentLang === 'ru' ? '← Предыдущие 2' : '← Previous 2';
   const nextLabel = currentLang === 'ru' ? 'Следующие 2 →' : 'Next 2 →';
 
+  // при скрытых подписях вкладки шагов не выдают слова — только номера
   const stepTabsHtml = presentationSteps.map((s, idx) => {
-    const wordsDeva = s.wordIds
+    const wordsDeva = labelsHidden ? '' : '. ' + s.wordIds
       .map(id => bodyPartsVocab.find(w => w.id === id))
       .filter(Boolean)
       .map(w => w.deva)
       .join(' · ');
     return `
       <button type="button" class="chip-btn ${idx === presStepIndex ? 'active' : ''}" onclick="setPresStep(${idx})">
-        ${s.num}. ${wordsDeva}
+        ${s.num}${wordsDeva}
       </button>
     `;
   }).join('');
@@ -929,13 +933,15 @@ function renderHotspotsPresentationHtml() {
     .map(pos => renderHotspotPinGroupHtml(pos, activeItem.id))
     .join('');
 
+  // при скрытых подписях кнопки-точки показывают только номер
   const chipsHtml = sortedPositions.map(pos => {
     const item = bodyPartsVocab.find(w => w.id === pos.id);
     if (!item) return '';
     const isCurrent = item.id === activeItem.id;
+    const label = labelsHidden ? `${pos.num}` : `${pos.num}. ${item.deva}<span class="iast-text"> (${item.iast})</span>`;
     return `
       <button type="button" class="chip-btn ${isCurrent ? 'active' : ''}" onclick="selectHotspotWord('${item.id}')">
-        ${pos.num}. ${item.deva}<span class="iast-text"> (${item.iast})</span>
+        ${label}
       </button>
     `;
   }).join('');
