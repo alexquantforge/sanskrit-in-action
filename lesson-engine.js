@@ -2205,12 +2205,16 @@ var SAL = (window.SAL = window.SAL || {});
     },
     restart: function (cfg, st, a) {
       clearExtra();
+      /* «Начать сначала» у режимов Production перерисовывает ТОЛЬКО свою сцену.
+         Раньше этот же обработчик писал a в состояние Practice (st.game =
+         'sprintRestart'), и арена Practice молча переключалась на первую игру
+         с погашенными вкладками. Теперь Practice не трогаем вообще. */
+      if (a === 'sprintRestart') { st.prod.sprint = makeState(cfg).prod.sprint; st.prod.mode = 'sprint'; return; }
+      if (a === 'micRestart') { st.prod.mic = makeState(cfg).prod.mic; st.prod.mode = 'mic'; return; }
+      if (a === 'missingRestart') { st.prod.missing = makeState(cfg).prod.missing; st.prod.mode = 'missingpart'; return; }
+      if (a === 'unionRestart') { ACTIONS.unionRestart(cfg, st); return; }
       st.g[a] = (GAME_INIT[a] || function () { return {}; })(cfg, st);
       st.game = a;
-      if (a === 'sprintRestart') { st.prod.sprint = makeState(cfg).prod.sprint; st.prod.mode = 'sprint'; }
-      if (a === 'micRestart') { st.prod.mic = makeState(cfg).prod.mic; st.prod.mode = 'mic'; }
-      if (a === 'missingRestart') { st.prod.missing = makeState(cfg).prod.missing; st.prod.mode = 'missingpart'; }
-      if (a === 'unionRestart') { ACTIONS.unionRestart(cfg, st); }
     },
 
     /* 1 masked */
@@ -2925,9 +2929,14 @@ var SAL = (window.SAL = window.SAL || {});
      Same rule as Lesson 1: a click must always produce a visible reaction.
      Switching a game/mode scrolls its stage into view; re-clicking the already
      open game/mode and pressing a restart button pulse the stage instead. */
+  /* Кнопки Production (спринт, микрофон, «что пропало?», спринт двух уроков)
+     перерисовывают СВОЮ сцену — их «Начать сначала» живёт в production-stage,
+     а не в арене Practice. Раньше любой restart адресовался practice-арене,
+     и нажатие «Начать сначала» в спринте увозило страницу вверх. */
+  var PROD_RESTART_RE = /^(sprint|mic|missing|union)Restart$/;
   function stageIdFor(cfg, action, block) {
     if (action === 'setPresMode') return cfg.key + '-pres-grid';
-    if (action === 'setProdMode') return cfg.key + '-production-stage';
+    if (action === 'setProdMode' || PROD_RESTART_RE.test(action)) return cfg.key + '-production-stage';
     if (action === 'rcGame') return recycleShimKey(cfg, recycleIndex(block)) + '-practice-arena';
     if (action === 'rcProd') return recycleShimKey(cfg, recycleIndex(block)) + '-production-stage';
     return cfg.key + '-practice-arena';
@@ -2937,7 +2946,11 @@ var SAL = (window.SAL = window.SAL || {});
       action === 'rcGame' || action === 'rcProd';
     var isRestart = action === 'restart' || /Restart$/.test(action) || action === 'memorySize' || action === 'matchNext';
     var id = stageIdFor(cfg, action);
-    if (isSwitch || isRestart) {
+    /* Прокрутка нужна ТОЛЬКО при переключении игры/режима (вкладки могут быть
+       у нижнего края экрана). Restart нажимают на самой сцене, которая уже
+       перед глазами: любая прокрутка здесь — это прыжок экрана, поэтому
+       restart только подсвечивается кольцом и ничего не двигает. */
+    if (isSwitch) {
       if (typeof window.ensureStageVisible === 'function') window.ensureStageVisible(id);
     }
     /* A click is only "silent" when the stage looks exactly the same afterwards:

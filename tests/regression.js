@@ -2099,6 +2099,96 @@ ck(heard[heard.length - 1] === 'पञ्चा', 'слово урока тож�
 win.speechSynthesis = realSynth;
 win.SpeechSynthesisUtterance = realUtter;
 
+/* ==========================================================================
+   «Начать сначала» не прокручивает страницу
+   --------------------------------------------------------------------------
+   Жалоба: в Production (спринт на время) кнопка ↺ увозила экран вверх.
+   Причина была в ackClick: любой restart адресовался practice-арене, а она
+   стоит выше production; ensureStageVisible честно доводил туда страницу.
+   Тест подменяет раскладку (getBoundingClientRect) и scrollTo, «ставит»
+   страницу на Production и проверяет, что restart не двигает экран.
+   ========================================================================== */
+console.log('\n===== Restart не прокручивает экран =====');
+{
+  const scroll = { y: 2400, calls: [] };
+  const realInner = Object.getOwnPropertyDescriptor(win, 'innerHeight');
+  const realOffset = Object.getOwnPropertyDescriptor(win, 'pageYOffset');
+  const realScrollTo = win.scrollTo;
+  const realRect = win.Element.prototype.getBoundingClientRect;
+  const OFFSETS = { 'L4-practice-arena': 1100, 'L4-production-stage': 2500, 'L4-pres-grid': 300 };
+  const header = win.document.querySelector('.site-header');
+  win.innerHeight = 900;
+  Object.defineProperty(win, 'pageYOffset', { get: () => scroll.y, configurable: true });
+  win.scrollTo = opts => { scroll.calls.push(typeof opts === 'number' ? opts : opts && opts.top); };
+  win.Element.prototype.getBoundingClientRect = function () {
+    if (this === header || (this.classList && this.classList.contains('site-header'))) {
+      return { top: 0, height: 70, bottom: 70, left: 0, right: 800, width: 800 };
+    }
+    const docTop = OFFSETS[this.id];
+    if (docTop == null) return { top: 0, height: 0, bottom: 0, left: 0, right: 0, width: 0 };
+    return { top: docTop - scroll.y, height: 600, bottom: docTop - scroll.y + 600, left: 0, right: 800, width: 800 };
+  };
+
+  SAL.openLesson('L4');
+  SAL.do('L4', 'setProdMode', 'sprint');
+  scroll.calls.length = 0;
+
+  const quiet = (label, fn) => {
+    const before = scroll.calls.length;
+    fn();
+    ck(scroll.calls.length === before, label + (scroll.calls.length === before ? '' :
+      ' — уехало на ' + JSON.stringify(scroll.calls.slice(before))));
+  };
+
+  quiet('спринт: кнопка ↺ «Начать сначала» не прокручивает страницу',
+    () => SAL.do('L4', 'sprintRestart'));
+  quiet('спринт: ↺ на финальном экране (restart + sprintRestart) не прокручивает',
+    () => SAL.do('L4', 'restart', 'sprintRestart'));
+  quiet('микрофон: ↺ не прокручивает', () => SAL.do('L4', 'micRestart'));
+  quiet('«Что пропало?»: ↺ не прокручивает', () => SAL.do('L4', 'missingRestart'));
+  quiet('Practice: ↺ не прокручивает', () => SAL.do('L4', 'restart', 'masked'));
+  quiet('блок повторения: ↺ не прокручивает', () => {
+    SAL.do('L4', 'rcGame', 'memory', 0);
+    SAL.do('L4RC', 'restart', 'memory');
+  });
+
+  /* production-restart адресуется production-сцене, а не арене Practice */
+  SAL.do('L4', 'setProdMode', 'sprint');
+  scroll.calls.length = 0;
+  SAL.do('L4', 'sprintRestart');
+  ck(scroll.calls.length === 0, 'сцена рестарта — production, а не Practice (прокрутки нет)');
+
+  /* а переключение режима по-прежнему доводит сцену до экрана */
+  scroll.y = 0;
+  scroll.calls.length = 0;
+  SAL.do('L4', 'setProdMode', 'mic');
+  ck(scroll.calls.length === 1 && scroll.calls[0] === 2500 - 70 - 12,
+    'переключение режима Production по-прежнему прокручивает к своей сцене (' + JSON.stringify(scroll.calls) + ')');
+
+  /* рестарт спринта не должен сбивать Practice на первую игру */
+  SAL.do('L4', 'setGame', 'memory');
+  const practiceBefore = arenaOf('L4').innerHTML;
+  SAL.do('L4', 'restart', 'sprintRestart');
+  ck(arenaOf('L4').innerHTML === practiceBefore,
+    '«Начать сначала» в спринте не переключает Practice на первую игру');
+  const activeTabs = Array.from(win.document.getElementById('view-lesson' + SAL.lessons.L4.num)
+    .querySelectorAll('.practice-tab-btn[data-game].active'));
+  ck(activeTabs.length === 1 && activeTabs[0].getAttribute('data-game') === 'memory',
+    'после рестарта спринта вкладка Practice остаётся «Мемори»');
+
+  /* и сам спринт действительно начинается заново */
+  const sp = SAL.lessons.L4._st.prod.sprint;
+  ck(sp.i === 0 && sp.score === 0 && !sp.finished,
+    'рестарт спринта обнуляет индекс и счёт');
+
+  win.Element.prototype.getBoundingClientRect = realRect;
+  win.scrollTo = realScrollTo;
+  if (realOffset) Object.defineProperty(win, 'pageYOffset', realOffset);
+  else delete win.pageYOffset;
+  if (realInner) Object.defineProperty(win, 'innerHeight', realInner);
+  SAL.openLesson('L4');
+}
+
 console.log(errs.length ? '\nJS ERRORS: ' + errs.slice(0, 5).join(' | ') : '\nJS-ошибок нет');
 console.log(bad === 0 && errs.length === 0 ? 'ALL CHECKS PASSED' : bad + ' FAILURES');
 process.exit(bad || errs.length ? 1 : 0);
