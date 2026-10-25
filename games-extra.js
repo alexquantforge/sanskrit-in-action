@@ -304,16 +304,20 @@
       : '<button type="button" class="chip-btn" style="background:#16a34a;border-color:#16a34a;color:#fff;"' +
         call(cfg, 'snowGrade', '1') + '>✓ ' + tx({ ru: 'Вспомнил все', en: 'Remembered all' }) + '</button>' +
         chip(cfg, 'snowReveal', '', '👁 ' + tx({ ru: 'Показать', en: 'Show' }));
+    var duoS = players(cfg) === 2;
     return K.topBar(
-      K.pill(tx({ ru: 'Цепочка', en: 'Chain' }) + ': ' + g.step + ' / ' + N) + ' ' +
-        K.pill(ru('Score', 'Счёт') + ': ' + g.score),
+      (duoS ? scorePills(cfg, g) + ' ' : '') +
+      K.pill(tx({ ru: 'Цепочка', en: 'Chain' }) + ': ' + g.step + ' / ' + N) +
+        (duoS ? '' : ' ' + K.pill(ru('Score', 'Счёт') + ': ' + g.score)),
       restartChip(cfg, 'snowball')) +
       K.centerCard(
         '<div class="vocab-grid-6" style="margin-bottom:1rem;">' + cards + '</div>' +
         '<div style="display:flex;justify-content:center;gap:0.55rem;flex-wrap:wrap;">' + controls + '</div>' +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           tx({ ru: 'Назовите всю цепочку по памяти: сначала первое слово, потом первое и второе, и так далее. Каждый шаг добавляет одно слово.',
-               en: 'Say the whole chain from memory: first one word, then two, then three. Each step adds one word.' }) + '</div>');
+               en: 'Say the whole chain from memory: first one word, then two, then three. Each step adds one word.' }) +
+          (duoS ? '<br/>' + tx({ ru: 'Цепочку называет по очереди: один говорит — другой проверяет и нажимает ✓ или ✕.',
+                                 en: 'The chain is recited in turn: one says it, the other checks and presses ✓ or ✕.' }) : '') + '</div>');
   }
 
   /* ============================================================= 17. DRIP */
@@ -595,22 +599,26 @@
   SAL.addGame('snowball', {
     labelRu: 'Снежный ком (цепочка)',
     labelEn: 'Snowball (chain)',
-    init: function () { return { step: 1, revealed: false, score: 0, finished: false }; },
+    init: function () { return { step: 1, revealed: false, score: 0, finished: false, scores: [0, 0], turn: 0 }; },
     render: renderSnowball,
     actions: {
       snowReveal: function (cfg) { K.gst(cfg, 'snowball').revealed = true; },
       snowGrade: function (cfg, st, a) {
         var g = K.gst(cfg, 'snowball');
-        if (a === '1') g.score++;
-        else {
+        if (a === '1') {
+          g.score++;
+          if (players(cfg) === 2) award(g, g.turn);
+        } else {
           cfg.words.slice(0, g.step).forEach(function (w) { K.noteWrong(cfg, w.id); });
         }
         g.step++; g.revealed = false;
+        if (players(cfg) === 2) swapTurn(g);
         if (g.step > cfg.words.length) g.finished = true;
       },
       snowNext: function (cfg) {
         var g = K.gst(cfg, 'snowball');
         g.step++; g.revealed = false;
+        if (players(cfg) === 2) swapTurn(g);
         if (g.step > cfg.words.length) g.finished = true;
       }
     }
@@ -801,7 +809,9 @@
           K.cellName(idx, cols) + '</span>') + '</button>';
     }).join('');
     var askW = g.ask === null ? null : byId(cfg, g.cards[g.ask]);
+    var duoB = players(cfg) === 2;
     return K.topBar(
+      (duoB ? scorePills(cfg, g) + ' ' : '') +
       K.pill(tx({ ru: 'Клеток угадано', en: 'Squares named' }) + ': ' + g.score + '/' + g.cards.length) + ' ' +
         K.pill(g.phase === 'show' ? tx({ ru: 'Запоминайте…', en: 'Memorise…' }) : tx({ ru: 'Что в клетке', en: 'What is in' }) +
           ' ' + (g.ask === null ? '' : K.cellName(g.ask, cols) + '?')),
@@ -822,7 +832,9 @@
           : '') +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           tx({ ru: 'Поле открыто 2,5 секунды, затем закрыто. Назовите, что спрятано в названной клетке.',
-               en: 'The board shows for 2.5 seconds, then closes. Name what hides in the square you are asked about.' }) + '</div>');
+               en: 'The board shows for 2.5 seconds, then closes. Name what hides in the square you are asked about.' }) +
+          (duoB ? '<br/>' + tx({ ru: 'Отвечает по очереди: вопрос — одному, следующий — другому.',
+                                 en: 'Turns alternate: one question for each student.' }) : '') + '</div>');
   }
 
   /* ======================================================== 23. BATTLESHIP */
@@ -1924,7 +1936,8 @@
     labelEn: 'Blind Board (who is in the square?)',
     init: function () {
       return { cards: null, phase: 'show', i: 0, ask: null, done: {},
-               answered: false, picked: null, score: 0, finished: false };
+               answered: false, picked: null, score: 0, finished: false,
+               scores: [0, 0], turn: 0 };
     },
     render: renderBlindBoard,
     actions: {
@@ -1934,13 +1947,17 @@
         if (g.answered || g.ask === null) return;
         var id = g.cards[g.ask];
         g.answered = true; g.picked = a;
-        if (a === id) { g.score++; g.done[g.ask] = true; SAL.speak(byId(cfg, id).ttsText); }
+        if (a === id) {
+          g.score++; g.done[g.ask] = true; SAL.speak(byId(cfg, id).ttsText);
+          if (players(cfg) === 2) award(g, g.turn);
+        }
         else K.noteWrong(cfg, id);
       },
       blindNext: function (cfg) {
         var g = K.gst(cfg, 'blindboard');
         g.i++; g.ask = null; g.answered = false; g.picked = null;
         if (g.i >= g.cards.length) g.finished = true;
+        else if (players(cfg) === 2) swapTurn(g);
       }
     }
   });
@@ -2586,11 +2603,26 @@
   };
   Object.keys(RULES_EXTRA).forEach(function (k) { SAL.addRules(k, RULES_EXTRA[k]); });
 
+  /* ==========================================================================
+     КАКИЕ ИГРЫ УМЕЮТ ДВОИХ
+     --------------------------------------------------------------------------
+     Переключатель 👤/👥 показывается только для этих игр — остальные честно
+     подписаны «для одного ученика», и кнопка у них не появляется.
+     ========================================================================== */
+  ['battleship', 'bingo', 'duel', 'describe', 'orderrelay',
+    'coopmemory', 'tictactoe', 'blindboard', 'snowball'].forEach(function (k) { SAL.addDuoGame(k); });
+
   /* engine-level switches used by the extra games */
   SAL.addAction('setPlayers', function (cfg, st, a) {
-    st.players = parseInt(a, 10) === 2 ? 2 : 1;
-    Object.keys(st.g).forEach(function (k) { delete st.g[k]; });
-    K.clearAfter();
+    var next = parseInt(a, 10) === 2 ? 2 : 1;
+    var was = st.players;
+    st.players = next;
+    /* прогресс стираем только у парной игры и только при реальной смене
+       режима: у соло-игры переключателя нет, и её очки терять нельзя */
+    if (SAL.isDuoGame(st.game) && was !== next) {
+      Object.keys(st.g).forEach(function (k) { delete st.g[k]; });
+      K.clearAfter();
+    }
   });
   SAL.addAction('toggleKey', function (cfg, st) { st.teacherKey = !st.teacherKey; });
   SAL.addAction('clearPile', function (cfg) { K.pileClear(cfg); });

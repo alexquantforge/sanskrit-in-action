@@ -2120,6 +2120,16 @@ body.hide-iast .level-sample-iast {
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-md);
 }
+/* 👤/👥 показываются только у парных игр (см. SAL.isDuoGame) */
+.players-toggle {
+  display: inline-flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.practice-extra-note.solo-note {
+  font-weight: 600;
+  color: var(--accent-cambridge);
+}
 .practice-extra-note {
   font-size: 0.78rem;
   color: var(--text-secondary);

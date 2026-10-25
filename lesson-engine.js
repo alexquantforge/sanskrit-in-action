@@ -390,25 +390,57 @@ var SAL = (window.SAL = window.SAL || {});
       '" data-i18n-en="' + enHtml + '">' + (L() === 'ru' ? ruHtml : enHtml) + '</div>';
   }
 
+  /* ==========================================================================
+     РЕЖИМ «2 УЧЕНИКА»
+     --------------------------------------------------------------------------
+     Двух учеников поддерживают не все игры: базовые memory и match плюс те,
+     что регистрируются из games-extra.js через SAL.addDuoGame(key). Для
+     остальных переключатель 👥 не показывается — иначе кнопка обещает режим,
+     которого в игре нет (а setPlayers ещё и стирал прогресс).
+     ========================================================================== */
+  var DUO_GAMES = { memory: true, match: true };
+  SAL.addDuoGame = function (k) { if (k) DUO_GAMES[k] = true; };
+  SAL.isDuoGame = function (k) { return !!DUO_GAMES[k]; };
+  SAL.duoGames = function () { return Object.keys(DUO_GAMES); };
+
+  /* счёт на двоих: «1 — n 2 — n Ход: 1» */
+  function duoScorePills(g) {
+    return pill('1 — ' + (g.scores && g.scores[0] || 0)) + ' ' +
+      pill('2 — ' + (g.scores && g.scores[1] || 0)) + ' ' +
+      pill(ru('Turn', 'Ход') + ': ' + ((g.turn || 0) + 1));
+  }
+  /* ход переходит другому; при верном ответе по умолчанию остаётся у игрока */
+  function duoSwap(g) { g.turn = g.turn ? 0 : 1; }
+  function duoAward(g, i) {
+    if (!g.scores) g.scores = [0, 0];
+    g.scores[i] = (g.scores[i] || 0) + 1;
+  }
+
   /* Who is playing (one student / a pair) and the teacher answer key */
   function extraBarHtml(cfg) {
     var st = state(cfg);
     return '<div class="practice-extra-bar">' +
       '<span class="game-score-pill" data-i18n-ru="Кто играет" data-i18n-en="Who plays">' +
         tx({ ru: 'Кто играет', en: 'Who plays' }) + '</span>' +
-      '<button type="button" class="chip-btn' + (st.players === 1 ? ' active' : '') + '" data-players="1"' +
-        ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'1\')">👤 ' +
-        tx({ ru: '1 ученик', en: '1 student' }) + '</button>' +
-      '<button type="button" class="chip-btn' + (st.players === 2 ? ' active' : '') + '" data-players="2"' +
-        ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'2\')">👥 ' +
-        tx({ ru: '2 ученика', en: '2 students' }) + '</button>' +
+      '<span class="players-toggle" id="' + cfg.key + '-players-toggle">' +
+        '<button type="button" class="chip-btn' + (st.players === 1 ? ' active' : '') + '" data-players="1"' +
+          ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'1\')">👤 ' +
+          tx({ ru: '1 ученик', en: '1 student' }) + '</button>' +
+        '<button type="button" class="chip-btn' + (st.players === 2 ? ' active' : '') + '" data-players="2"' +
+          ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'2\')">👥 ' +
+          tx({ ru: '2 ученика', en: '2 students' }) + '</button>' +
+      '</span>' +
+      '<span class="practice-extra-note solo-note" id="' + cfg.key + '-solo-note"' +
+        ' data-i18n-ru="👤 Эта игра — для одного ученика."' +
+        ' data-i18n-en="👤 This game is for one student.">' +
+        tx({ ru: '👤 Эта игра — для одного ученика.', en: '👤 This game is for one student.' }) + '</span>' +
       '<button type="button" class="chip-btn' + (st.teacherKey ? ' active' : '') + '" data-key="1"' +
         ' onclick="SAL.do(\'' + cfg.key + '\',\'toggleKey\')">🔑 ' +
         tx({ ru: 'Ключ учителя', en: 'Answer key' }) + '</button>' +
-      '<span class="practice-extra-note" data-i18n-ru="🔑 показывает ответ: ученик-«учитель» проверяет напарника. 👥 — игры для двоих: ход передаётся по очереди."' +
-        ' data-i18n-en="🔑 reveals the answer so the student acting as teacher can check a partner. 👥 — pair games: turns alternate.">' +
-        tx({ ru: '🔑 показывает ответ: ученик-«учитель» проверяет напарника. 👥 — игры для двоих: ход передаётся по очереди.',
-             en: '🔑 reveals the answer so the student acting as teacher can check a partner. 👥 — pair games: turns alternate.' }) +
+      '<span class="practice-extra-note" data-i18n-ru="🔑 показывает ответ: ученик-«учитель» проверяет напарника. 👥 есть только у парных игр — там ход передаётся по очереди; у остальных кнопки нет."' +
+        ' data-i18n-en="🔑 reveals the answer so the student acting as teacher can check a partner. 👥 appears only in pair games, where turns alternate; solo games show no toggle.">' +
+        tx({ ru: '🔑 показывает ответ: ученик-«учитель» проверяет напарника. 👥 есть только у парных игр — там ход передаётся по очереди; у остальных кнопки нет.',
+             en: '🔑 reveals the answer so the student acting as teacher can check a partner. 👥 appears only in pair games, where turns alternate; solo games show no toggle.' }) +
       '</span></div>';
   }
 
@@ -788,8 +820,8 @@ var SAL = (window.SAL = window.SAL || {});
           ['<strong>4. Волна 3 — Память без подсказок (Игры 6, 7, 10 → 1, 2 · 6 мин):</strong><br/><strong>6. Match Pairs</strong>, <strong>7. Мемори</strong>, <strong>10. Категории</strong>, финал — <strong>1. Закрыто квадратом ■</strong> и <strong>2. Flashcards</strong> до результата ' + N + '/' + N + '.',
            '<strong>4. Wave 3 — Unprompted Recall (Games 6, 7, 10 → 1, 2 · 6 min):</strong><br/><strong>6. Match Pairs</strong>, <strong>7. Classic Memory</strong>, <strong>10. Categories</strong>, then finish with <strong>1. Covered Square ■</strong> and <strong>2. Flashcards</strong> up to ' + N + '/' + N + '.']
         ].concat((cfg.extraGames && cfg.extraGames.length) ? [
-          ['<strong>5. Игры 13+ — соло и в паре (по выбору преподавателя):</strong><br/>Соло: <strong>13. Горячая карточка</strong> (серия, 3 жизни), <strong>14. Копилка ошибок</strong> (повтор только того, что ученик пропустил), <strong>15. Минимальные пары на слух</strong>, <strong>19. Напиши сам</strong>. В паре (переключатель 👥): <strong>23. Морской бой</strong>, <strong>25. Дуэль</strong>, <strong>26. Диктор и ученик</strong>. Финальный дрилль: <strong>30. Филворд 10 × 10</strong>.',
-           '<strong>5. Games 13+ — solo and pair work (pick what fits):</strong><br/>Solo: <strong>13. Hot Cards</strong> (streak, 3 lives), <strong>14. Mistake Pile</strong> (recycling only what this student missed), <strong>15. Minimal Pairs by Ear</strong>, <strong>19. Type It</strong>. In pairs (toggle 👥): <strong>23. Battleship</strong>, <strong>25. Duel</strong>, <strong>26. Describe &amp; Guess</strong>. Final drill: <strong>30. Word Grid 10 × 10</strong>.']
+          ['<strong>5. Игры 13+ — соло и в паре (по выбору преподавателя):</strong><br/>Соло: <strong>13. Горячая карточка</strong> (серия, 3 жизни), <strong>14. Копилка ошибок</strong> (повтор только того, что ученик пропустил), <strong>15. Минимальные пары на слух</strong>, <strong>19. Напиши сам</strong>. В паре (переключатель 👥 есть только у парных игр): <strong>6. Match Pairs</strong>, <strong>7. Мемори</strong>, <strong>16. Снежный ком</strong>, <strong>22. Слепое поле</strong>, <strong>23. Морской бой</strong>, <strong>24. Бинго</strong>, <strong>25. Дуэль</strong>, <strong>26. Диктор и ученик</strong>, <strong>27. Эстафета</strong>, <strong>28. Мемори вдвоём</strong>, <strong>29. Крестики-нолики</strong>. Финальный дрилль: <strong>30. Филворд 10 × 10</strong>.',
+           '<strong>5. Games 13+ — solo and pair work (pick what fits):</strong><br/>Solo: <strong>13. Hot Cards</strong> (streak, 3 lives), <strong>14. Mistake Pile</strong> (recycling only what this student missed), <strong>15. Minimal Pairs by Ear</strong>, <strong>19. Type It</strong>. In pairs (the 👥 toggle appears only in pair games): <strong>6. Match Pairs</strong>, <strong>7. Memory</strong>, <strong>16. Snowball</strong>, <strong>22. Blind Board</strong>, <strong>23. Battleship</strong>, <strong>24. Bingo</strong>, <strong>25. Duel</strong>, <strong>26. Describe &amp; Guess</strong>, <strong>27. Order Relay</strong>, <strong>28. Co-op Memory</strong>, <strong>29. Tic-tac-toe</strong>. Final drill: <strong>30. Word Grid 10 × 10</strong>.']
         ] : [])) +
 
       (((cfg.extraGames && cfg.extraGames.length) ? extraBarHtml(cfg) : '')) +
@@ -1032,8 +1064,8 @@ var SAL = (window.SAL = window.SAL || {});
     gaps: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     picquiz: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     wordquiz: function () { return { i: 0, score: 0, answered: false, picked: null, options: null, firstTry: true, redPick: null, finished: false }; },
-    match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, failed: {}, score: 0, done: false, tiles: null }; },
-    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length }; },
+    match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, failed: {}, score: 0, done: false, tiles: null, scores: [0, 0], turn: 0 }; },
+    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length, scores: [0, 0], turn: 0 }; },
     wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     categories: function () { return { i: 0, score: 0, sel: {}, wrong: {}, firstTry: true, checked: false, finished: false }; },
@@ -1243,9 +1275,14 @@ var SAL = (window.SAL = window.SAL || {});
     var chunks = matchChunks(cfg);
     if (g.done || g.stage >= chunks.length) {
       var failed = Object.keys(g.failed).length;
+      var duoFin = SAL.isDuoGame('match') && st.players === 2;
       return finalScreen(cfg, 'match', ru('Match Pairs — done!', 'Match Pairs — пройдено!'),
-        Math.max(1, cfg.words.length - failed), cfg.words.length,
-        failed ? ru('Mistakes', 'Ошибок') + ': ' + failed : '');
+        duoFin ? Math.max(g.scores[0], g.scores[1]) : Math.max(1, cfg.words.length - failed), cfg.words.length,
+        (duoFin ? '1 — ' + g.scores[0] + ' · 2 — ' + g.scores[1] + (g.scores[0] === g.scores[1]
+          ? ' · ' + ru('draw', 'ничья')
+          : ' · ' + ru('student ' + (g.scores[0] > g.scores[1] ? 1 : 2) + ' wins',
+                       'победил ученик ' + (g.scores[0] > g.scores[1] ? 1 : 2))) : '') +
+        (failed ? (duoFin ? ' · ' : '') + ru('Mistakes', 'Ошибок') + ': ' + failed : ''));
     }
     var words = chunks[g.stage];
     if (!g.tiles) {
@@ -1270,7 +1307,10 @@ var SAL = (window.SAL = window.SAL || {});
     }).join('');
     var matchedCount = Object.keys(g.matched).length;
     var stageDone = words.every(function (w) { return g.matched[w.id]; });
-    return topBar(pill(ru('Stage', 'Этап') + ' ' + (g.stage + 1) + '/' + chunks.length) + ' ' +
+    var duoM = SAL.isDuoGame('match') && st.players === 2;
+    return topBar(
+      (duoM ? duoScorePills(g) + ' ' : '') +
+      pill(ru('Stage', 'Этап') + ' ' + (g.stage + 1) + '/' + chunks.length) + ' ' +
       pill(matchedCount + ' / ' + cfg.words.length),
       chip(cfg, 'restart', 'match', '↺')) +
       centerCard(
@@ -1289,6 +1329,11 @@ var SAL = (window.SAL = window.SAL || {});
           ? '<div style="margin-top:1rem;">' +
             '<button type="button" class="btn btn-primary" style="padding:0.5rem 1.2rem;font-size:0.9rem;" onclick="SAL.do(\'' + cfg.key + '\',\'matchNext\')">' +
             (g.stage + 1 < chunks.length ? ru('Next stage →', 'Следующий этап →') : ru('Finish ✓', 'Завершить ✓')) + '</button></div>'
+          : '') +
+        (duoM
+          ? '<div class="game-hint" style="margin-top:0.85rem;">' +
+            ru('Turns alternate: a matched pair keeps your turn, a miss passes it on.',
+               'Ходят по очереди: нашёл пару — ход остаётся, не совпало — ход переходит.') + '</div>'
           : '')
       );
   }
@@ -1328,8 +1373,10 @@ var SAL = (window.SAL = window.SAL || {});
       return '<button type="button" class="memory-card ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'tile\',\'' + idx + '\')">' +
         (flipped ? inner : back) + '</button>';
     }).join('');
-    return topBar(pill(ru('Pairs', 'Пары') + ': ' + matchedPairs + '/' + g.size) + ' ' + pill(ru('Moves', 'Ходов') + ': ' + g.moves) +
-      ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
+    var duoMem = SAL.isDuoGame('memory') && st.players === 2;
+    return topBar((duoMem ? duoScorePills(g) + ' ' : '') +
+      pill(ru('Pairs', 'Пары') + ': ' + matchedPairs + '/' + g.size) + ' ' + pill(ru('Moves', 'Ходов') + ': ' + g.moves) +
+      (duoMem ? '' : ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score)),
       chip(cfg, 'memorySize', String(cfg.words.length), cfg.words.length + ' × 2 (' + cfg.words.length * 2 + ')', g.size >= cfg.words.length) +
       chip(cfg, 'memorySize', String(Math.max(3, Math.ceil(cfg.words.length / 2))),
         Math.max(3, Math.ceil(cfg.words.length / 2)) + ' × 2 (' + Math.max(3, Math.ceil(cfg.words.length / 2)) * 2 + ')', g.size < cfg.words.length) +
@@ -1340,7 +1387,9 @@ var SAL = (window.SAL = window.SAL || {});
           '</div>' : '') +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);text-align:center;">' +
         ru('Name the card by its square — the letter is the row, the number is the column (for example <strong>b2</strong>).',
-           'Называйте карточку по клетке: буква — ряд, цифра — столбец (например <strong>b2</strong>).') + '</div>');
+           'Называйте карточку по клетке: буква — ряд, цифра — столбец (например <strong>b2</strong>).') +
+        (duoMem ? '<br/>' + ru('Turns alternate: a matched pair keeps your turn, a miss passes it on.',
+                               'Ходят по очереди: нашёл пару — ход остаётся, не совпало — ход переходит.') : '') + '</div>');
   }
 
   /* Explain the exact mistake (Lesson 1 shows the correction on the card itself) */
@@ -1652,6 +1701,15 @@ var SAL = (window.SAL = window.SAL || {});
       pane.querySelectorAll('[data-key]').forEach(function (b) {
         b.classList.toggle('active', !!st.teacherKey);
       });
+      /* 👤/👥 — только у игр, где второй ученик действительно есть */
+      var duo = SAL.isDuoGame(st.game);
+      pane.querySelectorAll('[data-players]').forEach(function (b) {
+        b.style.display = duo ? '' : 'none';
+      });
+      var toggle = document.getElementById(cfg.key + '-players-toggle');
+      if (toggle) toggle.style.display = duo ? '' : 'none';
+      var soloNote = document.getElementById(cfg.key + '-solo-note');
+      if (soloNote) soloNote.style.display = duo ? 'none' : '';
     }
     var arena = document.getElementById(cfg.key + '-practice-arena');
     if (!arena) return;
@@ -2307,8 +2365,11 @@ var SAL = (window.SAL = window.SAL || {});
         if (g.sel === null) { g.sel = idx; g.wrong = null; return; }
         if (g.sel === idx) { g.sel = null; return; }
         var a1 = g.tiles[g.sel], b1 = g.tiles[idx];
+        var duoMatch = st.players === 2;
         if (a1.kind !== b1.kind && a1.id === b1.id) {
           g.matched[a1.id] = true; g.sel = null; g.wrong = null;
+          if (!g.scores) g.scores = [0, 0];
+          if (duoMatch) duoAward(g, g.turn || 0);
           SAL.speak(byId(cfg, a1.id).ttsText);
           var chunkNow = matchChunks(cfg)[g.stage] || [];
           var stageDone = chunkNow.every(function (w) { return g.matched[w.id]; });
@@ -2319,6 +2380,7 @@ var SAL = (window.SAL = window.SAL || {});
         } else {
           g.failed[a1.id] = true; noteWrong(cfg, a1.id);
           g.wrong = [g.sel, idx]; g.sel = null;
+          if (duoMatch) { if (!g.scores) g.scores = [0, 0]; duoSwap(g); }
         }
       } else { /* memory */
         if (g.lock) return;
@@ -2327,13 +2389,16 @@ var SAL = (window.SAL = window.SAL || {});
         if (g.flipped.length < 2) return;
         g.moves++;
         var c1 = g.cards[g.flipped[0]], c2 = g.cards[g.flipped[1]];
+        var duoMemT = st.players === 2;
         if (c1.kind !== c2.kind && c1.id === c2.id) {
           g.matched[c1.id] = true; g.score++; g.flipped = [];
+          if (duoMemT) duoAward(g, g.turn || 0);
           SAL.speak(byId(cfg, c1.id).ttsText);
         } else {
           if (g.seen[c1.id]) g.failed[c1.id] = true;
           g.seen[c1.id] = true; g.seen[c2.id] = true;
           noteWrong(cfg, c1.id);
+          if (duoMemT) duoSwap(g);
           g.wrong = g.flipped.slice(); g.lock = true;
           setTimeout(function () {
             var gg = gst(cfg, 'memory');

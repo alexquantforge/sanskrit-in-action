@@ -1123,7 +1123,9 @@ console.log('\n===== Новые игры (games-extra.js) =====');
 const EXTRA = ['hotcards', 'retry', 'echo', 'snowball', 'drip', 'anagram', 'typein', 'sorting',
   'flashcount', 'blindboard', 'battleship', 'bingo', 'duel', 'describe', 'orderrelay',
   'coopmemory', 'tictactoe', 'wordgrid', 'wordsearch'];
-const PAIR = ['battleship', 'bingo', 'duel', 'describe', 'orderrelay', 'coopmemory', 'tictactoe'];
+/* игры с режимом «2 ученика»: семь прежних + memory, match, blindboard, snowball */
+const PAIR = ['battleship', 'bingo', 'duel', 'describe', 'orderrelay', 'coopmemory', 'tictactoe',
+  'memory', 'match', 'blindboard', 'snowball'];
 const L4 = SAL.lessons.L4;
 const clean = h => !/undefined|NaN|\[object Object\]/.test(h);
 const openL4 = () => { SAL.openLesson('L4'); return arenaOf('L4'); };
@@ -2098,6 +2100,128 @@ SAL.speak(L4.words.filter(w => w.deva === 'पञ्च')[0].ttsText);
 ck(heard[heard.length - 1] === 'पञ्चा', 'слово урока тоже озвучивается с конечной ा');
 win.speechSynthesis = realSynth;
 win.SpeechSynthesisUtterance = realUtter;
+
+/* ==========================================================================
+   Режим «2 ученика»: честный переключатель + четыре новые парные игры
+   --------------------------------------------------------------------------
+   Раньше 👥 показывался над всеми играми, хотя второй ученик был только в 7,
+   а нажатие стирало прогресс соло-игры. Теперь переключатель виден лишь там,
+   где режим действительно есть (11 игр), у остальных — подпись «для одного».
+   ========================================================================== */
+console.log('\n===== Режим «2 ученика» =====');
+{
+  const DUO_EXPECT = ['battleship', 'bingo', 'duel', 'describe', 'orderrelay',
+    'coopmemory', 'tictactoe', 'memory', 'match', 'blindboard', 'snowball'].sort();
+  ck(SAL.duoGames().sort().join() === DUO_EXPECT.join(),
+    'парных игр ровно 11: ' + SAL.duoGames().length + ' (7 прежних + memory, match, blindboard, snowball)');
+
+  /* переключатель виден только у парных игр, у соло — подпись */
+  SAL.openLesson('L4');
+  const gamesL4 = Array.from(win.document.getElementById('view-lesson6')
+    .querySelectorAll('.practice-tab-btn[data-game]')).map(b => b.getAttribute('data-game'));
+  const shownBad = [];
+  gamesL4.forEach(g => {
+    SAL.do('L4', 'setGame', g);
+    const toggle = win.document.getElementById('L4-players-toggle');
+    const note = win.document.getElementById('L4-solo-note');
+    const shown = toggle && toggle.style.display !== 'none';
+    const noteShown = note && note.style.display !== 'none';
+    if (shown !== SAL.isDuoGame(g)) shownBad.push(g + ' (путаница)');
+    if (noteShown === SAL.isDuoGame(g)) shownBad.push(g + ' (подпись не там)');
+  });
+  ck(shownBad.length === 0, '👤/👥 виден ровно у парных игр, у соло — «эта игра для одного ученика»' +
+    (shownBad.length ? ' — ' + shownBad.join(', ') : ''));
+  const soloCount = gamesL4.filter(g => !SAL.isDuoGame(g)).length;
+  ck(soloCount === gamesL4.length - 11, 'соло-игр в уроке 6: ' + soloCount + ' из ' + gamesL4.length);
+
+  /* в уроках 1–4 есть match и memory, поэтому переключатель доступен и там */
+  SAL.openLesson('L2');
+  SAL.do('L2', 'setGame', 'memory');
+  ck(win.document.getElementById('L2-players-toggle').style.display !== 'none',
+    'урок 1: у «Мемори» переключатель есть (парная игра)');
+  SAL.do('L2', 'setGame', 'gaps');
+  ck(win.document.getElementById('L2-players-toggle').style.display === 'none',
+    'урок 1: у «Пропусков» переключателя нет (соло)');
+
+  /* прогресс соло-игры не стирается */
+  SAL.do('L2', 'setPlayers', '1');
+  SAL.do('L2', 'setGame', 'gaps');
+  const gGaps = SAL.lessons.L2._st.g.gaps;
+  gGaps.score = 4; gGaps.i = 2;
+  SAL.do('L2', 'setPlayers', '2');
+  ck(gGaps.score === 4 && gGaps.i === 2,
+    'соло-игра не теряет прогресс при переключении «Кто играет»');
+
+  /* смена режима в парной игре начинает её заново */
+  SAL.openLesson('L4');
+  SAL.do('L4', 'setGame', 'memory');
+  SAL.do('L4', 'setPlayers', '2');
+  const mem = SAL.lessons.L4._st.g.memory;
+  ck(mem.scores.join() === '0,0' && mem.turn === 0, '«2 ученика»: у «Мемори» свой счёт и первый ход');
+
+  /* --- Мемори вдвоём: нашёл пару — очко и ход остаётся, промах — ход переходит --- */
+  const findPair = (cards, same) => {
+    for (let i = 0; i < cards.length; i++) for (let j = i + 1; j < cards.length; j++) {
+      const okId = same ? cards[i].id === cards[j].id : cards[i].id !== cards[j].id;
+      const okKind = cards[i].kind !== cards[j].kind || !same;
+      if (okId && okKind && !mem.matched[cards[i].id] && !mem.matched[cards[j].id]) return [i, j];
+    }
+    return [-1, -1];
+  };
+  let [m1, m2] = findPair(mem.cards, true);
+  SAL.do('L4', 'tile', String(m1)); SAL.do('L4', 'tile', String(m2));
+  ck(mem.scores.join() === '1,0' && mem.turn === 0,
+    '«Мемори» вдвоём: пара приносит очко ученику 1, ход остаётся у него');
+  let [n1, n2] = findPair(mem.cards, false);
+  SAL.do('L4', 'tile', String(n1)); SAL.do('L4', 'tile', String(n2));
+  ck(mem.turn === 1, '«Мемори» вдвоём: промах передаёт ход ученику 2');
+
+  /* --- Match Pairs вдвоём --- */
+  SAL.do('L4', 'setPlayers', '2');
+  SAL.do('L4', 'setGame', 'match');
+  const mt = SAL.lessons.L4._st.g.match;
+  let [t1, t2] = [-1, -1];
+  for (let i = 0; i < mt.tiles.length; i++) for (let j = i + 1; j < mt.tiles.length; j++)
+    if (mt.tiles[i].id === mt.tiles[j].id && mt.tiles[i].kind !== mt.tiles[j].kind && t1 < 0) { t1 = i; t2 = j; }
+  SAL.do('L4', 'tile', String(t1)); SAL.do('L4', 'tile', String(t2));
+  ck(mt.scores.join() === '1,0' && mt.turn === 0, '«Match Pairs» вдвоём: пара — очко ученику 1, ход у него');
+  let [u1, u2] = [-1, -1];
+  for (let i = 0; i < mt.tiles.length; i++) for (let j = i + 1; j < mt.tiles.length; j++)
+    if (mt.tiles[i].id !== mt.tiles[j].id && u1 < 0 && !mt.matched[mt.tiles[i].id] && !mt.matched[mt.tiles[j].id]) { u1 = i; u2 = j; }
+  SAL.do('L4', 'tile', String(u1)); SAL.do('L4', 'tile', String(u2));
+  ck(mt.turn === 1, '«Match Pairs» вдвоём: промах передаёт ход');
+
+  /* --- Слепое поле вдвоём --- */
+  SAL.do('L4', 'setPlayers', '2');
+  SAL.do('L4', 'setGame', 'blindboard');
+  const bb = SAL.lessons.L4._st.g.blindboard;
+  bb.phase = 'ask'; bb.ask = 0;
+  SAL.do('L4', 'blindPick', bb.cards[0]);
+  ck(bb.scores[0] === 1, '«Слепое поле» вдвоём: верный ответ — очко отвечавшему');
+  SAL.do('L4', 'blindNext');
+  ck(bb.turn === 1, '«Слепое поле» вдвоём: следующий вопрос — другому ученику');
+
+  /* --- Снежный ком вдвоём --- */
+  SAL.do('L4', 'setPlayers', '2');
+  SAL.do('L4', 'setGame', 'snowball');
+  const sn = SAL.lessons.L4._st.g.snowball;
+  SAL.do('L4', 'snowGrade', '1');
+  ck(sn.scores.join() === '1,0' && sn.turn === 1 && sn.step === 2,
+    '«Снежный ком» вдвоём: ✓ — очко говорившему, цепочку дальше называет второй');
+
+  /* --- соло: двое не просачиваются --- */
+  SAL.do('L4', 'setPlayers', '1');
+  SAL.do('L4', 'setGame', 'memory');
+  const soloPills = Array.from(win.document.getElementById('L4-practice-arena')
+    .querySelectorAll('.game-score-pill')).map(p => p.textContent.trim());
+  ck(!soloPills.some(t => /^Ход:|^1 — |^2 — /.test(t)),
+    '«Мемори» соло: плашек «1 — / 2 — / Ход» нет (' + soloPills.join(' · ') + ')');
+
+  const cssDuo = fs.readFileSync(path.join(REPO, 'styles.css'), 'utf8');
+  ck(/\.players-toggle\s*\{/.test(cssDuo) && /\.practice-extra-note\.solo-note\s*\{/.test(cssDuo),
+    'стили: обёртка переключателя и подпись «для одного» описаны');
+  SAL.openLesson('L4');
+}
 
 /* ==========================================================================
    «🙈 Скрыть подписи» действительно скрывает подписи — во всех режимах
