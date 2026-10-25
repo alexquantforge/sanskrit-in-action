@@ -93,11 +93,51 @@ sanskrit-in-action/
 цифра — это запись количества, а не перевод слова. Тесты следят за правилом в обе стороны:
 в уроках 6–7 на карточках только бусины, в уроках 8–11 — только цифры.
 
+### Типы уроков и цели (CELTA / DELTA)
+
+Все одиннадцать уроков проекта — **systems-уроки, подтип Vocabulary (Lexis)**: цель каждого —
+языковой материал, а не навык. Форма тоже системная: PPP (Presentation → Practice → Production).
+Skills-уроков (reading / listening / speaking / writing) в проекте пока нет: для них нужен
+аутентичный текст или запись и другая форма — PDP (pre- / while- / post-) или Test-Teach-Test.
+
+Цель формулируется по формуле и живёт в данных урока:
+
+```js
+aim: {
+  ru: {
+    main: "Ввести и отработать лексику шести основных цветов в контексте описания знакомых предметов и частей тела.",
+    subs: ["Уточнить разницу между नील и श्याम.", "Поставить произношение долгих гласных."]
+  },
+  en: {
+    main: "To introduce and practise lexis for six basic colours in the context of describing familiar objects and body parts.",
+    subs: ["To clarify the difference between नील (blue) and श्याम (storm-cloud dark blue).", …]
+  }
+}
+```
+
+- **main aim** — `To introduce / clarify / practise / review + материал + in the context of + тема`.
+  Материал назван конкретно, контекст обязателен: «to practise the Present Perfect» — плохая цель,
+  «to clarify and practise the Present Perfect for life experiences» — хорошая.
+- **subsidiary aims** — «другая половина»: в vocabulary-уроке это навык. У нас это почти всегда
+  произношение (придыхания, варги, долгота, висарга), устная речь (Production) и чтение
+  с поиском информации (филворд = scanning), реже слушание и письмо.
+- Цель — не активность и не «ученикам будет весело»: «to do a role-play» целью не является.
+
+Движок рисует цели дважды: плашкой **🎯 Цель урока** под описанием урока (тип урока, main aim,
+подцели списком) и первым блоком в **«Инструкции для преподавателя»** на стадии Presentation.
+Текст переводится вместе с интерфейсом (`data-i18n-*`), поэтому плашка есть в обеих версиях,
+RU и EN. Урок 5 (12 слов) — рукописная страница: его плашка размечена прямо в `index.html`
+(`#lesson1-lesson-aim`), а цели продублированы в `#teacher-guide-presentation`.
+Регресс проверяет, что у всех уроков есть цель и подцели, что они сформулированы инфинитивом
+с контекстом и что плашка не расходится с данными урока.
+
 ### Adding a New Lesson
 Lessons 2+ are **pure data** — no code changes are needed:
 
 1. Create `lessonN.js` with a single `SAL.registerLesson({ ... })` call (copy `lesson5.js` as a template:
-   it is the fullest one — numerals, `syll`, `decoys`, `sortFeatures`, `extraGames`). A lesson may also
+   it is the fullest one — numerals, `syll`, `decoys`, `sortFeatures`, `extraGames`). Declare the lesson
+   aim (`aim: { ru: { main, subs }, en: { main, subs } }`, see «Типы уроков и цели» above) — the engine
+   shows it under the lesson description and in the teacher's guide. A lesson may also
    declare `unionSprint: ["L2", "L3"]` to get a fifth production mode: one timed sprint over the words
    of the listed lessons (see «Спринт по двум урокам» above).
 2. Add `<script src="lessonN.js?v=N"></script>` to `index.html` before `app.js`, plus an empty

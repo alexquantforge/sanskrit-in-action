@@ -350,6 +350,25 @@ SAL.registerLesson({
   topicEn: "yellow, green, orange, brown, grey, pink",
   introRu: "Четвёртый урок продолжает цвета: <code>पीत</code> (жёлтый), <code>हरित</code> (зелёный), <code>नारङ्ग</code> (оранжевый), <code>कपिश</code> (коричневый), <code>धूसर</code> (серый), <code>पाटल</code> (розовый). Это полный близнец урока 3: те же игры и кнопки, только словарь новый. Различаем похожие: <code>पीत</code> — светло-жёлтый, лимонный, а <code>गौर</code> из урока 3 — пастельно-золотистый, янтарный. Новые цвета сразу работают как определения к словам уроков 1–2, а шесть цветов урока 3 возвращаются в блоке повторения.",
   introEn: "The fourth lesson carries on with colours: <code>पीत</code> (yellow), <code>हरित</code> (green), <code>नारङ्ग</code> (orange), <code>कपिश</code> (brown), <code>धूसर</code> (grey), <code>पाटल</code> (pink). It is a carbon copy of lesson 3 — the same games and buttons, only the word list is new. Keep similar colours apart: <code>पीत</code> is a pale lemon yellow, while <code>गौर</code> from lesson 3 is pastel amber gold. The new colours work straight away as attributes of the body and face words from lessons 1–2, and the six colours of lesson 3 come back in the recycling block.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Уточнить и отработать ещё шесть цветов в контексте описания частей тела и научить отличать पीत от गौर.",
+      subs: [
+        "Повторить шесть цветов урока 3 в тех же играх (блок повторения).",
+        "Ввести и отработать шесть сдвоенных слов «цвет + часть тела».",
+        "Поставить произношение ṭ, ṇ, ś и долгих гласных в новых словах."
+      ]
+    },
+    en: {
+      main: "To clarify and practise a further six colours in the context of describing body parts, and to help learners tell पीत from गौर.",
+      subs: [
+        "To review the six colours of lesson 3 through the same games (recycling block).",
+        "To introduce and practise six colour + body-part compounds.",
+        "To give practice in the pronunciation of ṭ, ṇ, ś and long vowels in the new words."
+      ]
+    }
+  },
   /* Цвет нельзя «показать у себя» — поэтому жеста в этом уроке нет, а заголовок
      Production называет только то, что нужно сделать: назвать слова вслух. */
   gestureRu: "",

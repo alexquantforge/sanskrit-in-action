@@ -19,6 +19,25 @@ SAL.registerLesson({
   topicEn: "sixty, seventy, eighty, ninety, one hundred",
   introRu: "Одиннадцатый урок: десятки от шестидесяти до ста — <code>षष्टिः</code>, <code>सप्ततिः</code>, <code>अशीतिः</code>, <code>नवतिः</code>, <code>शतम्</code>. Четыре из них кончаются на <code>-तिः</code> с висаргой, а «сто» — слово среднего рода на <code>-म्</code>. Количество показывают арабские цифры: перевода по-прежнему нет.",
   introEn: "The eleventh lesson: the tens from sixty to a hundred — <code>ṣaṣṭiḥ</code>, <code>saptatiḥ</code>, <code>aśītiḥ</code>, <code>navatiḥ</code>, <code>śatam</code>. Four of them end in <code>-tiḥ</code> with a visarga, while “hundred” is a neuter word in <code>-m</code>. Quantity is shown by Arabic digits: still no translation.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать десятки 60–100 в контексте счёта круглыми числами и уточнить -तिः в противопоставлении शतम्.",
+      subs: [
+        "Уточнить четыре формы на -तिः в противопоставлении शतम् на -म्.",
+        "Поставить произношение ṣ и ś в षष्टिः, सप्ततिः и अशीतिः.",
+        "Дать свободную устную практику со всеми десятью числительными прошлых уроков."
+      ]
+    },
+    en: {
+      main: "To introduce and practise the tens 60–100 in the context of counting in round numbers, and to clarify -तिः against शतम्.",
+      subs: [
+        "To clarify the four -तिः forms against शतम् in -म्.",
+        "To give practice in the pronunciation of ṣ and ś in षष्टिः, सप्ततिः and अशीतिः.",
+        "To provide fluency practice with all ten numerals of the previous lessons."
+      ]
+    }
+  },
   gestureRu: "хлопните в ладоши столько раз, сколько десятков",
   gestureEn: "clap once for every ten",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",

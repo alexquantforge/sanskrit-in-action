@@ -196,6 +196,27 @@ SAL.registerLesson({
   topicEn: "white, black, red, blue, storm-cloud dark blue, golden",
   introRu: "Третий урок — шесть цветов: <code>श्वेत</code> (белый), <code>कृष्ण</code> (чёрный), <code>रक्त</code> (красный), <code>नील</code> (синий), <code>श्याम</code> (тёмно-синий, цвет грозовой тучи), <code>गौर</code> (золотистый, светлый). Слова короткие, поэтому тренируем точность: долгота гласной (<code>नील</code> / <code>निल</code>), придыхание и варга (<code>कृष्ण</code>). Цвета сразу работают как определения к знакомым словам уроков 1–2.",
   introEn: "The third lesson brings six colours: <code>श्वेत</code> (white), <code>कृष्ण</code> (black), <code>रक्त</code> (red), <code>नील</code> (blue), <code>श्याम</code> (storm-cloud dark blue), <code>गौर</code> (golden, fair). The words are short, so the focus is precision: vowel length (<code>नील</code> / <code>निल</code>) and aspiration and varga (<code>कृष्ण</code>). The colours work straight away as attributes of the body and face words from lessons 1–2.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать лексику шести основных цветов в контексте описания знакомых предметов и частей тела.",
+      subs: [
+        "Уточнить разницу между नील (синий) и श्याम (тёмно-синий, цвет грозовой тучи).",
+        "Поставить произношение долгих гласных и придыхательных согласных.",
+        "Дать более свободную устную практику: назвать цвета вслух без письменной опоры.",
+        "Показать модель сложных слов «цвет + часть тела» на примере गौर-शीर्ष."
+      ]
+    },
+    en: {
+      main: "To introduce and practise lexis for six basic colours in the context of describing familiar objects and body parts.",
+      subs: [
+        "To clarify the difference between नील (blue) and श्याम (storm-cloud dark blue).",
+        "To give practice in the pronunciation of long vowels and aspirated consonants.",
+        "To provide freer speaking practice by naming the colours aloud with no written support.",
+        "To raise awareness of noun + noun compounds through colour + body part (गौर-शीर्ष)."
+      ]
+    }
+  },
   /* Цвет нельзя «показать у себя» — поэтому жеста в этом уроке нет, а заголовок
      Production называет только то, что нужно сделать: назвать слова вслух. */
   gestureRu: "",

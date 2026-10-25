@@ -1037,6 +1037,86 @@ console.log('\n===== Урок 4: ещё цвета =====');
 }
 
 /* ==========================================================================
+   ЦЕЛИ УРОКОВ · CELTA: main aim + subsidiary aims
+   ========================================================================== */
+console.log('\n===== Цели уроков (main aim / subsidiary aims) =====');
+{
+  const KEYS = ['L2', 'L3', 'LC', 'LC2', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
+  const NO_AIM = [], BAD = [];
+  KEYS.forEach(k => {
+    const a = SAL.lessons[k].aim;
+    if (!a || !a.ru || !a.en || !a.ru.main || !a.en.main || !a.ru.subs || !a.en.subs) { NO_AIM.push(k); return; }
+    if (a.ru.subs.length !== a.en.subs.length || a.ru.subs.length < 2) BAD.push(k + ': подцели разной длины');
+    /* systems-урок формулируется инфинитивом: To introduce / clarify / practise / review … */
+    if (!/^To (introduce|clarify|practise|review|develop|give|provide|raise)\b/.test(a.en.main)) BAD.push(k + ': главная цель не по формуле CELTA');
+    if (!a.en.subs.every(s => /^To \w/.test(s))) BAD.push(k + ': подцель не по формуле CELTA');
+    if (!/[А-Яа-я]/.test(a.ru.main)) BAD.push(k + ': нет русской формулировки');
+    /* главная цель — про языковой материал и контекст, а не про активность */
+    if (a.en.main.indexOf('in the context of') < 0) BAD.push(k + ': в главной цели нет контекста');
+  });
+  ck(NO_AIM.length === 0, 'у всех десяти уроков движка есть цели (main + subsidiary aims)' +
+    (NO_AIM.length ? ' — нет у: ' + NO_AIM.join(', ') : ''));
+  ck(BAD.length === 0, 'цели сформулированы по схеме CELTA: инфинитив, материал и контекст' +
+    (BAD.length ? ' — ' + BAD.join('; ') : ''));
+
+  /* плашка в шапке урока и те же цели в инструкции преподавателя */
+  const plaqueBad = [], guideBad = [];
+  KEYS.forEach(k => {
+    SAL.openLesson(k);
+    const pane = win.document.getElementById('view-lesson' + SAL.lessons[k].num);
+    const box = pane.querySelector('.lesson-aim');
+    if (!box) { plaqueBad.push(k + ': нет плашки'); return; }
+    if (box.querySelector('.lesson-aim-main').textContent.trim() !== SAL.lessons[k].aim.ru.main) plaqueBad.push(k + ': плашка расходится с данными');
+    if (box.querySelectorAll('.lesson-aim-subs li').length !== SAL.lessons[k].aim.ru.subs.length) plaqueBad.push(k + ': подцели не все');
+    if (!/Системный урок · лексика/.test(box.textContent)) plaqueBad.push(k + ': не указан тип урока');
+    const guide = win.document.getElementById(k + '-tg-presentation');
+    if (!guide || !guide.querySelector('.teacher-guide-aim')) guideBad.push(k + ': нет целей в инструкции');
+    else if (guide.querySelector('.teacher-guide-aim').textContent.indexOf(SAL.lessons[k].aim.ru.main) < 0) guideBad.push(k + ': инструкция расходится с данными');
+  });
+  ck(plaqueBad.length === 0, 'плашка «🎯 Цель урока» стоит под описанием урока у всех десяти уроков' +
+    (plaqueBad.length ? ' — ' + plaqueBad.join('; ') : ''));
+  ck(guideBad.length === 0, 'цели продублированы первым блоком в инструкции преподавателя' +
+    (guideBad.length ? ' — ' + guideBad.join('; ') : ''));
+
+  /* плашка переводится вместе с интерфейсом */
+  SAL.openLesson('LC2');
+  const boxOf = () => win.document.getElementById('LC2-lesson-aim');
+  ck(boxOf().querySelector('.lesson-aim-main').textContent.trim() === SAL.lessons.LC2.aim.ru.main,
+    'урок 4: по-русски плашка показывает русскую цель');
+  win.setLanguage('en');
+  ck(boxOf().querySelector('.lesson-aim-main').textContent.trim() === SAL.lessons.LC2.aim.en.main &&
+     /Subsidiary aims/.test(boxOf().textContent) && /Systems lesson · Vocabulary/.test(boxOf().textContent),
+    'EN: плашка и подцели переключаются на английский');
+  ck(win.document.getElementById('LC2-tg-presentation').querySelector('.teacher-guide-aim')
+      .textContent.indexOf(SAL.lessons.LC2.aim.en.main) >= 0,
+    'EN: инструкция преподавателя тоже на английском');
+  win.setLanguage('ru');
+  ck(/Подцели \(subsidiary aims\)/.test(boxOf().textContent), 'RU: плашка возвращается на русский');
+
+  /* та же плашка у рукописной страницы из 12 слов */
+  win.switchView('lesson5');
+  const staticAim = win.document.getElementById('lesson1-lesson-aim');
+  ck(!!staticAim && staticAim.classList.contains('lesson-aim') &&
+     staticAim.querySelectorAll('.lesson-aim-subs li').length === 3,
+    'урок 5 (12 слов): плашка целей на месте, три подцели');
+  ck(/^Повторить и расширить лексику/.test(staticAim.querySelector('.lesson-aim-main').textContent.trim()),
+    'урок 5: главная цель сформулирована от лексики и контекста');
+  ck(!!win.document.getElementById('teacher-guide-presentation').querySelector('.teacher-guide-aim'),
+    'урок 5: цели есть и в инструкции преподавателя');
+  win.setLanguage('en');
+  ck(/^To review and extend body and face lexis/.test(
+      win.document.getElementById('lesson1-lesson-aim').querySelector('.lesson-aim-main').textContent.trim()),
+    'урок 5: EN-версия цели на месте');
+  win.setLanguage('ru');
+
+  /* в файле стилей есть оформление плашки */
+  const css = fs.readFileSync(path.join(REPO, 'styles.css'), 'utf8');
+  ck(/\.lesson-aim\s*\{/.test(css) && /\.lesson-aim-subs\s+li/.test(css) && /\.teacher-guide-aim\s*\{/.test(css),
+    'стили плашки и строки целей в инструкции описаны в styles.css');
+}
+
+
+/* ==========================================================================
    EXTRA PRACTICE GAMES (games-extra.js) — only Lesson 5 (numbers 1–5) lists them
    ========================================================================== */
 console.log('\n===== Новые игры (games-extra.js) =====');

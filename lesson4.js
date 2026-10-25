@@ -20,6 +20,25 @@ SAL.registerLesson({
   topicEn: "one, two, three, four, five",
   introRu: "Шестой урок: пять первых санскритских числительных в форме среднего рода (именительный-винительный падеж) — <code>एकम्</code>, <code>द्वे</code>, <code>त्रीणि</code>, <code>चत्वारि</code>, <code>पञ्च</code>. В этой форме считают предметы. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
   introEn: "The sixth lesson: the first five Sanskrit numerals in the neuter nominative-accusative — <code>ekam</code>, <code>dve</code>, <code>trīṇi</code>, <code>catvāri</code>, <code>pañca</code>. This is the form used for counting things. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать числительные 1–5 в счётной форме в контексте счёта предметов.",
+      subs: [
+        "Поставить произношение слогового ऋ и конечного -म्.",
+        "Развивать слушание с поиском конкретной информации: услышать числительное и хлопнуть столько раз.",
+        "Дать практику письма: записать числительное деванагари."
+      ]
+    },
+    en: {
+      main: "To introduce and practise the numerals 1–5 in their counting form in the context of counting everyday objects.",
+      subs: [
+        "To give practice in the pronunciation of syllabic ऋ and of the final -म्.",
+        "To develop listening for specific information: hear the numeral and clap that many times.",
+        "To give practice in writing the numerals in Devanagari."
+      ]
+    }
+  },
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",

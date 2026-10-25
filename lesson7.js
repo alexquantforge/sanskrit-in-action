@@ -19,6 +19,25 @@ SAL.registerLesson({
   topicEn: "sixteen, seventeen, eighteen, nineteen, twenty",
   introRu: "Девятый урок: числа от шестнадцати до двадцати — <code>षोडश</code>, <code>सप्तदश</code>, <code>अष्टादश</code>, <code>नवदश</code>, <code>विंशतिः</code>. Первые четыре тоже построены на <code>दश</code>, а «двадцать» — уже отдельное слово с висаргой на конце. Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
   introEn: "The ninth lesson: sixteen to twenty — <code>ṣoḍaśa</code>, <code>saptadaśa</code>, <code>aṣṭādaśa</code>, <code>navadaśa</code>, <code>viṃśatiḥ</code>. The first four are still built on <code>daśa</code>, while “twenty” is a separate word ending in a visarga. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать числительные 16–20 в контексте счёта предметов и уточнить षोडश и विंशतिः с висаргой.",
+      subs: [
+        "Уточнить нерегулярное षोडश на фоне обычной модели с -दश.",
+        "Поставить произношение конечной висарги в विंशतिः.",
+        "Повторить числительные 11–15 перед новым материалом."
+      ]
+    },
+    en: {
+      main: "To introduce and practise the numerals 16–20 in the context of counting everyday objects, and to clarify षोडश and विंशतिः with its visarga.",
+      subs: [
+        "To clarify the irregular षोडश against the regular -दश pattern.",
+        "To give practice in the pronunciation of the final visarga in विंशतिः.",
+        "To review the numerals 11–15 before the new set."
+      ]
+    }
+  },
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",

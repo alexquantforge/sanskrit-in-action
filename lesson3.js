@@ -19,6 +19,25 @@ SAL.registerLesson({
   topicEn: "forehead, eye, nose, ear, mouth, tooth, tongue",
   introRu: "Второй урок: всё лицо целиком — 7 слов на одной схеме, от <code>ललाट</code> (лоб) до <code>जिह्वा</code> (язык). К 6 словам Урока 1 прибавляется лицо, включая новое слово <code>मुख</code> (рот/лицо). В Уроке 5 тело и лицо соберутся в один набор из 12 слов.",
   introEn: "The second lesson zooms into the face: 7 words on a single diagram, from <code>ललाट</code> (forehead) to <code>जिह्वा</code> (tongue). The 6 words of Lesson 1 are joined by the face, including the new word <code>मुख</code> (mouth / face). In Lesson 5 body and face come together as one set of 12 words.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать лексику частей лица в контексте описания портрета.",
+      subs: [
+        "Поставить произношение श, ष и स и носового ण в словах урока.",
+        "Дать управляемую устную практику: назвать часть лица по номеру на схеме (hotspots).",
+        "Развивать чтение с поиском конкретной информации (сканирование) на материале филворда."
+      ]
+    },
+    en: {
+      main: "To introduce and practise lexis for the parts of the face in the context of describing a portrait.",
+      subs: [
+        "To give practice in the pronunciation of श, ष and स and of the nasal ण.",
+        "To provide controlled spoken practice by naming the parts on a face diagram (hotspots).",
+        "To develop reading for specific information (scanning) in the context of a word grid."
+      ]
+    }
+  },
   words: [
     {
       id: "lalata", deva: "ललाट", iast: "lalāṭa", ttsText: "ललाटा",

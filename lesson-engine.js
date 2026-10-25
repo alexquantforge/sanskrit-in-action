@@ -325,7 +325,7 @@ var SAL = (window.SAL = window.SAL || {});
       '</div></div>';
   }
 
-  function tgBox(cfg, stageKey, titleRu, titleEn, steps) {
+  function tgBox(cfg, stageKey, titleRu, titleEn, steps, preface) {
     var items = steps.map(function (s) {
       return '<div class="teacher-guide-step" data-i18n-ru="' + s[0] + '" data-i18n-en="' + s[1] + '">' +
         (L() === 'ru' ? s[0] : s[1]) + '</div>';
@@ -335,7 +335,59 @@ var SAL = (window.SAL = window.SAL || {});
         '<div class="teacher-guide-header"><h3>' + (L() === 'ru' ? titleRu : titleEn) + '</h3>' +
           '<button type="button" class="chip-btn" onclick="SAL.toggleGuide(\'' + cfg.key + '\',\'' + stageKey + '\')"' +
             ' data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ ' + ru('Close', 'Закрыть') + '</button>' +
-        '</div><div class="teacher-guide-grid">' + items + '</div></div>';
+        '</div><div class="teacher-guide-grid">' + (preface || '') + items + '</div></div>';
+  }
+
+  /* =========================================================================
+     Ц Е Л И   У Р О К А  ·  CELTA / DELTA
+     -------------------------------------------------------------------------
+     Главная цель (main aim) формулируется от языкового материала и контекста:
+       systems-урок → To introduce / clarify / practise + материал + in the context of …
+     Подцели (subsidiary aims) берутся из «другой половины»: в vocabulary-уроке
+     это навык — произношение, чтение (scanning), слушание, устная речь.
+     Данные урока: aim: { ru: { main, subs: [] }, en: { main, subs: [] } }.
+     Плашка стоит под описанием урока, те же цели первым блоком — в инструкции
+     преподавателя. Текст переводится через data-i18n-* вместе с интерфейсом.
+     ========================================================================= */
+  function aimEsc(t) {
+    return String(t == null ? '' : t)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  /* пара ru/en на одном элементе: язык переключается без перерисовки урока */
+  function aimPair(ruText, enText, tag, cls) {
+    return '<' + tag + (cls ? ' class="' + cls + '"' : '') +
+      ' data-i18n-ru="' + aimEsc(ruText) + '" data-i18n-en="' + aimEsc(enText) + '">' +
+      aimEsc(L() === 'ru' ? ruText : enText) + '</' + tag + '>';
+  }
+  function aimHtml(cfg) {
+    var a = cfg && cfg.aim;
+    if (!a || !a.ru || !a.en) return '';
+    var n = Math.min(a.ru.subs.length, a.en.subs.length);
+    var subs = '';
+    for (var i = 0; i < n; i++) subs += aimPair(a.ru.subs[i], a.en.subs[i], 'li');
+    return '<div class="lesson-aim" id="' + cfg.key + '-lesson-aim">' +
+      '<div class="lesson-aim-head">' +
+        aimPair('🎯 Цель урока', '🎯 Lesson aim', 'span', 'lesson-aim-badge') +
+        aimPair('Системный урок · лексика (Vocabulary)', 'Systems lesson · Vocabulary', 'span', 'lesson-aim-type') +
+      '</div>' +
+      aimPair(a.ru.main, a.en.main, 'p', 'lesson-aim-main') +
+      aimPair('Подцели (subsidiary aims)', 'Subsidiary aims', 'div', 'lesson-aim-subtitle') +
+      '<ul class="lesson-aim-subs">' + subs + '</ul>' +
+      '</div>';
+  }
+  /* те же цели — первой строкой в инструкции преподавателя */
+  function aimGuideHtml(cfg) {
+    var a = cfg && cfg.aim;
+    if (!a || !a.ru || !a.en) return '';
+    var n = Math.min(a.ru.subs.length, a.en.subs.length);
+    var rs = [], es = [];
+    for (var i = 0; i < n; i++) { rs.push(a.ru.subs[i]); es.push(a.en.subs[i]); }
+    var ruHtml = '<strong>🎯 Цель урока (main aim):</strong> ' + aimEsc(a.ru.main) +
+      '<br/><strong>Подцели (subsidiary aims):</strong> ' + aimEsc(rs.join(' · '));
+    var enHtml = '<strong>🎯 Lesson aim (main aim):</strong> ' + aimEsc(a.en.main) +
+      '<br/><strong>Subsidiary aims:</strong> ' + aimEsc(es.join(' · '));
+    return '<div class="teacher-guide-step teacher-guide-aim" data-i18n-ru="' + ruHtml +
+      '" data-i18n-en="' + enHtml + '">' + (L() === 'ru' ? ruHtml : enHtml) + '</div>';
   }
 
   /* Who is playing (one student / a pair) and the teacher answer key */
@@ -660,6 +712,8 @@ var SAL = (window.SAL = window.SAL || {});
         '<p class="section-desc" data-i18n-ru="' + cfg.introRu + '" data-i18n-en="' + cfg.introEn + '">' + tx({ ru: cfg.introRu, en: cfg.introEn }) + '</p>' +
       '</div>' +
 
+      aimHtml(cfg) +
+
       tgBox(cfg, 'presentation',
         '👩‍🏫 Инструкция для преподавателя · Stage 1: Presentation (10–12 мин)',
         '👩‍🏫 Teacher\'s Guide · Stage 1: Presentation (10–12 min)',
@@ -672,7 +726,8 @@ var SAL = (window.SAL = window.SAL || {});
            '<strong>3. Step B — Modes 2 (Hotspots) &amp; 3 (Audio-First) (4 min):</strong><br/>In the diagram mode, call out marker numbers at random and elicit the word before clicking. In Audio-First, students hear and repeat the word before revealing the Devanagari script.'],
           ['<strong>4. Шаг В — Проверка понимания (CCQs, 2 мин):</strong><br/>Откройте «4. Плакат», нажмите <code>🟪 Закрыть часть слова ■</code>, затем <code>🙈 Скрыть подписи</code>. Указывайте на карточки в случайном порядке: если группа называет уверенно ' + Math.max(2, N - 2) + '–' + N + ' слов из ' + N + ', переходите к <strong>Practice</strong>.',
            '<strong>4. Step C — Concept &amp; Recall Check (CCQs, 2 min):</strong><br/>Open the full poster, click <code>🟪 Cover Part of Word ■</code>, then <code>🙈 Hide Labels</code>. Point to cards randomly: once learners recall ' + Math.max(2, N - 2) + '–' + N + ' of ' + N + ' words, move to <strong>Practice</strong>.']
-        ]) +
+        ],
+        aimGuideHtml(cfg)) +
 
       '<div class="practice-tabs" role="tablist" style="margin-bottom:1.25rem;">' + presTabs + '</div>' +
 

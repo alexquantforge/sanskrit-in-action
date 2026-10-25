@@ -19,6 +19,25 @@ SAL.registerLesson({
   topicEn: "ten, twenty, thirty, forty, fifty",
   introRu: "Десятый урок: круглые десятки от десяти до пятидесяти — <code>दश</code>, <code>विंशतिः</code>, <code>त्रिंशत्</code>, <code>चत्वारिंशत्</code>, <code>पञ्चाशत्</code>. Обратите внимание на два разных конца: <code>-तिः</code> у двадцати и <code>-शत्</code> у тридцати, сорока и пятидесяти. Количество показывают арабские цифры: перевода по-прежнему нет.",
   introEn: "The tenth lesson: the tens from ten to fifty — <code>daśa</code>, <code>viṃśatiḥ</code>, <code>triṃśat</code>, <code>catvāriṃśat</code>, <code>pañcāśat</code>. Note the two different endings: <code>-tiḥ</code> for twenty and <code>-śat</code> for thirty, forty and fifty. Quantity is shown by Arabic digits: still no translation.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать круглые десятки 10–50 в контексте счёта круглыми числами и уточнить окончания -तिः и -शत्.",
+      subs: [
+        "Уточнить два окончания: -तिः (विंशतिः) и -शत् (त्रिंशत्, चत्वारिंशत्, पञ्चाशत्).",
+        "Поставить словесное ударение в длинных числительных.",
+        "Повторить числительные 16–20 перед новым материалом."
+      ]
+    },
+    en: {
+      main: "To introduce and practise the tens 10–50 in the context of counting in round numbers, and to clarify the -तिः and -शत् endings.",
+      subs: [
+        "To clarify the two endings: -तिः (विंशतिः) and -शत् (त्रिंशत्, चत्वारिंशत्, पञ्चाशत्).",
+        "To give practice in word stress in the longer numerals.",
+        "To review the numerals 16–20 before the new set."
+      ]
+    }
+  },
   gestureRu: "хлопните в ладоши столько раз, сколько десятков",
   gestureEn: "clap once for every ten",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",

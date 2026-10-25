@@ -19,6 +19,25 @@ SAL.registerLesson({
   topicEn: "eleven, twelve, thirteen, fourteen, fifteen",
   introRu: "Восьмой урок: числа от одиннадцати до пятнадцати — <code>एकादश</code>, <code>द्वादश</code>, <code>त्रयोदश</code>, <code>चतुर्दश</code>, <code>पञ्चदश</code>. Все они построены на <code>दश</code> «десять»: к основе первого числа прибавляется «десять». Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
   introEn: "The eighth lesson: eleven to fifteen — <code>ekādaśa</code>, <code>dvādaśa</code>, <code>trayodaśa</code>, <code>caturdaśa</code>, <code>pañcadaśa</code>. They are all built on <code>daśa</code> “ten”: the stem of the first number plus “ten”. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать числительные 11–15 в контексте счёта предметов и уточнить модель -दश, по которой образуются эти числа.",
+      subs: [
+        "Уточнить словообразование: основа первого числа плюс दश.",
+        "Поставить произношение दश внутри сложного слова.",
+        "Повторить числительные 6–10 перед новым материалом."
+      ]
+    },
+    en: {
+      main: "To introduce and practise the numerals 11–15 in the context of counting everyday objects, and to clarify the -दश pattern used to form the teens.",
+      subs: [
+        "To clarify the word-formation pattern: the stem of the first number plus दश.",
+        "To give practice in the pronunciation of दश inside a compound.",
+        "To review the numerals 6–10 before the new set."
+      ]
+    }
+  },
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",

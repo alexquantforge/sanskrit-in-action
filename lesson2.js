@@ -19,6 +19,25 @@ SAL.registerLesson({
   topicEn: "head, belly, hand, finger, knee, foot",
   introRu: "Первый урок цикла <strong>शरीरसम्बन्धि-शब्दाः</strong>. 6 слов — чистые основы (без падежных окончаний и без указания рода), значение передаётся только картинкой и звуком (<em>Direct Method</em>). Начинаем с крупных частей тела: голова, живот, руки и ноги. В Уроке 5 к ним прибавится лицо, и весь набор из 12 слов соберётся вместе — так работает <strong>спиральное повторение</strong>.",
   introEn: "The first lesson of the <strong>शरीरसम्बन्धि-शब्दाः</strong> cycle: 6 pure stems (no case endings, no gender), with meaning conveyed only through pictures and sound (<em>Direct Method</em>). We start with the large parts of the body: head, belly, arms and legs. In Lesson 5 the face joins them and the full set of 12 words comes together — that is <strong>spiral revision</strong>.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать лексику шести основных частей тела в контексте описания тела человека.",
+      subs: [
+        "Поставить произношение придыхательных и церебральных согласных и долготу гласных в словах урока.",
+        "Дать управляемую устную практику шести слов через TPR: коснитесь той части тела, которую назвали.",
+        "Развивать чтение с поиском конкретной информации (сканирование) на материале филворда деванагари."
+      ]
+    },
+    en: {
+      main: "To introduce and practise lexis for six main body parts in the context of describing the human body.",
+      subs: [
+        "To give practice in the pronunciation of aspirated and retroflex consonants and of vowel length in the target words.",
+        "To provide controlled spoken practice of the six words through TPR (touch the body part you name).",
+        "To develop reading for specific information (scanning) in the context of a Devanagari word grid."
+      ]
+    }
+  },
   words: [
     {
       id: "shirsha", deva: "शीर्ष", iast: "śīrṣa", ttsText: "शीर्षा",

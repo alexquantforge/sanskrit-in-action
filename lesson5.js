@@ -20,6 +20,25 @@ SAL.registerLesson({
   topicEn: "six, seven, eight, nine, ten",
   introRu: "Седьмой урок: числительные от шести до десяти — <code>षट्</code>, <code>सप्त</code>, <code>अष्ट</code>, <code>नव</code>, <code>दश</code>. В этой форме (именительный-винительный падеж среднего рода) они не меняются: основа и есть счётная форма. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
   introEn: "The seventh lesson: the numerals six to ten — <code>ṣaṭ</code>, <code>sapta</code>, <code>aṣṭa</code>, <code>nava</code>, <code>daśa</code>. In this form (neuter nominative-accusative) they do not change: the stem IS the counting form. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
+  /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
+  aim: {
+    ru: {
+      main: "Ввести и отработать числительные 6–10 в контексте счёта предметов.",
+      subs: [
+        "Уточнить, что эти основы не меняются в счётной форме.",
+        "Поставить произношение ṣ и ś в словах षट्, सप्त и दश.",
+        "Повторить числительные 1–5 в тех же играх."
+      ]
+    },
+    en: {
+      main: "To introduce and practise the numerals 6–10 in the context of counting everyday objects.",
+      subs: [
+        "To clarify that these stems do not change in the counting form.",
+        "To give practice in the pronunciation of ṣ and ś in षट्, सप्त and दश.",
+        "To review the numerals 1–5 through the same games."
+      ]
+    }
+  },
   gestureRu: "хлопните в ладоши столько раз",
   gestureEn: "clap your hands that many times",
   prodTitleRu: "Живая речь: назовите вслух все {n} числительных",
