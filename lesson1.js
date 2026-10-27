@@ -688,18 +688,34 @@ function ensureStageVisible(elementId) {
   }
 }
 
-// Hindi TTS applies schwa deletion and swallows a word-final short "a":
-// सप्त comes out as "sapt", पञ्च as "pañc", दश as "dash". Spelling that final
-// vowel as ā (सप्ता, पञ्चा, दशा) forces the engine to voice it, so the audio
-// matches the word on screen. Words that already end in a vowel sign, a
-// virama (षट्, त्रिंशत्), anusvara (एकं) or visarga (विंशतिः) are left as is —
-// there is no inherent "a" to rescue.
+// Что правим ТОЛЬКО для речи — написание на экране не меняется нигде.
+//
+// 1. Конечная короткая «а». Hindi TTS applies schwa deletion and swallows a
+//    word-final short "a": सप्त comes out as "sapt", पञ्च as "pañc", दश as
+//    "dash". Spelling that final vowel as ā (सप्ता, पञ्चा, दशा) forces the
+//    engine to voice it, so the audio matches the word on screen.
+//
+// 2. Висарга ः. Хинди-движок читает её как «е»: हस्तः звучит «хасте» вместо
+//    «хастаха». По-санскритски висарга после гласного — это лёгкое эхо того же
+//    гласного (aḥ → aha, iḥ → ihi, uḥ → uhu), поэтому для речи заменяем её на
+//    ह: हस्तः → हस्तह («hastaha»). Перед согласной висарга — просто [h], там
+//    ставим ह् с вирамой, иначе вылезет лишняя «а»: दुःख → दुह्ख.
+//
+// Words that already end in a vowel sign, a virama (षट्, त्रिंशत्) or anusvara
+// (एकं) are left as is — there is no inherent "a" to rescue.
 function sanskritTtsText(devaText) {
   if (!devaText) return devaText;
-  const text = String(devaText);
-  const code = text.slice(-1).charCodeAt(0);
+  const raw = String(devaText);
+  /* решение о конечной «а» принимаем по ИСХОДНОЙ строке: после замены висарги
+     слово заканчивается на ह, и добавленная ा дала бы «हस्तहा» */
+  const code = raw.slice(-1).charCodeAt(0);
   const endsInConsonant = (code >= 0x0915 && code <= 0x0939) ||   // क … ह
                           (code >= 0x0958 && code <= 0x095F);     // क़ … य़
+  const text = raw.replace(/\u0903/g, function (m, off, whole) {
+    const next = whole.charCodeAt(off + 1) || 0;
+    const nextIsConsonant = next >= 0x0915 && next <= 0x0939;
+    return nextIsConsonant ? '\u0939\u094d' : '\u0939';   /* ह् перед согласной, ह в конце */
+  });
   return endsInConsonant ? text + 'ा' : text;
 }
 window.sanskritTtsText = sanskritTtsText;
