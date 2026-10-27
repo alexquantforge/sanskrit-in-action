@@ -11,7 +11,7 @@
 
 SAL.registerLesson({
   key: "L9",
-  num: 11,
+  num: 12,
   titleDeva: "सङ्ख्याः",
   titleRu: "Десятки 60–100",
   titleEn: "Tens 60–100",

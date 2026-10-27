@@ -930,7 +930,7 @@ function setPratyaya(pratyayaKey) {
    ========================================================================= */
 const ROUTE_VIEWS = ['home', 'details', 'lesson1', 'lesson2', 'lesson3', 'lesson4',
                      'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9', 'lesson10',
-                     'lesson11'];
+                     'lesson11', 'lesson12'];
 let activeView = 'home';
 let routeLock = false;          // URL применяется — обратно не пишем
 
@@ -954,7 +954,7 @@ function writeRoute(lang, view, replace) {
   }
 }
 
-/* какому уроку движка соответствует адрес: view-lesson6 → L4.
+/* какому уроку движка соответствует адрес: view-lesson7 → L4.
    Урок 5 — отдельная страница из 12 слов, у неё своего ключа нет. */
 function lessonKeyForView(view) {
   const m = /^lesson(\d+)$/.exec(String(view || ''));
@@ -1033,7 +1033,7 @@ function routeMeta(view, lang) {
             : 'Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2)');
     return { title: title, description: ru ? d.ru : d.en };
   }
-  const key = lessonKeyForView(view) || (view === 'lesson5' ? 'lesson5' : null);
+  const key = lessonKeyForView(view) || (view === 'lesson6' ? 'lesson6' : null);
   if (!key) return null;
   const label = (window.SAL && typeof window.SAL.lessonLabel === 'function' && window.SAL.lessonLabel(key, lang)) ||
     (ru ? 'Урок' : 'Lesson');
@@ -1150,6 +1150,7 @@ function switchView(viewName, targetSectionId = null) {
     lesson9: document.getElementById('view-lesson9'),
     lesson10: document.getElementById('view-lesson10'),
     lesson11: document.getElementById('view-lesson11'),
+    lesson12: document.getElementById('view-lesson12'),
     details: document.getElementById('view-details')
   };
   const buttons = {

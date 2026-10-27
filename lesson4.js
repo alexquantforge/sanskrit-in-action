@@ -12,7 +12,7 @@
 
 SAL.registerLesson({
   key: "L4",
-  num: 6,
+  num: 7,
   titleDeva: "सङ्ख्याः",
   titleRu: "Цифры 1–5",
   titleEn: "Numbers 1–5",

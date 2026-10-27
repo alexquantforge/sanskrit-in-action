@@ -260,13 +260,14 @@ var SAL = (window.SAL = window.SAL || {});
     L3: { ru: 'Урок 2: Лицо', en: 'Lesson 2: Face' },
     LC: { ru: 'Урок 3: Цвета', en: 'Lesson 3: Colours' },
     LC2: { ru: 'Урок 4: Ещё цвета', en: 'Lesson 4: More Colours' },
-    lesson5: { ru: 'Урок 5: Части тела (12)', en: 'Lesson 5: Body Parts (12)' },
-    L4: { ru: 'Урок 6: Цифры 1–5', en: 'Lesson 6: Numbers 1–5' },
-    L5: { ru: 'Урок 7: Цифры 6–10', en: 'Lesson 7: Numbers 6–10' },
-    L6: { ru: 'Урок 8: Цифры 11–15', en: 'Lesson 8: Numbers 11–15' },
-    L7: { ru: 'Урок 9: Цифры 16–20', en: 'Lesson 9: Numbers 16–20' },
-    L8: { ru: 'Урок 10: Десятки 10–50', en: 'Lesson 10: Tens 10–50' },
-    L9: { ru: 'Урок 11: Десятки 60–100', en: 'Lesson 11: Tens 60–100' }
+    LG: { ru: 'Урок 5: Три рода', en: 'Lesson 5: Three Genders' },
+    lesson6: { ru: 'Урок 6: Части тела (12)', en: 'Lesson 6: Body Parts (12)' },
+    L4: { ru: 'Урок 7: Цифры 1–5', en: 'Lesson 7: Numbers 1–5' },
+    L5: { ru: 'Урок 8: Цифры 6–10', en: 'Lesson 8: Numbers 6–10' },
+    L6: { ru: 'Урок 9: Цифры 11–15', en: 'Lesson 9: Numbers 11–15' },
+    L7: { ru: 'Урок 10: Цифры 16–20', en: 'Lesson 10: Numbers 16–20' },
+    L8: { ru: 'Урок 11: Десятки 10–50', en: 'Lesson 11: Tens 10–50' },
+    L9: { ru: 'Урок 12: Десятки 60–100', en: 'Lesson 12: Tens 60–100' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
@@ -278,7 +279,7 @@ var SAL = (window.SAL = window.SAL || {});
                ru: lab ? lab.ru : ('Урок ' + c.num + ': ' + c.titleRu),
                en: lab ? lab.en : ('Lesson ' + c.num + ': ' + c.titleEn) };
     });
-    rows.push({ v: 'lesson5', num: 5, ru: NAV_LABELS.lesson5.ru, en: NAV_LABELS.lesson5.en });
+    rows.push({ v: 'lesson6', num: 6, ru: NAV_LABELS.lesson6.ru, en: NAV_LABELS.lesson6.en });
     rows.sort(function (a, b) { return a.num - b.num; });
     return rows;
   }
@@ -300,7 +301,7 @@ var SAL = (window.SAL = window.SAL || {});
     var slots = document.querySelectorAll('[data-lesson-nav]');
     for (var i = 0; i < slots.length; i++) {
       if (slots[i].getAttribute('data-filled') === '1') continue;
-      slots[i].innerHTML = navSelectHtml('lesson5');
+      slots[i].innerHTML = navSelectHtml('lesson6');
       slots[i].setAttribute('data-filled', '1');
     }
   }
@@ -3119,7 +3120,7 @@ var SAL = (window.SAL = window.SAL || {});
   };
 
   SAL.gotoLesson = function (v) {
-    if (v === 'lesson5') { if (typeof switchView === 'function') switchView('lesson5'); return; }
+    if (v === 'lesson6') { if (typeof switchView === 'function') switchView('lesson6'); return; }
     SAL.openLesson(v);
   };
 
