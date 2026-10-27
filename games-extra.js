@@ -100,9 +100,22 @@
   function devaAksharas(text) {
     var src = String(text || '');
     var out = src.match(AKSHARA_RE);
-    /* если хоть один знак не попал в нарезку — не рискуем и отдаём слово целиком */
-    if (!out || !out.length || out.join('') !== src) return [src];
-    return out;
+    if (out && out.length && out.join('') === src) return out;
+    /* Фраза из двух слов («श्यामं ललाटम्»): режем по словам, а пробел в клетки
+       не отдаём — иначе поле получило бы клетку-пробел. Слово с дефисом
+       («पाटल-मुख») сюда не попадает: дефис — не пробел, и такая нарезка
+       по-прежнему отдаётся целиком, как и раньше. */
+    var parts = src.split(/\s+/).filter(Boolean);
+    if (parts.length > 1) {
+      var all = [];
+      for (var i = 0; i < parts.length; i++) {
+        var m = parts[i].match(AKSHARA_RE);
+        if (!m || !m.length || m.join('') !== parts[i]) return [src];
+        all = all.concat(m);
+      }
+      if (all.length) return all;
+    }
+    return [src];
   }
 
   /* the word split into the chunks a learner assembles it from (data: syll) */

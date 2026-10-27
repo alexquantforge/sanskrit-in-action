@@ -99,7 +99,8 @@ var SAL = (window.SAL = window.SAL || {});
     return {
       pres: {
         mode: 'stepbystep', step: 0, labelsHidden: false, maskMode: false,
-        revealed: {}, heard: {}, audioRevealed: {}, hotspotId: cfg.words[0].id
+        revealed: {}, heard: {}, audioRevealed: {}, hotspotId: cfg.words[0].id,
+        discoveryOpen: false
       },
       game: 'masked',
       players: 1,
@@ -747,6 +748,8 @@ var SAL = (window.SAL = window.SAL || {});
 
       aimHtml(cfg) +
 
+      '<div id="' + key + '-discovery"></div>' +
+
       tgBox(cfg, 'presentation',
         '👩‍🏫 Инструкция для преподавателя · Stage 1: Presentation (10–12 мин)',
         '👩‍🏫 Teacher\'s Guide · Stage 1: Presentation (10–12 min)',
@@ -1015,6 +1018,61 @@ var SAL = (window.SAL = window.SAL || {});
       chip(cfg, 'resetAudio', '', '↺ ' + ru('Hide All Letters', 'Снова скрыть буквы')) +
       '</div></div>' +
       '<div class="vocab-grid-6" style="margin-bottom:0;">' + cards + '</div></div>';
+  }
+
+  /* =========================================================================
+     GUIDED DISCOVERY (только у уроков с cfg.discovery)
+     -------------------------------------------------------------------------
+     Восемь предложений лежат на экране БЕЗ разбора: ученик сам находит, что
+     цвет и существительное кончаются одинаково. Кнопка открывает разбор —
+     по строке на предложение и правило под списком. Урок без cfg.discovery
+     ведёт себя ровно как раньше: слот остаётся пустым.
+     ========================================================================= */
+  var DISC_GENDER = {
+    m: { ru: 'мужской род', en: 'masculine' },
+    n: { ru: 'средний род', en: 'neuter' },
+    f: { ru: 'женский род', en: 'feminine' }
+  };
+
+  function discoveryHtml(cfg) {
+    var d = cfg.discovery;
+    if (!d) return '';
+    var st = state(cfg);
+    var open = !!st.pres.discoveryOpen;
+    var rows = d.sentences.map(function (s, i) {
+      var tag = open
+        ? '<span class="disc-tag disc-g-' + s.gender + '">' +
+            (i + 1) + '. ' + s.ending + ' — ' + tx(DISC_GENDER[s.gender]) + '</span>'
+        : '<span class="disc-tag disc-hidden">?</span>';
+      return '<li class="disc-row' + (open ? ' open' : '') + '">' +
+        '<button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); SAL.speak(\'' +
+          s.ttsText + '\')">🔊</button>' +
+        '<div class="disc-text"><div class="disc-deva">' + s.deva + '</div>' +
+          '<div class="disc-iast">' + s.iast + '</div>' +
+          '<div class="disc-tr">' + tx({ ru: s.ru, en: s.en }) + '</div></div>' +
+        tag + '</li>';
+    }).join('');
+    var rule = open ? '<div class="disc-rule">' + tx({ ru: d.ruleRu, en: d.ruleEn }) + '</div>' : '';
+    return '<section class="disc-box" id="' + cfg.key + '-discovery-box">' +
+      '<div class="disc-head">' +
+        '<div class="disc-head-text">' +
+          '<div class="disc-eyebrow">' + tx({ ru: d.badgeRu, en: d.badgeEn }) + '</div>' +
+          '<h3 class="disc-title">' + tx({ ru: d.titleRu, en: d.titleEn }) + '</h3>' +
+          '<p class="disc-lead">' + tx({ ru: d.leadRu, en: d.leadEn }) + '</p>' +
+        '</div>' +
+        '<button type="button" class="chip-btn' + (open ? ' active' : '') + '"' +
+          ' onclick="SAL.do(\'' + cfg.key + '\',\'discoveryToggle\')">' +
+          (open ? '🙈 ' + ru('Hide the analysis', 'Скрыть разбор')
+                : '🔍 ' + ru('Reveal the pattern', 'Открыть разбор')) + '</button>' +
+      '</div>' +
+      '<ol class="disc-list">' + rows + '</ol>' + rule +
+    '</section>';
+  }
+
+  function renderDiscovery(cfg) {
+    if (!cfg.discovery) return;
+    var el = document.getElementById(cfg.key + '-discovery');
+    if (el) el.innerHTML = discoveryHtml(cfg);
   }
 
   function renderPres(cfg) {
@@ -2233,6 +2291,7 @@ var SAL = (window.SAL = window.SAL || {});
     },
     resetAudio: function (cfg, st) { st.pres.heard = {}; st.pres.audioRevealed = {}; },
     setStep: function (cfg, st, a) { st.pres.step = parseInt(a, 10) || 0; },
+    discoveryToggle: function (cfg, st) { if (cfg.discovery) st.pres.discoveryOpen = !st.pres.discoveryOpen; },
     hotspot: function (cfg, st, id) { st.pres.hotspotId = id; SAL.speak(byId(cfg, id).ttsText); },
     hotspotStep: function (cfg, st, a) {
       var order = orderedByPins(cfg);
@@ -3128,6 +3187,7 @@ var SAL = (window.SAL = window.SAL || {});
     fillNavSlots();
     var cfg = lessons[activeKey];
     if (!cfg) return;
+    renderDiscovery(cfg);
     renderPres(cfg);
     renderPractice(cfg);
     renderProd(cfg);

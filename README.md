@@ -67,18 +67,19 @@ sanskrit-in-action/
 ├── index.html        # Interactive landing page (EN / RU switch, 4×5 matrix, CEFR A1–C2 explorer, mini-games)
 ├── styles.css        # Cambridge editorial & Sanskrit manuscript typography styles
 ├── app.js            # Bilingual i18n, CEFR level explorer, Sandhi Lab, Dialogue Simulator, Dhātu Forge
-├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 1–4 and 6–11
+├── lesson-engine.js  # Generic PPP engine (Presentation / Practice / Production) for lessons 1–5 and 7–12
 ├── lesson2.js        # Lesson 1 · शरीरावयवाः — body, 6 words: शीर्ष, उदर, हस्त, अङ्गुली, जानु, पाद
 ├── lesson3.js        # Lesson 2 · मुखसम्बन्धि-शब्दाः — face, 7 words: ललाट, नयन, नासिका, कर्ण, मुख, दन्त, जिह्वा
 ├── lesson-colors.js  # Lesson 3 · वर्णाः — colours, 6 words: श्वेत, कृष्ण, रक्त, नील, श्याम, गौर (+ повторение «цвет + часть тела»)
 ├── lesson-colors2.js # Lesson 4 · वर्णाः — ещё 6 цветов: पीत, हरित, नारङ्ग, कपिश, धूसर, पाटल (+ два блока повторения)
-├── lesson1.js        # Lesson 5 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
-├── lesson4.js        # Lesson 6 · सङ्ख्याः — 5 numerals, neuter nom.-acc.: एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
-├── lesson5.js        # Lesson 7 · सङ्ख्याः — 5 numerals 6–10: षट्, सप्त, अष्ट, नव, दश
-├── lesson6.js        # Lesson 8 · सङ्ख्याः — 5 numerals 11–15: एकादश, द्वादश, त्रयोदश, चतुर्दश, पञ्चदश
-├── lesson7.js        # Lesson 9 · सङ्ख्याः — 5 numerals 16–20: षोडश, सप्तदश, अष्टादश, नवदश, विंशतिः
-├── lesson8.js        # Lesson 10 · सङ्ख्याः — 5 tens 10–50: दश, विंशतिः, त्रिंशत्, चत्वारिंशत्, पञ्चाशत्
-├── lesson9.js        # Lesson 11 · सङ्ख्याः — 5 tens 60–100: षष्टिः, सप्ततिः, अशीतिः, नवतिः, शतम्
+├── lesson-gender.js  # Lesson 5 · लिङ्गानि — три рода: 8 частей тела + 6 цветов, guided discovery из 8 предложений
+├── lesson1.js        # Lesson 6 · शरीरसम्बन्धि-शब्दाः — body + face, 12 words — standalone PPP lesson
+├── lesson4.js        # Lesson 7 · सङ्ख्याः — 5 numerals, neuter nom.-acc.: एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
+├── lesson5.js        # Lesson 8 · सङ्ख्याः — 5 numerals 6–10: षट्, सप्त, अष्ट, नव, दश
+├── lesson6.js        # Lesson 9 · सङ्ख्याः — 5 numerals 11–15: एकादश, द्वादश, त्रयोदश, चतुर्दश, पञ्चदश
+├── lesson7.js        # Lesson 10 · सङ्ख्याः — 5 numerals 16–20: षोडश, सप्तदश, अष्टादश, नवदश, विंशतिः
+├── lesson8.js        # Lesson 11 · सङ्ख्याः — 5 tens 10–50: दश, विंशतिः, त्रिंशत्, चत्वारिंशत्, पञ्चाशत्
+├── lesson9.js        # Lesson 12 · सङ्ख्याः — 5 tens 60–100: षष्टिः, सप्ततिः, अशीतिः, नवतिः, शतम्
 ├── games-extra.js    # 19 extra practice games (solo / pair / word grids), registered via SAL.addGame()
 ├── .nojekyll         # Direct static asset serving on GitHub Pages
 └── README.md         # Project documentation
@@ -95,7 +96,7 @@ sanskrit-in-action/
 
 ### Типы уроков и цели (CELTA / DELTA)
 
-Все одиннадцать уроков проекта — **systems-уроки, подтип Vocabulary (Lexis)**: цель каждого —
+Все двенадцать уроков проекта — **systems-уроки, подтип Vocabulary (Lexis)**: цель каждого —
 языковой материал, а не навык. Форма тоже системная: PPP (Presentation → Practice → Production).
 Skills-уроков (reading / listening / speaking / writing) в проекте пока нет: для них нужен
 аутентичный текст или запись и другая форма — PDP (pre- / while- / post-) или Test-Teach-Test.
@@ -130,6 +131,35 @@ RU и EN. Урок 6 (12 слов) — рукописная страница: е
 (`#lesson1-lesson-aim`), а цели продублированы в `#teacher-guide-presentation`.
 Регресс проверяет, что у всех уроков есть цель и подцели, что они сформулированы инфинитивом
 с контекстом и что плашка не расходится с данными урока.
+
+### Урок 5 «Три рода»: guided discovery и родовые ловушки
+
+Урок построен не на окончании прилагательного, а на **роде существительного**. Окончание
+прилагательного повторяет род, поэтому само по себе оно ничего не проверяет: проверять надо
+существительное.
+
+Вводный текст живёт в поле `discovery` и рисуется первым блоком Presentation:
+
+```js
+discovery: {
+  badgeRu, badgeEn, titleRu, titleEn, leadRu, leadEn, ruleRu, ruleEn,
+  sentences: [ { deva, iast, ttsText, ru, en, gender: 'm'|'n'|'f', ending } ]
+}
+```
+
+Восемь предложений видны сразу, а **разбор закрыт**: вместо окончания в углу строки стоит «?».
+Кнопка «🔍 Открыть разбор» (`SAL.do(key, 'discoveryToggle')`) показывает у каждой строки
+окончание и род, а под списком — правило: `ः` мужской, `म्` средний, `ा` женский.
+Пока разбор закрыт, данные не выдают ответ — ученик выводит правило сам.
+
+Ловушки в «Филворде среди слов» (`decoys`) — **только настоящие санскритские словосочетания**:
+
+- чужой род при верных словах: `श्यामं हस्तः`, `नीलः जिह्वा`, `गौरः ललाटम्`;
+- верное согласование, но цвет не из урока: `कपिशं मुखम्`, `हरितः पादः`, `पीता जिह्वा`.
+
+Выдуманных форм вроде `पीता हस्ता` нет ни в данных, ни на экране: у हस्त нет женского рода,
+и такая форма научила бы несуществующему слову. Тест проверяет, что каждая ловушка собрана
+из настоящих слов и что ловушек с чужим родом не меньше восьми.
 
 ### Adding a New Lesson
 Lessons 2+ are **pure data** — no code changes are needed:

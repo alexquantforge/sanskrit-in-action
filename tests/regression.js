@@ -31,7 +31,7 @@ const dom = new JSDOM(fs.readFileSync(path.join(REPO, 'index.html'), 'utf8'), {
 const win = dom.window;
 ['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'lesson5.js',
   'lesson6.js', 'lesson7.js', 'lesson8.js', 'lesson9.js', 'lesson-colors.js',
-  'lesson-colors2.js', 'games-extra.js', 'app.js'].forEach(f => {
+  'lesson-colors2.js', 'lesson-gender.js', 'games-extra.js', 'app.js'].forEach(f => {
   const s = win.document.createElement('script');
   s.textContent = fs.readFileSync(path.join(REPO, f), 'utf8');
   win.document.body.appendChild(s);
@@ -459,12 +459,12 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
 
 /* ---------- lesson order: body (6) -> face (7) -> colours (6) -> more colours (6) -> body+face (12) -> numbers ---------- */
 {
-  const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson6',
-                 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10', 'view-lesson11',
-                 'view-lesson12']
+  const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
+                 'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
+                 'view-lesson11', 'view-lesson12']
     .map(id => win.document.getElementById(id));
   SAL.openLesson('LC2');   /* панель урока 4 строится движком — собираем её заранее */
-  ck(order.every(Boolean), 'все одиннадцать панелей урока есть на странице');
+  ck(order.every(Boolean), 'все двенадцать панелей урока есть на странице');
   for (let i = 0; i < order.length - 1; i++) {
     ck(order[i].compareDocumentPosition(order[i + 1]) & 4,
       'порядок панелей: урок ' + (i + 1) + ' → урок ' + (i + 2));
@@ -1742,15 +1742,15 @@ Object.keys(NUMS).forEach(key => {
 
 /* navigation: one dropdown lists every lesson, in every pane */
 console.log('\n===== Выпадающий список уроков =====');
-const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'lesson6', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
-const PANES = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson6',
-               'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10', 'view-lesson11',
-               'view-lesson12'];
+const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'LG', 'lesson6', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
+const PANES = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
+               'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
+               'view-lesson11', 'view-lesson12'];
 const CUR = { 'view-lesson1': 'L2', 'view-lesson2': 'L3', 'view-lesson3': 'LC',
-              'view-lesson4': 'LC2', 'view-lesson6': 'lesson6', 'view-lesson7': 'L4',
-              'view-lesson8': 'L5', 'view-lesson9': 'L6', 'view-lesson10': 'L7',
-              'view-lesson11': 'L8', 'view-lesson12': 'L9' };
-['L2', 'L3', 'LC', 'LC2', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'].forEach(k => SAL.openLesson(k));
+              'view-lesson4': 'LC2', 'view-lesson5': 'LG', 'view-lesson6': 'lesson6',
+              'view-lesson7': 'L4', 'view-lesson8': 'L5', 'view-lesson9': 'L6',
+              'view-lesson10': 'L7', 'view-lesson11': 'L8', 'view-lesson12': 'L9' };
+['L2', 'L3', 'LC', 'LC2', 'LG', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'].forEach(k => SAL.openLesson(k));
 win.switchView('lesson6');
 PANES.forEach(id => {
   const pane = win.document.getElementById(id);
@@ -2394,6 +2394,166 @@ console.log('\n===== Restart не прокручивает экран =====');
   if (realOffset) Object.defineProperty(win, 'pageYOffset', realOffset);
   else delete win.pageYOffset;
   if (realInner) Object.defineProperty(win, 'innerHeight', realInner);
+  SAL.openLesson('L4');
+}
+
+/* ==========================================================================
+   УРОК 5 · लिङ्गानि «Три рода» — guided discovery и родовые ловушки
+   ========================================================================== */
+console.log('\n===== Урок 5 · Три рода (LG) =====');
+{
+  const LG = SAL.lessons.LG;
+  const doc = win.document;
+  ck(!!LG && LG.num === 5, 'LG зарегистрирован под номером 5');
+  ck(['L2', 'L3', 'LC', 'LC2', 'LG'].every(k => SAL.lessons[k]) &&
+     SAL.lessons.LC2.num === 4 && LG.num === 5 && SAL.lessons.L4.num === 7,
+    'LG стоит между «Ещё цвета» (4) и 12-словным уроком (6)');
+
+  /* --- восемь существительных и их род ------------------------------------ */
+  const GENDER = { hasta: 'm', danta: 'm', pada: 'm',
+                   lalata: 'n', udara: 'n', nayana: 'n', mukha: 'n', jihva: 'f' };
+  const ENDING = { m: 'ः', n: 'म्', f: 'ा' };
+  ck(LG.words.length === 8, 'в уроке ровно 8 существительных (' + LG.words.length + ')');
+  ck(LG.words.every(w => GENDER[w.id] === w.gender),
+    'род восьми слов: ' + LG.words.map(w => w.id + '=' + w.gender).join(', '));
+  const ENDING_RE = { m: /\u0903$/, n: /\u092e\u094d$/, f: /\u093e$/ };
+  ck(LG.words.every(w => ENDING_RE[w.gender].test(w.deva)),
+    'окончание слова и есть род: ः — м., म् — ср., ा — ж.');
+  ck(LG.words.filter(w => w.gender === 'm').length === 3 &&
+     LG.words.filter(w => w.gender === 'n').length === 4 &&
+     LG.words.filter(w => w.gender === 'f').length === 1,
+    'три мужских, четыре средних, один женский — как в восьми предложениях');
+
+  /* --- цвета уроков 3–4: шесть разных ------------------------------------ */
+  const colours = LG.words.map(w => w.deva.split(' ')[0]);
+  ck(colours.every(c => /^(श्याम|श्वेत|गौर|पाटल|नील|रक्त)/.test(c)),
+    'все цвета — из уроков 3–4: ' + [...new Set(colours)].join(' · '));
+
+  /* --- пропуски спрашивают только окончание, варианты все настоящие ------ */
+  ck(LG.words.every(w => w.gapAnswer === ENDING[w.gender]),
+    'в «Пропусках» ответ — окончание своего рода: ' + LG.words.map(w => w.gapAnswer).join(' '));
+  ck(LG.words.every(w => ['ः', 'म्', 'ा'].every(s => w.gapChoices.some(c => c.deva === s))),
+    'в каждом пропуске три варианта ः / म् / ा — выдуманных окончаний нет');
+  ck(LG.words.every(w => w.gapChoices.every(c => ['ः', 'म्', 'ा'].indexOf(c.deva) >= 0)),
+    'кроме ः / म् / ा в пропусках ничего не предлагается');
+
+  /* --- данные слов складываются обратно ---------------------------------- */
+  const nospace = t => t.replace(/ /g, '');
+  const editDist = (a, b) => {
+    a = [...a]; b = [...b];
+    const d = [];
+    for (let i = 0; i <= a.length; i++) d.push([i].concat(new Array(b.length).fill(0)));
+    for (let j = 0; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  };
+  const broken = [];
+  LG.words.forEach(w => {
+    if (w.maskedPrefix + w.maskedHidden !== w.deva) broken.push(w.deva + ': masked');
+    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== nospace(w.deva)) broken.push(w.deva + ': gap');
+    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== nospace(w.deva)) broken.push(w.deva + ': missing');
+    if (!w.gapChoices.some(c => c.deva === w.gapAnswer)) broken.push(w.deva + ': gapChoices');
+    if (!w.missingChoices.includes(w.missingAnswer)) broken.push(w.deva + ': missingChoices');
+    if (editDist(w.deva, w.typoDeva) !== 1) broken.push(w.deva + ': опечатка не в одну букву');
+    if (w.syll && w.syll.join('') !== nospace(w.deva)) broken.push(w.deva + ': слоги не складываются в слово');
+  });
+  ck(broken.length === 0, 'данные слов согласованы' + (broken.length ? ' — ' + broken.join('; ') : ''));
+
+  /* --- guided discovery --------------------------------------------------- */
+  const D = LG.discovery;
+  ck(!!D && Array.isArray(D.sentences) && D.sentences.length === 8,
+    'вводный текст — восемь предложений (' + (D ? D.sentences.length : 0) + ')');
+  const SENT = [
+    'कृष्णस्य ललाटं श्यामम् अस्ति।', 'बलरामस्य उदरं श्वेतम् अस्ति।',
+    'चैतन्यस्य हस्तः गौरः अस्ति।', 'गोपालस्य दन्तः श्वेतः अस्ति।',
+    'राधायाः जिह्वा पाटला अस्ति।', 'कृष्णस्य नयनं नीलम् अस्ति।',
+    'कृष्णस्य पादः श्यामः अस्ति।', 'गौराङ्गस्य मुखं रक्तम् अस्ति।'
+  ];
+  ck(D.sentences.map(s => s.deva).join('|') === SENT.join('|'),
+    'все восемь предложений на месте и в том же порядке');
+  ck(D.sentences.every((s, i) => s.gender === LG.words[i].gender),
+    'род каждого предложения совпадает с родом слова из игр');
+  ck(D.sentences.every(s => s.ru && s.en && s.iast),
+    'у каждого предложения есть IAST и перевод на два языка');
+
+  SAL.openLesson('LG');
+  const slot = doc.getElementById('LG-discovery');
+  ck(!!slot && slot.querySelectorAll('.disc-row').length === 8,
+    'в Presentation восемь строк вводного текста (' +
+      (slot ? slot.querySelectorAll('.disc-row').length : 0) + ')');
+  ck(!!slot && !slot.querySelector('.disc-rule'),
+    'по умолчанию разбор закрыт — правила на экране нет');
+  ck(!!slot && [...slot.querySelectorAll('.disc-tag')].every(t => t.textContent.trim() === '?'),
+    'закрытый разбор не выдаёт род: вместо окончания стоит «?»');
+  ck(!!slot && [...slot.querySelectorAll('.disc-deva')].every(el => el.textContent.trim().slice(-1) === '।'),
+    'предложения уже видны целиком — скрыт только разбор, а не текст');
+  SAL.do('LG', 'discoveryToggle');
+  const slot2 = doc.getElementById('LG-discovery');
+  ck(!!slot2 && !!slot2.querySelector('.disc-rule'), 'кнопка открывает правило под списком');
+  const tags = [...slot2.querySelectorAll('.disc-tag')].map(t => t.textContent);
+  ck(tags.filter(t => /मужской|мужской/.test(t)).length === 3 &&
+     tags.filter(t => /средний/.test(t)).length === 4 &&
+     tags.filter(t => /женский/.test(t)).length === 1,
+    'после открытия видны 3 мужских, 4 средних и 1 женский род');
+  ck(!slot2.querySelector('.disc-rule').innerHTML.indexOf('undefined') >= 0, 'в правиле нет пустых подстановок');
+  SAL.do('LG', 'discoveryToggle');
+  ck(!doc.getElementById('LG-discovery').querySelector('.disc-rule'), 'повторное нажатие снова прячет разбор');
+
+  /* --- ловушки «филворда среди слов» -------------------------------------- */
+  const DEC = LG.decoys || [];
+  ck(DEC.length >= 8, 'в филворде есть ловушки: ' + DEC.length);
+  ck(DEC.every(d => LG.words.every(w => w.deva !== d)), 'ловушка не совпадает ни с одним словом урока');
+  const COLOUR_STEMS = ['श्याम', 'श्वेत', 'गौर', 'पाटल', 'नील', 'रक्त', 'कपिश', 'हरित', 'धूसर', 'पीत', 'नारङ्ग', 'कृष्ण'];
+  const NOUN_STEMS = LG.words.map(w => w.deva.split(' ')[1].replace(/[ःा]\S*$|म्$/, ''));
+  const fake = DEC.filter(d => {
+    const parts = d.split(' ');
+    if (parts.length !== 2) return true;
+    const col = COLOUR_STEMS.some(c => parts[0].indexOf(c) === 0);
+    const noun = LG.words.some(w => parts[1].indexOf(w.deva.split(' ')[1].slice(0, 3)) === 0);
+    return !(col && noun);
+  });
+  ck(fake.length === 0, 'каждая ловушка собрана из настоящих санскритских слов' +
+    (fake.length ? ' — не настоящие: ' + fake.join('; ') : ''));
+  const sign = t => { const c = t.slice(-1); return c === 'ः' ? 'm' : c === 'ा' ? 'f' : 'n'; };
+  const wrongGender = DEC.filter(d => {
+    const p = d.split(' ');
+    return sign(p[0]) !== sign(p[1]);
+  });
+  ck(wrongGender.length >= 8, 'ловушек с чужим родом не меньше восьми: ' + wrongGender.length);
+
+  /* --- игры --------------------------------------------------------------- */
+  const tabs = [...doc.querySelectorAll('#view-lesson5 .practice-tab-btn[data-game]')]
+    .map(b => b.getAttribute('data-game'));
+  ck(tabs.length === 14 && tabs.slice(12).join() === 'wordgrid,wordsearch',
+    'те же игры, что в других уроках, плюс два филворда: ' + tabs.length + ' вкладок');
+
+  const arena = doc.getElementById('LG-practice-arena');
+  const clickAll = el => [...el.querySelectorAll('button')].forEach(b => { try { b.click(); } catch (e) { errs.push(String(e && e.message)); } });
+  const GAMES_LG = tabs;
+  GAMES_LG.forEach(g => { SAL.do('LG', 'setGame', g); clickAll(arenaOf('LG')); });
+  ['sprint', 'mic', 'missingpart', 'chant'].forEach(m => { SAL.do('LG', 'setProdMode', m); clickAll(stageOf('LG')); });
+  ck(true, 'все 14 игр и 4 режима Production нажимаются без ошибок');
+
+  /* филворд среди слов: ловушка с чужим родом реально попадает на поле.
+     Сначала обнуляем поле — предыдущий проход нажал «Показать всё». */
+  delete SAL.lessons.LG._st.g.wordgrid;
+  SAL.do('LG', 'setGame', 'wordgrid');
+  const cells = [...arena.querySelectorAll('.wcell')].map(c => c.textContent.trim());
+  ck(cells.filter(t => LG.words.some(w => w.deva === t)).length === 16,
+    'на поле лежат все 8 фраз урока, каждая дважды (' +
+      cells.filter(t => LG.words.some(w => w.deva === t)).length + ')');
+  ck(cells.some(t => wrongGender.indexOf(t) >= 0),
+    'на поле есть ловушка с чужим родом — её надо не перепутать с настоящей фразой');
+
+  /* филворд среди букв: фраза режется на акшары, все восемь влезают в 10 × 10 */
+  delete SAL.lessons.LG._st.g.wordsearch;
+  SAL.do('LG', 'setGame', 'wordsearch');
+  const ws = SAL.lessons.LG._st.g.wordsearch;
+  ck(ws.places.length === 8, 'в поле 10 × 10 размещены все 8 фраз');
+  ck(ws.maxLen === 5, 'самая длинная фраза — 5 акшар (' + ws.maxLen + ')');
+  ck(ws.grid.every(c => c !== ' '), 'клеток с пробелом нет — фраза режется на акшары, а не на слова');
   SAL.openLesson('L4');
 }
 
