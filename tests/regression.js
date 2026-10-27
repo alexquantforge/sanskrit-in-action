@@ -2627,6 +2627,109 @@ console.log('\n===== Озвучка: висарга ः =====');
   SAL.openLesson('L4');
 }
 
+/* ==========================================================================
+   ПОРЯДОК ВАРИАНТОВ · верный ответ не должен всегда стоять первым
+   --------------------------------------------------------------------------
+   В данных всех уроков верный вариант записан первым, поэтому «Пропуски» и
+   «Буквы» показывали его под буквой A. Теперь движок перемешивает варианты.
+   Проверяем: буква бывает разной, порядок не прыгает при перерисовке и
+   ответ по-прежнему засчитывается.
+   ========================================================================== */
+console.log('\n===== Порядок вариантов: ответ не всегда A =====');
+{
+  const L = 'ABCD';
+  const keys = Object.keys(SAL.lessons).filter(k => SAL.lessons[k].words && SAL.lessons[k].words.length);
+  const tally = { 0: 0, 1: 0, 2: 0, 3: 0 };
+  const perLesson = [];
+  const unstable = [];
+  const notScored = [];
+
+  keys.forEach(k => {
+    const cfg = SAL.lessons[k];
+    SAL.openLesson(k);
+    ['gaps', 'spelling'].forEach(game => {
+      SAL.do(k, 'setGame', game);
+      const arena = win.document.getElementById(k + '-practice-arena');
+      const g = SAL.lessons[k]._st.g[game];
+      const marks = [];
+      cfg.words.forEach((w, i) => {
+        const answer = game === 'gaps' ? w.gapAnswer : w.missingAnswer;
+        const pick = game === 'gaps' ? 'gapPick' : 'spellPick';
+        const readAt = () => {
+          g.i = i; SAL.refresh();
+          const btns = [...arena.querySelectorAll('.quiz-opt-btn')];
+          return btns.findIndex(b => (b.getAttribute('onclick') || '').indexOf("'" + answer + "'") >= 0);
+        };
+        const at = readAt();
+        if (at >= 0) { marks.push(L[at]); tally[at]++; } else { marks.push('-'); }
+        /* порядок не должен меняться при перерисовке того же слова */
+        if (at >= 0 && readAt() !== at) unstable.push(k + '/' + game + '/' + w.id);
+        /* и верный вариант по-прежнему засчитывается */
+        if (game === 'gaps') {
+          g.answered = false; g.firstTry = true; g.redPick = null;
+          const before = g.score;
+          SAL.do(k, 'gapPick', answer);
+          if (!g.answered || g.score !== before + 1) notScored.push(k + '/' + w.id);
+        }
+      });
+      perLesson.push(k + ' ' + game + ': ' + marks.join(''));
+    });
+  });
+
+  perLesson.forEach(line => console.log('  · ' + line));
+  const total = Object.keys(tally).reduce((s, n) => s + tally[n], 0);
+  ck(tally[1] + tally[2] + tally[3] > 0,
+    'верный ответ бывает не только под A: ' + JSON.stringify(tally));
+  ck(Object.keys(tally).filter(n => tally[n] > 0).length === 4,
+    'задействованы все четыре буквы A/B/C/D на ' + total + ' вопросах');
+  ck(tally[0] < total * 0.45,
+    'на A приходится меньше половины ответов (' + tally[0] + ' из ' + total + ')');
+  ck(unstable.length === 0,
+    'порядок вариантов не прыгает при перерисовке' + (unstable.length ? ': ' + unstable.slice(0, 3).join(', ') : ''));
+  ck(notScored.length === 0,
+    'верный вариант засчитывается на любой позиции' + (notScored.length ? ': ' + notScored.slice(0, 3).join(', ') : ''));
+
+  /* ни в одном уроке верный ответ не стоит на одной и той же букве всегда */
+  const mono = [];
+  keys.forEach(k => {
+    const cfg = SAL.lessons[k];
+    SAL.openLesson(k);
+    ['gaps', 'spelling'].forEach(game => {
+      SAL.do(k, 'setGame', game);
+      const g = SAL.lessons[k]._st.g[game];
+      const seen = new Set();
+      cfg.words.forEach((w, i) => {
+        const answer = game === 'gaps' ? w.gapAnswer : w.missingAnswer;
+        g.i = i; SAL.refresh();
+        const btns = [...win.document.getElementById(k + '-practice-arena').querySelectorAll('.quiz-opt-btn')];
+        const at = btns.findIndex(b => (b.getAttribute('onclick') || '').indexOf("'" + answer + "'") >= 0);
+        if (at >= 0) seen.add(at);
+      });
+      if (seen.size === 1 && cfg.words.length >= 4) mono.push(k + '/' + game);
+    });
+  });
+  ck(mono.length === 0, 'ни в одном уроке буква не закреплена за ответом навсегда' +
+    (mono.length ? ': ' + mono.join(', ') : ''));
+
+  /* рукописный урок 12 слов: у него своя отрисовка */
+  win.selectPracticeGame('spelling');
+  SAL.openLesson('LG');
+  win.switchView('lesson6');
+  const spMarks = [];
+  for (let i = 0; i < 12; i++) {
+    win.eval('spIndex = ' + i + '; renderPracticeArena();');
+    const btns = [...win.document.getElementById('lesson1-practice-arena').querySelectorAll('.quiz-opt-btn')];
+    const answer = win.eval('bodyPartsVocab[spIndex].missingAnswer');
+    const at = btns.findIndex(b => (b.getAttribute('onclick') || '').indexOf("'" + answer + "'") >= 0);
+    spMarks.push(at >= 0 ? L[at] : '-');
+  }
+  ck(new Set(spMarks).size >= 3,
+    'урок 12 слов, «Буквы»: ответ на разных буквах — ' + spMarks.join(''));
+
+  win.eval('gapIndex = 0; renderPracticeArena();');
+  SAL.openLesson('L4');
+}
+
 console.log(errs.length ? '\nJS ERRORS: ' + errs.slice(0, 5).join(' | ') : '\nJS-ошибок нет');
 console.log(bad === 0 && errs.length === 0 ? 'ALL CHECKS PASSED' : bad + ' FAILURES');
 process.exit(bad || errs.length ? 1 : 0);

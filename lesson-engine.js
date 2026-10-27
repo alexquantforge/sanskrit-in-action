@@ -223,6 +223,40 @@ var SAL = (window.SAL = window.SAL || {});
       '\',\'' + action + '\',\'' + value + '\')">' +
       (typeof letter === 'number' ? letterBadge(letter) : '') + html + '</button>';
   }
+
+  /* ------------------------------------------------------------ порядок вариантов
+     «Пропуски» и «Буквы» брали варианты из данных как есть, а данные во всех
+     уроках перечисляют верный ответ первым — значит, верный ответ всегда был A,
+     и угадать было нетрудно. Теперь порядок перемешивается один раз на слово и
+     запоминается в состоянии игры: при перерисовке (нажали, ошиблись, вернулись)
+     варианты не прыгают, а после «↺» тасуются заново, потому что состояние игры
+     создаётся с нуля.
+
+     Повтор подряд не запрещаем наглухо: если верный ответ снова попал на ту же
+     позицию, что у предыдущего слова, в большинстве случаев тасуем ещё раз, но
+     иногда оставляем. Строгий запрет давал другую крайность — в коротком уроке
+     буквы шли строго по очереди (A, D, A, D…), и это тоже узор. */
+  function optionOrder(cfg, game, w, list, keyOf, correct) {
+    var g = gst(cfg, game);
+    if (!g.orders) g.orders = {};
+    var memo = g.orders[w.id];
+    if (memo && memo.length === list.length) return memo;
+    var n = list.length;
+    var perm = [];
+    for (var i = 0; i < n; i++) perm.push(i);
+    if (n < 2) { g.orders[w.id] = perm; return perm; }
+    for (var attempt = 0; attempt < 10; attempt++) {
+      perm = shuffle(perm);
+      var pos = -1;
+      for (var k = 0; k < n; k++) {
+        if (keyOf(list[perm[k]]) === correct) { pos = k; break; }
+      }
+      if (pos !== g.lastPos || Math.random() < 0.3) { g.lastPos = pos; break; }
+    }
+    g.orders[w.id] = perm;
+    return perm;
+  }
+
   function chip(cfg, action, value, label, active) {
     return '<button type="button" class="chip-btn' + (active ? ' active' : '') + '" onclick="SAL.do(\'' + cfg.key +
       '\',\'' + action + '\'' + (value ? ',\'' + value + '\'' : '') + ')">' + label + '</button>';
@@ -1252,7 +1286,10 @@ var SAL = (window.SAL = window.SAL || {});
     var N = cfg.words.length;
     if (g.finished || g.i >= N) return finalScreen(cfg, 'gaps', ru('Fill in the Gaps — done!', 'Fill in the Gaps — пройдено!'), g.score, N);
     var w = cfg.words[g.i];
-    var btns = w.gapChoices.map(function (c, idx) {
+    var gapOrder = optionOrder(cfg, 'gaps', w, w.gapChoices,
+      function (c) { return c.deva; }, w.gapAnswer);
+    var btns = gapOrder.map(function (oi, idx) {
+      var c = w.gapChoices[oi];
       var cls = '';
       if (g.answered && c.deva === w.gapAnswer) cls = 'correct';
       if (c.deva === g.redPick) cls = 'wrong';
@@ -1678,7 +1715,10 @@ var SAL = (window.SAL = window.SAL || {});
     var N = cfg.words.length;
     if (g.finished || g.i >= N) return finalScreen(cfg, 'spelling', ru('Missing Letters — done!', 'Missing Letters — пройдено!'), g.score, N);
     var w = cfg.words[g.i];
-    var btns = w.missingChoices.map(function (c, idx) {
+    var spellOrder = optionOrder(cfg, 'spelling', w, w.missingChoices,
+      function (c) { return c; }, w.missingAnswer);
+    var btns = spellOrder.map(function (oi, idx) {
+      var c = w.missingChoices[oi];
       var cls = '';
       if (g.answered && c === w.missingAnswer) cls = 'correct';
       if (c === g.redPick) cls = 'wrong';

@@ -1552,6 +1552,33 @@ function resetMaskedGrid() {
 }
 
 // GAME 3: Fill in the Gaps (Missing Consonant + Vowel Syllable with Underscore, e.g. _यन -> न, _सिका -> ना, भ्_ -> रू, अङ्गु_ -> ली)
+
+// Deterministic-but-random-looking option order. The data lists the correct
+// answer first in every gapChoices / missingChoices list, so rendering it as-is
+// made "A" the right answer every time. A plain cycle would be predictable, so
+// we shuffle with a seeded LCG: same word always gets the same order (no
+// jumping between re-renders and in the tests), different words differ.
+function seededShuffle(arr, seed) {
+  const a = arr.slice();
+  let s = (seed >>> 0) || 1;
+  for (let i = a.length - 1; i > 0; i--) {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    const j = s % (i + 1);
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+// A fresh salt per page load: the order stays put while the student works
+// through the round (no jumping when the arena re-renders), but a reload gives
+// a different layout, so no fixed letter can be learned as "the right one".
+const OPTION_SALT = (Math.random() * 0xFFFFFFFF) >>> 0;
+function optionSeed(roundIndex, item) {
+  const id = String((item && item.id) || '');
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) h = (Math.imul(h ^ id.charCodeAt(i), 16777619)) >>> 0;
+  return (h ^ Math.imul(roundIndex + 1, 2654435761) ^ OPTION_SALT) >>> 0;
+}
+
 function renderFillGapsGame(arena) {
   if (gapFinished) {
     renderFinalScoreScreen(arena, '3. Fill in the Gaps', gapScore, bodyPartsVocab.length, 'restartGapsGame()');
@@ -1561,9 +1588,8 @@ function renderFillGapsGame(arena) {
   const item = bodyPartsVocab[gapIndex];
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
-  // Deterministically rotate the 4 syllable choices so the correct option varies across positions 1..4
-  const shift = (gapIndex * 3 + 1) % item.gapChoices.length;
-  const options = item.gapChoices.map((_, i) => item.gapChoices[(i + shift) % item.gapChoices.length]);
+  // Shuffle the choices so the correct option is not always in the same place
+  const options = seededShuffle(item.gapChoices, optionSeed(gapIndex, item));
 
   const optionsHtml = options.map((opt, idx) => `
     <button type="button" class="quiz-opt-btn" id="gap-opt-${idx}" onclick="checkGapAnswer('${opt.deva}', ${idx})">
@@ -2482,7 +2508,10 @@ function renderSpellingGame(arena) {
   const item = bodyPartsVocab[spIndex];
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
 
-  const choicesHtml = item.missingChoices.map((ch, i) => `
+  // Same shuffle as in Fill in the Gaps: the answer is first in the data,
+  // so without this "A" was always right.
+  const spOptions = seededShuffle(item.missingChoices, optionSeed(spIndex, item));
+  const choicesHtml = spOptions.map((ch, i) => `
     <button type="button" class="quiz-opt-btn" id="sp-opt-${i}" onclick="checkSpellingAnswer('${ch}', ${i})">
       <span class="opt-letter">${'ABCD'[i]}</span>
       <div style="font-family:var(--font-deva);font-size:1.65rem;font-weight:700;">${ch}</div>
