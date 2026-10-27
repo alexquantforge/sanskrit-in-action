@@ -2,7 +2,7 @@
    УРОК 5 · लिङ्गानि «Три рода»
    ----------------------------------------------------------------------------
    Восемь существительных из уроков 1–2 (лоб, живот, рука, зуб, язык, глаз,
-   стопа, лицо) и шесть цветов из уроков 3–4.
+   стопа, рот) и шесть цветов из уроков 3–4.
 
    Смысл урока — род существительного, а не окончание прилагательного.
    Поэтому вводный текст — восемь предложений о божествах, где цвет стоит
@@ -79,10 +79,13 @@ function lgPart(kind, fill) {
       '<circle cx="64" cy="22" r="4.2" fill="' + fill + '" stroke="' + C + '" stroke-width="2.4"/>' +
       '<circle cx="72" cy="29" r="3.8" fill="' + fill + '" stroke="' + C + '" stroke-width="2.4"/>';
   }
-  /* face */
-  return '<circle cx="50" cy="50" r="26" fill="' + fill + '" stroke="' + C + '" stroke-width="3"/>' +
-    '<circle cx="41" cy="45" r="3" fill="#0B1220"/><circle cx="59" cy="45" r="3" fill="#0B1220"/>' +
-    '<path d="M42 61c5 4 11 4 16 0" stroke="' + C + '" stroke-width="2.6" stroke-linecap="round"/>';
+  /* mouth — मुख здесь «рот». Открытый рот: плоская верхняя губа, круглый
+     подбородок и полоска зубов. Лица с глазами быть не должно (по глазам
+     ребёнок опознал бы «лицо»), и форма нарочно не «линза», как у глаза
+     नयन, — иначе два значка перепутались бы. */
+  return '<path d="M16 42h68c-1 24-18 38-34 38S17 66 16 42Z" fill="' + fill + '" stroke="' + C + '" stroke-width="3" stroke-linejoin="round"/>' +
+    '<ellipse cx="50" cy="64" rx="14" ry="9" fill="#5B1010"/>' +
+    '<path d="M24 47h52" stroke="#FFFFFF" stroke-width="5.5" stroke-linecap="round"/>';
 }
 
 /* цвета уроков 3–4 — те же значения, что в палитрах */
@@ -197,7 +200,7 @@ var LG_WORDS = [
     gapChoices: [{ deva: 'म्', iast: 'm' }, { deva: 'ः', iast: 'ḥ' }, { deva: 'ा', iast: 'ā' }],
     missingDisplay: 'रक्तं मु_म्', missingAnswer: 'ख',
     missingChoices: ['ख', 'क', 'घ', 'ग'],
-    icon: 'face', fill: LG_COLOUR.rakta, tint: '#FEF2F2'
+    icon: 'mouth', fill: LG_COLOUR.rakta, tint: '#FEF2F2'
   }
 ];
 
@@ -255,7 +258,7 @@ var LG_SENTENCES = [
   {
     deva: 'गौराङ्गस्य मुखं रक्तम् अस्ति।', iast: 'gaurāṅgasya mukhaṃ raktam asti',
     ttsText: 'गौराङ्गस्य मुखं रक्तम् अस्ति',
-    ru: 'Лицо Гауранги красное.', en: 'Gaurāṅga’s face is red.',
+    ru: 'Рот Гауранги красный.', en: 'Gaurāṅga’s mouth is red.',
     gender: 'n', ending: 'मुखम् → -म्'
   }
 ];
@@ -307,8 +310,8 @@ SAL.registerLesson({
   titleEn: 'Three Genders',
   topicRu: 'мужской, средний и женский род: ः · म् · ा',
   topicEn: 'masculine, neuter and feminine: ः · म् · ा',
-  introRu: 'Пятый урок — про <strong>род</strong>. Восемь частей тела из уроков 1–2 (лоб, живот, рука, зуб, язык, глаз, стопа, лицо) и шесть цветов из уроков 3–4. Вводный текст — восемь предложений о божествах: <code>कृष्णस्य ललाटं श्यामम् अस्ति</code>. Прочитайте их вслух и найдите правило сами: цвет всегда кончается так же, как существительное — <code>-ः</code> у мужского рода, <code>-म्</code> у среднего, <code>-ा</code> у женского. Разбор закрыт, пока его не откроют кнопкой.',
-  introEn: 'The fifth lesson is about <strong>gender</strong>. Eight body and face words from lessons 1–2 (forehead, belly, hand, tooth, tongue, eye, foot, face) and six colours from lessons 3–4. The lead-in text is eight sentences about the deities: <code>kṛṣṇasya lalāṭaṃ śyāmam asti</code>. Read them aloud and find the rule yourself: the colour always ends the way the noun ends — <code>-ḥ</code> for masculine, <code>-m</code> for neuter, <code>-ā</code> for feminine. The analysis stays closed until the button is pressed.',
+  introRu: 'Пятый урок — про <strong>род</strong>. Восемь частей тела из уроков 1–2 (лоб, живот, рука, зуб, язык, глаз, стопа, рот) и шесть цветов из уроков 3–4. Вводный текст — восемь предложений о божествах: <code>कृष्णस्य ललाटं श्यामम् अस्ति</code>. Прочитайте их вслух и найдите правило сами: цвет всегда кончается так же, как существительное — <code>-ः</code> у мужского рода, <code>-म्</code> у среднего, <code>-ा</code> у женского. Разбор закрыт, пока его не откроют кнопкой.',
+  introEn: 'The fifth lesson is about <strong>gender</strong>. Eight body and face words from lessons 1–2 (forehead, belly, hand, tooth, tongue, eye, foot, mouth) and six colours from lessons 3–4. The lead-in text is eight sentences about the deities: <code>kṛṣṇasya lalāṭaṃ śyāmam asti</code>. Read them aloud and find the rule yourself: the colour always ends the way the noun ends — <code>-ḥ</code> for masculine, <code>-m</code> for neuter, <code>-ā</code> for feminine. The analysis stays closed until the button is pressed.',
   aim: {
     ru: {
       main: 'Уточнить и отработать три рода санскритских существительных в контексте описания частей тела и цветов.',

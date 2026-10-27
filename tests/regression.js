@@ -2478,6 +2478,21 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
   ck(D.sentences.every(s => s.ru && s.en && s.iast),
     'у каждого предложения есть IAST и перевод на два языка');
 
+  /* मुख — «рот», а не «лицо»: перевод и картинка должны совпадать со словом */
+  const mukhaSentence = D.sentences.filter(s => s.deva.indexOf('मुख') >= 0)[0];
+  ck(!!mukhaSentence && mukhaSentence.ru === 'Рот Гауранги красный.',
+    'मुख переведено как «рот»: ' + (mukhaSentence ? mukhaSentence.ru : '—'));
+  ck(D.sentences.every(s => s.ru.indexOf('Лицо') < 0) && D.sentences.every(s => s.en.indexOf('face') < 0),
+    'ни в одном предложении मुख не названо лицом');
+  const mukhaWord = LG.words.filter(w => w.id === 'mukha')[0];
+  ck(!!mukhaWord && !/fill="#0B1220"/.test(mukhaWord.svg),
+    'на карточке मुख нет глаз — иначе ребёнок опознал бы лицо, а не рот');
+  ck(!!mukhaWord && /#5B1010/.test(mukhaWord.svg),
+    'на карточке मुख нарисован рот (губы и отверстие рта)');
+  ck(LG.introRu.indexOf('рот') >= 0 && LG.introEn.indexOf('mouth') >= 0 &&
+     LG.introRu.indexOf('лицо') < 0,
+    'в описании урока मुख названо ртом, а не лицом');
+
   SAL.openLesson('LG');
   const slot = doc.getElementById('LG-discovery');
   ck(!!slot && slot.querySelectorAll('.disc-row').length === 8,
