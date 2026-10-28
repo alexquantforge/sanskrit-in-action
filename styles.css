@@ -2635,7 +2635,23 @@ button:disabled,
   padding: 0.75rem 0.85rem;
 }
 .disc-row.open { border-color: var(--border-strong); }
-.disc-row .vocab-audio-btn { flex: 0 0 auto; }
+.disc-head .disc-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+/* Кнопка 🔊 в строке — обычный элемент потока, а не position:absolute.
+   Абсолютный блок остаётся flex-элементом с z-index:auto, а такие рисуются
+   в порядке DOM: кнопка уходила ПОД текст и плашку рода, и нажимался только
+   её выступающий край. В потоке наложения нет — нажимается вся площадь. */
+.disc-row .vocab-audio-btn {
+  position: static;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  font-size: 1rem;
+  margin-top: 0.1rem;
+}
 .disc-text { min-width: 0; flex: 1 1 auto; }
 .disc-deva {
   font-family: var(--font-deva);

@@ -100,7 +100,8 @@ var SAL = (window.SAL = window.SAL || {});
       pres: {
         mode: 'stepbystep', step: 0, labelsHidden: false, maskMode: false,
         revealed: {}, heard: {}, audioRevealed: {}, hotspotId: cfg.words[0].id,
-        discoveryOpen: false
+        discoveryOpen: false,
+        translationsShown: false
       },
       game: 'masked',
       players: 1,
@@ -1073,17 +1074,22 @@ var SAL = (window.SAL = window.SAL || {});
     if (!d) return '';
     var st = state(cfg);
     var open = !!st.pres.discoveryOpen;
+    /* Перевод по умолчанию скрыт: сначала ученик читает и слышит санскрит,
+       значение выясняется из картинки и разбора, а не из русской строки. */
+    var showTr = !!st.pres.translationsShown;
     var rows = d.sentences.map(function (s, i) {
       var tag = open
         ? '<span class="disc-tag disc-g-' + s.gender + '">' +
             (i + 1) + '. ' + s.ending + ' — ' + tx(DISC_GENDER[s.gender]) + '</span>'
         : '<span class="disc-tag disc-hidden">?</span>';
       return '<li class="disc-row' + (open ? ' open' : '') + '">' +
-        '<button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); SAL.speak(\'' +
-          s.ttsText + '\')">🔊</button>' +
+        '<button type="button" class="vocab-audio-btn disc-speak" title="🔊"' +
+          ' aria-label="' + ru('Listen', 'Прослушать') + ': ' + s.iast + '"' +
+          ' onclick="event.stopPropagation(); SAL.speak(\'' + s.ttsText + '\')">🔊</button>' +
         '<div class="disc-text"><div class="disc-deva">' + s.deva + '</div>' +
           '<div class="disc-iast">' + s.iast + '</div>' +
-          '<div class="disc-tr">' + tx({ ru: s.ru, en: s.en }) + '</div></div>' +
+          (showTr ? '<div class="disc-tr">' + tx({ ru: s.ru, en: s.en }) + '</div>' : '') +
+        '</div>' +
         tag + '</li>';
     }).join('');
     var rule = open ? '<div class="disc-rule">' + tx({ ru: d.ruleRu, en: d.ruleEn }) + '</div>' : '';
@@ -1094,10 +1100,16 @@ var SAL = (window.SAL = window.SAL || {});
           '<h3 class="disc-title">' + tx({ ru: d.titleRu, en: d.titleEn }) + '</h3>' +
           '<p class="disc-lead">' + tx({ ru: d.leadRu, en: d.leadEn }) + '</p>' +
         '</div>' +
-        '<button type="button" class="chip-btn' + (open ? ' active' : '') + '"' +
-          ' onclick="SAL.do(\'' + cfg.key + '\',\'discoveryToggle\')">' +
-          (open ? '🙈 ' + ru('Hide the analysis', 'Скрыть разбор')
-                : '🔍 ' + ru('Reveal the pattern', 'Открыть разбор')) + '</button>' +
+        '<div class="disc-actions">' +
+          '<button type="button" class="chip-btn' + (open ? ' active' : '') + '"' +
+            ' onclick="SAL.do(\'' + cfg.key + '\',\'discoveryToggle\')">' +
+            (open ? '🙈 ' + ru('Hide the analysis', 'Скрыть разбор')
+                  : '🔍 ' + ru('Reveal the pattern', 'Открыть разбор')) + '</button>' +
+          '<button type="button" class="chip-btn' + (showTr ? ' active' : '') + '"' +
+            ' onclick="SAL.do(\'' + cfg.key + '\',\'translationToggle\')">' +
+            (showTr ? '🙈 ' + ru('Hide translation', 'Скрыть перевод')
+                    : '👁 ' + ru('Show translation', 'Показать перевод')) + '</button>' +
+        '</div>' +
       '</div>' +
       '<ol class="disc-list">' + rows + '</ol>' + rule +
     '</section>';
@@ -2332,6 +2344,7 @@ var SAL = (window.SAL = window.SAL || {});
     resetAudio: function (cfg, st) { st.pres.heard = {}; st.pres.audioRevealed = {}; },
     setStep: function (cfg, st, a) { st.pres.step = parseInt(a, 10) || 0; },
     discoveryToggle: function (cfg, st) { if (cfg.discovery) st.pres.discoveryOpen = !st.pres.discoveryOpen; },
+    translationToggle: function (cfg, st) { if (cfg.discovery) st.pres.translationsShown = !st.pres.translationsShown; },
     hotspot: function (cfg, st, id) { st.pres.hotspotId = id; SAL.speak(byId(cfg, id).ttsText); },
     hotspotStep: function (cfg, st, a) {
       var order = orderedByPins(cfg);

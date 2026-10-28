@@ -2516,6 +2516,40 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
   SAL.do('LG', 'discoveryToggle');
   ck(!doc.getElementById('LG-discovery').querySelector('.disc-rule'), 'повторное нажатие снова прячет разбор');
 
+  /* ---------- перевод: скрыт по умолчанию, по кнопке ---------- */
+  const slotT = doc.getElementById('LG-discovery');
+  ck(slotT.querySelectorAll('.disc-tr').length === 0, 'перевод скрыт по умолчанию');
+  ck([...slotT.querySelectorAll('.disc-iast')].length === 8,
+    'IAST при этом на месте — скрыт именно перевод');
+  const trBtn = [...slotT.querySelectorAll('.chip-btn')].filter(b => /перевод/.test(b.textContent))[0];
+  ck(!!trBtn && /Показать перевод/.test(trBtn.textContent),
+    'в шапке есть кнопка «Показать перевод»');
+  SAL.do('LG', 'translationToggle');
+  const slotT2 = doc.getElementById('LG-discovery');
+  ck(slotT2.querySelectorAll('.disc-tr').length === 8, 'кнопка показывает перевод во всех восьми строках');
+  ck(/Стопа Кришны тёмно-синяя/.test(slotT2.textContent), 'перевод тот самый, из данных урока');
+  const hideBtn = [...slotT2.querySelectorAll('.chip-btn')].filter(b => /перевод/.test(b.textContent))[0];
+  ck(!!hideBtn && /Скрыть перевод/.test(hideBtn.textContent), 'после нажатия кнопка предлагает скрыть перевод');
+  ck(!/undefined/.test(slotT2.textContent), 'в переводе нет пустых подстановок');
+  SAL.do('LG', 'translationToggle');
+  ck(doc.getElementById('LG-discovery').querySelectorAll('.disc-tr').length === 0,
+    'повторное нажатие снова прячет перевод');
+  ck(SAL.lessons.LG._st.pres.translationsShown === false, 'состояние перевода сброшено');
+
+  /* ---------- кнопка 🔊 нажимается всей площадью ---------- */
+  /* Абсолютный блок внутри flex-контейнера рисуется в порядке DOM: кнопка уходила
+     под текст, и нажимался только её край. Проверяем, что этого больше нет. */
+  const css = fs.readFileSync(path.join(REPO, 'styles.css'), 'utf8');
+  const rule = css.slice(css.indexOf('.disc-row .vocab-audio-btn'));
+  ck(rule.indexOf('position: static') >= 0 && rule.indexOf('position: static') < 400,
+    'кнопка 🔊 в строке вводного текста стоит в потоке (position: static)');
+  const speakBtn = doc.getElementById('LG-discovery').querySelector('.disc-speak');
+  ck(!!speakBtn, 'кнопка 🔊 отрисована в каждой строке');
+  ck(!!speakBtn && /SAL\.speak/.test(speakBtn.getAttribute('onclick') || ''),
+    'кнопка 🔊 вызывает озвучку своего предложения');
+  ck([...doc.getElementById('LG-discovery').querySelectorAll('.disc-speak')].length === 8,
+    'кнопка 🔊 есть у всех восьми строк');
+
   /* --- ловушки «филворда среди слов» -------------------------------------- */
   const DEC = LG.decoys || [];
   ck(DEC.length >= 8, 'в филворде есть ловушки: ' + DEC.length);
