@@ -708,6 +708,12 @@ function ensureStageVisible(elementId) {
 //    Перед согласной висарга — просто [h], там ह् с вирамой, иначе вылезет
 //    лишняя «а»: दुःख → दुह्ख.
 //
+// 3. Анусвара ं в конце слова. Это замена конечного म्, и звучать должно «m»:
+//    मुखं → मुखम् («мукхам»). Без правки движок читал «мукх» — терял и
+//    носовой, и конечную «а». Внутри слова перед श ष स анусвару не трогаем:
+//    там она и стоит по правилам (विंशतिः, त्रिंशत्), а перед смычной
+//    согласной уподобляем носовому своей варги.
+//
 // Words that already end in a vowel sign, a virama (षट्, त्रिंशत्) or anusvara
 // (एकं) are left as is — there is no inherent "a" to rescue.
 /* Отзвук висарги: какая огласовка идёт за ह. Ключ — предыдущий символ
@@ -724,6 +730,20 @@ var VISARGA_ECHO = {
   '\u093E': '\u093E'                                               /* ā → ा */
 };
 
+/* Анусвара ं перед смычной согласной уподобляется носовому своей варги.
+   В конце слова это не уподобление, а замена конечного म् — см. ниже. */
+var ANUSVARA_NASAL = (function () {
+  var out = {};
+  [['\u0915', '\u0919'], ['\u0916', '\u0919'], ['\u0917', '\u0919'], ['\u0918', '\u0919'],
+   ['\u091A', '\u091E'], ['\u091B', '\u091E'], ['\u091C', '\u091E'], ['\u091D', '\u091E'],
+   ['\u091F', '\u0923'], ['\u0920', '\u0923'], ['\u0921', '\u0923'], ['\u0922', '\u0923'],
+   ['\u0924', '\u0928'], ['\u0925', '\u0928'], ['\u0926', '\u0928'], ['\u0927', '\u0928'],
+   ['\u092A', '\u092E'], ['\u092B', '\u092E'], ['\u092C', '\u092E'], ['\u092D', '\u092E'],
+   ['\u0939', '\u0919']
+  ].forEach(function (pair) { out[pair[0]] = pair[1]; });
+  return out;
+})();
+
 function sanskritTtsText(devaText) {
   if (!devaText) return devaText;
   const raw = String(devaText);
@@ -732,7 +752,14 @@ function sanskritTtsText(devaText) {
   const code = raw.slice(-1).charCodeAt(0);
   const endsInConsonant = (code >= 0x0915 && code <= 0x0939) ||   // क … ह
                           (code >= 0x0958 && code <= 0x095F);     // क़ … य़
-  const text = raw.replace(/\u0903/g, function (m, off, whole) {
+  const text = raw.replace(/\u0902/g, function (m, off, whole) {
+    const next = whole.charAt(off + 1);
+    /* конец строки, пробел или знак препинания — значит, конец слова */
+    if (!next || /[\s\u0964\u0965,.;:!?\u2014-]/.test(next)) return '\u092E\u094D';  /* मुखं → मुखम् */
+    const nasal = ANUSVARA_NASAL[next];
+    /* перед श ष स и сонорными анусвару оставляем как есть */
+    return nasal ? nasal + '\u094D' : m;
+  }).replace(/\u0903/g, function (m, off, whole) {
     const next = whole.charCodeAt(off + 1) || 0;
     const nextIsConsonant = next >= 0x0915 && next <= 0x0939;
     if (nextIsConsonant) return '\u0939\u094d';          /* दुःख → दुह्ख: просто [h] */
