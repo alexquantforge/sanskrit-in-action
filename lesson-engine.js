@@ -3282,6 +3282,21 @@ var SAL = (window.SAL = window.SAL || {});
     SAL.refresh();
   };
 
+  /* Panes are built once, on first open, with the strings of the language that
+     was active at that moment. Everything that carries data-i18n-* is translated
+     by setLanguage(), but an element that forgets the attribute would stay in
+     the old language forever. Rebuilding the panes on a language switch removes
+     that whole class of bugs: after it every pane is rendered from scratch in
+     the new language. Game state lives in cfg._st, so nothing is lost. */
+  SAL.rebuildForLang = function () {
+    Object.keys(lessons).forEach(function (k) {
+      var pane = document.getElementById('view-lesson' + lessons[k].num);
+      if (!pane) return;
+      pane.innerHTML = skeletonHtml(lessons[k]);
+      pane.setAttribute('data-built', '1');
+    });
+  };
+
   /* keep the engine in sync when the site language switches (app.js calls this) */
   SAL.refreshOnLangChange = function () {
     SAL.refresh();

@@ -639,7 +639,9 @@ console.log('\n===== Урок 3: цвета =====');
   ck(chantTabEn && chantTabEn.textContent.trim() === '4. TPR Chant & Checklist 6/6 ↑↓',
     'урок 3: подпись ритм-чанта переведена на английский — ' + (chantTabEn && chantTabEn.textContent.trim()));
   win.setLanguage('ru');
-  ck(chantTabEn.textContent.trim() === '4. Ритм-чант и Чек-лист 6/6 ↑↓',
+  /* панель пересобирается при смене языка, поэтому узел берём заново */
+  const chantTabRu = win.document.querySelector('#view-lesson3 [data-prod-mode="chant"]');
+  ck(chantTabRu && chantTabRu.textContent.trim() === '4. Ритм-чант и Чек-лист 6/6 ↑↓',
     'урок 3: и возвращается на русский');
 }
 
@@ -2981,6 +2983,108 @@ console.log('\n===== Английская версия: ни одной русс
     (fieldHits.length ? ': ' + fieldHits.slice(0, 5).join(', ') : ''));
 
   win.setLanguage('ru');
+  SAL.openLesson('L4');
+}
+
+/* ---------- английская версия: путь настоящего пользователя ---------- */
+console.log('\n===== Английская версия: сначала по-русски, потом EN =====');
+{
+  /* Панели уроков строятся один раз. Если пользователь сначала полистал
+     сайт по-русски, а потом нажал EN, любой элемент без data-i18n-* остался
+     бы русским. Проверяем именно этот путь: сначала всё строим в RU,
+     переключаемся и только потом смотрим. */
+  const CYR = /[\u0400-\u04FF]/;
+  const doc = win.document;
+  /* видимость: скрытая панель (display:none) — не то, что читает ученик.
+     В уроке 12 слов филворд живёт в отдельной арене, а прежняя остаётся
+     в DOM скрытой; её содержимое пользователю не показывают. */
+  const visible = el => {
+    let n = el;
+    while (n && n.nodeType === 1) {
+      if (n.hasAttribute && n.hasAttribute('hidden')) return false;
+      const st = (n.getAttribute && n.getAttribute('style')) || '';
+      if (/display\s*:\s*none/i.test(st)) return false;
+      if (n.classList && n.classList.contains('view-pane') && !n.classList.contains('active')) return false;
+      n = n.parentElement;
+    }
+    return true;
+  };
+  const cyrIn = root => {
+    const out = [];
+    if (!root) return out;
+    const w = doc.createTreeWalker(root, win.NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = w.nextNode())) {
+      const el = n.parentElement;
+      if (!el || /^(SCRIPT|STYLE)$/.test(el.nodeName)) continue;
+      if (!visible(el)) continue;
+      if (CYR.test(n.nodeValue)) out.push(n.nodeValue.replace(/\s+/g, ' ').trim().slice(0, 80));
+    }
+    root.querySelectorAll('*').forEach(el => {
+      if (!el.getAttribute || !visible(el)) return;
+      ['title', 'aria-label', 'placeholder', 'alt'].forEach(a => {
+        const v = el.getAttribute(a);
+        if (v && CYR.test(v)) out.push('@' + a + ' ' + v.replace(/\s+/g, ' ').trim().slice(0, 70));
+      });
+    });
+    return out;
+  };
+
+  /* 1. прогрев по-русски, как это делает человек */
+  win.setLanguage('ru');
+  const keys = Object.keys(SAL.lessons).filter(k => doc.getElementById('view-lesson' + SAL.lessons[k].num));
+  keys.forEach(k => {
+    SAL.openLesson(k);
+    const pane = doc.getElementById('view-lesson' + SAL.lessons[k].num);
+    ['presentation', 'practice', 'production'].forEach(st => SAL.toggleGuide(k, st));
+    [...pane.querySelectorAll('[data-pres-mode]')].forEach(b => b.click());
+    [...pane.querySelectorAll('[data-game]')].forEach(b => SAL.do(k, 'setGame', b.getAttribute('data-game')));
+    [...pane.querySelectorAll('[data-prod-mode]')].forEach(b => SAL.do(k, 'setProdMode', b.getAttribute('data-prod-mode')));
+  });
+  win.switchView('lesson6');
+
+  /* 2. переключение на английский */
+  win.setLanguage('en');
+
+  /* 3. что видно после переключения */
+  const off = [];
+  keys.forEach(k => {
+    const pane = doc.getElementById('view-lesson' + SAL.lessons[k].num);
+    SAL.openLesson(k);
+    SAL.refresh();
+    cyrIn(pane).forEach(t => off.push('урок ' + SAL.lessons[k].num + ': ' + t));
+    [...pane.querySelectorAll('[data-pres-mode]')].forEach(b => {
+      b.click(); SAL.refresh();
+      cyrIn(pane).forEach(t => off.push('урок ' + SAL.lessons[k].num + '/режим: ' + t));
+    });
+    [...pane.querySelectorAll('[data-game]')].forEach(b => {
+      SAL.do(k, 'setGame', b.getAttribute('data-game'));
+      cyrIn(pane).forEach(t => off.push('урок ' + SAL.lessons[k].num + '/игра: ' + t));
+    });
+  });
+  ['lesson6', 'home', 'details'].forEach(v => {
+    win.switchView(v);
+    cyrIn(doc.getElementById('view-' + v)).forEach(t => off.push(v + ': ' + t));
+  });
+  ck(off.length === 0, 'после RU → EN русских слов не остаётся' +
+    (off.length ? ' — ' + off.length + ': ' + off.slice(0, 5).join(' | ') : ''));
+
+  /* 4. пересборка панелей — гарантия: она включается при смене языка */
+  ck(typeof SAL.rebuildForLang === 'function',
+    'при смене языка панели уроков пересобираются целиком (SAL.rebuildForLang)');
+  const pane5 = doc.getElementById('view-lesson5');
+  SAL.openLesson('LG');
+  win.setLanguage('ru');
+  const before = pane5.querySelector('h2.section-title').textContent;
+  win.setLanguage('en');
+  const after = doc.getElementById('view-lesson5').querySelector('h2.section-title').textContent;
+  ck(/Три рода/.test(before) && !CYR.test(after) && /Three Genders/.test(after),
+    'заголовок урока перерисован при смене языка: «' + after + '»');
+
+  /* 5. и обратно: русская версия на месте */
+  win.setLanguage('ru');
+  const back = doc.getElementById('view-lesson5').querySelector('h2.section-title').textContent;
+  ck(/Три рода/.test(back), 'после EN → RU заголовок снова русский: «' + back + '»');
   SAL.openLesson('L4');
 }
 

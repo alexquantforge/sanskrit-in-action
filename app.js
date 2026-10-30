@@ -1186,6 +1186,13 @@ function switchView(viewName, targetSectionId = null) {
 function setLanguage(lang) {
   currentLang = lang;
   document.documentElement.lang = lang;
+
+  /* Панели уроков строятся один раз, на языке, который был активен в тот
+     момент. Пересобираем их сразу при смене языка — до перевода атрибутов
+     data-i18n, иначе свежий DOM останется на языке по умолчанию. */
+  if (window.SAL && typeof window.SAL.rebuildForLang === 'function') {
+    window.SAL.rebuildForLang();
+  }
   document.title = lang === 'ru'
     ? 'Sanskrit in Action с Алексом Виджая — Санскрит по-кембриджски (CEFR A1–C2)'
     : 'Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2)';
