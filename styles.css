@@ -1684,6 +1684,66 @@ body.hide-iast .level-sample-iast {
 }
 
 /* переключатель двух версий игры («Закрыто квадратом», «Пропуски») */
+/* «← Предыдущий урок / Следующий урок →» в самом низу страницы урока */
+.lesson-pager {
+  padding: 2rem 0 3rem;
+  border-top: 1px solid var(--border-color);
+  margin-top: 2.5rem;
+}
+
+.lesson-pager-inner {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.lesson-pager-slot {
+  flex: 1 1 200px;
+}
+
+.lesson-pager-btn {
+  flex: 0 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1.15rem;
+  border-radius: 14px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.lesson-pager-btn.next {
+  margin-left: auto;
+  text-align: right;
+  align-items: flex-end;
+}
+
+.lesson-pager-btn:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-cambridge);
+  box-shadow: var(--shadow-md);
+}
+
+.lesson-pager-cap {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-cambridge);
+  white-space: nowrap;
+}
+
+.lesson-pager-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
 .game-ver-row {
   display: flex;
   align-items: center;

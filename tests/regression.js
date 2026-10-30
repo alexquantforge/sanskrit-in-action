@@ -510,6 +510,92 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
   ck(/УРОК 3 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson3').textContent), 'слот 3 — цвета, помечен как УРОК 3');
 }
 
+/* ---------- внизу каждого урока: «← Предыдущий урок / Следующий урок →» ---------- */
+console.log('\n===== Кнопки предыдущего и следующего урока =====');
+{
+  const ORDER = ['L2', 'L3', 'LC', 'LC2', 'LG', 'lesson6', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
+  const paneOf = key => win.document.getElementById(
+    'view-lesson' + (key === 'lesson6' ? 6 : SAL.lessons[key].num));
+  const pagerOf = key => paneOf(key).querySelector('[data-lesson-pager]');
+  const linksOf = key => [...pagerOf(key).querySelectorAll('.lesson-pager-btn')]
+    .map(b => b.getAttribute('data-goto'));
+
+  /* панели всех уроков должны быть построены — проходим по всем урокам */
+  Object.keys(SAL.lessons).forEach(k => { if (!SAL.lessons[k].hidden) SAL.openLesson(k); });
+
+  const missing = ORDER.filter(k => !pagerOf(k));
+  ck(missing.length === 0, 'у каждого урока внизу есть блок перехода к соседним урокам' +
+    (missing.length ? ' — нет у ' + missing.join(', ') : ''));
+
+  const notLast = ORDER.filter(k => {
+    const pane = paneOf(k);
+    const nodes = [...pane.children].filter(el => el.className !== 'lesson-pager' || el.hasAttribute('data-lesson-pager'));
+    return nodes[nodes.length - 1] !== pagerOf(k);
+  });
+  ck(notLast.length === 0, 'кнопки стоят в самом низу страницы урока' +
+    (notLast.length ? ' — не внизу у ' + notLast.join(', ') : ''));
+
+  /* цепочка: у урока N предыдущий — N-1, следующий — N+1 */
+  const wrongLinks = [];
+  ORDER.forEach((k, i) => {
+    const want = [];
+    if (i > 0) want.push(ORDER[i - 1]);
+    want.push(i < ORDER.length - 1 ? ORDER[i + 1] : null);
+    const got = linksOf(k);
+    const expect = want.filter(Boolean);
+    if (got.join() !== expect.join()) wrongLinks.push(k + ': ' + got.join('/') + ' вместо ' + expect.join('/'));
+  });
+  ck(wrongLinks.length === 0, 'кнопки ведут на соседние уроки по порядку 1 … 12' +
+    (wrongLinks.length ? ' — ' + wrongLinks.join('; ') : ''));
+
+  ck(linksOf('L2').join() === 'L3' && linksOf('L9').join() === 'L8',
+    'у первого урока только «следующий», у последнего — только «предыдущий»');
+  ck(linksOf('LG').join() === 'LC2,lesson6' && linksOf('lesson6').join() === 'LG,L4',
+    'урок рода ведёт к 12 частям тела, а 12 частей — обратно к роду: ' +
+    linksOf('LG').join(' / ') + ' · ' + linksOf('lesson6').join(' / '));
+
+  /* подписи: стрелка, название кнопки и номер урока */
+  const l2btns = [...pagerOf('L2').querySelectorAll('.lesson-pager-btn')];
+  ck(/^Следующий урок →/.test(l2btns[0].querySelector('.lesson-pager-cap').textContent.trim()) &&
+     /Урок 2: Лицо/.test(l2btns[0].querySelector('.lesson-pager-name').textContent),
+    'кнопка подписана «Следующий урок →» и называет урок: ' +
+    l2btns[0].textContent.replace(/\s+/g, ' ').trim());
+  const lgBtns = [...pagerOf('LG').querySelectorAll('.lesson-pager-btn')];
+  ck(/^← Предыдущий урок/.test(lgBtns[0].querySelector('.lesson-pager-cap').textContent.trim()) &&
+     /Урок 4: Ещё цвета/.test(lgBtns[0].querySelector('.lesson-pager-name').textContent),
+    'кнопка «← Предыдущий урок» называет урок: ' + lgBtns[0].textContent.replace(/\s+/g, ' ').trim());
+
+  /* нажатие действительно открывает соседний урок */
+  SAL.openLesson('LG');
+  ck(win.document.getElementById('view-lesson5').style.display !== 'none',
+    'перед нажатием открыт урок 5');
+  pagerOf('LG').querySelector('.lesson-pager-btn.next').click();
+  ck(win.document.getElementById('view-lesson6').style.display !== 'none' &&
+     win.document.getElementById('view-lesson5').style.display === 'none',
+    'нажатие «Следующий урок» в уроке 5 открывает урок 6');
+  pagerOf('lesson6').querySelectorAll('.lesson-pager-btn')[0].click();
+  ck(win.document.getElementById('view-lesson5').style.display !== 'none',
+    'нажатие «Предыдущий урок» в уроке 6 возвращает в урок 5');
+  pagerOf('LG').querySelectorAll('.lesson-pager-btn')[0].click();
+  ck(win.document.getElementById('view-lesson4').style.display !== 'none',
+    'нажатие «Предыдущий урок» в уроке 5 открывает урок 4');
+
+  /* по-английски кнопки переведены, кириллицы нет */
+  win.setLanguage('en');
+  const enCaps = ORDER.map(k => [...pagerOf(k).querySelectorAll('.lesson-pager-btn')]
+    .map(b => b.querySelector('.lesson-pager-cap').textContent.trim()).join(' | ')).join(' · ');
+  ck(!/[\u0400-\u04FF]/.test(enCaps) && /Previous lesson/.test(enCaps) && /Next lesson/.test(enCaps),
+    'английская версия: кнопки подписаны по-английски — ' + enCaps.slice(0, 80) + '…');
+  const enLg = [...pagerOf('LG').querySelectorAll('.lesson-pager-name')].map(e => e.textContent.trim()).join(' | ');
+  ck(/Lesson 4: More Colours/.test(enLg) && /Lesson 6: Body Parts/.test(enLg),
+    'английская версия: названия соседних уроков тоже по-английски — ' + enLg);
+  win.setLanguage('ru');
+  const ruBack = [...pagerOf('LG').querySelectorAll('.lesson-pager-cap')].map(e => e.textContent.trim()).join(' | ');
+  ck(/Предыдущий урок/.test(ruBack) && /Следующий урок/.test(ruBack),
+    'после возврата языка кнопки снова по-русски — ' + ruBack);
+  SAL.openLesson('L2');
+}
+
 /* ---------- Lesson 5 (the 12-word lesson): same letters and memory squares ---------- */
 win.switchView('lesson6');
 const l1 = win.document.getElementById('view-lesson6').innerHTML;

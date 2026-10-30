@@ -474,6 +474,43 @@ var SAL = (window.SAL = window.SAL || {});
         ' data-i18n-title-ru="Выбрать номер урока" data-i18n-title-en="Choose a lesson">' +
         opts + '</select>';
   }
+  /* «← Предыдущий урок / Следующий урок →» — кнопки в самом низу страницы
+     урока. Порядок берём из того же списка navRows(), что и выпадающее меню:
+     один источник правды, поэтому кнопки не разъедутся с номерами уроков. */
+  function lessonPagerHtml(current) {
+    var rows = navRows(), at = -1, i;
+    for (i = 0; i < rows.length; i++) if (rows[i].v === current) { at = i; break; }
+    if (at < 0) return '';
+    var prev = at > 0 ? rows[at - 1] : null;
+    var next = at < rows.length - 1 ? rows[at + 1] : null;
+    function btn(r, dir) {
+      if (!r) return '<span class="lesson-pager-slot"></span>';
+      var name = L() === 'ru' ? r.ru : r.en;
+      var cap = dir === 'prev'
+        ? ru('← Previous lesson', '← Предыдущий урок')
+        : ru('Next lesson →', 'Следующий урок →');
+      return '<button type="button" class="lesson-pager-btn ' + dir + '"' +
+        ' onclick="SAL.gotoLesson(\'' + r.v + '\')"' +
+        ' data-goto="' + r.v + '" title="' + attrSafe(cap + ': ' + name) + '">' +
+        '<span class="lesson-pager-cap">' + cap + '</span>' +
+        '<span class="lesson-pager-name">' + name + '</span></button>';
+    }
+    return '<div class="container lesson-pager-inner">' + btn(prev, 'prev') + btn(next, 'next') + '</div>';
+  }
+  function lessonPagerSlot(current) {
+    return '<div class="lesson-pager" data-lesson-pager="' + current + '"></div>';
+  }
+  /* слоты перерисовываются в текущем языке: refresh() зовётся после смены языка */
+  function fillLessonPagers() {
+    var slots = document.querySelectorAll('[data-lesson-pager]');
+    for (var i = 0; i < slots.length; i++) {
+      var key = slots[i].getAttribute('data-lesson-pager');
+      var html = lessonPagerHtml(key);
+      if (slots[i].innerHTML !== html) slots[i].innerHTML = html;
+    }
+  }
+  SAL.lessonPagerHtml = lessonPagerHtml;
+
   /* the standalone 12-word lesson keeps its nav bar in index.html — fill that slot */
   function fillNavSlots() {
     var slots = document.querySelectorAll('[data-lesson-nav]');
@@ -1061,7 +1098,8 @@ var SAL = (window.SAL = window.SAL || {});
       '<div class="practice-tabs" role="tablist">' + prodTabs + '</div>' +
       '<div id="' + key + '-production-stage" class="practice-arena"></div>' +
       recycleProdHtml(cfg, prodList) +
-    '</div></section>';
+    '</div></section>' +
+    lessonPagerSlot(key);
   }
 
   /* =========================================================================
@@ -3587,6 +3625,7 @@ var SAL = (window.SAL = window.SAL || {});
 
   SAL.refresh = function () {
     fillNavSlots();
+    fillLessonPagers();
     var cfg = lessons[activeKey];
     if (!cfg) return;
     renderDiscovery(cfg);
@@ -3633,6 +3672,7 @@ var SAL = (window.SAL = window.SAL || {});
 
   document.addEventListener('DOMContentLoaded', function () {
     fillNavSlots();
+    fillLessonPagers();
     Object.keys(lessons).forEach(function (k) {
       var pane = document.getElementById('view-lesson' + lessons[k].num);
       if (pane && pane.getAttribute('data-built') !== '1') {
