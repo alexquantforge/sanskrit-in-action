@@ -2920,17 +2920,19 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     SAL.do('LG', 'setGame', 'categories');
   }
 
-  /* --- «Мемори»: ловушки с чужим родом -------------------------------------
-     В классическом «Мемори» карточки ищутся парами «картинка ↔ слово».
-     Ловушка — карточка-словосочетание с чужим родом (श्वेतः उदरम्): пары у неё
-     нет и быть не может, поэтому она всегда даёт промах и объясняет, почему
-     так не говорят. Слова в ловушках — только настоящие, из этого же урока. */
+  /* --- «Мемори»: ловушки, которые не выдают себя -----------------------------
+     В классическом «Мемори» парами ищутся «картинка ↔ слово». Ловушка — это
+     словосочетание, в котором ОБА слова согласованы друг с другом, но род
+     выбран неверный: श्वेतः उदरः (оба в мужском, а उदर среднего рода). По
+     окончаниям такую ловушку не вычислить — и красным её не обводят: на поле
+     она выглядит точно как обычная карточка слова. Замечать её надо по роду
+     самого слова, а после промаха игра показывает правильную форму. */
   {
     const memArena = () => arenaOf('LG');
     const endGender = d => /\u0903$/.test(d) ? 'm' : /(\u0902|\u092E\u094D)$/.test(d) ? 'n' :
       /\u093E$/.test(d) ? 'f' : '?';
-    const lessonFirsts = LG.words.map(w => w.deva.split(' ')[0]);
-    const lessonNouns = LG.words.map(w => w.deva.split(' ')[1]);
+    const bare = d => String(d).replace(/\u092E\u094D$/, '').replace(/[\u0903\u0902\u093E]$/, '');
+    const lessonDeva = LG.words.map(w => w.deva);
 
     SAL.openLesson('LG');
     SAL.do('LG', 'setGame', 'memory');
@@ -2940,33 +2942,64 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     const traps = mem.cards.filter(c => c.kind === 'trap');
     ck(mem.cards.length === 18 && traps.length === 2,
       '«Мемори»: полное поле — 18 карточек, из них 2 ловушки (' + mem.cards.length + ' / ' + traps.length + ')');
-    ck(traps.every(c => endGender(c.trap.deva.split(' ')[0]) !== endGender(c.trap.deva.split(' ')[1])),
-      '«Мемори»: у каждой ловушки род двух слов не совпадает — ' + traps.map(c => c.trap.deva).join(' · '));
+
+    /* внутри ловушки слова согласованы друг с другом — окончания совпадают */
+    const trapParts = traps.map(c => c.trap.deva.split(' '));
+    ck(trapParts.every(p => endGender(p[0]) !== '?' && endGender(p[0]) === endGender(p[1])),
+      '«Мемори»: в ловушке оба слова в одном роде, по окончаниям её не вычислить — ' +
+      traps.map(c => c.trap.deva).join(' · '));
+
+    /* но этот род — не род слова из урока: правильная форма лежит в fix */
     ck(traps.every(c => {
-      const p = c.trap.deva.split(' ');
-      return lessonFirsts.indexOf(p[0]) >= 0 && lessonNouns.indexOf(p[1]) >= 0;
-    }), '«Мемори»: в ловушках только слова этого урока, выдуманных форм нет');
+      const p = c.trap.deva.split(' '), f = c.trap.fix.split(' ');
+      return endGender(f[0]) === endGender(f[1]) && endGender(f[0]) !== endGender(p[0]) &&
+             bare(f[1]) === bare(p[1]);
+    }), '«Мемори»: род в ловушке неверный, а fix — та же пара в правильном роде — ' +
+      traps.map(c => c.trap.deva + ' → ' + c.trap.fix).join(' · '));
+
+    ck(traps.every(c => lessonDeva.indexOf(c.trap.fix) >= 0),
+      '«Мемори»: правильная форма ловушки — настоящее слово этого урока');
+    ck(traps.every(c => {
+      const p = c.trap.deva.split(' ').map(bare), f = c.trap.fix.split(' ').map(bare);
+      return p[0] === f[0] && p[1] === f[1];
+    }), '«Мемори»: в ловушке те же основы, что в правильной форме, меняется только окончание');
     ck(traps.every(c => !!c.trap.iast && !/[\u0900-\u097F]/.test(c.trap.iast)),
       '«Мемори»: у ловушки есть IAST — ' + traps.map(c => c.trap.iast).join(' · '));
 
-    /* ловушка не образует пары: промах и объяснение рода */
+    /* на поле ловушка выглядит как обычная карточка слова: ни класса, ни IAST */
+    const cards = [...memArena().querySelectorAll('.memory-card')];
     const trapIdx = mem.cards.findIndex(c => c.kind === 'trap');
+    const wordIdx = mem.cards.findIndex(c => c.kind === 'word');
+    ck(cards[trapIdx].className === cards[wordIdx].className,
+      '«Мемори»: закрытая ловушка не отличается от обычной карточки — ' + cards[trapIdx].className);
+
+    /* ловушка и слово открываются одновременно — обе карточки в одинаковом виде */
+    SAL.do('LG', 'tile', String(trapIdx));
+    SAL.do('LG', 'tile', String(wordIdx));
+    const openedTrap = [...memArena().querySelectorAll('.memory-card')][trapIdx];
+    const openedWord = [...memArena().querySelectorAll('.memory-card')][wordIdx];
+    ck(openedTrap.className.indexOf('trap') < 0 && openedTrap.className.indexOf('flipped') >= 0,
+      '«Мемори»: открытая ловушка не обведена и не помечена — ' + openedTrap.className);
+    ck(openedTrap.innerHTML.indexOf('iast-text') < 0,
+      '«Мемори»: на карточке ловушки нет IAST, иначе она сразу видна');
+    const wDeva = LG.words.find(w => w.id === mem.cards[wordIdx].id).deva;
+    ck(openedTrap.innerHTML.replace(mem.cards[trapIdx].trap.deva, 'X') ===
+       openedWord.innerHTML.replace(wDeva, 'X'),
+      '«Мемори»: разметка ловушки и обычного слова совпадает — ' + openedTrap.innerHTML);
+
+    /* промах объясняет, какой род показан, какой на самом деле и как верно */
     const picIdx = mem.cards.findIndex(c => c.kind === 'pic');
     const scoreBefore = mem.score;
-    SAL.do('LG', 'tile', String(trapIdx));
     SAL.do('LG', 'tile', String(picIdx));
     ck(Object.keys(mem.matched).length === 0 && mem.score === scoreBefore,
       '«Мемори»: ловушка не складывается в пару и очка не даёт');
-    ck(!!mem.trapNote && mem.trapNote.deva === mem.cards[trapIdx].trap.deva,
-      '«Мемори»: игра запомнила, какая ловушка попалась');
-    const trapWords = mem.cards[trapIdx].trap.deva.split(' ');
     const trapHint = memArena().querySelector('.trap-hint');
-    ck(!!trapHint && trapHint.textContent.indexOf(trapWords[0]) >= 0 &&
-       trapHint.textContent.indexOf(trapWords[1]) >= 0 &&
-       /мужской|средний|женский/.test(trapHint.textContent) && /Род не совпал/.test(trapHint.textContent),
-      '«Мемори»: под полем сказано, какой род у каждого слова — ' + (trapHint ? trapHint.textContent.trim() : '—'));
-    ck(memArena().querySelectorAll('.memory-card')[trapIdx].classList.contains('trap'),
-      '«Мемори»: открытая ловушка обведена красным (класс trap)');
+    const fixed = mem.cards[trapIdx].trap.fix;
+    ck(!!trapHint && trapHint.textContent.indexOf(fixed) >= 0 &&
+       /мужск|средн|женск/.test(trapHint.textContent) && /Правильно/.test(trapHint.textContent),
+      '«Мемори»: после промаха названа правильная форма — ' + (trapHint ? trapHint.textContent.trim() : '—'));
+    ck(!!trapHint && trapHint.textContent.indexOf(mem.cards[trapIdx].trap.deva) >= 0,
+      '«Мемори»: в объяснении есть и сама ловушка, чтобы было видно, что не так');
     mem.flipped = []; mem.wrong = null; mem.lock = false;
     SAL.refresh();
     ck(!!memArena().querySelector('.trap-hint'),
@@ -3012,7 +3045,8 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     SAL.openLesson('LG');
     SAL.do('LG', 'setGame', 'memory');
     const memRulesLg = arenaOf('LG').querySelector('.game-rules');
-    ck(!!memRulesLg && /ловушк/i.test(memRulesLg.textContent),
+    ck(!!memRulesLg && /ловушк/i.test(memRulesLg.textContent) &&
+       /согласованы друг с другом/i.test(memRulesLg.textContent),
       'правила «Мемори» в уроке рода объясняют ловушки');
     SAL.openLesson('L2');
     SAL.do('L2', 'setGame', 'memory');
@@ -3031,8 +3065,10 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     SAL.do('LG', 'tile', String(tEn));
     SAL.do('LG', 'tile', String(pEn));
     const enTrapHint = memArena().querySelector('.trap-hint');
+    const enFix = memEn.cards[tEn].trap.fix;
     ck(!!enTrapHint && !/[\u0400-\u04FF]/.test(enTrapHint.textContent) &&
-       /Trap/.test(enTrapHint.textContent) && /masculine|neuter|feminine/.test(enTrapHint.textContent),
+       /masculine|neuter|feminine/.test(enTrapHint.textContent) &&
+       enTrapHint.textContent.indexOf(enFix) >= 0,
       'английская версия «Мемори»: ловушка объясняется по-английски — ' +
       (enTrapHint ? enTrapHint.textContent.trim() : '—'));
     win.setLanguage('ru');
