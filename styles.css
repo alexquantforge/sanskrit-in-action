@@ -1683,8 +1683,8 @@ body.hide-iast .level-sample-iast {
   gap: 1px;
 }
 
-/* переключатель двух версий игры «Закрыто квадратом» */
-.masked-ver-row {
+/* переключатель двух версий игры («Закрыто квадратом», «Пропуски») */
+.game-ver-row {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1693,13 +1693,13 @@ body.hide-iast .level-sample-iast {
   margin: 0.9rem 0 0.35rem;
 }
 
-.masked-ver-label {
+.game-ver-label {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-secondary);
 }
 
-.masked-both-hint {
+.game-both-hint {
   margin-top: 0.7rem;
   font-size: 0.85rem;
   color: var(--text-secondary);

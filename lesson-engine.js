@@ -240,6 +240,74 @@ var SAL = (window.SAL = window.SAL || {});
       { m: w.maskedHidden }
     ];
   }
+  /* ряд «Версия: 1 · … / 2 · …» — одинаковый у обеих игр с двумя версиями */
+  function verRow(cfg, action, both) {
+    return '<div class="game-ver-row">' +
+        '<span class="game-ver-label">' + ru('Version:', 'Версия:') + '</span>' +
+        chip(cfg, action, '0', ru('1 · noun ending', '1 · конец слова'), !both) +
+        chip(cfg, action, '1', ru('2 · both endings', '2 · оба окончания'), both) +
+      '</div>';
+  }
+  function bothHint(cfg) {
+    return '<div class="game-both-hint">' +
+      ru('Agreement: say both endings aloud — the colour ends the same way as the noun.',
+         'Согласование: назовите вслух оба окончания — цвет кончается так же, как слово.') + '</div>';
+  }
+  /* IAST раскладывается на те же акшары, что и деванагари в w.syll: группа
+     кончается на гласную (анусвара и висарга прилипают к своей гласной).
+     Нужно, чтобы закрыть в IAST ровно тот слог, что закрыт в деванагари. */
+  function iastGroups(word) {
+    var LONG = 'āīūṛṝḷeo', SHORT = 'aiu', out = [], cur = '';
+    for (var i = 0; i < word.length; i++) {
+      var ch = word[i];
+      cur += ch;
+      var isVowel = LONG.indexOf(ch) >= 0;
+      if (SHORT.indexOf(ch) >= 0) {
+        /* дифтонги ai / au пишутся двумя буквами, но это один слог */
+        if (ch === 'a' && i + 1 < word.length && 'iu'.indexOf(word[i + 1]) >= 0) {
+          cur += word[++i];
+        }
+        isVowel = true;
+      }
+      if (isVowel) {
+        /* анусвара и висарга идут сразу после гласной */
+        while (i + 1 < word.length && 'ṃḥ'.indexOf(word[i + 1]) >= 0) { cur += word[++i]; }
+        out.push(cur);
+        cur = '';
+      }
+    }
+    if (cur) out.push(cur);
+    /* конечный согласный (как в -tam) закрывает слог, а не образует новый:
+       в деванагари तम् — одна акшара, и здесь должно быть так же */
+    var VOW_ALL = LONG + SHORT;
+    if (out.length > 1) {
+      var last = out[out.length - 1], hasVowel = false;
+      for (var k = 0; k < last.length; k++) if (VOW_ALL.indexOf(last[k]) >= 0) hasVowel = true;
+      if (!hasVowel) { out[out.length - 2] += out.pop(); }
+    }
+    return out;
+  }
+  /* Пропуски, версия 2: закрыт и конец прилагательного.
+     श्यामं ललाट_ → श्या_ ललाट_. Ответ остаётся один и тот же (w.gapAnswer):
+     окончание у цвета и у слова общее, поэтому оба пропуска берут его. */
+  function gapBothDeva(w) {
+    var cut = adjCut(w);
+    if (cut < 1) return null;
+    var parts = w.gapDeva.split(' ');
+    if (parts.length < 2) return null;
+    var noun = parts[parts.length - 1].replace(/_+$/, '');
+    return w.syll.slice(0, cut).join('') + '_ ' + noun + '_';
+  }
+  function gapBothIast(w) {
+    var cut = adjCut(w);
+    if (cut < 1 || !w.gapIast) return null;
+    var parts = w.gapIast.split(' ');
+    if (parts.length < 2) return null;
+    var adj = iastGroups(parts[0]);
+    var noun = parts[parts.length - 1];
+    if (adj.length !== cut + 1) return null;      /* раскладка не совпала — не рискуем */
+    return adj.slice(0, cut).join('') + '_ ' + noun;
+  }
   function maskedMarkup(w, revealed, size, both) {
     var parts = maskedParts(w, both);
     return '<div class="masked-word-line"' + (size ? ' style="font-size:' + size + '"' : '') + '>' +
@@ -1228,7 +1296,7 @@ var SAL = (window.SAL = window.SAL || {});
   var GAME_INIT = {
     masked: function () { return { i: 0, score: 0, answered: false, picked: null, shown: false, view: 'card', revealed: {}, finished: false, both: false }; },
     flashcards: function () { return { i: 0, flipped: false, score: 0, finished: false }; },
-    gaps: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
+    gaps: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false, both: false }; },
     picquiz: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     wordquiz: function () { return { i: 0, score: 0, answered: false, picked: null, options: null, firstTry: true, redPick: null, finished: false }; },
     match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, failed: {}, score: 0, done: false, tiles: null, scores: [0, 0], turn: 0 }; },
@@ -1287,19 +1355,8 @@ var SAL = (window.SAL = window.SAL || {});
     /* Две версии одной игры. Первая (по умолчанию) закрывает только конец
        существительного, вторая — ещё и конец прилагательного. */
     var gridView = g.view === 'grid';
-    var verRow = two
-      ? '<div class="masked-ver-row">' +
-          '<span class="masked-ver-label">' + ru('Version:', 'Версия:') + '</span>' +
-          chip(cfg, 'maskedBoth', '0', ru('1 · noun ending', '1 · конец слова'), !both) +
-          chip(cfg, 'maskedBoth', '1', ru('2 · both endings', '2 · оба окончания'), both) +
-        '</div>'
-      : '';
-    var bothHint = both
-      ? '<div class="masked-both-hint">' +
-          ru('Agreement: say both endings aloud — the colour ends the same way as the noun.',
-             'Согласование: назовите вслух оба окончания — цвет кончается так же, как слово.') +
-        '</div>'
-      : '';
+    var vRow = two ? verRow(cfg, 'maskedBoth', both) : '';
+    var vHint = both ? bothHint(cfg) : '';
 
     if (gridView) {
       if (Object.keys(g.revealed).length >= N) {
@@ -1316,19 +1373,19 @@ var SAL = (window.SAL = window.SAL || {});
       return topBar(
         chip(cfg, 'maskedView', 'card', '1 / ' + N, false) + chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', true),
         pill(Object.keys(g.revealed).length + ' / ' + N) + ' ' + chip(cfg, 'maskedGridReset', '', '↺')) +
-        verRow +
+        vRow +
         '<div class="vocab-grid-6" style="margin-top:1rem;">' + cards + '</div>' +
-        bothHint;
+        vHint;
     }
     if (g.finished || g.i >= N) {
-      return verRow + finalScreen(cfg, 'masked', ru('1. ■', '1. ■'), g.score, N);
+      return vRow + finalScreen(cfg, 'masked', ru('1. ■', '1. ■'), g.score, N);
     }
     var w = cfg.words[g.i];
     return topBar(
         chip(cfg, 'maskedView', 'card', '1 / ' + N, g.view !== 'grid') +
         chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', g.view === 'grid'),
         pill(g.score + ' · (' + (g.i + 1) + ' / ' + N) + ' ' + chip(cfg, 'restart', 'masked', '↺')) +
-      verRow +
+      vRow +
       centerCard(
         '<div class="flashcard-box" onclick="SAL.do(\'' + cfg.key + '\',\'maskedFlip\')">' +
           svgBox(w, 140) +
@@ -1343,7 +1400,7 @@ var SAL = (window.SAL = window.SAL || {});
           '<button type="button" class="chip-btn" style="background:#16a34a;border-color:#16a34a;color:#fff;" onclick="SAL.do(\'' + cfg.key + '\',\'maskedGrade\',\'1\')">✓ ' +
             ru('I knew it', 'Знаю') + '</button>' +
         '</div>' +
-        bothHint +
+        vHint +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           ru('Say the word aloud, then uncover it and grade yourself.', 'Назовите слово вслух, затем откройте его и оцените себя.') + '</div>'
       );
@@ -1382,8 +1439,16 @@ var SAL = (window.SAL = window.SAL || {});
   function renderGaps(cfg, st) {
     var g = gst(cfg, 'gaps');
     var N = cfg.words.length;
-    if (g.finished || g.i >= N) return finalScreen(cfg, 'gaps', ru('Fill in the Gaps — done!', 'Fill in the Gaps — пройдено!'), g.score, N);
+    var two = hasBothMask(cfg);
+    var both = two && !!g.both;
+    var vRow = two ? verRow(cfg, 'gapBoth', both) : '';
+    if (g.finished || g.i >= N) {
+      return vRow + finalScreen(cfg, 'gaps', ru('Fill in the Gaps — done!', 'Fill in the Gaps — пройдено!'), g.score, N);
+    }
     var w = cfg.words[g.i];
+    /* во второй версии пропусков два: конец цвета и конец слова */
+    var gapDeva = (both && gapBothDeva(w)) || w.gapDeva;
+    var gapIast = (both && gapBothIast(w)) || w.gapIast;
     var gapOrder = optionOrder(cfg, 'gaps', w, w.gapChoices,
       function (c) { return c.deva; }, w.gapAnswer);
     var btns = gapOrder.map(function (oi, idx) {
@@ -1395,14 +1460,16 @@ var SAL = (window.SAL = window.SAL || {});
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'gaps', '↺')) +
+      vRow +
       centerCard(
         '<div style="margin-bottom:0.5rem;">' + svgBox(w, 120) + '</div>' +
-        '<div style="font-family:var(--font-deva);font-size:2.6rem;font-weight:700;letter-spacing:0.05em;">' + w.gapDeva + '</div>' +
-        '<div class="iast-text" style="margin-bottom:1rem;">' + w.gapIast + '</div>' +
+        '<div style="font-family:var(--font-deva);font-size:2.6rem;font-weight:700;letter-spacing:0.05em;">' + gapDeva + '</div>' +
+        '<div class="iast-text" style="margin-bottom:1rem;">' + gapIast + '</div>' +
         optGrid(btns) +
         (g.answered
           ? answerFeedback(cfg, g, w, 'gapsNext')
-          : '<div style="margin-top:0.85rem;">' + chip(cfg, 'speak', w.ttsText, '🔊 ' + ru('Listen', 'Послушать')) + '</div>')
+          : '<div style="margin-top:0.85rem;">' + chip(cfg, 'speak', w.ttsText, '🔊 ' + ru('Listen', 'Послушать')) + '</div>') +
+        (both ? bothHint(cfg) : '')
       );
   }
 
@@ -2525,6 +2592,14 @@ var SAL = (window.SAL = window.SAL || {});
     },
 
     /* 3 gaps */
+    gapBoth: function (cfg, st, a) {
+      var g = gst(cfg, 'gaps');
+      var both = a === '1';
+      if (g.both === both) return;
+      g.both = both;
+      /* другой пропуск — другой вопрос: старый ответ не должен остаться на экране */
+      g.answered = false; g.picked = null; g.redPick = null; g.firstTry = true;
+    },
     gapPick: function (cfg, st, a) {
       var g = gst(cfg, 'gaps');
       if (g.answered) return;
@@ -3031,7 +3106,18 @@ var SAL = (window.SAL = window.SAL || {});
       score: { ru: 'Очко даётся только за первую попытку. Вторая попытка спасает раунд, но не счёт; ошибка кладёт слово в копилку.',
                en: 'A point only for the first try. The second try saves the round but not the score; a miss drops the word into the pile.' },
       tip: { ru: 'Если ученик ошибся — пусть назовёт, в чём именно разница между его вариантом и верным.',
-             en: 'When a student misses, make them say what exactly differs between their pick and the right one.' }
+             en: 'When a student misses, make them say what exactly differs between their pick and the right one.' },
+      /* вторая версия есть только там, где слова — «цвет + существительное» */
+      adapt: function (cfg) {
+        if (!hasBothMask(cfg)) return null;
+        var base = this, out = {}, k;
+        for (k in base) if (Object.prototype.hasOwnProperty.call(base, k) && k !== 'adapt') out[k] = base[k];
+        out.how = {
+          ru: base.how.ru.concat(['«Версия 2» прячет и конец прилагательного: श्या_ ललाट_. Окончание одно и то же — оно подходит и цвету, и слову.']),
+          en: base.how.en.concat(['“Version 2” also hides the end of the adjective: श्या_ ललाट_. The ending is the same — it fits both the colour and the noun.'])
+        };
+        return out;
+      }
     },
     picquiz: {
       aim: { ru: 'Узнавание: картинка → написание слова.',

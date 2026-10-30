@@ -2482,7 +2482,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     };
 
     /* переключатель версий есть и подписан */
-    const verRow = arena.querySelector('.masked-ver-row');
+    const verRow = arena.querySelector('.game-ver-row');
     ck(!!verRow, 'урок 5, игра 1: есть переключатель двух версий игры');
     const verBtns = verRow ? [...verRow.querySelectorAll('[data-onclick]')] : [];
     const verChips = [...(verRow ? verRow.querySelectorAll('.chip-btn') : [])];
@@ -2505,7 +2505,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     const two = lineOf();
     ck((two.match(/■/g) || []).length === 2,
       'версия 2: закрыты два квадратика — ' + two);
-    const hint = arena.querySelector('.masked-both-hint');
+    const hint = arena.querySelector('.game-both-hint');
     ck(!!hint && /оба окончания/i.test(hint.textContent),
       'версия 2: есть подсказка про согласование — ' + (hint ? hint.textContent.trim() : '—'));
 
@@ -2549,7 +2549,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     ['L2', 'L3', 'LC', 'LC2', 'L4'].forEach(k => {
       SAL.openLesson(k);
       SAL.do(k, 'setGame', 'masked');
-      if (arenaOf(k).querySelector('.masked-ver-row')) others.push(k);
+      if (arenaOf(k).querySelector('.game-ver-row')) others.push(k);
     });
     ck(others.length === 0,
       'в уроках без прилагательных переключателя версий нет' +
@@ -2559,7 +2559,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     SAL.openLesson('LG');
     SAL.do('LG', 'setGame', 'masked');
     win.setLanguage('en');
-    const enRow = arenaOf('LG').querySelector('.masked-ver-row');
+    const enRow = arenaOf('LG').querySelector('.game-ver-row');
     const enLabels = enRow ? [...enRow.querySelectorAll('.chip-btn')].map(b => b.textContent.trim()) : [];
     ck(enLabels.length === 2 && !/[\u0400-\u04FF]/.test(enLabels.join(' ')) &&
        /noun ending/.test(enLabels[0]) && /both endings/.test(enLabels[1]),
@@ -2598,6 +2598,124 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     SAL.openLesson('LG');
     SAL.do('LG', 'restart', 'masked');
     SAL.do('LG', 'setGame', 'masked');
+  }
+
+  /* --- «Пропуски»: две версии, разница только в подчёркивании ---------------
+     Версия 1 закрывает конец существительного: श्यामं ललाट_. Версия 2 — ещё и
+     конец прилагательного: श्या_ ललाट_. Ответ остаётся один (w.gapAnswer):
+     окончание у цвета и у слова общее, поэтому оно подходит обоим пропускам. */
+  {
+    const gapArena = () => arenaOf('LG');
+    const gapLine = () => {
+      const el = gapArena().querySelector('div[style*="2.6rem"]');
+      return el ? el.textContent.trim() : '';
+    };
+    const gapIastLine = () => {
+      const el = gapArena().querySelector('.iast-text');
+      return el ? el.textContent.trim() : '';
+    };
+
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'gaps');
+    SAL.do('LG', 'restart', 'gaps');
+
+    const gRow = gapArena().querySelector('.game-ver-row');
+    ck(!!gRow, '«Пропуски»: есть переключатель двух версий');
+    const gChips = [...(gRow ? gRow.querySelectorAll('.chip-btn') : [])];
+    ck(gChips.length === 2 && gChips[0].classList.contains('active'),
+      '«Пропуски»: две версии, первая открыта по умолчанию');
+    const gLabels = gChips.map(b => b.textContent.trim());
+    ck(gLabels.length === 2 && /конец слова/.test(gLabels[0]) && /оба окончания/.test(gLabels[1]),
+      '«Пропуски»: версии подписаны по-русски — ' + gLabels.join(' | '));
+
+    /* версия 1: одна черта, конец слова, как и раньше */
+    const v1bad = [];
+    LG.words.forEach((w, idx) => {
+      SAL.do('LG', 'restart', 'gaps');
+      SAL.do('LG', 'gapBoth', '0');
+      for (let k = 0; k < idx; k++) { SAL.do('LG', 'gapPick', LG.words[k].gapAnswer); SAL.do('LG', 'gapsNext'); }
+      if (gapLine() !== w.gapDeva) v1bad.push(w.deva + ' → ' + gapLine());
+      if (gapIastLine() !== w.gapIast) v1bad.push(w.iast + ' → ' + gapIastLine());
+    });
+    ck(v1bad.length === 0, '«Пропуски», версия 1: у всех восьми слов один пропуск в конце слова' +
+      (v1bad.length ? ' — ' + v1bad.join('; ') : ''));
+
+    /* версия 2: два пропуска, и оба принимают один и тот же ответ */
+    const v2bad = [];
+    LG.words.forEach((w, idx) => {
+      SAL.do('LG', 'restart', 'gaps');
+      SAL.do('LG', 'gapBoth', '1');
+      for (let k = 0; k < idx; k++) { SAL.do('LG', 'gapPick', LG.words[k].gapAnswer); SAL.do('LG', 'gapsNext'); }
+      const line = gapLine(), iast = gapIastLine();
+      const cut = w.syll.findIndex((_, i) => w.syll.slice(0, i + 1).join('') === w.deva.split(' ')[0]);
+      const adjEnd = w.syll[cut];
+      const filled = line.split('_').length - 1 === 2 ? line.replace('_', adjEnd).replace('_', w.gapAnswer) : '';
+      const iastAdj = iast.split(' ')[0].replace(/_+$/, '');
+      if (line.split('_').length - 1 !== 2) v2bad.push(w.deva + ': черт ' + (line.split('_').length - 1));
+      if (filled !== w.deva) v2bad.push(w.deva + ': собралось «' + filled + '»');
+      if (line.split('_')[0] === w.deva.split(' ')[0]) v2bad.push(w.deva + ': конец прилагательного не закрыт');
+      if (line.split('_')[0].indexOf(adjEnd) >= 0) v2bad.push(w.deva + ': окончание цвета видно');
+      if (iast.split('_').length - 1 !== 2) v2bad.push(w.iast + ': в IAST черт ' + (iast.split('_').length - 1));
+      if (!iastAdj || w.iast.split(' ')[0].indexOf(iastAdj) !== 0 || iastAdj === w.iast.split(' ')[0])
+        v2bad.push(w.iast + ': IAST «' + iastAdj + '» — не укороченное прилагательное');
+      if (iast.split(' ')[1] !== w.gapIast.split(' ').pop()) v2bad.push(w.iast + ': конец слова изменился');
+    });
+    ck(v2bad.length === 0, '«Пропуски», версия 2: два пропуска, в IAST тоже, ответ подходит к обоим' +
+      (v2bad.length ? ' — ' + v2bad.join('; ') : ''));
+
+    /* ответ по-прежнему один: выбираем w.gapAnswer — и заполняются оба пропуска */
+    SAL.do('LG', 'restart', 'gaps');
+    SAL.do('LG', 'gapBoth', '1');
+    const gw0 = LG.words[0];
+    const choicesOk = gw0.gapChoices.some(c => c.deva === gw0.gapAnswer);
+    SAL.do('LG', 'gapPick', gw0.gapAnswer);
+    ck(choicesOk && gst('LG', 'gaps').answered === true,
+      '«Пропуски», версия 2: варианты прежние, ответ всё тот же «' + gw0.gapAnswer + '»');
+
+    /* смена версии не оставляет на экране прошлый ответ */
+    SAL.do('LG', 'gapBoth', '0');
+    ck(gst('LG', 'gaps').answered === false && !gst('LG', 'gaps').picked,
+      '«Пропуски»: смена версии убирает показанный ответ');
+    SAL.do('LG', 'gapBoth', '1');
+    ck(gapLine().split('_').length - 1 === 2, '«Пропуски»: после возврата к версии 2 снова два пропуска — ' + gapLine());
+
+    /* в уроке без прилагательных переключателя нет */
+    SAL.openLesson('L2');
+    SAL.do('L2', 'setGame', 'gaps');
+    ck(!arenaOf('L2').querySelector('.game-ver-row') && arenaOf('L2').querySelectorAll('.game-both-hint').length === 0,
+      '«Пропуски»: в уроке без прилагательных переключателя версий нет');
+
+    /* по-английски подписи переведены, кириллицы нет */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'gaps');
+    win.setLanguage('en');
+    const enGapsRow = arenaOf('LG').querySelector('.game-ver-row');
+    const enGapsLabels = enGapsRow ? [...enGapsRow.querySelectorAll('.chip-btn')].map(b => b.textContent.trim()) : [];
+    ck(enGapsLabels.length === 2 && !/[\u0400-\u04FF]/.test(enGapsLabels.join(' ')) &&
+       /noun ending/.test(enGapsLabels[0]) && /both endings/.test(enGapsLabels[1]),
+      'английская версия «Пропусков»: версии подписаны по-английски — ' + enGapsLabels.join(' | '));
+    SAL.do('LG', 'gapBoth', '1');
+    const enHint = arenaOf('LG').querySelector('.game-both-hint');
+    ck(!!enHint && !/[\u0400-\u04FF]/.test(enHint.textContent) && /agreement/i.test(enHint.textContent),
+      'английская версия «Пропусков»: подсказка про согласование без кириллицы');
+    win.setLanguage('ru');
+
+    /* правила игры объясняют вторую версию — и только в уроке рода */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'gaps');
+    const gapRulesLg = arenaOf('LG').querySelector('.game-rules');
+    ck(!!gapRulesLg && /Версия 2/.test(gapRulesLg.textContent) &&
+       /конец прилагательного/.test(gapRulesLg.textContent),
+      'правила «Пропусков» в уроке рода объясняют вторую версию');
+    SAL.openLesson('L2');
+    SAL.do('L2', 'setGame', 'gaps');
+    const gapRulesL2 = arenaOf('L2').querySelector('.game-rules');
+    ck(!!gapRulesL2 && gapRulesL2.textContent.indexOf('Версия 2') < 0,
+      'в уроке без прилагательных правила «Пропусков» про вторую версию не упоминают');
+
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'gaps');
+    SAL.do('LG', 'restart', 'gaps');
   }
 
   /* --- guided discovery --------------------------------------------------- */
