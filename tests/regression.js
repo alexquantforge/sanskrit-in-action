@@ -2620,8 +2620,28 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
   ck(cells.filter(t => LG.words.some(w => w.deva === t)).length === 16,
     'на поле лежат все 8 фраз урока, каждая дважды (' +
       cells.filter(t => LG.words.some(w => w.deva === t)).length + ')');
-  ck(cells.some(t => wrongGender.indexOf(t) >= 0),
-    'на поле есть ловушка с чужим родом — её надо не перепутать с настоящей фразой');
+  /* Ловушки не должны теряться: раньше пул перемешивался целиком и по
+     абсолютному индексу клетки, поэтому иной раз на поле не попадало ни
+     одной. Теперь все 12 стоят на любом размере. */
+  const trapsOnBoard = new Set(cells.filter(t => wrongGender.indexOf(t) >= 0)).size;
+  ck(trapsOnBoard >= 8,
+    'на поле есть ловушки с чужим родом — их не перепутать с настоящей фразой (' +
+      trapsOnBoard + ' из ' + new Set(wrongGender).size + ')');
+  /* и то же на самом маленьком поле: там каждая клетка на счету */
+  {
+    const keep = SAL.lessons.LG._st.g.wordgrid;
+    delete SAL.lessons.LG._st.g.wordgrid;
+    SAL.do('LG', 'setGame', 'wordgrid');
+    SAL.do('LG', 'wgSize', '5');
+    const small = [...arena.querySelectorAll('.wcell')].map(c => c.textContent.trim());
+    const smallTraps = new Set(small.filter(t => wrongGender.indexOf(t) >= 0)).size;
+    ck(small.length === 25 && smallTraps >= 8,
+      'на поле 5 × 5 ловушки тоже на месте: ' + smallTraps);
+    delete SAL.lessons.LG._st.g.wordgrid;
+    SAL.do('LG', 'setGame', 'wordgrid');
+    SAL.do('LG', 'wgSize', '10');
+    if (keep) SAL.lessons.LG._st.g.wordgrid = keep;
+  }
 
   /* филворд среди букв: фраза режется на акшары, все восемь влезают в 10 × 10 */
   delete SAL.lessons.LG._st.g.wordsearch;
@@ -2832,6 +2852,135 @@ console.log('\n===== Порядок вариантов: ответ не всег
     'урок 12 слов, «Буквы»: ответ на разных буквах — ' + spMarks.join(''));
 
   win.eval('gapIndex = 0; renderPracticeArena();');
+  SAL.openLesson('L4');
+}
+
+/* ---------- английская версия без кириллицы ---------- */
+console.log('\n===== Английская версия: ни одной русской буквы =====');
+{
+  const CYR = /[\u0400-\u04FF]/;
+  const doc = win.document;
+
+  /* Текст и подписи, которые читает человек: узлы текста + title / aria-label /
+     placeholder / alt. Служебные скрипты и стили пропускаем. */
+  const cyrIn = root => {
+    const out = [];
+    if (!root) return out;
+    const w = doc.createTreeWalker(root, win.NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = w.nextNode())) {
+      const el = n.parentElement;
+      if (!el || /^(SCRIPT|STYLE)$/.test(el.nodeName)) continue;
+      if (CYR.test(n.nodeValue)) out.push(n.nodeValue.replace(/\s+/g, ' ').trim().slice(0, 90));
+    }
+    root.querySelectorAll('*').forEach(el => {
+      if (!el.getAttribute) return;
+      ['title', 'aria-label', 'placeholder', 'alt'].forEach(a => {
+        const v = el.getAttribute(a);
+        if (v && CYR.test(v)) out.push('@' + a + ' ' + v.replace(/\s+/g, ' ').trim().slice(0, 80));
+      });
+    });
+    return out;
+  };
+
+  win.setLanguage('en');
+
+  const EN_KEYS = Object.keys(SAL.lessons).filter(k => doc.getElementById('view-lesson' + SAL.lessons[k].num));
+  const offenders = [];
+  EN_KEYS.forEach(k => {
+    const pane = doc.getElementById('view-lesson' + SAL.lessons[k].num);
+    SAL.openLesson(k);
+    SAL.refresh();
+    ['presentation', 'practice', 'production'].forEach(st => SAL.toggleGuide(k, st));
+    SAL.refresh();
+    cyrIn(pane).forEach(t => offenders.push('урок ' + SAL.lessons[k].num + ': ' + t));
+    [...pane.querySelectorAll('.practice-tab-btn[data-pres-mode]')].forEach(b => {
+      b.click();
+      SAL.refresh();
+      cyrIn(pane).forEach(t => offenders.push('урок ' + SAL.lessons[k].num + '/режим: ' + t));
+    });
+    [...pane.querySelectorAll('.practice-tab-btn[data-prod-mode]')].forEach(b => {
+      b.click();
+      SAL.refresh();
+      cyrIn(pane).forEach(t => offenders.push('урок ' + SAL.lessons[k].num + '/production: ' + t));
+    });
+  });
+  cyrIn(doc.getElementById('view-home')).forEach(t => offenders.push('главная: ' + t));
+  win.switchView('details');
+  cyrIn(doc.getElementById('view-details')).forEach(t => offenders.push('details: ' + t));
+  win.switchView('home');
+
+  ck(offenders.length === 0, 'в английском режиме нет ни одного русского слова' +
+    (offenders.length ? ' — найдено ' + offenders.length + ': ' + offenders.slice(0, 6).join(' | ') : ''));
+
+  /* Места, где русский текст жил дольше всего: их проверяем поимённо,
+     чтобы при поломке было видно, что именно сломалось. */
+  SAL.openLesson('LG');
+  SAL.refresh();
+  const pane = doc.getElementById('view-lesson5');
+  const t = sel => (pane.querySelector(sel) ? pane.querySelector(sel).textContent.trim() : '');
+  const cyr = s => CYR.test(s);
+
+  ck(t('[data-players="1"]') === '👤 1 student', 'кнопка 👤 на английском: ' + t('[data-players="1"]'));
+  ck(t('[data-players="2"]') === '👥 2 students', 'кнопка 👥 на английском: ' + t('[data-players="2"]'));
+  ck(t('[data-key="1"]') === '🔑 Answer key', 'кнопка ключа на английском: ' + t('[data-key="1"]'));
+  const presLabels = [...pane.querySelectorAll('[data-pres-mode]')].map(b => b.textContent.trim());
+  ck(presLabels.length === 4 && presLabels.every(l => !cyr(l)),
+    'все 4 режима Presentation на английском: ' + presLabels.join(' | '));
+  ck(/Step-by-Step/.test(presLabels[0]) && /Diagram/.test(presLabels[1]) &&
+     /Audio-First/.test(presLabels[2]) && /Full Poster/.test(presLabels[3]),
+    'режимы Presentation подписаны по-английски, а не «Пошагово/Схема»');
+  ck(!cyr(t('h2.section-title')) && /Colours|Three Genders|Gender/i.test(t('h2.section-title')) ||
+     !cyr(t('h2.section-title')),
+    'заголовок урока на английском: ' + t('h2.section-title'));
+  ck(!cyr(t('#LG-tg-presentation h3')), 'заголовок инструкции преподавателя на английском: ' + t('#LG-tg-presentation h3'));
+  const sel2 = pane.querySelector('.lesson-select');
+  ck(sel2 && !cyr(sel2.getAttribute('aria-label') || '') && !cyr(sel2.getAttribute('title') || ''),
+    'подпись выбора урока в title и aria-label тоже английская: ' +
+    (sel2 ? sel2.getAttribute('aria-label') : '—'));
+
+  /* Английская инструкция не должна тащить внутрь себя русский жест TPR:
+     раньше в ней стояло «(or коснитесь этой части тела у себя)». */
+  const guideEn = [...pane.querySelectorAll('.teacher-guide-step')]
+    .map(d => d.getAttribute('data-i18n-en') || '').join(' ');
+  ck(!cyr(guideEn), 'в английских инструкциях преподавателя нет русских вставок');
+  ck(guideEn.indexOf('touch that part of your body') >= 0 ||
+     guideEn.indexOf('point to the body part') >= 0,
+    'английская инструкция использует английский жест TPR');
+
+  /* --- обратная сторона: русская версия не должна онеметь --- */
+  win.setLanguage('ru');
+  SAL.refresh();
+  ck(t('[data-players="1"]') === '👤 1 ученик', 'русская кнопка 👤 вернулась: ' + t('[data-players="1"]'));
+  ck(t('[data-key="1"]') === '🔑 Ключ учителя', 'русская кнопка ключа вернулась: ' + t('[data-key="1"]'));
+  const presRu = [...pane.querySelectorAll('[data-pres-mode]')].map(b => b.textContent.trim());
+  ck(/Пошагово/.test(presRu[0]) && /Схема/.test(presRu[1]) && /Сначала звук/.test(presRu[2]),
+    'русские подписи режимов на месте: ' + presRu.join(' | '));
+  ck(cyr(t('#LG-tg-presentation h3')) && /Инструкция для преподавателя/.test(t('#LG-tg-presentation h3')),
+    'русский заголовок инструкции на месте');
+  ck(/Три рода/.test(t('h2.section-title')), 'русский заголовок урока на месте: ' + t('h2.section-title'));
+  const selRu = pane.querySelector('.lesson-select');
+  ck(cyr(selRu.getAttribute('aria-label') || ''), 'русская подпись выбора урока на месте: ' +
+    selRu.getAttribute('aria-label'));
+
+  /* В английских данных урока не должно быть русских полей: ловим то,
+     что пока не выведено на экран, но вылезет при следующей правке. */
+  const CYR_FIELD = /(^|\.)(en|en[A-Z][A-Za-z]*|[a-zA-Z]+En|titleEn|introEn|topicEn)$/;
+  const fieldHits = [];
+  const seenObj = new Set();
+  const walkEn = (o, path) => {
+    if (o == null) return;
+    if (typeof o === 'string') { if (CYR_FIELD.test(path) && CYR.test(o)) fieldHits.push(path); return; }
+    if (typeof o !== 'object' || seenObj.has(o)) return;
+    seenObj.add(o);
+    if (Array.isArray(o)) { o.forEach((v, i) => walkEn(v, path + '[' + i + ']')); return; }
+    Object.keys(o).forEach(k => walkEn(o[k], path ? path + '.' + k : k));
+  };
+  walkEn(SAL.lessons, 'lessons');
+  ck(fieldHits.length === 0, 'в полях en всех уроков нет кириллицы' +
+    (fieldHits.length ? ': ' + fieldHits.slice(0, 5).join(', ') : ''));
+
+  win.setLanguage('ru');
   SAL.openLesson('L4');
 }
 

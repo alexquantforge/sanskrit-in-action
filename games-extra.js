@@ -1763,7 +1763,14 @@
       if (targets.length > totalCells || targets.length > Math.floor(totalCells * 0.6)) {
         targets = cfg.words.map(function (w) { return w.id; });   /* маленькое поле — по одному разу */
       }
-      var decoys = shuffle(decoyPool(cfg));
+      /* Ловушки неверного рода идут в начало пула: раньше весь пул
+         перемешивался целиком, и на поле могло не оказаться ни одной
+         такой ловушки — а филворд для того и нужен, чтобы её увидеть.
+         Остальные клетки добираем вариантами написания. */
+      var pool = decoyPool(cfg);
+      var traps = pool.filter(function (x) { return (cfg.decoys || []).indexOf(x) >= 0; });
+      var rest = pool.filter(function (x) { return (cfg.decoys || []).indexOf(x) < 0; });
+      var decoys = shuffle(traps).concat(shuffle(rest));
       var cells = [];
       for (var i = 0; i < totalCells; i++) cells.push(null);
       shuffle(targets).forEach(function (id) {
@@ -1771,8 +1778,13 @@
         cells.forEach(function (c, idx) { if (c === null) free.push(idx); });
         cells[free[Math.floor(Math.random() * free.length)]] = { t: 1, id: id };
       });
+      /* счётчик именно свободных клеток: абсолютный индекс пропускал те
+         ловушки, чьи номера попали на занятые словами клетки */
+      var dn = 0;
       cells.forEach(function (c, idx) {
-        if (c === null) cells[idx] = { t: 0, s: decoys.length ? decoys[idx % decoys.length] : '—' };
+        if (c !== null) return;
+        cells[idx] = { t: 0, s: decoys.length ? decoys[dn % decoys.length] : '—' };
+        dn++;
       });
       g.grid = cells;
       g.total = targets.length;

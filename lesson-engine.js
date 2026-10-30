@@ -185,12 +185,14 @@ var SAL = (window.SAL = window.SAL || {});
      each lesson can define its own in gestureRu / gestureEn. A lesson whose
      words cannot be shown on the body (colours) passes '' — then every prompt
      simply drops the gesture instead of saying something impossible. */
-  function gesture(cfg) {
+  function gestureText(cfg, lang) {
     if (cfg.gestureRu === '' || cfg.gestureEn === '') return '';
-    return tx({
-      ru: cfg.gestureRu || 'коснитесь этой части тела у себя',
-      en: cfg.gestureEn || 'touch that part of your body'
-    });
+    return lang === 'ru'
+      ? (cfg.gestureRu || 'коснитесь этой части тела у себя')
+      : (cfg.gestureEn || 'touch that part of your body');
+  }
+  function gesture(cfg) {
+    return gestureText(cfg, L());
   }
 
   function iastSpan(s) {
@@ -329,7 +331,9 @@ var SAL = (window.SAL = window.SAL || {});
         ' data-i18n-ru="Выбрать номер урока:" data-i18n-en="Choose a lesson:">' +
         ru('Choose a lesson:', 'Выбрать номер урока:') + '</label>' +
       '<select id="lesson-nav-' + current + '" class="lesson-select" onchange="SAL.gotoLesson(this.value)"' +
-        ' aria-label="Выбрать номер урока / Choose a lesson" title="Выбрать номер урока / Choose a lesson">' +
+        ' aria-label="Выбрать номер урока / Choose a lesson" title="Выбрать номер урока / Choose a lesson"' +
+        ' data-i18n-aria-ru="Выбрать номер урока" data-i18n-aria-en="Choose a lesson"' +
+        ' data-i18n-title-ru="Выбрать номер урока" data-i18n-title-en="Choose a lesson">' +
         opts + '</select>';
   }
   /* the standalone 12-word lesson keeps its nav bar in index.html — fill that slot */
@@ -369,7 +373,9 @@ var SAL = (window.SAL = window.SAL || {});
     }).join('');
     return '' +
       '<div id="' + cfg.key + '-tg-' + stageKey + '" class="teacher-guide-box">' +
-        '<div class="teacher-guide-header"><h3>' + (L() === 'ru' ? titleRu : titleEn) + '</h3>' +
+        '<div class="teacher-guide-header"><h3' +
+          ' data-i18n-ru="' + attrSafe(titleRu) + '" data-i18n-en="' + attrSafe(titleEn) + '">' +
+          (L() === 'ru' ? titleRu : titleEn) + '</h3>' +
           '<button type="button" class="chip-btn" onclick="SAL.toggleGuide(\'' + cfg.key + '\',\'' + stageKey + '\')"' +
             ' data-i18n-ru="✕ Закрыть" data-i18n-en="✕ Close">✕ ' + ru('Close', 'Закрыть') + '</button>' +
         '</div><div class="teacher-guide-grid">' + (preface || '') + items + '</div></div>';
@@ -461,9 +467,11 @@ var SAL = (window.SAL = window.SAL || {});
         tx({ ru: 'Кто играет', en: 'Who plays' }) + '</span>' +
       '<span class="players-toggle" id="' + cfg.key + '-players-toggle">' +
         '<button type="button" class="chip-btn' + (st.players === 1 ? ' active' : '') + '" data-players="1"' +
+          ' data-i18n-ru="👤 1 ученик" data-i18n-en="👤 1 student"' +
           ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'1\')">👤 ' +
           tx({ ru: '1 ученик', en: '1 student' }) + '</button>' +
         '<button type="button" class="chip-btn' + (st.players === 2 ? ' active' : '') + '" data-players="2"' +
+          ' data-i18n-ru="👥 2 ученика" data-i18n-en="👥 2 students"' +
           ' onclick="SAL.do(\'' + cfg.key + '\',\'setPlayers\',\'2\')">👥 ' +
           tx({ ru: '2 ученика', en: '2 students' }) + '</button>' +
       '</span>' +
@@ -472,6 +480,7 @@ var SAL = (window.SAL = window.SAL || {});
         ' data-i18n-en="👤 This game is for one student.">' +
         tx({ ru: '👤 Эта игра — для одного ученика.', en: '👤 This game is for one student.' }) + '</span>' +
       '<button type="button" class="chip-btn' + (st.teacherKey ? ' active' : '') + '" data-key="1"' +
+        ' data-i18n-ru="🔑 Ключ учителя" data-i18n-en="🔑 Answer key"' +
         ' onclick="SAL.do(\'' + cfg.key + '\',\'toggleKey\')">🔑 ' +
         tx({ ru: 'Ключ учителя', en: 'Answer key' }) + '</button>' +
       '<span class="practice-extra-note" data-i18n-ru="🔑 показывает ответ: ученик-«учитель» проверяет напарника. 👥 есть только у парных игр — там ход передаётся по очереди; у остальных кнопки нет."' +
@@ -742,28 +751,36 @@ var SAL = (window.SAL = window.SAL || {});
     }).join('');
 
     /* Production headline and its description: the gesture is optional */
-    var tpr = gesture(cfg);
+    /* The TPR gesture goes into both language versions of the strings below,
+       so it has to be built twice — a single tx() would bake the Russian
+       gesture into the English sentence. */
+    var tprRu = gestureText(cfg, 'ru');
+    var tprEn = gestureText(cfg, 'en');
     function withN(t) { return String(t).replace(/\{n\}/g, N); }
     var prodTitleRu = withN(cfg.prodTitleRu ||
       'Живая речь: покажите у себя и назовите вслух все ' + N + ' слов');
     var prodTitleEn = withN(cfg.prodTitleEn ||
       'Freer Production: Point &amp; Name All ' + N + ' Words Aloud');
-    var prodDescRu = tpr
-      ? 'Финальный этап <strong>PPP</strong>: выберите слово, ' + tpr + ' и уверенно произнесите чистую основу вслух.'
+    var prodDescRu = tprRu
+      ? 'Финальный этап <strong>PPP</strong>: выберите слово, ' + tprRu + ' и уверенно произнесите чистую основу вслух.'
       : 'Финальный этап <strong>PPP</strong>: выберите слово и уверенно произнесите чистую основу вслух.';
-    var prodDescEn = tpr
-      ? 'The final <strong>PPP</strong> stage: pick a word, ' + tpr + ', and say the Sanskrit stem aloud.'
+    var prodDescEn = tprEn
+      ? 'The final <strong>PPP</strong> stage: pick a word, ' + tprEn + ', and say the Sanskrit stem aloud.'
       : 'The final <strong>PPP</strong> stage: pick a word and say the Sanskrit stem aloud.';
 
     var presTabs = [
-      ['stepbystep', ru('1. Step-by-Step (2 Words)', '1. Пошагово (по 2 слова)')],
-      ['hotspots', ru('2. Diagram (Hotspots)', '2. Схема (Hotspots)')],
-      ['audiofirst', ru('3. Audio-First 🔊 → Text', '3. Сначала звук 🔊 → потом буквы')],
-      ['poster', ru('4. Full Poster (All ' + N + ')', '4. Плакат (все ' + N + ' слов)')]
+      ['stepbystep', ru('1. Step-by-Step (2 Words)', '1. Пошагово (по 2 слова)'),
+        '1. Пошагово (по 2 слова)', '1. Step-by-Step (2 Words)'],
+      ['hotspots', ru('2. Diagram (Hotspots)', '2. Схема (Hotspots)'),
+        '2. Схема (Hotspots)', '2. Diagram (Hotspots)'],
+      ['audiofirst', ru('3. Audio-First 🔊 → Text', '3. Сначала звук 🔊 → потом буквы'),
+        '3. Сначала звук 🔊 → потом буквы', '3. Audio-First 🔊 → Text'],
+      ['poster', ru('4. Full Poster (All ' + N + ')', '4. Плакат (все ' + N + ' слов)'),
+        '4. Плакат (все ' + N + ' слов)', '4. Full Poster (All ' + N + ')']
     ].map(function (p) {
       return '<button type="button" class="practice-tab-btn' + (p[0] === 'stepbystep' ? ' active' : '') + '" data-pres-mode="' + p[0] +
         '" onclick="SAL.do(\'' + key + '\',\'setPresMode\',\'' + p[0] + '\')"' +
-        ' data-i18n-ru="' + p[1].replace(/"/g, '') + '">' + p[1] + '</button>';
+        ' data-i18n-ru="' + attrSafe(p[2]) + '" data-i18n-en="' + attrSafe(p[3]) + '">' + p[1] + '</button>';
     }).join('');
 
     return navBarHtml(cfg) +
@@ -777,7 +794,10 @@ var SAL = (window.SAL = window.SAL || {});
           '<button type="button" class="teacher-guide-btn" id="' + key + '-tgb-presentation" onclick="SAL.toggleGuide(\'' + key + '\',\'presentation\')"' +
             ' data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher\'s Guide">👩‍🏫 ' + ru('Teacher\'s Guide', 'Инструкция для преподавателя') + '</button>' +
         '</div>' +
-        '<h2 class="section-title">' + cfg.titleDeva + ' — ' + tx({ ru: cfg.titleRu, en: cfg.titleEn }) + ' (Vocabulary A1)</h2>' +
+        '<h2 class="section-title"' +
+          ' data-i18n-ru="' + attrSafe(cfg.titleDeva + ' — ' + cfg.titleRu + ' (Vocabulary A1)') + '"' +
+          ' data-i18n-en="' + attrSafe(cfg.titleDeva + ' — ' + cfg.titleEn + ' (Vocabulary A1)') + '">' +
+          cfg.titleDeva + ' — ' + tx({ ru: cfg.titleRu, en: cfg.titleEn }) + ' (Vocabulary A1)</h2>' +
         '<p class="section-desc" data-i18n-ru="' + cfg.introRu + '" data-i18n-en="' + cfg.introEn + '">' + tx({ ru: cfg.introRu, en: cfg.introEn }) + '</p>' +
       '</div>' +
 
@@ -892,8 +912,8 @@ var SAL = (window.SAL = window.SAL || {});
            '<strong>1. Stage Aim (Freer Production &amp; Fluency):</strong><br/>Activate all ' + N + ' words in speech without written prompts. Core CELTA principle: <strong>high Student Talking Time, low Teacher Talking Time</strong>.'],
           ['<strong>2. Тренажёр 1 «Спринт» — три режима таймера:</strong><br/><code>✋ Таймер вручную</code> (учитель запускает таймер сам), <code>⚡ Авто-таймер</code> (после оценки карточка и таймер запускаются сами), <code>⏩ Авто-смена картинок</code> (чистый TPR-поток: картинки меняются каждые 4 / 3 / 2 сек без текста и звука). Вид: <code>🖼 отдельная картинка</code> или <code>🏹 стрелка на схеме</code>.',
            '<strong>2. Trainer 1 "Speed Sprint" — three timer modes:</strong><br/><code>✋ Manual Timer</code> (the teacher starts the countdown), <code>⚡ Auto Timer</code> (the next card and countdown start automatically), <code>⏩ Auto-Advance Pictures</code> (pure TPR flow: pictures change every 4 / 3 / 2 s with no text and no sound). View: <code>🖼 isolated picture</code> or <code>🏹 arrow on the diagram</code>.'],
-          ['<strong>3. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча показывает карточку' + (tpr ? ' (или ' + tpr + ')' : '') + ', ученик Б мгновенно называет слово на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
-           '<strong>2. Activity A — Living Mirror in Pairs (4 min):</strong><br/>Partner A silently shows a card' + (tpr ? ' (or ' + tpr + ')' : '') + ', Partner B names the word in Sanskrit at once. Swap roles after ' + Math.ceil(N / 2) + ' words.'],
+          ['<strong>3. Активность А — «Живое зеркало» в парах (4 мин):</strong><br/>Ученик А молча показывает карточку' + (tprRu ? ' (или ' + tprRu + ')' : '') + ', ученик Б мгновенно называет слово на санскрите. Через ' + Math.ceil(N / 2) + ' слов меняются ролями.',
+           '<strong>2. Activity A — Living Mirror in Pairs (4 min):</strong><br/>Partner A silently shows a card' + (tprEn ? ' (or ' + tprEn + ')' : '') + ', Partner B names the word in Sanskrit at once. Swap roles after ' + Math.ceil(N / 2) + ' words.'],
           ['<strong>4. Активность Б — «Ловушка ведущего» (Simon Says, 4 мин):</strong><br/>Ведущий называет одно слово, а показывает другое. Ученики слушают ушами, реагируют на названное слово и хором его повторяют.',
            '<strong>3. Activity B — Listen, Don\'t Copy (Simon Says, 4 min):</strong><br/>The leader says one word but shows another. Learners must listen, react to the word they hear, and repeat it in chorus.'],
           ['<strong>5. Активность В — Индивидуальный зачёт ' + N + '/' + N + ' (4 мин):</strong><br/>Каждый ученик проходит тренажёр ниже до результата <code>' + N + ' из ' + N + '</code>. Не перебивайте — разберите ошибки в конце (<em>Delayed Error Correction</em>).',

@@ -1206,6 +1206,18 @@ function setLanguage(lang) {
     }
   });
 
+  /* атрибуты, которые пользователь тоже читает: подсказка и подпись для
+     экранного диктора. Без этого в английском режиме всплывала русская
+     подпись «Выбрать номер урока». */
+  [['title', 'data-i18n-title'], ['aria-label', 'data-i18n-aria']].forEach(([attr, prefix]) => {
+    document.querySelectorAll('[' + prefix + '-ru]').forEach(el => {
+      const text = lang === 'ru' ? el.getAttribute(prefix + '-ru') : el.getAttribute(prefix + '-en');
+      if (text !== null) {
+        el.setAttribute(attr, text);
+      }
+    });
+  });
+
   // Refresh dynamic widgets in selected language
   selectHeroOption(0);
   selectCefrLevel(currentLevel);
