@@ -2109,6 +2109,86 @@ ck(heard.join('|') === 'सप्ता|पञ्चा|षट्',
   'в хинди-движок уходит सप्ता, पञ्चा, а षट् — как есть (' + heard.join('|') + ')');
 SAL.speak(L4.words.filter(w => w.deva === 'पञ्च')[0].ttsText);
 ck(heard[heard.length - 1] === 'पञ्चा', 'слово урока тоже озвучивается с конечной ा');
+
+/* ---- какой голос читает слово: Chrome / Safari / Firefox ----------------
+   Хинди-голос есть далеко не везде. Chrome обычно приносит Google हिन्दी, а
+   Safari и Firefox читают देवनागरी случайным голосом — на слух «паде» вместо
+   «падаха». Поэтому: есть индийский голос — читаем деванагари; голосов нет
+   вовсе — тоже деванагари; голоса есть, но индийского нет — читаем латиницей
+   (paadahaa), её любой движок произносит предсказуемо. */
+const simSpeak = (voices, text) => {
+  const got = [];
+  win.salTtsResetVoices();
+  win.speechSynthesis = {
+    speaking: false, pending: false,
+    cancel() {}, getVoices() { return voices; },
+    speak(u) { got.push({ text: u.text, lang: u.lang, voice: u.voice }); }
+  };
+  SAL.speak(text);
+  return got;
+};
+const noDeva = t => !/[\u0900-\u097F]/.test(t);
+
+ck(win.devaToLatin('पादहा') === 'paadahaa' && win.devaToLatin('हस्तहा') === 'hastahaa',
+  'латиница: पादहा → paadahaa, हस्तहा → hastahaa (отзвук висарги слышен)');
+ck(win.devaToLatin('मुखम्') === 'mukham' && win.devaToLatin('दुह्ख') === 'duhkha',
+  'латиница: मुखम् → mukham, दुःख → duhkha');
+ck(win.devaToLatin('श्यामम् ललाटम्') === 'shyaamam lalaatam',
+  'латиница: словосочетание читается целиком — ' + win.devaToLatin('श्यामम् ललाटम्'));
+
+/* Chrome: есть хинди-голос — всё как раньше, деванагари */
+const chromeTts = simSpeak([{ name: 'Google हिन्दी', lang: 'hi-IN' }, { name: 'Samantha', lang: 'en-US' }], 'पादः');
+ck(chromeTts.length === 1 && chromeTts[0].text === 'पादहा' &&
+   chromeTts[0].voice && chromeTts[0].voice.lang === 'hi-IN',
+  'Chrome с хинди-голосом: в движок уходит पादहा и голос hi-IN — ' + chromeTts[0].text);
+
+/* Safari: хинди-голоса нет — латиница и английский голос, а не «паде» */
+const safariTts = simSpeak([{ name: 'Samantha', lang: 'en-US' }, { name: 'Milena', lang: 'ru-RU' }], 'पादः');
+ck(safariTts.length === 1 && safariTts[0].text === 'paadahaa' && noDeva(safariTts[0].text),
+  'Safari без хинди-голоса: слово уходит латиницей — ' + safariTts[0].text);
+ck(safariTts[0].voice && safariTts[0].voice.lang === 'en-US' && safariTts[0].lang === 'en-US',
+  'Safari без хинди-голоса: выбран английский голос, а не русский');
+const safariWords = SAL.lessons.LG.words.map(w => simSpeak([{ name: 'Samantha', lang: 'en-US' }], w.ttsText)[0].text);
+ck(safariWords.every(noDeva) && safariWords.every(t => /[aeioum]$/.test(t)),
+  'Safari: все восемь слов уходят латиницей и кончаются на слышимую гласную или «m» — ' + safariWords.join(' · '));
+ck(safariWords[2] === 'gaurahaa hastahaa' && safariWords[6] === 'shyaamahaa paadahaa',
+  'Safari: висарга и там даёт отзвук — ' + safariWords[2] + ' / ' + safariWords[6]);
+
+/* Safari с индийским английским голосом: en-IN ближе к санскриту */
+const enInTts = simSpeak([{ name: 'Rishi', lang: 'en-IN' }, { name: 'Samantha', lang: 'en-US' }], 'हस्तः');
+ck(enInTts[0].text === 'hastahaa' && enInTts[0].voice.lang === 'en-IN',
+  'Safari: из английских голосов предпочитается en-IN — ' + enInTts[0].text);
+
+/* Firefox/старый Safari: список голосов ещё пуст — не выдумываем, читаем деванагари */
+const noVoices = simSpeak([], 'पादः');
+ck(noVoices.length === 1 && noVoices[0].text === 'पादहा' && noVoices[0].lang === 'hi-IN',
+  'голосов ещё нет: читаем деванагари с lang hi-IN, как раньше');
+
+/* Android/неизвестные системы: язык может прийти как hi_IN */
+const underscore = simSpeak([{ name: 'हिन्दी', lang: 'hi_IN' }], 'गौरः');
+ck(underscore[0].text === 'गौरहा' && underscore[0].voice.lang === 'hi_IN',
+  'язык с подчёркиванием hi_IN тоже опознаётся как хинди');
+
+/* Safari выбрасывает новую фразу, если cancel() и speak() идут подряд:
+   новая фраза ставится чуть позже, сразу после cancel(). */
+{
+  const realTimeout = win.setTimeout;
+  const afterCancel = [];
+  let cancelled = 0;
+  win.salTtsResetVoices();
+  win.speechSynthesis = {
+    speaking: true, pending: false,
+    cancel() { cancelled++; },
+    getVoices() { return [{ name: 'Google हिन्दी', lang: 'hi-IN' }]; },
+    speak(u) { afterCancel.push(u.text); }
+  };
+  win.setTimeout = fn => { fn(); return 0; };
+  SAL.speak('पादः');
+  win.setTimeout = realTimeout;
+  ck(cancelled === 1 && afterCancel.length === 1 && afterCancel[0] === 'पादहा',
+    'пока звучит прошлая фраза: cancel(), затем новая фраза — ' + afterCancel.join('|'));
+}
+
 win.speechSynthesis = realSynth;
 win.SpeechSynthesisUtterance = realUtter;
 

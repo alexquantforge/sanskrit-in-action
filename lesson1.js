@@ -771,6 +771,132 @@ function sanskritTtsText(devaText) {
 }
 window.sanskritTtsText = sanskritTtsText;
 
+// ---------------------------------------------------------------------------
+// КАКОЙ ГОЛОС ЧИТАЕТ СЛОВО
+// ---------------------------------------------------------------------------
+// Chrome обычно приносит с собой хинди-голос (Google हिन्दी) и читает
+// деванагари правильно. В Safari и Firefox такого голоса часто нет, и тогда
+// браузер читает देवनागरी тем голосом, который оказался под рукой, — на слух
+// выходит «паде» вместо «падаха» и «хасте» вместо «хастаха». Текст мы уже
+// исправили (см. выше), но голос браузер выбирает сам, если ему не сказать.
+// Поэтому выбираем сами:
+//   · есть голос sa / hi / mr / ne (или в названии hindi/sanskrit) —
+//     читаем деванагари, как раньше;
+//   · голосов нет вовсе (список ещё не пришёл) — тоже деванагари;
+//   · голоса есть, но индийского среди них нет — читаем ЛАТИНИЦЕЙ
+//     (paadahaa, hastahaa): латиницу любой движок произносит предсказуемо,
+//     а деванагари без индийского голоса — нет.
+// Строка для латиницы собирается из той же обработанной деванагари, поэтому
+// отзвук висарги (हा) и конечная «а» в ней сохраняются.
+
+var TTS_LATIN_CONS = {
+  '\u0915': 'k', '\u0916': 'kh', '\u0917': 'g', '\u0918': 'gh', '\u0919': 'ng',
+  '\u091A': 'ch', '\u091B': 'chh', '\u091C': 'j', '\u091D': 'jh', '\u091E': 'ny',
+  '\u091F': 't', '\u0920': 'th', '\u0921': 'd', '\u0922': 'dh', '\u0923': 'n',
+  '\u0924': 't', '\u0925': 'th', '\u0926': 'd', '\u0927': 'dh', '\u0928': 'n',
+  '\u092A': 'p', '\u092B': 'ph', '\u092C': 'b', '\u092D': 'bh', '\u092E': 'm',
+  '\u092F': 'y', '\u0930': 'r', '\u0932': 'l', '\u0933': 'l', '\u0935': 'v',
+  '\u0936': 'sh', '\u0937': 'sh', '\u0938': 's', '\u0939': 'h'
+};
+var TTS_LATIN_VOW = {
+  '\u0905': 'a', '\u0906': 'aa', '\u0907': 'i', '\u0908': 'ee', '\u0909': 'u',
+  '\u090A': 'oo', '\u090B': 'ri', '\u0960': 'ree', '\u090C': 'li', '\u090F': 'e',
+  '\u0910': 'ai', '\u0913': 'o', '\u0914': 'au'
+};
+/* огласовки: ा ि ी ु ू ृ े ै ो ौ ं ँ ः ् */
+var TTS_LATIN_SIGN = {
+  '\u093E': 'aa', '\u093F': 'i', '\u0940': 'ee', '\u0941': 'u', '\u0942': 'oo',
+  '\u0943': 'ri', '\u0944': 'ree', '\u0947': 'e', '\u0948': 'ai', '\u094B': 'o',
+  '\u094C': 'au', '\u0902': 'm', '\u0901': 'n', '\u0903': 'h', '\u094D': ''
+};
+
+function devaToLatin(devaText) {
+  const s = String(devaText || '');
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    const cons = TTS_LATIN_CONS[ch];
+    if (cons !== undefined) {
+      out += cons;
+      const next = s[i + 1];
+      if (next !== undefined && TTS_LATIN_SIGN[next] !== undefined) {
+        out += TTS_LATIN_SIGN[next];      /* ा / ि / ् … — врождённой «а» нет */
+        i++;
+      } else {
+        out += 'a';                        /* врождённая короткая «а» */
+      }
+    } else if (TTS_LATIN_VOW[ch] !== undefined) {
+      out += TTS_LATIN_VOW[ch];
+    } else if (TTS_LATIN_SIGN[ch] !== undefined) {
+      out += TTS_LATIN_SIGN[ch];
+    } else if (ch === '\u0964' || ch === '\u0965') {
+      out += '.';                          /* ।  ॥ */
+    } else {
+      out += ch;                           /* пробелы, цифры, латиница */
+    }
+  }
+  return out.replace(/\s+/g, ' ').trim();
+}
+window.devaToLatin = devaToLatin;
+
+/* Живой список голосов: некоторые браузеры отдают его только после
+   voiceschanged, поэтому дёргаем getVoices() и на старте, и по событию. */
+var ttsVoicesCache = [];
+function ttsVoices() {
+  let live = [];
+  try {
+    live = (window.speechSynthesis && window.speechSynthesis.getVoices)
+      ? (window.speechSynthesis.getVoices() || []) : [];
+  } catch (e) { live = []; }
+  if (live.length) { ttsVoicesCache = live; return live; }
+  /* браузер однажды отдал голоса, но сейчас молчит — не теряем их */
+  return ttsVoicesCache;
+}
+/* для тестов и отладки: сбросить запомненный список */
+window.salTtsResetVoices = function () { ttsVoicesCache = []; };
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  try { window.speechSynthesis.addEventListener('voiceschanged', ttsVoices); } catch (e) { /* старые движки */ }
+  ttsVoices();
+}
+
+function ttsVoiceByLang(prefixes) {
+  const voices = ttsVoices();
+  for (let p = 0; p < prefixes.length; p++) {
+    for (let i = 0; i < voices.length; i++) {
+      const lang = String(voices[i].lang || '').toLowerCase().replace(/_/g, '-');
+      if (lang.indexOf(prefixes[p]) === 0) return voices[i];
+    }
+  }
+  return null;
+}
+/* Голос, который действительно умеет читать देवनागरी. */
+function ttsIndicVoice() {
+  const byLang = ttsVoiceByLang(['sa', 'hi', 'mr', 'ne']);
+  if (byLang) return byLang;
+  const voices = ttsVoices();
+  return voices.filter(v => /sanskrit|hindi|marathi|nepali|devanagari/i.test(String(v.name || '')))[0] || null;
+}
+/* Английский голос для латиницы: en-IN звучит ближе всего к санскриту. */
+function ttsEnglishVoice() {
+  return ttsVoiceByLang(['en-in', 'en-gb', 'en-us', 'en-au', 'en']);
+}
+
+/* Safari выбрасывает новую фразу, если cancel() и speak() идут подряд:
+   даём движку 60 мс, когда предыдущая фраза ещё звучит. */
+function playTtsUtterance(utter) {
+  const synth = window.speechSynthesis;
+  let busy = false;
+  try { busy = !!(synth.speaking || synth.pending); } catch (e) { busy = false; }
+  if (busy) {
+    try { synth.cancel(); } catch (e) { /* ignore */ }
+    setTimeout(function () {
+      try { synth.speak(utter); } catch (e) { /* ignore */ }
+    }, 60);
+  } else {
+    synth.speak(utter);
+  }
+}
+
 // Audio Speech Helper (Web Speech API — pronounces pure stem without case/gender endings)
 function speakSanskritWord(devaText) {
   const isRu = (typeof currentLang === 'undefined') ? true : currentLang === 'ru';
@@ -782,24 +908,28 @@ function speakSanskritWord(devaText) {
       : ' · audio is not supported in this browser'));
     return;
   }
-  showAudioToast('🔊 ' + devaText);
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(sanskritTtsText(devaText));
-  const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-  const saVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('sa'));
-  const hiVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('hi'));
-  if (saVoice) {
-    utter.voice = saVoice;
-    utter.lang = saVoice.lang;
-  } else if (hiVoice) {
-    utter.voice = hiVoice;
-    utter.lang = 'hi-IN';
+  const spokenDeva = sanskritTtsText(devaText);
+  const voices = ttsVoices();
+  const indic = ttsIndicVoice();
+  /* Голоса есть, но индийского среди них нет (Safari, Firefox без пакета
+     хинди): деванагари читает случайный голос — читаем латиницей. */
+  const latinVoice = (!indic && voices.length) ? (ttsEnglishVoice() || voices[0]) : null;
+  const spoken = latinVoice ? devaToLatin(spokenDeva) : spokenDeva;
+  showAudioToast('🔊 ' + devaText + (latinVoice ? ' · ' + spoken : ''));
+
+  const utter = new SpeechSynthesisUtterance(spoken);
+  if (indic) {
+    utter.voice = indic;
+    utter.lang = indic.lang;
+  } else if (latinVoice) {
+    utter.voice = latinVoice;
+    utter.lang = latinVoice.lang;
   } else {
     utter.lang = 'hi-IN';
   }
   utter.rate = 0.85;
   try {
-    window.speechSynthesis.speak(utter);
+    playTtsUtterance(utter);
   } catch (e) {
     showAudioToast('🔇 ' + devaText + (isRu
       ? ' · не удалось воспроизвести звук'
