@@ -1328,7 +1328,7 @@ var SAL = (window.SAL = window.SAL || {});
     picquiz: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     wordquiz: function () { return { i: 0, score: 0, answered: false, picked: null, options: null, firstTry: true, redPick: null, finished: false }; },
     match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, failed: {}, score: 0, done: false, tiles: null, scores: [0, 0], turn: 0 }; },
-    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length, scores: [0, 0], turn: 0 }; },
+    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length, scores: [0, 0], turn: 0, traps: true }; },
     wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     categories: function () { return { i: 0, score: 0, sel: {}, wrong: {}, firstTry: true, checked: false, finished: false, bare: false }; },
@@ -1648,13 +1648,18 @@ var SAL = (window.SAL = window.SAL || {});
   function WORD_CARD_HTML(deva) {
     return '<div style="font-family:var(--font-deva);font-size:1.15rem;font-weight:700;">' + deva + '</div>';
   }
-  function memoryTrapCount(cfg, size) {
+  /* ловушки включаются и выключаются кнопкой: с ними тренируется род,
+     без них игра превращается в обычное «Мемори» по картинкам */
+  function canMemoryTraps(cfg) {
+    return !!(cfg && cfg.memoryTraps && cfg.memoryTraps.length);
+  }
+  function memoryTrapCount(cfg, size, enabled) {
     var all = cfg.memoryTraps || [];
-    if (!all.length) return 0;
+    if (!all.length || enabled === false) return 0;
     return size >= cfg.words.length ? Math.min(2, all.length) : Math.min(1, all.length);
   }
-  function memoryTrapsFor(cfg, size) {
-    var n = memoryTrapCount(cfg, size);
+  function memoryTrapsFor(cfg, size, enabled) {
+    var n = memoryTrapCount(cfg, size, enabled);
     return n ? shuffle(cfg.memoryTraps).slice(0, n) : [];
   }
   /* основа слова без окончания: ः / म् / ा — так в объяснении видно само слово,
@@ -1687,7 +1692,7 @@ var SAL = (window.SAL = window.SAL || {});
         cards.push({ id: w.id, kind: 'pic' });
         cards.push({ id: w.id, kind: 'word' });
       });
-      memoryTrapsFor(cfg, g.size).forEach(function (t, i) {
+      memoryTrapsFor(cfg, g.size, g.traps).forEach(function (t, i) {
         cards.push({ id: 'trap' + i, kind: 'trap', trap: t });
       });
       g.cards = shuffle(cards);
@@ -1717,17 +1722,28 @@ var SAL = (window.SAL = window.SAL || {});
         (flipped ? inner : back) + '</button>';
     }).join('');
     var duoMem = SAL.isDuoGame('memory') && st.players === 2;
+    /* «с ловушками / без ловушек» — только там, где ловушки вообще есть */
+    var trapRow = canMemoryTraps(cfg)
+      ? '<div class="game-ver-row"><span class="game-ver-label">' + ru('Traps:', 'Ловушки:') + '</span>' +
+          chip(cfg, 'memoryTraps', '1', ru('⚠ with traps', '⚠ с ловушками'), g.traps !== false) +
+          chip(cfg, 'memoryTraps', '0', ru('without traps', 'без ловушек'), g.traps === false) +
+        '</div>'
+      : '';
     return topBar((duoMem ? duoScorePills(g) + ' ' : '') +
       pill(ru('Pairs', 'Пары') + ': ' + matchedPairs + '/' + g.size) + ' ' + pill(ru('Moves', 'Ходов') + ': ' + g.moves) +
       (duoMem ? '' : ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score)),
-      chip(cfg, 'memorySize', String(cfg.words.length),
-        cfg.words.length + ' × 2' + (memoryTrapCount(cfg, cfg.words.length) ? ' + ' + memoryTrapCount(cfg, cfg.words.length) + ' ⚠' : '') +
-        ' (' + (cfg.words.length * 2 + memoryTrapCount(cfg, cfg.words.length)) + ')', g.size >= cfg.words.length) +
-      chip(cfg, 'memorySize', String(Math.max(3, Math.ceil(cfg.words.length / 2))),
-        Math.max(3, Math.ceil(cfg.words.length / 2)) + ' × 2' +
-        (memoryTrapCount(cfg, Math.max(3, Math.ceil(cfg.words.length / 2))) ? ' + ' + memoryTrapCount(cfg, Math.max(3, Math.ceil(cfg.words.length / 2))) + ' ⚠' : '') +
-        ' (' + (Math.max(3, Math.ceil(cfg.words.length / 2)) * 2 + memoryTrapCount(cfg, Math.max(3, Math.ceil(cfg.words.length / 2)))) + ')', g.size < cfg.words.length) +
+      (function () {
+        var full = cfg.words.length, half = Math.max(3, Math.ceil(cfg.words.length / 2));
+        var tFull = memoryTrapCount(cfg, full, g.traps), tHalf = memoryTrapCount(cfg, half, g.traps);
+        return chip(cfg, 'memorySize', String(full),
+          full + ' × 2' + (tFull ? ' + ' + tFull + ' ⚠' : '') + ' (' + (full * 2 + tFull) + ')',
+          g.size >= full) +
+          chip(cfg, 'memorySize', String(half),
+          half + ' × 2' + (tHalf ? ' + ' + tHalf + ' ⚠' : '') + ' (' + (half * 2 + tHalf) + ')',
+          g.size < full);
+      })() +
       chip(cfg, 'restart', 'memory', '↺')) +
+      trapRow +
       centerCard('<div class="memory-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + html + '</div>' +
         (g.trapNote ? '<div class="game-hint trap-hint" role="status">' + memoryTrapNote(g.trapNote) + '</div>' : '') +
         (g.lock && !g.trapNote ? '<div class="game-hint" role="status">' +
@@ -2798,8 +2814,20 @@ var SAL = (window.SAL = window.SAL || {});
     memorySize: function (cfg, st, a) {
       var g = gst(cfg, 'memory');
       var size = parseInt(a, 10) || cfg.words.length;
+      var traps = g.traps !== false;
       st.g.memory = GAME_INIT.memory(cfg, st);
       st.g.memory.size = Math.min(size, cfg.words.length);
+      st.g.memory.traps = traps;          /* размер меняется — выбор ловушек остаётся */
+    },
+    /* «с ловушками / без ловушек»: поле пересобирается, размер сохраняется */
+    memoryTraps: function (cfg, st, a) {
+      var g = gst(cfg, 'memory');
+      var want = a === '1';
+      if ((g.traps !== false) === want) return;
+      var size = g.size;
+      st.g.memory = GAME_INIT.memory(cfg, st);
+      st.g.memory.size = Math.min(size, cfg.words.length);
+      st.g.memory.traps = want;
     },
 
     /* 8 / 9 pick one of three (Lesson 1: a wrong pick only costs the first-try point) */
@@ -3278,8 +3306,14 @@ var SAL = (window.SAL = window.SAL || {});
         var base = this, out = {}, k;
         for (k in base) if (Object.prototype.hasOwnProperty.call(base, k) && k !== 'adapt') out[k] = base[k];
         out.how = {
-          ru: base.how.ru.concat(['На поле лежат ловушки: оба слова согласованы друг с другом, но род выбран неверный — श्वेतः उदरः (оба в мужском, а उदर среднего рода). Пары у ловушки нет; при промахе игра называет правильную форму — श्वेतम् उदरम्.']),
-          en: base.how.en.concat(['The board also holds traps: the two words agree with each other, but the gender is the wrong one — श्वेतः उदरः (both masculine, yet उदर is neuter). A trap has no pair; after a miss the game gives the correct form — श्वेतम् उदरम्.'])
+          ru: base.how.ru.concat([
+            'На поле лежат ловушки: оба слова согласованы друг с другом, но род выбран неверный — श्वेतः उदरः (оба в мужском, а उदर среднего рода). Пары у ловушки нет; при промахе игра называет правильную форму — श्वेतम् उदरम्.',
+            'Кнопка «Ловушки: ⚠ с ловушками / без ловушек» над полем убирает их: без ловушек это обычное «Мемори» по картинкам.'
+          ]),
+          en: base.how.en.concat([
+            'The board also holds traps: the two words agree with each other, but the gender is the wrong one — श्वेतः उदरः (both masculine, yet उदर is neuter). A trap has no pair; after a miss the game gives the correct form — श्वेतम् उदरम्.',
+            'The “Traps: ⚠ with traps / without traps” button above the board removes them: without traps it is a plain picture Memory.'
+          ])
         };
         return out;
       }

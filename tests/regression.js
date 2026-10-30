@@ -3022,7 +3022,58 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     ck(/пройдено/i.test(memArena().textContent),
       '«Мемори»: игра заканчивается, когда собраны все настоящие пары');
 
+    /* кнопка «с ловушками / без ловушек» — есть и работает */
+    SAL.do('LG', 'restart', 'memory');
+    SAL.do('LG', 'setGame', 'memory');
+    const trapRow = memArena().querySelector('.game-ver-row');
+    const trapChips = [...(trapRow ? trapRow.querySelectorAll('.chip-btn') : [])];
+    ck(!!trapRow && trapChips.length === 2 &&
+       /с ловушками/.test(trapChips[0].textContent) && /без ловушек/.test(trapChips[1].textContent),
+      '«Мемори»: есть кнопка «с ловушками / без ловушек» — ' +
+      (trapRow ? trapRow.textContent.replace(/\s+/g, ' ').trim() : '—'));
+    ck(trapChips.length === 2 && trapChips[0].classList.contains('active') && gst('LG', 'memory').traps !== false,
+      '«Мемори»: по умолчанию ловушки включены');
+
+    SAL.do('LG', 'memoryTraps', '0');
+    const memOff = gst('LG', 'memory');
+    ck(memOff.traps === false && memOff.cards.length === 16 &&
+       memOff.cards.every(c => c.kind !== 'trap'),
+      '«Мемори» без ловушек: поле 16 карточек, ловушек нет (' + memOff.cards.length + ')');
+    ck([...memArena().querySelectorAll('.game-ver-row .chip-btn')][1].classList.contains('active'),
+      '«Мемори» без ловушек: кнопка показывает выбранный вариант');
+    const sizeChipsOff = [...memArena().querySelectorAll('.chip-btn')]
+      .map(b => b.textContent.trim()).filter(t => t.indexOf('×') >= 0);
+    ck(sizeChipsOff.join('|') === '8 × 2 (16)|4 × 2 (8)',
+      '«Мемори» без ловушек: на кнопках размера нет приписки про ловушки — ' + sizeChipsOff.join(' · '));
+    ck(!memArena().querySelector('.trap-hint'), '«Мемори» без ловушек: подсказок про ловушки нет');
+
+    /* игра без ловушек проходится как обычное «Мемори» */
+    const offIds = [...new Set(memOff.cards.map(c => c.id))];
+    offIds.forEach(id => {
+      const a = memOff.cards.findIndex(c => c.id === id && c.kind === 'pic');
+      const b = memOff.cards.findIndex(c => c.id === id && c.kind === 'word');
+      SAL.do('LG', 'tile', String(a));
+      SAL.do('LG', 'tile', String(b));
+    });
+    ck(Object.keys(memOff.matched).length === LG.words.length && /пройдено/i.test(memArena().textContent),
+      '«Мемори» без ловушек: все пары складываются, игра заканчивается');
+
+    /* кнопка возвращает ловушки, размер поля при этом сохраняется */
+    SAL.do('LG', 'restart', 'memory');
+    SAL.do('LG', 'memoryTraps', '0');
+    SAL.do('LG', 'memorySize', '4');
+    const memSmallOff = gst('LG', 'memory');
+    ck(memSmallOff.size === 4 && memSmallOff.cards.length === 8 &&
+       memSmallOff.cards.every(c => c.kind !== 'trap') && memSmallOff.traps === false,
+      '«Мемори»: выключенные ловушки переживают смену размера поля');
+    SAL.do('LG', 'memoryTraps', '1');
+    const memSmallOn = gst('LG', 'memory');
+    ck(memSmallOn.traps === true && memSmallOn.size === 4 && memSmallOn.cards.length === 9 &&
+       memSmallOn.cards.filter(c => c.kind === 'trap').length === 1,
+      '«Мемори»: кнопка возвращает ловушки, размер поля остаётся прежним');
+
     /* малое поле: одна ловушка и ровный квадрат 3 × 3 */
+    SAL.do('LG', 'restart', 'memory');
     SAL.do('LG', 'memorySize', '4');
     const small = gst('LG', 'memory');
     const smallGrid = memArena().querySelector('.memory-grid');
@@ -3064,6 +3115,11 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     const pEn = memEn.cards.findIndex(c => c.kind === 'pic');
     SAL.do('LG', 'tile', String(tEn));
     SAL.do('LG', 'tile', String(pEn));
+    const enTrapRow = memArena().querySelector('.game-ver-row');
+    const enTrapLabels = enTrapRow ? [...enTrapRow.querySelectorAll('.chip-btn')].map(b => b.textContent.trim()) : [];
+    ck(enTrapLabels.length === 2 && !/[\u0400-\u04FF]/.test(enTrapLabels.join(' ')) &&
+       /with traps/.test(enTrapLabels[0]) && /without traps/.test(enTrapLabels[1]),
+      'английская версия «Мемори»: кнопка ловушек переведена — ' + enTrapLabels.join(' | '));
     const enTrapHint = memArena().querySelector('.trap-hint');
     const enFix = memEn.cards[tEn].trap.fix;
     ck(!!enTrapHint && !/[\u0400-\u04FF]/.test(enTrapHint.textContent) &&
