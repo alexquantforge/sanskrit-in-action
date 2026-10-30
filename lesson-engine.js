@@ -201,11 +201,53 @@ var SAL = (window.SAL = window.SAL || {});
   function devaLabel(w, size) {
     return '<div class="vocab-deva"' + (size ? ' style="font-size:' + size + '"' : '') + '>' + w.deva + '</div>';
   }
-  function maskedMarkup(w, revealed, size) {
+  /* --------------------------------------------------------------- masked word */
+  /* Закрытая часть слова (игра «Закрыто квадратом»). По умолчанию закрыт
+     только конец существительного: w.maskedPrefix + w.maskedHidden.
+
+     Вторая версия игры (both) закрывает ещё и последнюю акшару
+     прилагательного: श्यामं ललाटम् → श्या ■ लला ■. Тогда ученик
+     восстанавливает оба окончания и видит главное правило урока — цвет
+     кончается так же, как слово. Ничего не выдумываем: обе части режутся
+     по уже существующим w.syll и w.maskedPrefix. */
+  function adjCut(w) {
+    if (w && w._adjCut !== undefined) return w._adjCut;
+    if (!w) return -1;
+    w._adjCut = -1;
+    if (!w.syll || !w.syll.length || !w.deva || w.deva.indexOf(' ') < 0) return w._adjCut;
+    var first = w.deva.split(' ')[0], acc = '';
+    for (var i = 0; i < w.syll.length; i++) {
+      acc += w.syll[i];
+      if (acc === first) { w._adjCut = i; break; }     /* индекс последней акшары прилагательного */
+      if (acc.length > first.length) break;
+    }
+    return w._adjCut;
+  }
+  function hasBothMask(cfg) {
+    if (!cfg || !cfg.words || !cfg.words.length) return false;
+    return cfg.words.every(function (w) { return adjCut(w) >= 1; });
+  }
+  function maskedParts(w, both) {
+    if (!both) return [{ t: w.maskedPrefix }, { m: w.maskedHidden }];
+    var cut = adjCut(w);
+    if (cut < 1) return [{ t: w.maskedPrefix }, { m: w.maskedHidden }];
+    var sp = w.maskedPrefix.lastIndexOf(' ');
+    return [
+      { t: w.syll.slice(0, cut).join('') },
+      { m: w.syll[cut] },
+      /* неразрывный пробел: обычный схлопнулся бы между флекс-элементами */
+      { t: '\u00A0' + w.maskedPrefix.slice(sp + 1) },
+      { m: w.maskedHidden }
+    ];
+  }
+  function maskedMarkup(w, revealed, size, both) {
+    var parts = maskedParts(w, both);
     return '<div class="masked-word-line"' + (size ? ' style="font-size:' + size + '"' : '') + '>' +
-      '<span>' + w.maskedPrefix + '</span>' +
-      '<span class="pink-mask-square' + (revealed ? ' revealed' : '') + '">' +
-      (revealed ? w.maskedHidden : '■') + '</span></div>';
+      parts.map(function (p) {
+        if (p.m === undefined) return '<span class="masked-part">' + p.t + '</span>';
+        return '<span class="pink-mask-square' + (revealed ? ' revealed' : '') + '">' +
+          (revealed ? p.m : '■') + '</span>';
+      }).join('') + '</div>';
   }
   var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
   /* memory board shape: rows are lettered a, b, c... and columns numbered 1, 2, 3...
@@ -1184,7 +1226,7 @@ var SAL = (window.SAL = window.SAL || {});
      PRACTICE GAMES
      ========================================================================= */
   var GAME_INIT = {
-    masked: function () { return { i: 0, score: 0, answered: false, picked: null, shown: false, view: 'card', revealed: {}, finished: false }; },
+    masked: function () { return { i: 0, score: 0, answered: false, picked: null, shown: false, view: 'card', revealed: {}, finished: false, both: false }; },
     flashcards: function () { return { i: 0, flipped: false, score: 0, finished: false }; },
     gaps: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     picquiz: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
@@ -1239,7 +1281,27 @@ var SAL = (window.SAL = window.SAL || {});
   function renderMasked(cfg, st) {
     var g = gst(cfg, 'masked');
     var N = cfg.words.length;
-    if (g.view === 'grid') {
+    var two = hasBothMask(cfg);
+    var both = two && !!g.both;
+
+    /* Две версии одной игры. Первая (по умолчанию) закрывает только конец
+       существительного, вторая — ещё и конец прилагательного. */
+    var gridView = g.view === 'grid';
+    var verRow = two
+      ? '<div class="masked-ver-row">' +
+          '<span class="masked-ver-label">' + ru('Version:', 'Версия:') + '</span>' +
+          chip(cfg, 'maskedBoth', '0', ru('1 · noun ending', '1 · конец слова'), !both) +
+          chip(cfg, 'maskedBoth', '1', ru('2 · both endings', '2 · оба окончания'), both) +
+        '</div>'
+      : '';
+    var bothHint = both
+      ? '<div class="masked-both-hint">' +
+          ru('Agreement: say both endings aloud — the colour ends the same way as the noun.',
+             'Согласование: назовите вслух оба окончания — цвет кончается так же, как слово.') +
+        '</div>'
+      : '';
+
+    if (gridView) {
       if (Object.keys(g.revealed).length >= N) {
         return finalScreen(cfg, 'masked', ru('1. Covered Square ■ (' + N + ' / ' + N + ')', '1. Закрыто квадратом ■ (' + N + ' / ' + N + ')'), N, N);
       }
@@ -1247,27 +1309,30 @@ var SAL = (window.SAL = window.SAL || {});
         var rev = !!g.revealed[w.id];
         return '<div class="vocab-item-card" onclick="SAL.do(\'' + cfg.key + '\',\'maskedReveal\',\'' + w.id + '\')">' +
           '<button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); SAL.speak(\'' + w.ttsText + '\')">🔊</button>' +
-          maskedMarkup(w, rev, '1.6rem') +
+          maskedMarkup(w, rev, '1.6rem', both) +
           '<div class="vocab-iast">' + w.iast + '</div>' +
           '<div style="margin-top:0.5rem;">' + svgBox(w, 92) + '</div></div>';
       }).join('');
       return topBar(
         chip(cfg, 'maskedView', 'card', '1 / ' + N, false) + chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', true),
         pill(Object.keys(g.revealed).length + ' / ' + N) + ' ' + chip(cfg, 'maskedGridReset', '', '↺')) +
-        '<div class="vocab-grid-6" style="margin-top:1rem;">' + cards + '</div>';
+        verRow +
+        '<div class="vocab-grid-6" style="margin-top:1rem;">' + cards + '</div>' +
+        bothHint;
     }
     if (g.finished || g.i >= N) {
-      return finalScreen(cfg, 'masked', ru('1. ■', '1. ■'), g.score, N);
+      return verRow + finalScreen(cfg, 'masked', ru('1. ■', '1. ■'), g.score, N);
     }
     var w = cfg.words[g.i];
     return topBar(
         chip(cfg, 'maskedView', 'card', '1 / ' + N, g.view !== 'grid') +
         chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', g.view === 'grid'),
         pill(g.score + ' · (' + (g.i + 1) + ' / ' + N) + ' ' + chip(cfg, 'restart', 'masked', '↺')) +
+      verRow +
       centerCard(
         '<div class="flashcard-box" onclick="SAL.do(\'' + cfg.key + '\',\'maskedFlip\')">' +
           svgBox(w, 140) +
-          maskedMarkup(w, g.shown, '2.45rem') +
+          maskedMarkup(w, g.shown, '2.45rem', both) +
           '<div class="iast-text" style="font-size:1.1rem;margin-top:0.25rem;">' + (g.shown ? w.iast : '&nbsp;') + '</div>' +
         '</div>' +
         '<div style="display:flex;justify-content:center;gap:0.65rem;flex-wrap:wrap;">' +
@@ -1278,6 +1343,7 @@ var SAL = (window.SAL = window.SAL || {});
           '<button type="button" class="chip-btn" style="background:#16a34a;border-color:#16a34a;color:#fff;" onclick="SAL.do(\'' + cfg.key + '\',\'maskedGrade\',\'1\')">✓ ' +
             ru('I knew it', 'Знаю') + '</button>' +
         '</div>' +
+        bothHint +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           ru('Say the word aloud, then uncover it and grade yourself.', 'Назовите слово вслух, затем откройте его и оцените себя.') + '</div>'
       );
@@ -2436,6 +2502,13 @@ var SAL = (window.SAL = window.SAL || {});
       g.i++; g.answered = false; g.picked = null; g.shown = false;
     },
     maskedView: function (cfg, st, a) { gst(cfg, 'masked').view = a; },
+    /* вторая версия игры: закрыт и конец прилагательного. При смене версии
+       снова закрываем слова — иначе ответ уже виден с прошлого раза. */
+    maskedBoth: function (cfg, st, a) {
+      var g = gst(cfg, 'masked');
+      if ((a === '1') !== !!g.both) { g.shown = false; g.revealed = {}; }
+      g.both = a === '1';
+    },
     maskedReveal: function (cfg, st, id) {
       var g = gst(cfg, 'masked');
       if (g.revealed[id]) delete g.revealed[id]; else { g.revealed[id] = true; SAL.speak(byId(cfg, id).ttsText); }
@@ -2916,7 +2989,19 @@ var SAL = (window.SAL = window.SAL || {});
       score: { ru: 'Очко за каждый ✓. ✕ не снимает очко, но отправляет слово в копилку ошибок — игра 14 повторит его отдельно.',
                en: 'A point for every ✓. ✕ costs no point, but drops the word into the mistake pile — game 14 drills it again.' },
       tip: { ru: 'Не подсказывайте. Ошибку исправьте на месте: пусть ученик произнесёт верную форму и нажмёт ✕.',
-             en: 'Do not prompt. Correct on the spot: have the student say the right form, then press ✕.' }
+             en: 'Do not prompt. Correct on the spot: have the student say the right form, then press ✕.' },
+      /* В уроке рода у игры есть вторая версия: закрыт и конец прилагательного.
+         Добавляем про неё шаг только там, где такая версия действительно есть. */
+      adapt: function (cfg) {
+        if (!hasBothMask(cfg)) return null;
+        var base = this, out = {}, k;
+        for (k in base) if (Object.prototype.hasOwnProperty.call(base, k) && k !== 'adapt') out[k] = base[k];
+        out.how = {
+          ru: base.how.ru.concat(['«Версия 2» закрывает ещё и конец прилагательного: श्या ■ लला ■. Назовите оба окончания и проверьте, что они совпадают.']),
+          en: base.how.en.concat(['“Version 2” also hides the end of the adjective: श्या ■ लला ■. Say both endings and check that they match.'])
+        };
+        return out;
+      }
     },
     flashcards: {
       aim: { ru: 'Самое быстрое узнавание: картинка → слово, без письма.',

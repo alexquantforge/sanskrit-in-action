@@ -2463,6 +2463,143 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
   });
   ck(broken.length === 0, 'данные слов согласованы' + (broken.length ? ' — ' + broken.join('; ') : ''));
 
+  /* --- «Закрыто квадратом»: вторая версия с двумя окончаниями ------------ */
+  /* В уроке рода закрыт не только конец существительного, но и конец
+     прилагательного: ученик восстанавливает оба окончания и видит, что цвет
+     согласуется со словом. Ничего не выдумываем — обе части режутся по
+     уже существующим w.syll и w.maskedPrefix. */
+  {
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'masked');
+    SAL.do('LG', 'restart', 'masked');
+    const pane = win.document.getElementById('view-lesson5');
+    const arena = arenaOf('LG');
+    /* арену перезапрашиваем каждый раз: смена языка пересобирает панель
+       урока, и прежняя ссылка на узел становится отсоединённой */
+    const lineOf = () => {
+      const l = arenaOf('LG').querySelector('.masked-word-line');
+      return l ? l.textContent.replace(/\u00A0/g, ' ') : '';
+    };
+
+    /* переключатель версий есть и подписан */
+    const verRow = arena.querySelector('.masked-ver-row');
+    ck(!!verRow, 'урок 5, игра 1: есть переключатель двух версий игры');
+    const verBtns = verRow ? [...verRow.querySelectorAll('[data-onclick]')] : [];
+    const verChips = [...(verRow ? verRow.querySelectorAll('.chip-btn') : [])];
+    ck(verChips.length === 2, 'урок 5, игра 1: в переключателе ровно две версии (' + verChips.length + ')');
+    ck(verChips.length === 2 && verChips[0].classList.contains('active'),
+      'урок 5, игра 1: по умолчанию открыта первая версия — закрыт только конец слова');
+    const verLabels = verChips.map(b => b.textContent.trim());
+    ck(verLabels[0].indexOf('1') === 0 && verLabels[1].indexOf('2') === 0 &&
+       /конец слова/.test(verLabels[0]) && /оба окончания/.test(verLabels[1]),
+      'урок 5, игра 1: версии подписаны по-русски — ' + verLabels.join(' | '));
+
+    /* версия 1: одна ■, конец существительного */
+    const one = lineOf();
+    ck((one.match(/■/g) || []).length === 1,
+      'версия 1: закрыт один квадратик — ' + one);
+
+    /* версия 2: два квадратика, оба конца закрыты */
+    SAL.do('LG', 'maskedBoth', '1');
+    ck(gst('LG', 'masked').both === true, 'версия 2 включается');
+    const two = lineOf();
+    ck((two.match(/■/g) || []).length === 2,
+      'версия 2: закрыты два квадратика — ' + two);
+    const hint = arena.querySelector('.masked-both-hint');
+    ck(!!hint && /оба окончания/i.test(hint.textContent),
+      'версия 2: есть подсказка про согласование — ' + (hint ? hint.textContent.trim() : '—'));
+
+    /* каждая из восьми фраз: закрытая часть — последняя акшара прилагательного
+       и конец существительного; после открытия фраза собирается дословно */
+    const brokenBoth = [];
+    LG.words.forEach((w, idx) => {
+      SAL.do('LG', 'restart', 'masked');
+      SAL.do('LG', 'maskedBoth', '1');
+      for (let k = 0; k < idx; k++) SAL.do('LG', 'maskedGrade', '1');
+      const masked = lineOf();
+      const squares = (masked.match(/■/g) || []).length;
+      SAL.do('LG', 'maskedFlip');
+      const shown = lineOf();
+      const adjEnd = w.syll[w.syll.findIndex((_, i) => w.syll.slice(0, i + 1).join('') === w.deva.split(' ')[0])];
+      if (squares !== 2) brokenBoth.push(w.deva + ': квадратиков ' + squares);
+      if (shown !== w.deva) brokenBoth.push(w.deva + ': открылось «' + shown + '»');
+      if (masked.indexOf(adjEnd) >= 0) brokenBoth.push(w.deva + ': окончание «' + adjEnd + '» не закрыто');
+    });
+    ck(brokenBoth.length === 0,
+      'версия 2: во всех восьми фразах закрыты оба конца и открываются дословно' +
+      (brokenBoth.length ? ' — ' + brokenBoth.join('; ') : ''));
+
+    /* открытие показывает обе закрытые части сразу */
+    SAL.do('LG', 'restart', 'masked');
+    SAL.do('LG', 'maskedBoth', '1');
+    SAL.do('LG', 'maskedFlip');
+    ck(lineOf() === LG.words[0].deva && arena.querySelectorAll('.pink-mask-square.revealed').length === 2,
+      'версия 2: одно нажатие открывает обе закрытые части — ' + lineOf());
+
+    /* сетка 8 / 8 тоже respects версию */
+    SAL.do('LG', 'maskedBoth', '1');
+    SAL.do('LG', 'maskedView', 'grid');
+    const gridLines = [...arena.querySelectorAll('.masked-word-line')].map(l => l.textContent);
+    ck(gridLines.length === 8 && gridLines.every(t => (t.match(/■/g) || []).length === 2),
+      'версия 2 работает и в сетке 8 / 8: у всех карточек по два квадратика');
+    SAL.do('LG', 'maskedView', 'card');
+
+    /* в остальных уроках переключателя нет — там закрыт только конец слова */
+    const others = [];
+    ['L2', 'L3', 'LC', 'LC2', 'L4'].forEach(k => {
+      SAL.openLesson(k);
+      SAL.do(k, 'setGame', 'masked');
+      if (arenaOf(k).querySelector('.masked-ver-row')) others.push(k);
+    });
+    ck(others.length === 0,
+      'в уроках без прилагательных переключателя версий нет' +
+      (others.length ? ': ' + others.join(', ') : ''));
+
+    /* по-английски подписи тоже переведены */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'masked');
+    win.setLanguage('en');
+    const enRow = arenaOf('LG').querySelector('.masked-ver-row');
+    const enLabels = enRow ? [...enRow.querySelectorAll('.chip-btn')].map(b => b.textContent.trim()) : [];
+    ck(enLabels.length === 2 && !/[\u0400-\u04FF]/.test(enLabels.join(' ')) &&
+       /noun ending/.test(enLabels[0]) && /both endings/.test(enLabels[1]),
+      'английская версия: версии подписаны по-английски — ' + enLabels.join(' | '));
+    win.setLanguage('ru');
+
+    /* в связке 🟪 + 🙈 размываются обе видимые части, квадратики остаются */
+    const cssAll = fs.readFileSync(path.join(REPO, 'styles.css'), 'utf8');
+    ck(/\.labels-hidden\s+\.masked-word-line\s+\.masked-part\s*\{[^}]*filter:\s*blur/.test(cssAll),
+      'стили: при скрытых подписях размываются обе видимые части слова');
+
+    /* смена версии снова закрывает слово: иначе ответ виден с прошлого раза.
+       Проверяем в самом конце — переключение урока сбрасывает отрисовку. */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'masked');
+    SAL.do('LG', 'restart', 'masked');
+    SAL.do('LG', 'maskedBoth', '0');
+    SAL.do('LG', 'maskedFlip');
+    ck(gst('LG', 'masked').shown === true, 'версия 1: слово открыли');
+    SAL.do('LG', 'maskedBoth', '1');
+    ck(gst('LG', 'masked').shown === false && /■/.test(lineOf()),
+      'смена версии закрывает слово заново — ' + lineOf());
+
+    /* в правилах игры про вторую версию сказано, и только в уроке рода */
+    SAL.do('LG', 'restart', 'masked');
+    const rulesLg = arenaOf('LG').querySelector('.game-rules');
+    ck(!!rulesLg && /Версия 2/.test(rulesLg.textContent) &&
+       /закрывает ещё и конец прилагательного/.test(rulesLg.textContent),
+      'правила игры в уроке рода объясняют вторую версию');
+    SAL.openLesson('L2');
+    SAL.do('L2', 'setGame', 'masked');
+    const rulesL2 = arenaOf('L2').querySelector('.game-rules');
+    ck(!!rulesL2 && rulesL2.textContent.indexOf('Версия 2') < 0,
+      'в уроке без прилагательных правила про вторую версию не упоминают');
+
+    SAL.openLesson('LG');
+    SAL.do('LG', 'restart', 'masked');
+    SAL.do('LG', 'setGame', 'masked');
+  }
+
   /* --- guided discovery --------------------------------------------------- */
   const D = LG.discovery;
   ck(!!D && Array.isArray(D.sentences) && D.sentences.length === 8,

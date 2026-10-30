@@ -1572,6 +1572,14 @@ body.hide-iast .level-sample-iast {
   transition: filter 0.2s ease;
 }
 
+/* во второй версии «Закрыто квадратом» видимых частей две (прилагательное и
+   существительное) — при скрытых подписях размываем обе, ■ остаются чёткими */
+.labels-hidden .masked-word-line .masked-part {
+  filter: blur(7px);
+  user-select: none;
+  transition: filter 0.2s ease;
+}
+
 /* розовый квадратик «закрытой части слова» остаётся чётким: в связке
    🟪 + 🙈 ученик видит картинку и ■, но не видит ни одной буквы */
 
@@ -1673,6 +1681,29 @@ body.hide-iast .level-sample-iast {
   color: var(--text-primary);
   line-height: 1.25;
   gap: 1px;
+}
+
+/* переключатель двух версий игры «Закрыто квадратом» */
+.masked-ver-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.9rem 0 0.35rem;
+}
+
+.masked-ver-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.masked-both-hint {
+  margin-top: 0.7rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: center;
 }
 
 .pink-mask-square {
