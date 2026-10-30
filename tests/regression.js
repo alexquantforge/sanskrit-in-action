@@ -178,6 +178,15 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
     ck(arenaOf(key).textContent.indexOf('Верно:') >= 0, 'категории: показан правильный список');
   }
 
+  /* ---------- game 10: the category is named on screen ---------- */
+  SAL.do(key, 'restart', 'categories'); SAL.do(key, 'setGame', 'categories');
+  {
+    const titleEl = arenaOf(key).querySelector('.cat-title');
+    const want = cfg.categories[0].titleRu;
+    ck(!!titleEl && titleEl.textContent.trim() === want,
+      'категории: название категории написано — «' + (titleEl ? titleEl.textContent.trim() : 'пусто') + '»');
+  }
+
   /* ---------- game 6: stages advance by themselves ---------- */
   SAL.do(key, 'restart', 'match'); SAL.do(key, 'setGame', 'match');
   {
@@ -2716,6 +2725,119 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     SAL.openLesson('LG');
     SAL.do('LG', 'setGame', 'gaps');
     SAL.do('LG', 'restart', 'gaps');
+  }
+
+  /* --- «Категории»: название категории и слова без окончаний ----------------
+     Названия категорий в данных лежат как titleRu/titleEn, а движок читал cat.ru —
+     заголовок был пустым, и было непонятно, к чему относить слова. Теперь он
+     написан. Вторая жалоба: с окончаниями род виден сразу, поэтому у игры есть
+     кнопка «🙈 Без окончаний» — слова показываются основами. */
+  {
+    const catArena = () => arenaOf('LG');
+    const catTitleEl = () => catArena().querySelector('.cat-title');
+    const wordChips = () => [...catArena().querySelectorAll('button[onclick*="catToggle"]')]
+      .map(b => b.textContent.trim());
+    const bareChip = () => [...catArena().querySelectorAll('.chip-btn')]
+      .find(b => (b.getAttribute('onclick') || '').indexOf('catBare') >= 0);
+
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'categories');
+    SAL.do('LG', 'restart', 'categories');
+
+    /* все семь категорий названы — и по-русски, и по-английски */
+    const seenTitles = [];
+    for (let i = 0; i < LG.categories.length; i++) {
+      seenTitles.push(catTitleEl() ? catTitleEl().textContent.trim() : '—');
+      SAL.do('LG', 'catNext');
+    }
+    ck(seenTitles.join('|') === LG.categories.map(c => c.titleRu).join('|'),
+      '«Категории»: у всех семи категорий написано название — ' + seenTitles.join(' · '));
+
+    /* по умолчанию слова видны с окончаниями — как раньше */
+    SAL.do('LG', 'restart', 'categories');
+    const withEnd = wordChips();
+    ck(withEnd.length === 8 && withEnd[0] === 'श्यामं ललाटम् (śyāmaṃ lalāṭam)',
+      '«Категории»: по умолчанию окончания видны — ' + withEnd[0]);
+
+    /* кнопка «без окончаний» есть в уроке рода */
+    const bChip = bareChip();
+    ck(!!bChip && /Без окончаний/.test(bChip.textContent),
+      '«Категории»: есть кнопка «🙈 Без окончаний» — ' + (bChip ? bChip.textContent.trim() : '—'));
+
+    /* нажали — слова показаны без окончаний (основами, без выдуманных форм) */
+    SAL.do('LG', 'catBare', '1');
+    ck(gst('LG', 'categories').bare === true, '«Категории»: режим без окончаний включается');
+    const BARE_DEVA = ['श्याम ललाट', 'श्वेत उदर', 'गौर हस्त', 'श्वेत दन्त',
+                       'पाटल जिह्वा', 'नील नयन', 'श्याम पाद', 'रक्त मुख'];
+    const BARE_IAST = ['śyāma lalāṭa', 'śveta udara', 'gaura hasta', 'śveta danta',
+                       'pāṭal jihvā', 'nīla nayana', 'śyāma pāda', 'rakta mukha'];
+    const bareChips = wordChips();
+    const bareDeva = bareChips.map(t => t.split(' (')[0]);
+    const bareIast = [...catArena().querySelectorAll('button[onclick*="catToggle"] .iast-text')]
+      .map(e => e.textContent.replace(/[()]/g, '').trim());
+    ck(bareDeva.join('|') === BARE_DEVA.join('|'),
+      '«Категории» без окончаний: слова показаны основами — ' + bareDeva.join(' · '));
+    ck(bareIast.join('|') === BARE_IAST.join('|'),
+      '«Категории» без окончаний: в IAST окончания тоже убраны — ' + bareIast.join(' · '));
+    /* основа, а не обрубок: последний согласный основы остаётся (श्याम, а не श्या) */
+    ck(bareDeva.every(t => { const w = t.split(' ')[1]; return !/(ः|म्)$/.test(w); }) &&
+       bareDeva[0].split(' ')[0] === 'श्याम' && bareDeva[0].split(' ')[1] === 'ललाट',
+      '«Категории» без окончаний: у имён убраны только ः / म्, основа цела');
+    ck(bareDeva.every(t => !/[ंःा]$/.test(t.split(' ')[0])),
+      '«Категории» без окончаний: у прилагательных убраны ं / ः / ा');
+
+    /* выбор по-прежнему идёт по id — режим меняет только показ */
+    const cat0 = LG.categories[0];
+    cat0.wordIds.forEach(id => SAL.do('LG', 'catToggle', id));
+    ck(gst('LG', 'categories').checked === true && gst('LG', 'categories').score === 1,
+      '«Категории» без окончаний: раунд засчитывается как обычно');
+
+    /* кнопка возвращает окончания */
+    SAL.do('LG', 'restart', 'categories');
+    SAL.do('LG', 'catBare', '1');
+    const onLabel = bareChip() ? bareChip().textContent.trim() : '';
+    ck(/С окончаниями/.test(onLabel), '«Категории»: включённая кнопка предлагает вернуть окончания — ' + onLabel);
+    SAL.do('LG', 'catBare', '0');
+    ck(wordChips()[0] === 'श्यामं ललाटम् (śyāmaṃ lalāṭam)',
+      '«Категории»: кнопка возвращает окончания — ' + wordChips()[0]);
+
+    /* в уроках, где окончание не выдаёт род, кнопки нет */
+    const extra = [];
+    ['L2', 'L3', 'LC', 'LC2', 'L7'].forEach(k => {
+      SAL.openLesson(k);
+      SAL.do(k, 'setGame', 'categories');
+      if ([...arenaOf(k).querySelectorAll('.chip-btn')].some(b => (b.getAttribute('onclick') || '').indexOf('catBare') >= 0)) extra.push(k);
+    });
+    ck(extra.length === 0, '«Категории»: в остальных уроках кнопки «без окончаний» нет' +
+      (extra.length ? ': ' + extra.join(', ') : ''));
+
+    /* по-английски: название категории и кнопка переведены, кириллицы нет */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'categories');
+    win.setLanguage('en');
+    const enTitle = catTitleEl() ? catTitleEl().textContent.trim() : '';
+    const enBare = bareChip() ? bareChip().textContent.trim() : '';
+    ck(enTitle === LG.categories[0].titleEn && !/[\u0400-\u04FF]/.test(enTitle),
+      'английская версия «Категорий»: название категории переведено — ' + enTitle);
+    ck(/No endings/.test(enBare) && !/[\u0400-\u04FF]/.test(enBare),
+      'английская версия «Категорий»: кнопка переведена — ' + enBare);
+    win.setLanguage('ru');
+
+    /* правила игры объясняют кнопку — и только в уроке рода */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'categories');
+    const catRulesLg = arenaOf('LG').querySelector('.game-rules');
+    ck(!!catRulesLg && /Без окончаний/.test(catRulesLg.textContent),
+      'правила «Категорий» в уроке рода объясняют кнопку «без окончаний»');
+    SAL.openLesson('L2');
+    SAL.do('L2', 'setGame', 'categories');
+    const catRulesL2 = arenaOf('L2').querySelector('.game-rules');
+    ck(!!catRulesL2 && catRulesL2.textContent.indexOf('Без окончаний') < 0,
+      'в уроках без рода правила о кнопке не упоминают');
+
+    SAL.openLesson('LG');
+    SAL.do('LG', 'restart', 'categories');
+    SAL.do('LG', 'setGame', 'categories');
   }
 
   /* --- guided discovery --------------------------------------------------- */

@@ -308,6 +308,32 @@ var SAL = (window.SAL = window.SAL || {});
     if (adj.length !== cut + 1) return null;      /* раскладка не совпала — не рискуем */
     return adj.slice(0, cut).join('') + '_ ' + noun;
   }
+  /* Названия категорий в данных лежат как titleRu/titleEn, а tx() ждёт ru/en —
+     из-за этого заголовок категории рисовался пустым. */
+  function catTitle(cat) {
+    if (!cat) return '';
+    return tx({ ru: cat.ru || cat.titleRu || '', en: cat.en || cat.titleEn || '' });
+  }
+  /* «Слово без окончания» для игры «Категории»: у прилагательного отпадает ं/ः/ा,
+     у существительного — ः или म्. Женское ा — конец основы, окончание нулевое,
+     поэтому जिह्वा остаётся जिह्वा: выдуманных форм не показываем. */
+  function bareWord(w) {
+    if (!w || !w.deva || !w.iast) return null;
+    var dp = w.deva.split(' '), ip = w.iast.split(' ');
+    if (dp.length !== 2 || ip.length !== 2) return null;
+    /* у прилагательного в среднем роде пишут и ं, и म् (श्यामं / श्वेतम्) */
+    var adj = { deva: dp[0].replace(/म्$/, '').replace(/[ःंा]$/, ''),
+                iast: ip[0].replace(/[ḥṃm]$/, '').replace(/ā$/, '') };
+    var noun = { deva: dp[1], iast: ip[1] };
+    if (/ः$/.test(noun.deva)) { noun.deva = noun.deva.slice(0, -1); noun.iast = noun.iast.replace(/ḥ$/, ''); }
+    else if (/म्$/.test(noun.deva)) { noun.deva = noun.deva.slice(0, -2); noun.iast = noun.iast.replace(/m$/, ''); }
+    if (!adj.deva || !noun.deva || !adj.iast || !noun.iast) return null;
+    return { deva: adj.deva + ' ' + noun.deva, iast: adj.iast + ' ' + noun.iast };
+  }
+  /* кнопка «без окончаний» нужна там, где окончание выдаёт род */
+  function canBareWords(cfg) {
+    return !!(cfg && cfg.words && cfg.words.length && cfg.words.every(function (w) { return !!w.gender; }));
+  }
   function maskedMarkup(w, revealed, size, both) {
     var parts = maskedParts(w, both);
     return '<div class="masked-word-line"' + (size ? ' style="font-size:' + size + '"' : '') + '>' +
@@ -1303,7 +1329,7 @@ var SAL = (window.SAL = window.SAL || {});
     memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length, scores: [0, 0], turn: 0 }; },
     wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
-    categories: function () { return { i: 0, score: 0, sel: {}, wrong: {}, firstTry: true, checked: false, finished: false }; },
+    categories: function () { return { i: 0, score: 0, sel: {}, wrong: {}, firstTry: true, checked: false, finished: false, bare: false }; },
     spelling: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     truefalse: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, isTrue: true, otherId: null, finished: false }; }
   };
@@ -1834,6 +1860,8 @@ var SAL = (window.SAL = window.SAL || {});
     }
     var cat = cats[g.i];
     var sel = g.sel;
+    var canBare = canBareWords(cfg);
+    var bare = canBare && !!g.bare;
     var chips = cfg.words.map(function (w) {
       var on = !!sel[w.id];
       var cls = 'chip-btn';
@@ -1848,13 +1876,19 @@ var SAL = (window.SAL = window.SAL || {});
         if (on) cls += ' active';
         if (g.wrong[w.id]) style = 'border-color:#dc2626;background:#fef2f2;color:#b91c1c;';
       }
+      var shown = (bare && bareWord(w)) || w;
       return '<button type="button" class="' + cls + '" style="' + style + '" onclick="SAL.do(\'' + cfg.key + '\',\'catToggle\',\'' + w.id + '\')">' +
-        w.deva + iastSpan(w.iast) + '</button>';
+        shown.deva + iastSpan(shown.iast) + '</button>';
     }).join('');
+    /* по умолчанию окончания видны; кнопка прячет их — род приходится вспоминать */
+    var bareChip = canBare
+      ? chip(cfg, 'catBare', bare ? '0' : '1',
+          bare ? ru('👁 With endings', '👁 С окончаниями') : ru('🙈 No endings', '🙈 Без окончаний'), bare)
+      : '';
     return topBar(pill(ru('Category', 'Категория') + ' ' + (g.i + 1) + '/' + cats.length) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
-      chip(cfg, 'restart', 'categories', '↺')) +
+      (bareChip ? bareChip + ' ' : '') + chip(cfg, 'restart', 'categories', '↺')) +
       centerCard(
-        '<div style="font-size:1.05rem;font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;">' + tx(cat) + '</div>' +
+        '<div class="cat-title" style="font-size:1.05rem;font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;">' + catTitle(cat) + '</div>' +
         '<div style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:1rem;">' +
         ru('Select all the words that belong to this category', 'Выберите все слова, которые относятся к этой категории') + '</div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">' + chips + '</div>' +
@@ -2736,6 +2770,7 @@ var SAL = (window.SAL = window.SAL || {});
     },
 
     /* 10 categories */
+    catBare: function (cfg, st, a) { gst(cfg, 'categories').bare = a === '1'; },
     /* Lesson 1: every click is graded at once — a wrong word only costs the first-try point */
     catToggle: function (cfg, st, id) {
       var g = gst(cfg, 'categories');
@@ -3209,7 +3244,18 @@ var SAL = (window.SAL = window.SAL || {});
                   'Tick ALL the words that belong to it (there may be two, three or four).',
                   '“Show answer” to check yourself; extra words keep the round open.'] },
       score: { ru: 'Очко, если отмечены все нужные слова и ни одного лишнего.',
-               en: 'A point if all the right words are ticked and no extra ones.' }
+               en: 'A point if all the right words are ticked and no extra ones.' },
+      /* кнопка есть только там, где окончание выдаёт род */
+      adapt: function (cfg) {
+        if (!canBareWords(cfg)) return null;
+        var base = this, out = {}, k;
+        for (k in base) if (Object.prototype.hasOwnProperty.call(base, k) && k !== 'adapt') out[k] = base[k];
+        out.how = {
+          ru: base.how.ru.concat(['Кнопка «🙈 Без окончаний» убирает ः, म् и ा — род приходится вспоминать, а не читать с конца слова.']),
+          en: base.how.en.concat(['The “🙈 No endings” button hides ः, म् and ा — now the gender has to be recalled, not read off the word.'])
+        };
+        return out;
+      }
     },
     spelling: {
       aim: { ru: 'Точность написания: собрать слово из частей.',
