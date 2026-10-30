@@ -348,6 +348,8 @@ var SAL = (window.SAL = window.SAL || {});
      so a face-down card can be named aloud, e.g. "b2" */
   function memoryCols(n) {
     if (n <= 6) return 3;
+    /* 9 карточек (половина пар + ловушка) — ровный квадрат 3 × 3 */
+    if (n <= 9 && n % 3 === 0) return 3;
     if (n <= 16) return 4;
     return 6;
   }
@@ -1626,6 +1628,44 @@ var SAL = (window.SAL = window.SAL || {});
   }
 
   /* 7. Classic Memory ----------------------------------------------------- */
+  /* Ловушки «Мемори»: словосочетания с чужим родом (श्वेतः उदरम्). Пары у них
+     нет — карточка всегда даёт промах и заодно показывает, почему так нельзя.
+     Род каждого слова читается по окончанию: ः — мужской, ं / म् — средний,
+     ा — женский. Данные только настоящие, из этого же урока. */
+  var GENDER_WORD = {
+    m: { ru: 'мужской', en: 'masculine' },
+    n: { ru: 'средний', en: 'neuter' },
+    f: { ru: 'женский', en: 'feminine' }
+  };
+  function genderByEnd(deva) {
+    var t = String(deva || '');
+    if (/\u0903$/.test(t)) return 'm';                   /* ः */
+    if (/(\u0902|\u092E\u094D)$/.test(t)) return 'n';   /* ं или म् */
+    if (/\u093E$/.test(t)) return 'f';                   /* ा */
+    return null;
+  }
+  function memoryTrapCount(cfg, size) {
+    var all = cfg.memoryTraps || [];
+    if (!all.length) return 0;
+    return size >= cfg.words.length ? Math.min(2, all.length) : Math.min(1, all.length);
+  }
+  function memoryTrapsFor(cfg, size) {
+    var n = memoryTrapCount(cfg, size);
+    return n ? shuffle(cfg.memoryTraps).slice(0, n) : [];
+  }
+  function memoryTrapNote(trap) {
+    var parts = String(trap.deva || '').split(' ');
+    var ga = genderByEnd(parts[0]);
+    var gb = genderByEnd(parts[1] || '');
+    if (!ga || !gb || ga === gb) {
+      return ru('Trap: these two words do not agree in gender.',
+                'Ловушка: слова не согласованы по роду.');
+    }
+    return ru('Trap: ' + parts[0] + ' is ' + GENDER_WORD[ga].en + ', ' + parts[1] + ' is ' +
+              GENDER_WORD[gb].en + ' — the genders do not match, we never say it like that.',
+              'Ловушка: ' + parts[0] + ' — ' + GENDER_WORD[ga].ru + ', ' + parts[1] + ' — ' +
+              GENDER_WORD[gb].ru + '. Род не совпал, так не говорят.');
+  }
   function renderMemory(cfg, st) {
     var g = gst(cfg, 'memory');
     var N = cfg.words.length;
@@ -1635,6 +1675,9 @@ var SAL = (window.SAL = window.SAL || {});
       pairs.forEach(function (w) {
         cards.push({ id: w.id, kind: 'pic' });
         cards.push({ id: w.id, kind: 'word' });
+      });
+      memoryTrapsFor(cfg, g.size).forEach(function (t, i) {
+        cards.push({ id: 'trap' + i, kind: 'trap', trap: t });
       });
       g.cards = shuffle(cards);
     }
@@ -1648,14 +1691,19 @@ var SAL = (window.SAL = window.SAL || {});
     }
     var cols = memoryCols(g.cards.length);
     var html = g.cards.map(function (c, idx) {
-      var w = byId(cfg, c.id);
-      var flipped = g.flipped.indexOf(idx) >= 0 || g.matched[c.id];
+      var w = c.kind === 'trap' ? null : byId(cfg, c.id);
+      var flipped = g.flipped.indexOf(idx) >= 0 || !!g.matched[c.id];
       var cls = '';
       if (g.matched[c.id]) cls += ' matched';
       cls += flipped ? ' flipped' : ' face-down';
+      if (c.kind === 'trap' && flipped) cls += ' trap';
       if (g.wrong && g.wrong.indexOf(idx) >= 0) cls += ' mismatch';
-      var inner = c.kind === 'pic' ? svgBox(w, 62) :
-        '<div style="font-family:var(--font-deva);font-size:1.15rem;font-weight:700;">' + w.deva + '</div>';
+      var inner;
+      if (c.kind === 'pic') inner = svgBox(w, 62);
+      else if (c.kind === 'trap') inner =
+        '<div class="memory-trap-word">' + c.trap.deva + '</div>' +
+        '<div class="memory-trap-iast">' + c.trap.iast + '</div>';
+      else inner = '<div style="font-family:var(--font-deva);font-size:1.15rem;font-weight:700;">' + w.deva + '</div>';
       var back = '<span class="memory-card-back-emblem memory-coord">' + cellName(idx, cols) + '</span>';
       return '<button type="button" class="memory-card ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'tile\',\'' + idx + '\')">' +
         (flipped ? inner : back) + '</button>';
@@ -1664,12 +1712,17 @@ var SAL = (window.SAL = window.SAL || {});
     return topBar((duoMem ? duoScorePills(g) + ' ' : '') +
       pill(ru('Pairs', 'Пары') + ': ' + matchedPairs + '/' + g.size) + ' ' + pill(ru('Moves', 'Ходов') + ': ' + g.moves) +
       (duoMem ? '' : ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score)),
-      chip(cfg, 'memorySize', String(cfg.words.length), cfg.words.length + ' × 2 (' + cfg.words.length * 2 + ')', g.size >= cfg.words.length) +
+      chip(cfg, 'memorySize', String(cfg.words.length),
+        cfg.words.length + ' × 2' + (memoryTrapCount(cfg, cfg.words.length) ? ' + ' + memoryTrapCount(cfg, cfg.words.length) + ' ⚠' : '') +
+        ' (' + (cfg.words.length * 2 + memoryTrapCount(cfg, cfg.words.length)) + ')', g.size >= cfg.words.length) +
       chip(cfg, 'memorySize', String(Math.max(3, Math.ceil(cfg.words.length / 2))),
-        Math.max(3, Math.ceil(cfg.words.length / 2)) + ' × 2 (' + Math.max(3, Math.ceil(cfg.words.length / 2)) * 2 + ')', g.size < cfg.words.length) +
+        Math.max(3, Math.ceil(cfg.words.length / 2)) + ' × 2' +
+        (memoryTrapCount(cfg, Math.max(3, Math.ceil(cfg.words.length / 2))) ? ' + ' + memoryTrapCount(cfg, Math.max(3, Math.ceil(cfg.words.length / 2))) + ' ⚠' : '') +
+        ' (' + (Math.max(3, Math.ceil(cfg.words.length / 2)) * 2 + memoryTrapCount(cfg, Math.max(3, Math.ceil(cfg.words.length / 2)))) + ')', g.size < cfg.words.length) +
       chip(cfg, 'restart', 'memory', '↺')) +
       centerCard('<div class="memory-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + html + '</div>' +
-        (g.lock ? '<div class="game-hint" role="status">' +
+        (g.trapNote ? '<div class="game-hint trap-hint" role="status">⚠ ' + memoryTrapNote(g.trapNote) + '</div>' : '') +
+        (g.lock && !g.trapNote ? '<div class="game-hint" role="status">' +
           ru('🙈 No match — the cards are flipping back…', '🙈 Не совпало — карточки переворачиваются обратно…') +
           '</div>' : '') +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);text-align:center;">' +
@@ -2701,18 +2754,24 @@ var SAL = (window.SAL = window.SAL || {});
         if (g.lock) return;
         if (g.flipped.indexOf(idx) >= 0 || g.matched[g.cards[idx].id]) return;
         g.flipped.push(idx);
+        g.trapNote = null;             /* новый ход — старая ловушка больше не на столе */
         if (g.flipped.length < 2) return;
         g.moves++;
         var c1 = g.cards[g.flipped[0]], c2 = g.cards[g.flipped[1]];
         var duoMemT = st.players === 2;
-        if (c1.kind !== c2.kind && c1.id === c2.id) {
+        var trapCard = c1.kind === 'trap' ? c1 : (c2.kind === 'trap' ? c2 : null);
+        if (!trapCard && c1.kind !== c2.kind && c1.id === c2.id) {
           g.matched[c1.id] = true; g.score++; g.flipped = [];
           if (duoMemT) duoAward(g, g.turn || 0);
           SAL.speak(byId(cfg, c1.id).ttsText);
         } else {
-          if (g.seen[c1.id]) g.failed[c1.id] = true;
-          g.seen[c1.id] = true; g.seen[c2.id] = true;
-          noteWrong(cfg, c1.id);
+          if (trapCard) g.trapNote = trapCard.trap;
+          if (c1.kind !== 'trap') {
+            if (g.seen[c1.id]) g.failed[c1.id] = true;
+            g.seen[c1.id] = true;
+            noteWrong(cfg, c1.id);
+          }
+          if (c2.kind !== 'trap') g.seen[c2.id] = true;
           if (duoMemT) duoSwap(g);
           g.wrong = g.flipped.slice(); g.lock = true;
           setTimeout(function () {
@@ -3204,7 +3263,18 @@ var SAL = (window.SAL = window.SAL || {});
       score: { ru: 'Считаются пары и ходы; пары, в которых ошиблись, помечаются как «на повтор».',
                en: 'Pairs and moves are counted; pairs you missed are marked for review.' },
       pair: { ru: 'Ходите по очереди; совпавшая пара даёт право на ещё один ход. Вслух называйте клетку, а не тыкайте пальцем.',
-              en: 'Take turns; a matched pair earns another turn. Say the square out loud instead of pointing.' }
+              en: 'Take turns; a matched pair earns another turn. Say the square out loud instead of pointing.' },
+      /* ловушки есть только в уроке рода — там род и проверяется */
+      adapt: function (cfg) {
+        if (!cfg.memoryTraps || !cfg.memoryTraps.length) return null;
+        var base = this, out = {}, k;
+        for (k in base) if (Object.prototype.hasOwnProperty.call(base, k) && k !== 'adapt') out[k] = base[k];
+        out.how = {
+          ru: base.how.ru.concat(['На поле лежат ловушки — словосочетания с чужим родом (श्वेतः उदरम्). Пары у них нет: при промахе игра объясняет, какой род у каждого слова.']),
+          en: base.how.en.concat(['The board also holds traps — phrases with mismatched genders (श्वेतः उदरम्). They have no pair: after a miss the game explains the gender of each word.'])
+        };
+        return out;
+      }
     },
     wronglabel: {
       aim: { ru: 'Заметить, где подпись не соответствует картинке.',

@@ -56,7 +56,7 @@ const lines = h => [...h.matchAll(/<line([^>]*)>/g)].map(m => ({
 }));
 const near = (v, t, tol) => Math.abs(v - t) <= tol;
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
-const colsFor = n => (n <= 6 ? 3 : (n <= 16 ? 4 : 6));
+const colsFor = n => (n <= 6 ? 3 : (n <= 9 && n % 3 === 0 ? 3 : (n <= 16 ? 4 : 6)));
 
 const GAMES = ['masked', 'flashcards', 'gaps', 'picquiz', 'wordquiz', 'match', 'memory',
   'wronglabel', 'typo', 'categories', 'spelling', 'truefalse'];
@@ -2918,6 +2918,128 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     SAL.openLesson('LG');
     SAL.do('LG', 'restart', 'categories');
     SAL.do('LG', 'setGame', 'categories');
+  }
+
+  /* --- «Мемори»: ловушки с чужим родом -------------------------------------
+     В классическом «Мемори» карточки ищутся парами «картинка ↔ слово».
+     Ловушка — карточка-словосочетание с чужим родом (श्वेतः उदरम्): пары у неё
+     нет и быть не может, поэтому она всегда даёт промах и объясняет, почему
+     так не говорят. Слова в ловушках — только настоящие, из этого же урока. */
+  {
+    const memArena = () => arenaOf('LG');
+    const endGender = d => /\u0903$/.test(d) ? 'm' : /(\u0902|\u092E\u094D)$/.test(d) ? 'n' :
+      /\u093E$/.test(d) ? 'f' : '?';
+    const lessonFirsts = LG.words.map(w => w.deva.split(' ')[0]);
+    const lessonNouns = LG.words.map(w => w.deva.split(' ')[1]);
+
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'memory');
+    SAL.do('LG', 'restart', 'memory');
+
+    const mem = gst('LG', 'memory');
+    const traps = mem.cards.filter(c => c.kind === 'trap');
+    ck(mem.cards.length === 18 && traps.length === 2,
+      '«Мемори»: полное поле — 18 карточек, из них 2 ловушки (' + mem.cards.length + ' / ' + traps.length + ')');
+    ck(traps.every(c => endGender(c.trap.deva.split(' ')[0]) !== endGender(c.trap.deva.split(' ')[1])),
+      '«Мемори»: у каждой ловушки род двух слов не совпадает — ' + traps.map(c => c.trap.deva).join(' · '));
+    ck(traps.every(c => {
+      const p = c.trap.deva.split(' ');
+      return lessonFirsts.indexOf(p[0]) >= 0 && lessonNouns.indexOf(p[1]) >= 0;
+    }), '«Мемори»: в ловушках только слова этого урока, выдуманных форм нет');
+    ck(traps.every(c => !!c.trap.iast && !/[\u0900-\u097F]/.test(c.trap.iast)),
+      '«Мемори»: у ловушки есть IAST — ' + traps.map(c => c.trap.iast).join(' · '));
+
+    /* ловушка не образует пары: промах и объяснение рода */
+    const trapIdx = mem.cards.findIndex(c => c.kind === 'trap');
+    const picIdx = mem.cards.findIndex(c => c.kind === 'pic');
+    const scoreBefore = mem.score;
+    SAL.do('LG', 'tile', String(trapIdx));
+    SAL.do('LG', 'tile', String(picIdx));
+    ck(Object.keys(mem.matched).length === 0 && mem.score === scoreBefore,
+      '«Мемори»: ловушка не складывается в пару и очка не даёт');
+    ck(!!mem.trapNote && mem.trapNote.deva === mem.cards[trapIdx].trap.deva,
+      '«Мемори»: игра запомнила, какая ловушка попалась');
+    const trapWords = mem.cards[trapIdx].trap.deva.split(' ');
+    const trapHint = memArena().querySelector('.trap-hint');
+    ck(!!trapHint && trapHint.textContent.indexOf(trapWords[0]) >= 0 &&
+       trapHint.textContent.indexOf(trapWords[1]) >= 0 &&
+       /мужской|средний|женский/.test(trapHint.textContent) && /Род не совпал/.test(trapHint.textContent),
+      '«Мемори»: под полем сказано, какой род у каждого слова — ' + (trapHint ? trapHint.textContent.trim() : '—'));
+    ck(memArena().querySelectorAll('.memory-card')[trapIdx].classList.contains('trap'),
+      '«Мемори»: открытая ловушка обведена красным (класс trap)');
+    mem.flipped = []; mem.wrong = null; mem.lock = false;
+    SAL.refresh();
+    ck(!!memArena().querySelector('.trap-hint'),
+      '«Мемори»: объяснение ловушки остаётся, пока не начат новый ход');
+    SAL.do('LG', 'tile', String(picIdx));
+    ck(!mem.trapNote, '«Мемори»: новый ход убирает прошлое объяснение');
+
+    /* настоящие пары складываются, ловушки игре не мешают */
+    SAL.do('LG', 'restart', 'memory');
+    const mem2 = gst('LG', 'memory');
+    const realIds = [...new Set(mem2.cards.filter(c => c.kind !== 'trap').map(c => c.id))];
+    realIds.forEach(id => {
+      const a = mem2.cards.findIndex(c => c.id === id && c.kind === 'pic');
+      const b = mem2.cards.findIndex(c => c.id === id && c.kind === 'word');
+      SAL.do('LG', 'tile', String(a));
+      SAL.do('LG', 'tile', String(b));
+    });
+    ck(Object.keys(mem2.matched).length === LG.words.length,
+      '«Мемори»: все настоящие пары складываются, хотя ловушки остались лежать');
+    ck(/пройдено/i.test(memArena().textContent),
+      '«Мемори»: игра заканчивается, когда собраны все настоящие пары');
+
+    /* малое поле: одна ловушка и ровный квадрат 3 × 3 */
+    SAL.do('LG', 'memorySize', '4');
+    const small = gst('LG', 'memory');
+    const smallGrid = memArena().querySelector('.memory-grid');
+    ck(small.cards.length === 9 && small.cards.filter(c => c.kind === 'trap').length === 1 &&
+       /repeat\(3,/.test(smallGrid.getAttribute('style') || ''),
+      '«Мемори»: малое поле — 9 карточек, 1 ловушка, сетка 3 × 3');
+
+    /* в уроках без рода ловушек нет */
+    const withTraps = [];
+    ['L2', 'L3', 'LC', 'LC2', 'L4', 'L7'].forEach(k => {
+      SAL.openLesson(k);
+      SAL.do(k, 'setGame', 'memory');
+      SAL.do(k, 'restart', 'memory');
+      if (gst(k, 'memory').cards.some(c => c.kind === 'trap')) withTraps.push(k);
+    });
+    ck(withTraps.length === 0, '«Мемори»: ловушки только в уроке рода' +
+      (withTraps.length ? ' — ' + withTraps.join(', ') : ''));
+
+    /* правила игры объясняют ловушки — и только в уроке рода */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'memory');
+    const memRulesLg = arenaOf('LG').querySelector('.game-rules');
+    ck(!!memRulesLg && /ловушк/i.test(memRulesLg.textContent),
+      'правила «Мемори» в уроке рода объясняют ловушки');
+    SAL.openLesson('L2');
+    SAL.do('L2', 'setGame', 'memory');
+    const memRulesL2 = arenaOf('L2').querySelector('.game-rules');
+    ck(!!memRulesL2 && !/ловушк/i.test(memRulesL2.textContent),
+      'в уроках без рода правила «Мемори» о ловушках не упоминают');
+
+    /* по-английски объяснение тоже есть и без кириллицы */
+    SAL.openLesson('LG');
+    SAL.do('LG', 'setGame', 'memory');
+    SAL.do('LG', 'restart', 'memory');
+    win.setLanguage('en');
+    const memEn = gst('LG', 'memory');
+    const tEn = memEn.cards.findIndex(c => c.kind === 'trap');
+    const pEn = memEn.cards.findIndex(c => c.kind === 'pic');
+    SAL.do('LG', 'tile', String(tEn));
+    SAL.do('LG', 'tile', String(pEn));
+    const enTrapHint = memArena().querySelector('.trap-hint');
+    ck(!!enTrapHint && !/[\u0400-\u04FF]/.test(enTrapHint.textContent) &&
+       /Trap/.test(enTrapHint.textContent) && /masculine|neuter|feminine/.test(enTrapHint.textContent),
+      'английская версия «Мемори»: ловушка объясняется по-английски — ' +
+      (enTrapHint ? enTrapHint.textContent.trim() : '—'));
+    win.setLanguage('ru');
+
+    SAL.openLesson('LG');
+    SAL.do('LG', 'restart', 'memory');
+    SAL.do('LG', 'setGame', 'memory');
   }
 
   /* --- guided discovery --------------------------------------------------- */
