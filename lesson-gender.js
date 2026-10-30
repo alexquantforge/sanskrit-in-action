@@ -43,10 +43,22 @@ function lgPart(kind, fill) {
       '<circle cx="41" cy="57" r="2.6" fill="' + C + '"/><circle cx="59" cy="57" r="2.6" fill="' + C + '"/>' +
       '<path d="M44 68c4 3 8 3 12 0" stroke="' + C + '" stroke-width="2.2" stroke-linecap="round"/>';
   }
+  /* belly — श्वेतम् उदरम् «живот». Прошлая версия была скруглённым
+     прямоугольником с кружком — читалась как стиральная машина.
+     Теперь это торс в профиль спереди: шея-обрубок, широкие плечи, талия,
+     живот белым пятном (श्वेत — цвет слова) и пупок. Срез снизу — так
+     рисуют «часть тела», а не целого человека. */
   if (kind === 'belly') {
-    return '<path d="M32 20h36l7 13v45a8 8 0 0 1-8 8H33a8 8 0 0 1-8-8V33z" fill="#F4C7AB" stroke="' + C + '" stroke-width="3" stroke-linejoin="round"/>' +
-      '<ellipse cx="50" cy="58" rx="16" ry="15" fill="' + fill + '" stroke="' + C + '" stroke-width="2.6"/>' +
-      '<circle cx="50" cy="58" r="3.4" fill="' + C + '" opacity="0.5"/>';
+    return '<path d="M43 13C43 17 42 20 38 22C30 25 24 28 22 34C20 42 24 50 27 58' +
+        'C30 66 30 74 30 88L70 88C70 74 70 66 73 58C76 50 80 42 78 34' +
+        'C76 28 70 25 62 22C58 20 57 17 57 13Z" ' +
+        'fill="#F4C7AB" stroke="' + C + '" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M33 34C38 38 44 38 47 35M53 35C56 38 62 38 67 34" ' +
+        'stroke="' + C + '" stroke-width="1.9" fill="none" opacity="0.28" stroke-linecap="round"/>' +
+      '<path d="M31 52C34 44 66 44 69 52C72 64 68 80 50 82C32 80 28 64 31 52Z" ' +
+        'fill="' + fill + '" stroke="' + C + '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<ellipse cx="50" cy="64" rx="3.8" ry="5" fill="' + C + '" opacity="0.55"/>' +
+      '<path d="M50 64v3" stroke="' + C + '" stroke-width="1.5" opacity="0.4"/>';
   }
   if (kind === 'hand') {
     return '<rect x="30" y="44" width="40" height="42" rx="13" fill="' + fill + '" stroke="' + C + '" stroke-width="3"/>' +

@@ -2499,6 +2499,19 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     'губы нарисованы кривыми, а не одним полукругом');
   ck(!!mukhaWord && /M10 50 C12 34/.test(mukhaWord.svg),
     'верхняя губа с ложбинкой посередине (форма «сердечко»)');
+  /* живот उदर: прошлый значок — скруглённый прямоугольник с кружком —
+     читался как стиральная машина. Теперь это торс: плечи, талия, живот. */
+  const udaraWord = LG.words.filter(w => w.id === 'udara')[0];
+  ck(!!udaraWord && /M43 13C43 17 42 20 38 22/.test(udaraWord.svg),
+    'живот нарисован торсом с плечами и талией, а не прямоугольником');
+  ck(!!udaraWord && !/M32 20h36l7 13v45/.test(udaraWord.svg),
+    'старого квадратного живота на карточке उदर больше нет');
+  ck(!!udaraWord && /<ellipse cx="50" cy="64"/.test(udaraWord.svg),
+    'у живота есть пупок');
+  ck(!!udaraWord && /C30 66 30 74 30 88L70 88/.test(udaraWord.svg),
+    'торс обрезан снизу — это часть тела, а не целый человек');
+  ck(!!udaraWord && (udaraWord.svg.match(/M/g) || []).length >= 4,
+    'силуэт живота не симметричный прямоугольник, а живая форма');
   /* глаз и рот не должны быть похожи силуэтом */
   const nayanaWord = LG.words.filter(w => w.id === 'nayana')[0];
   ck(!!nayanaWord && nayanaWord.svg.indexOf('#F08A9E') < 0 && mukhaWord.svg.indexOf('#2563EB') < 0,
