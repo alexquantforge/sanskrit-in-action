@@ -1,5 +1,5 @@
 /**
- * LESSON 6 · सङ्ख्याः · "Numbers 1–5" (5 слов)
+ * LESSON 7 · सङ्ख्याः · "Numbers 1–5" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
  * Same exercise set as Lesson 2 (Face), built for the first five Sanskrit numerals:
  * - the counting forms: neuter nominative-accusative एकम्, द्वे, त्रीणि, चत्वारि, पञ्च
@@ -12,14 +12,14 @@
 
 SAL.registerLesson({
   key: "L4",
-  num: 7,
+  num: 8,
   titleDeva: "सङ्ख्याः",
   titleRu: "Цифры 1–5",
   titleEn: "Numbers 1–5",
   topicRu: "один, два, три, четыре, пять",
   topicEn: "one, two, three, four, five",
-  introRu: "Шестой урок: пять первых санскритских числительных в форме среднего рода (именительный-винительный падеж) — <code>एकम्</code>, <code>द्वे</code>, <code>त्रीणि</code>, <code>चत्वारि</code>, <code>पञ्च</code>. В этой форме считают предметы. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
-  introEn: "The sixth lesson: the first five Sanskrit numerals in the neuter nominative-accusative — <code>ekam</code>, <code>dve</code>, <code>trīṇi</code>, <code>catvāri</code>, <code>pañca</code>. This is the form used for counting things. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
+  introRu: "Седьмой урок: пять первых санскритских числительных в форме среднего рода (именительный-винительный падеж) — <code>एकम्</code>, <code>द्वे</code>, <code>त्रीणि</code>, <code>चत्वारि</code>, <code>पञ्च</code>. В этой форме считают предметы. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
+  introEn: "The seventh lesson: the first five Sanskrit numerals in the neuter nominative-accusative — <code>ekam</code>, <code>dve</code>, <code>trīṇi</code>, <code>catvāri</code>, <code>pañca</code>. This is the form used for counting things. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {

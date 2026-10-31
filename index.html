@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru" data-build="v105">
+<html lang="ru" data-build="v106">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,7 +22,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=105" />
+  <link rel="stylesheet" href="styles.css?v=106" />
   <style>
     .view-pane { display: none; }
     .view-pane.active { display: block; }
@@ -111,8 +111,8 @@
          =================================================================== -->
 
     <!-- ===================================================================
-         LESSONS 1, 2, 3, 4, 5, 7–12 (rendered by the generic engine lesson-engine.js);
-         LESSON 6 (12 body parts) is the hand-written page inside view-lesson6
+         LESSONS 1, 2, 3, 4, 5, 6, 8–13 (rendered by the generic engine lesson-engine.js);
+         LESSON 7 (12 body parts) is the hand-written page inside view-lesson7
          =================================================================== -->
     <div id="view-lesson1" class="view-pane" style="display: none;" hidden></div>
     <div id="view-lesson2" class="view-pane" style="display: none;" hidden></div>
@@ -121,7 +121,9 @@
 
     <div id="view-lesson5" class="view-pane" style="display: none;" hidden></div>
 
-    <div id="view-lesson6" class="view-pane" style="display: none;" hidden>
+    <div id="view-lesson6" class="view-pane" style="display: none;" hidden></div>
+
+    <div id="view-lesson7" class="view-pane" style="display: none;" hidden>
       <!-- Single-line Compact Lesson & PPP Bar -->
       <div class="ppp-nav-bar">
         <div class="container ppp-top-row">
@@ -160,7 +162,7 @@
         <div class="container">
           <div class="section-header" style="margin-bottom:2rem;">
             <div class="stage-eyebrow-row">
-              <div class="eyebrow" data-i18n-ru="УРОК 6 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 6 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 6 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
+              <div class="eyebrow" data-i18n-ru="УРОК 7 · CAMBRIDGE PPP · STAGE 1: PRESENTATION" data-i18n-en="LESSON 7 · CAMBRIDGE PPP · STAGE 1: PRESENTATION">УРОК 7 · CAMBRIDGE PPP · STAGE 1: PRESENTATION</div>
               <button type="button" class="teacher-guide-btn" id="tg-btn-presentation" onclick="toggleTeacherGuide('presentation')"
                       data-i18n-ru="👩‍🏫 Инструкция для преподавателя" data-i18n-en="👩‍🏫 Teacher's Guide">👩‍🏫 Инструкция для преподавателя</button>
             </div>
@@ -468,15 +470,15 @@
       </section>
 
       <!-- Предыдущий / следующий урок: заполняется движком (data-lesson-pager) -->
-      <div class="lesson-pager" data-lesson-pager="lesson6"></div>
+      <div class="lesson-pager" data-lesson-pager="lesson7"></div>
     </div>
 
-    <div id="view-lesson7" class="view-pane" style="display: none;" hidden></div>
     <div id="view-lesson8" class="view-pane" style="display: none;" hidden></div>
     <div id="view-lesson9" class="view-pane" style="display: none;" hidden></div>
     <div id="view-lesson10" class="view-pane" style="display: none;" hidden></div>
     <div id="view-lesson11" class="view-pane" style="display: none;" hidden></div>
     <div id="view-lesson12" class="view-pane" style="display: none;" hidden></div>
+    <div id="view-lesson13" class="view-pane" style="display: none;" hidden></div>
 
     <!-- ===================================================================
          TAB 2: LEARN MORE / FULL DETAILS PAGE (ПОДРОБНЕЕ)
@@ -1292,21 +1294,22 @@ https://alexquantforge.github.io/sanskrit-in-action/
     </div>
   </footer>
 
-  <script src="lesson1.js?v=105"></script>
-  <script src="lesson-engine.js?v=105"></script>
-  <script src="lesson2.js?v=105"></script>
-  <script src="lesson3.js?v=105"></script>
-  <script src="lesson4.js?v=105"></script>
-  <script src="lesson5.js?v=105"></script>
-  <script src="lesson6.js?v=105"></script>
-  <script src="lesson7.js?v=105"></script>
-  <script src="lesson8.js?v=105"></script>
-  <script src="lesson9.js?v=105"></script>
-  <script src="lesson-colors.js?v=105"></script>
-  <script src="lesson-colors2.js?v=105"></script>
-  <script src="lesson-gender.js?v=105"></script>
-  <script src="games-extra.js?v=105"></script>
-  <script src="app.js?v=105"></script>
+  <script src="lesson1.js?v=106"></script>
+  <script src="lesson-engine.js?v=106"></script>
+  <script src="lesson2.js?v=106"></script>
+  <script src="lesson3.js?v=106"></script>
+  <script src="lesson4.js?v=106"></script>
+  <script src="lesson5.js?v=106"></script>
+  <script src="lesson6.js?v=106"></script>
+  <script src="lesson7.js?v=106"></script>
+  <script src="lesson8.js?v=106"></script>
+  <script src="lesson9.js?v=106"></script>
+  <script src="lesson-colors.js?v=106"></script>
+  <script src="lesson-colors2.js?v=106"></script>
+  <script src="lesson-gender.js?v=106"></script>
+  <script src="lesson-gender2.js?v=106"></script>
+  <script src="games-extra.js?v=106"></script>
+  <script src="app.js?v=106"></script>
 
   <!-- ===================================================================
        Stale-cache guard (GitHub Pages + aggressive browser caches).

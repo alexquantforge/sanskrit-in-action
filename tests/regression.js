@@ -31,7 +31,7 @@ const dom = new JSDOM(fs.readFileSync(path.join(REPO, 'index.html'), 'utf8'), {
 const win = dom.window;
 ['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'lesson5.js',
   'lesson6.js', 'lesson7.js', 'lesson8.js', 'lesson9.js', 'lesson-colors.js',
-  'lesson-colors2.js', 'lesson-gender.js', 'games-extra.js', 'app.js'].forEach(f => {
+  'lesson-colors2.js', 'lesson-gender.js', 'lesson-gender2.js', 'games-extra.js', 'app.js'].forEach(f => {
   const s = win.document.createElement('script');
   s.textContent = fs.readFileSync(path.join(REPO, f), 'utf8');
   win.document.body.appendChild(s);
@@ -470,40 +470,41 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
 {
   const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
                  'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
-                 'view-lesson11', 'view-lesson12']
+                 'view-lesson11', 'view-lesson12', 'view-lesson13']
     .map(id => win.document.getElementById(id));
   SAL.openLesson('LC2');   /* панель урока 4 строится движком — собираем её заранее */
-  ck(order.every(Boolean), 'все двенадцать панелей урока есть на странице');
+  ck(order.every(Boolean), 'все тринадцать панелей урока есть на странице');
   for (let i = 0; i < order.length - 1; i++) {
     ck(order[i].compareDocumentPosition(order[i + 1]) & 4,
       'порядок панелей: урок ' + (i + 1) + ' → урок ' + (i + 2));
   }
   ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2 && SAL.lessons.LC.num === 3 &&
-     SAL.lessons.LC2.num === 4 && SAL.lessons.L4.num === 7 && SAL.lessons.L5.num === 8 &&
-     SAL.lessons.L6.num === 9 && SAL.lessons.L7.num === 10 && SAL.lessons.L8.num === 11 &&
-     SAL.lessons.L9.num === 12,
-    'номера в данных: Тело = 1, Лицо = 2, Цвета = 3, Ещё цвета = 4, 12 частей = 6, 1–5 = 7, 6–10 = 8, 11–15 = 9, 16–20 = 10, десятки = 11 и 12');
-  /* урок 4 — второй урок цветов (движок), урок 5 — написанная вручную страница из 12 слов */
+     SAL.lessons.LC2.num === 4 && SAL.lessons.LG.num === 5 && SAL.lessons.LG2.num === 6 &&
+     SAL.lessons.L4.num === 8 && SAL.lessons.L5.num === 9 &&
+     SAL.lessons.L6.num === 10 && SAL.lessons.L7.num === 11 && SAL.lessons.L8.num === 12 &&
+     SAL.lessons.L9.num === 13,
+    'номера в данных: Тело = 1, Лицо = 2, Цвета = 3, Ещё цвета = 4, Три рода = 5, рода·цвета = 6, 12 частей = 7, 1–5 = 8, 6–10 = 9, 11–15 = 10, 16–20 = 11, десятки = 12 и 13');
+  /* урок 5 — «Три рода» (движок), урок 7 — написанная вручную страница из 12 слов */
   ck(/УРОК 4 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson4').textContent),
     'слот 4 — урок «Ещё цвета», помечен как УРОК 4');
   ck(win.document.getElementById('view-lesson4').textContent.indexOf('वर्णाः — Ещё цвета') >= 0,
     'слот 4: заголовок वर्णाः — Ещё цвета');
-  ck(/УРОК 6 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson6').textContent),
-    'слот 6 — 12 слов, помечен как УРОК 6');
+  ck(/УРОК 7 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson7').textContent),
+    'слот 7 — 12 слов, помечен как УРОК 7');
   ck(['नयन', 'नासिका', 'जिह्वा', 'कर्ण', 'शीर्ष', 'ललाट', 'भ्रू', 'ओष्ठ', 'कर', 'पाद', 'दन्त', 'अङ्गुली']
-    .every(w => win.document.getElementById('view-lesson6').innerHTML.indexOf(w) >= 0),
-    'слот 6: все 12 слов на месте');
-  ck(/Урок 7: Цифры 1–5/.test(win.document.getElementById('view-lesson7').textContent), 'слот 6 — Цифры 1–5');
-  ck(/सङ्ख्याः/.test(win.document.getElementById('view-lesson7').innerHTML), 'слот 6: заголовок सङ्ख्याः');
+    .every(w => win.document.getElementById('view-lesson7').innerHTML.indexOf(w) >= 0),
+    'слот 7: все 12 слов на месте');
+  ck(/Урок 8: Цифры 1–5/.test(win.document.getElementById('view-lesson8').textContent), 'слот 8 — Цифры 1–5');
+  ck(/सङ्ख्याः/.test(win.document.getElementById('view-lesson8').innerHTML), 'слот 8: заголовок सङ्ख्याः');
   const w4 = SAL.lessons.L4.words.map(w => w.deva).join(' ');
-  ck(w4 === 'एकम् द्वे त्रीणि चत्वारि पञ्च', 'урок 6: ровно пять числительных — ' + w4);
-  ck(/Урок 8: Цифры 6–10/.test(win.document.getElementById('view-lesson8').textContent), 'слот 7 — Цифры 6–10');
-  ck(/Урок 9: Цифры 11–15/.test(win.document.getElementById('view-lesson9').textContent), 'слот 8 — Цифры 11–15');
-  ck(/Урок 10: Цифры 16–20/.test(win.document.getElementById('view-lesson10').textContent), 'слот 9 — Цифры 16–20');
-  ck(/Урок 11: Десятки 10–50/.test(win.document.getElementById('view-lesson11').textContent), 'слот 10 — Десятки 10–50');
-  ck(/Урок 12: Десятки 60–100/.test(win.document.getElementById('view-lesson12').textContent), 'слот 11 — Десятки 60–100');
+  ck(w4 === 'एकम् द्वे त्रीणि चत्वारि पञ्च', 'урок 8: ровно пять числительных — ' + w4);
+  ck(/Урок 9: Цифры 6–10/.test(win.document.getElementById('view-lesson9').textContent), 'слот 9 — Цифры 6–10');
+  ck(/Урок 10: Цифры 11–15/.test(win.document.getElementById('view-lesson10').textContent), 'слот 10 — Цифры 11–15');
+  ck(/Урок 11: Цифры 16–20/.test(win.document.getElementById('view-lesson11').textContent), 'слот 11 — Цифры 16–20');
+  ck(/Урок 12: Десятки 10–50/.test(win.document.getElementById('view-lesson12').textContent), 'слот 12 — Десятки 10–50');
+  ck(/Урок 13: Десятки 60–100/.test(win.document.getElementById('view-lesson13').textContent), 'слот 13 — Десятки 60–100');
   const w5list = SAL.lessons.L5.words.map(w => w.deva).join(' ');
-  ck(w5list === 'षट् सप्त अष्ट नव दश', 'урок 7: ровно пять числительных — ' + w5list);
+  ck(w5list === 'षट् सप्त अष्ट नव दश', 'урок 9: ровно пять числительных — ' + w5list);
   ck(/Урок 1: Тело/.test(win.document.getElementById('view-lesson1').textContent), 'слот 1 — Тело (6 слов)');
   ck(/Урок 2: Лицо/.test(win.document.getElementById('view-lesson2').textContent), 'слот 2 — Лицо (7 слов)');
   SAL.openLesson('LC');
@@ -513,9 +514,9 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
 /* ---------- внизу каждого урока: «← Предыдущий урок / Следующий урок →» ---------- */
 console.log('\n===== Кнопки предыдущего и следующего урока =====');
 {
-  const ORDER = ['L2', 'L3', 'LC', 'LC2', 'LG', 'lesson6', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
+  const ORDER = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
   const paneOf = key => win.document.getElementById(
-    'view-lesson' + (key === 'lesson6' ? 6 : SAL.lessons[key].num));
+    'view-lesson' + (key === 'lesson7' ? 7 : SAL.lessons[key].num));
   const pagerOf = key => paneOf(key).querySelector('[data-lesson-pager]');
   const linksOf = key => [...pagerOf(key).querySelectorAll('.lesson-pager-btn')]
     .map(b => b.getAttribute('data-goto'));
@@ -545,14 +546,15 @@ console.log('\n===== Кнопки предыдущего и следующего
     const expect = want.filter(Boolean);
     if (got.join() !== expect.join()) wrongLinks.push(k + ': ' + got.join('/') + ' вместо ' + expect.join('/'));
   });
-  ck(wrongLinks.length === 0, 'кнопки ведут на соседние уроки по порядку 1 … 12' +
+  ck(wrongLinks.length === 0, 'кнопки ведут на соседние уроки по порядку 1 … 13' +
     (wrongLinks.length ? ' — ' + wrongLinks.join('; ') : ''));
 
   ck(linksOf('L2').join() === 'L3' && linksOf('L9').join() === 'L8',
     'у первого урока только «следующий», у последнего — только «предыдущий»');
-  ck(linksOf('LG').join() === 'LC2,lesson6' && linksOf('lesson6').join() === 'LG,L4',
-    'урок рода ведёт к 12 частям тела, а 12 частей — обратно к роду: ' +
-    linksOf('LG').join(' / ') + ' · ' + linksOf('lesson6').join(' / '));
+  ck(linksOf('LG').join() === 'LC2,LG2' && linksOf('LG2').join() === 'LG,lesson7' &&
+     linksOf('lesson7').join() === 'LG2,L4',
+    'урок рода ведёт ко второму уроку рода, тот — к 12 частям тела, а 12 частей — к числам: ' +
+    linksOf('LG').join(' / ') + ' · ' + linksOf('LG2').join(' / ') + ' · ' + linksOf('lesson7').join(' / '));
 
   /* подписи: стрелка, название кнопки и номер урока */
   const l2btns = [...pagerOf('L2').querySelectorAll('.lesson-pager-btn')];
@@ -572,10 +574,13 @@ console.log('\n===== Кнопки предыдущего и следующего
   pagerOf('LG').querySelector('.lesson-pager-btn.next').click();
   ck(win.document.getElementById('view-lesson6').style.display !== 'none' &&
      win.document.getElementById('view-lesson5').style.display === 'none',
-    'нажатие «Следующий урок» в уроке 5 открывает урок 6');
-  pagerOf('lesson6').querySelectorAll('.lesson-pager-btn')[0].click();
+    'нажатие «Следующий урок» в уроке 5 открывает урок 6 — второй урок рода');
+  pagerOf('LG2').querySelectorAll('.lesson-pager-btn')[0].click();
   ck(win.document.getElementById('view-lesson5').style.display !== 'none',
     'нажатие «Предыдущий урок» в уроке 6 возвращает в урок 5');
+  pagerOf('lesson7').querySelectorAll('.lesson-pager-btn')[0].click();
+  ck(win.document.getElementById('view-lesson6').style.display !== 'none',
+    'нажатие «Предыдущий урок» в уроке 7 ведёт в урок 6');
   pagerOf('LG').querySelectorAll('.lesson-pager-btn')[0].click();
   ck(win.document.getElementById('view-lesson4').style.display !== 'none',
     'нажатие «Предыдущий урок» в уроке 5 открывает урок 4');
@@ -587,8 +592,11 @@ console.log('\n===== Кнопки предыдущего и следующего
   ck(!/[\u0400-\u04FF]/.test(enCaps) && /Previous lesson/.test(enCaps) && /Next lesson/.test(enCaps),
     'английская версия: кнопки подписаны по-английски — ' + enCaps.slice(0, 80) + '…');
   const enLg = [...pagerOf('LG').querySelectorAll('.lesson-pager-name')].map(e => e.textContent.trim()).join(' | ');
-  ck(/Lesson 4: More Colours/.test(enLg) && /Lesson 6: Body Parts/.test(enLg),
+  ck(/Lesson 4: More Colours/.test(enLg) && /Lesson 6: Three Genders · More Colours/.test(enLg),
     'английская версия: названия соседних уроков тоже по-английски — ' + enLg);
+  const enLg2 = [...pagerOf('LG2').querySelectorAll('.lesson-pager-name')].map(e => e.textContent.trim()).join(' | ');
+  ck(/Lesson 5: Three Genders/.test(enLg2) && /Lesson 7: Body Parts/.test(enLg2),
+    'урок 6 по-английски: соседи названы по-английски — ' + enLg2);
   win.setLanguage('ru');
   const ruBack = [...pagerOf('LG').querySelectorAll('.lesson-pager-cap')].map(e => e.textContent.trim()).join(' | ');
   ck(/Предыдущий урок/.test(ruBack) && /Следующий урок/.test(ruBack),
@@ -597,19 +605,19 @@ console.log('\n===== Кнопки предыдущего и следующего
 }
 
 /* ---------- Lesson 5 (the 12-word lesson): same letters and memory squares ---------- */
-win.switchView('lesson6');
-const l1 = win.document.getElementById('view-lesson6').innerHTML;
+win.switchView('lesson7');
+const l1 = win.document.getElementById('view-lesson7').innerHTML;
 ck(['नयन', 'नासिका', 'जिह्वा', 'कर्ण', 'शीर्ष', 'ललाट', 'भ्रू', 'ओष्ठ', 'कर', 'पाद', 'दन्त', 'अङ्गुली']
-  .every(w => l1.indexOf(w) >= 0), 'урок 5 (12 слов): все 12 слов на месте');
+  .every(w => l1.indexOf(w) >= 0), 'урок 7 (12 слов): все 12 слов на месте');
 
-console.log('\n===== L1 · 12 слов (урок 5) =====');
+console.log('\n===== L1 · 12 слов (урок 7) =====');
 const l1arena = win.document.getElementById('lesson1-practice-arena');
 for (const [gm, n] of [['gaps', 4], ['picquiz', 4], ['wordquiz', 4], ['spelling', 4],
                        ['truefalse', 2], ['wronglabel', 3], ['typo', 3]]) {
   win.selectPracticeGame(gm);
   const got = [...l1arena.querySelectorAll('.quiz-opt-btn')]
     .map(b => { const sp = b.querySelector('.opt-letter'); return sp ? sp.textContent.trim() : null; });
-  ck(got.length === n && got.every((v, i) => v === LETTERS[i]), 'урок 5 (12 слов): буквы в игре ' + gm + ': ' + JSON.stringify(got));
+  ck(got.length === n && got.every((v, i) => v === LETTERS[i]), 'урок 7 (12 слов): буквы в игре ' + gm + ': ' + JSON.stringify(got));
 }
 for (const pairs of [6, 12]) {
   win.setMemoryPairsCount(pairs);
@@ -618,11 +626,11 @@ for (const pairs of [6, 12]) {
   const cols = 4;                       // .memory-grid in styles.css
   const backs = cards.map(b => { const sp = b.querySelector('.memory-coord'); return sp ? sp.textContent.trim() : null; });
   const want = cards.map((_, i) => LETTERS[Math.floor(i / cols)].toLowerCase() + ((i % cols) + 1));
-  ck(cards.length === pairs * 2, 'урок 5 (12 слов): мемори на ' + pairs * 2 + ' карточек');
-  ck(backs.every((v, i) => v === want[i]), 'урок 5 (12 слов): координаты рубашек ' + backs.join(' '));
+  ck(cards.length === pairs * 2, 'урок 7 (12 слов): мемори на ' + pairs * 2 + ' карточек');
+  ck(backs.every((v, i) => v === want[i]), 'урок 7 (12 слов): координаты рубашек ' + backs.join(' '));
 }
 ck(/Называйте карточку по клетке|Name the card by its square/.test(l1arena.textContent),
-  'урок 5 (12 слов): подсказка про букву ряда и номер столбца');
+  'урок 7 (12 слов): подсказка про букву ряда и номер столбца');
 win.setLanguage('en'); win.setLanguage('ru');
 ck(true, 'переключение RU/EN работает');
 
@@ -887,12 +895,12 @@ console.log('\n===== Урок 3: повторение «цвет + часть т
   ck(!win.document.getElementById('L4-recycle-practice') && !win.document.getElementById('L4-recycle-production'),
     'у других уроков блока повторения нет');
   /* числительные тоже не «показываются у себя»: там хлопки */
-  const numH2 = [...win.document.querySelectorAll('#view-lesson7 h2.section-title')].pop().textContent.trim();
+  const numH2 = [...win.document.querySelectorAll('#view-lesson8 h2.section-title')].pop().textContent.trim();
   ck(numH2 === 'Живая речь: назовите вслух все 5 числительных',
-    'урок 6: заголовок Production — «' + numH2 + '»');
+    'урок 8: заголовок Production — «' + numH2 + '»');
   SAL.do('L4', 'setProdMode', 'sprint');
   ck(/хлопните в ладоши/.test(win.document.getElementById('L4-production-stage').textContent),
-    'урок 6: в спринте жест — хлопки, а не «коснитесь части тела»');
+    'урок 8: в спринте жест — хлопки, а не «коснитесь части тела»');
   SAL.openLesson('LC');
 }
 
@@ -1191,19 +1199,19 @@ console.log('\n===== Цели уроков (main aim / subsidiary aims) =====');
   ck(/Подцели \(subsidiary aims\)/.test(boxOf().textContent), 'RU: плашка возвращается на русский');
 
   /* та же плашка у рукописной страницы из 12 слов */
-  win.switchView('lesson6');
+  win.switchView('lesson7');
   const staticAim = win.document.getElementById('lesson1-lesson-aim');
   ck(!!staticAim && staticAim.classList.contains('lesson-aim') &&
      staticAim.querySelectorAll('.lesson-aim-subs li').length === 3,
-    'урок 5 (12 слов): плашка целей на месте, три подцели');
+    'урок 7 (12 слов): плашка целей на месте, три подцели');
   ck(/^Повторить и расширить лексику/.test(staticAim.querySelector('.lesson-aim-main').textContent.trim()),
-    'урок 5: главная цель сформулирована от лексики и контекста');
+    'урок 7: главная цель сформулирована от лексики и контекста');
   ck(!!win.document.getElementById('teacher-guide-presentation').querySelector('.teacher-guide-aim'),
-    'урок 5: цели есть и в инструкции преподавателя');
+    'урок 7: цели есть и в инструкции преподавателя');
   win.setLanguage('en');
   ck(/^To review and extend body and face lexis/.test(
       win.document.getElementById('lesson1-lesson-aim').querySelector('.lesson-aim-main').textContent.trim()),
-    'урок 5: EN-версия цели на месте');
+    'урок 7: EN-версия цели на месте');
   win.setLanguage('ru');
 
   /* в файле стилей есть оформление плашки */
@@ -1233,9 +1241,9 @@ const tabsOf = k => [...win.document.getElementById('view-lesson' + SAL.lessons[
   .querySelectorAll('.practice-tab-btn[data-game]')].map(b => b.getAttribute('data-game'));
 ['L2', 'L3', 'L4'].forEach(k => SAL.openLesson(k));
 const l4tabs = tabsOf('L4');
-ck(l4tabs.length === 12 + EXTRA.length, 'урок 6: вкладок ' + l4tabs.length + ' (12 классических + ' + EXTRA.length + ' новых)');
-ck(EXTRA.every(g => l4tabs.indexOf(g) >= 0), 'урок 6: все новые игры есть во вкладках');
-ck(l4tabs.slice(0, 12).join() === GAMES.join(), 'урок 6: первые 12 вкладок — классические игры, порядок не сбит');
+ck(l4tabs.length === 12 + EXTRA.length, 'урок 8: вкладок ' + l4tabs.length + ' (12 классических + ' + EXTRA.length + ' новых)');
+ck(EXTRA.every(g => l4tabs.indexOf(g) >= 0), 'урок 8: все новые игры есть во вкладках');
+ck(l4tabs.slice(0, 12).join() === GAMES.join(), 'урок 8: первые 12 вкладок — классические игры, порядок не сбит');
 /* уроки 1 и 2 получили только два филворда — остальные новые игры им не нужны */
 ['L2', 'L3'].forEach(k => {
   const t = tabsOf(k);
@@ -1301,7 +1309,7 @@ const noPair = PAIR.filter(gm => {
 });
 ck(noPair.length === 0, 'в режиме «2 ученика» у каждой парной игры два счёта' +
   (noPair.length ? ' — без счёта: ' + noPair.join(', ') : ''));
-ck(win.document.getElementById('view-lesson7').querySelector('[data-players="2"]').classList.contains('active'),
+ck(win.document.getElementById('view-lesson8').querySelector('[data-players="2"]').classList.contains('active'),
   'переключатель «2 ученика» подсвечен');
 SAL.do('L4', 'setPlayers', '1');
 
@@ -1762,7 +1770,7 @@ Object.keys(NUMS).forEach(key => {
   const L = SAL.lessons[key];
   const byIdOf = id => L.words.filter(w => w.id === id)[0];
   console.log('\n----- ' + key + ' · ' + NUMS[key].ru + ' -----');
-  ck(!!L && L.num === Number(key.slice(1)) + 3, key + ': зарегистрирован под номером ' + (L && L.num));
+  ck(!!L && L.num === Number(key.slice(1)) + 4, key + ': зарегистрирован под номером ' + (L && L.num));
   ck(L.words.map(w => w.deva).join(' ') === NUMS[key].deva,
     key + ': ровно пять числительных — ' + L.words.map(w => w.deva).join(' '));
   ck(L.words.every(w => w.syll.join('') === w.deva), key + ': слоги складываются в слово');
@@ -1770,7 +1778,7 @@ Object.keys(NUMS).forEach(key => {
     key + ': ' + L.decoys.length + ' разных отвлекающих слов');
   ck(L.decoys.every(d => L.words.every(w => w.deva !== d)),
     key + ': отвлекающие слова не совпадают со словами урока');
-  const pastTen = L.num >= 9;   /* уроки 9–12: числа 11–100, их не сосчитать на глаз */
+  const pastTen = L.num >= 10;   /* уроки 10–13: числа 11–100, их не сосчитать на глаз */
   const digits = L.words.every(w => /<text[^>]*>\d+<\/text>/.test(w.svg));
   const beads = L.words.every(w => /fill="#F59E0B"/.test(w.svg));
   ck(pastTen ? (digits && !beads) : (beads && !digits),
@@ -1839,16 +1847,17 @@ Object.keys(NUMS).forEach(key => {
 
 /* navigation: one dropdown lists every lesson, in every pane */
 console.log('\n===== Выпадающий список уроков =====');
-const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'LG', 'lesson6', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
+const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'];
 const PANES = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
                'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
-               'view-lesson11', 'view-lesson12'];
+               'view-lesson11', 'view-lesson12', 'view-lesson13'];
 const CUR = { 'view-lesson1': 'L2', 'view-lesson2': 'L3', 'view-lesson3': 'LC',
-              'view-lesson4': 'LC2', 'view-lesson5': 'LG', 'view-lesson6': 'lesson6',
-              'view-lesson7': 'L4', 'view-lesson8': 'L5', 'view-lesson9': 'L6',
-              'view-lesson10': 'L7', 'view-lesson11': 'L8', 'view-lesson12': 'L9' };
-['L2', 'L3', 'LC', 'LC2', 'LG', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'].forEach(k => SAL.openLesson(k));
-win.switchView('lesson6');
+              'view-lesson4': 'LC2', 'view-lesson5': 'LG', 'view-lesson6': 'LG2',
+              'view-lesson7': 'lesson7',
+              'view-lesson8': 'L4', 'view-lesson9': 'L5', 'view-lesson10': 'L6',
+              'view-lesson11': 'L7', 'view-lesson12': 'L8', 'view-lesson13': 'L9' };
+['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9'].forEach(k => SAL.openLesson(k));
+win.switchView('lesson7');
 PANES.forEach(id => {
   const pane = win.document.getElementById(id);
   const sels = pane.querySelectorAll('select.lesson-select');
@@ -1856,25 +1865,28 @@ PANES.forEach(id => {
   const sel = sels[0];
   if (!sel) return;
   ck(NAV_VALUES.every(v => [...sel.options].some(o => o.value === v)) && sel.options.length === NAV_VALUES.length,
-    id + ': в списке ровно все двенадцать уроков (' + sel.options.length + ')');
+    id + ': в списке ровно все тринадцать уроков (' + sel.options.length + ')');
   ck(sel.value === CUR[id] && sel.options[sel.selectedIndex].value === CUR[id],
     id + ': выбран текущий урок (' + sel.value + ')');
   ck(pane.querySelectorAll('.ppp-top-row [onclick*="openLesson"]').length === 0,
     id + ': строки кнопок-уроков больше нет');
   ck(/Выбрать номер урока/.test(pane.textContent), id + ': подпись «Выбрать номер урока» на месте');
 });
-ck(win.document.getElementById('view-lesson7')
+ck(win.document.getElementById('view-lesson8')
     .querySelectorAll('.ppp-top-row > div:first-child > *').length === 3,
   'слева в строке три элемента: «на главную», подпись и список');
 SAL.gotoLesson('L5');
-ck(win.document.getElementById('view-lesson8').classList.contains('active'),
-  'выбор урока 7 в списке открывает седьмую панель');
+ck(win.document.getElementById('view-lesson9').classList.contains('active'),
+  'выбор урока 9 в списке открывает девятую панель');
 SAL.gotoLesson('LC2');
 ck(win.document.getElementById('view-lesson4').classList.contains('active'),
   'выбор урока 4 открывает второй урок цветов');
-SAL.gotoLesson('lesson6');
+SAL.gotoLesson('LG2');
 ck(win.document.getElementById('view-lesson6').classList.contains('active'),
-  'выбор урока 5 открывает панель 12 слов');
+  'выбор урока 6 открывает второй урок рода');
+SAL.gotoLesson('lesson7');
+ck(win.document.getElementById('view-lesson7').classList.contains('active'),
+  'выбор урока 7 открывает панель 12 слов');
 SAL.gotoLesson('LC');
 ck(win.document.getElementById('view-lesson3').classList.contains('active'),
   'выбор урока 3 открывает урок цветов');
@@ -1989,81 +2001,81 @@ ck(rcHead && /^14\. Филворд/.test(rcHead.textContent.trim()),
   'повторение: над правилами — название игры с номером («' + (rcHead && rcHead.textContent.trim()) + '»)');
 
 /* the standalone 12-word lesson shares the same rules via SAL.rulesPanel() */
-win.switchView('lesson6');
+win.switchView('lesson7');
 const noRulesL1 = GAMES.filter(gm => {
   win.selectPracticeGame(gm);
   return !l1arena.querySelector('.game-rules');
 });
-ck(noRulesL1.length === 0, 'урок 5 (12 слов): правила есть во всех 12 играх' +
+ck(noRulesL1.length === 0, 'урок 7 (12 слов): правила есть во всех 12 играх' +
   (noRulesL1.length ? ' — без правил: ' + noRulesL1.join(', ') : ''));
 /* и здесь над правилами стоит название игры с номером из её вкладки */
 const noTitleL1 = GAMES.filter(gm => {
   win.selectPracticeGame(gm);
   const head = l1arena.querySelector('.game-title');
-  const tab = [...win.document.querySelectorAll('#view-lesson6 .practice-tab-btn[data-game]')]
+  const tab = [...win.document.querySelectorAll('#view-lesson7 .practice-tab-btn[data-game]')]
     .filter(b => b.getAttribute('data-game') === gm)[0];
   return !head || !tab || head.textContent.replace(/\s+/g, ' ').trim() !== tab.textContent.replace(/\s+/g, ' ').trim();
 });
-ck(noTitleL1.length === 0, 'урок 5 (12 слов): у каждой игры свой заголовок с номером' +
+ck(noTitleL1.length === 0, 'урок 7 (12 слов): у каждой игры свой заголовок с номером' +
   (noTitleL1.length ? ' — без заголовка: ' + noTitleL1.join(', ') : ''));
 win.selectPracticeGame('wordsearch');
 ck(/^13\. Филворд \(ищи слова по частям\)$/
     .test(win.document.getElementById('L1B-practice-arena').querySelector('.game-title').textContent.trim()),
-  'урок 5 (12 слов): у филворда заголовок 13 — как на вкладке');
+  'урок 7 (12 слов): у филворда заголовок 13 — как на вкладке');
 
-/* ---- 13-я вкладка: филворд на странице урока 5 ---- */
-console.log('\n===== Урок 5: филворд на отдельной странице =====');
-const l3tabs = [...win.document.querySelectorAll('#view-lesson6 .practice-tab-btn[data-game]')]
+/* ---- 13-я вкладка: филворд на странице урока 7 ---- */
+console.log('\n===== Урок 7: филворд на отдельной странице =====');
+const l3tabs = [...win.document.querySelectorAll('#view-lesson7 .practice-tab-btn[data-game]')]
   .map(b => b.getAttribute('data-game'));
-ck(l3tabs.length === 13 && l3tabs[12] === 'wordsearch', 'урок 5: 13-я вкладка — филворд');
-ck(!!SAL.lessons.L1B && SAL.lessons.L1B.hidden === true, 'урок 5: конфигурация филворда скрыта от списка уроков');
+ck(l3tabs.length === 13 && l3tabs[12] === 'wordsearch', 'урок 7: 13-я вкладка — филворд');
+ck(!!SAL.lessons.L1B && SAL.lessons.L1B.hidden === true, 'урок 7: конфигурация филворда скрыта от списка уроков');
 const navOptions = [...win.document.querySelectorAll('.lesson-select option')].map(o => o.value);
-ck(navOptions.indexOf('L1B') < 0, 'урок 5: служебный урок не попал в выпадающий список');
+ck(navOptions.indexOf('L1B') < 0, 'урок 7: служебный урок не попал в выпадающий список');
 win.selectPracticeGame('wordsearch');
 const engineArena = win.document.getElementById('L1B-practice-arena');
 const staticArena = win.document.getElementById('lesson1-practice-arena');
 ck(engineArena.style.display !== 'none' && staticArena.style.display === 'none',
-  'урок 5: филворд рисуется в своей арене, 12 старых игр не тронуты');
+  'урок 7: филворд рисуется в своей арене, 12 старых игр не тронуты');
 const g1b = SAL.lessons.L1B._st.g.wordsearch;
 ck(g1b.grid.length === 100 && g1b.places.length === 12,
-  'урок 5: в филворде все 12 слов (' + g1b.places.length + ')');
+  'урок 7: в филворде все 12 слов (' + g1b.places.length + ')');
 ck(engineArena.querySelectorAll('.ws-board .wcell').length === 100 &&
    engineArena.querySelectorAll('.ws-coord.col').length === 10,
-  'урок 5: поле с координатами и сотней клеток');
+  'урок 7: поле с координатами и сотней клеток');
 const bFirst = g1b.places[0];
 bFirst.cells.forEach(i => SAL.do('L1B', 'wsTap', String(i)));
-ck(SAL.lessons.L1B._st.g.wordsearch.found[bFirst.id] === true, 'урок 5: нажатие клеток находит слово');
-ck((SAL.lessons.L1B._st.g.wordsearch.twins || []).length >= 2, 'урок 5: у слов есть двойники-ловушки');
+ck(SAL.lessons.L1B._st.g.wordsearch.found[bFirst.id] === true, 'урок 7: нажатие клеток находит слово');
+ck((SAL.lessons.L1B._st.g.wordsearch.twins || []).length >= 2, 'урок 7: у слов есть двойники-ловушки');
 SAL.do('L1B', 'wsSize', '6');
-ck(SAL.lessons.L1B._st.g.wordsearch.grid.length === 36, 'урок 5: размер поля переключается');
+ck(SAL.lessons.L1B._st.g.wordsearch.grid.length === 36, 'урок 7: размер поля переключается');
 win.selectPracticeGame('masked');
 ck(staticArena.style.display !== 'none' && engineArena.style.display === 'none',
-  'урок 5: возврат к обычной игре прячет арену филворда');
+  'урок 7: возврат к обычной игре прячет арену филворда');
 
 
 /* ===== URL уроков: #/<язык>/<урок> ===== */
 console.log('\n===== Адреса уроков =====');
-win.switchView('lesson6');
-ck(win.location.hash === '#/ru/lesson6', 'адрес урока 5 по-русски: #/ru/lesson6');
+win.switchView('lesson7');
+ck(win.location.hash === '#/ru/lesson7', 'адрес урока 7 по-русски: #/ru/lesson7');
 win.setLanguage('en');
-ck(win.location.hash === '#/en/lesson6', 'переключение на EN меняет адрес: #/en/lesson6');
+ck(win.location.hash === '#/en/lesson7', 'переключение на EN меняет адрес: #/en/lesson7');
 win.switchView('lesson3');
 ck(win.location.hash === '#/en/lesson3', 'урок 3 по-английски: #/en/lesson3');
 win.setLanguage('ru');
 ck(win.location.hash === '#/ru/lesson3', 'обратно на RU: #/ru/lesson3');
-win.switchView('lesson12');
-ck(win.location.hash === '#/ru/lesson12', 'у последнего урока свой адрес: #/ru/lesson12');
-win.switchView('lesson6');
-ck(win.location.hash === '#/ru/lesson6', '12-словная страница: #/ru/lesson6');
+win.switchView('lesson13');
+ck(win.location.hash === '#/ru/lesson13', 'у последнего урока свой адрес: #/ru/lesson13');
+win.switchView('lesson7');
+ck(win.location.hash === '#/ru/lesson7', '12-словная страница: #/ru/lesson7');
 win.switchView('details');
 ck(win.location.hash === '#/ru/details', 'раздел «о методе» тоже с адресом: #/ru/details');
 win.switchView('home');
 ck(win.location.hash === '#/ru/home', 'главная: #/ru/home');
 ck(win.parseRoute('#/en/lesson10').lang === 'en' && win.parseRoute('#/en/lesson10').view === 'lesson10',
   'адрес #/en/lesson10 разбирается в язык и урок');
-ck(win.parseRoute('#/ru/lesson12') !== null && win.parseRoute('#/ru/lesson12').view === 'lesson12',
-  'адрес #/ru/lesson12 разбирается в язык и урок');
-ck(win.parseRoute('#playground') === null && win.parseRoute('#/xx/lesson6') === null &&
+ck(win.parseRoute('#/ru/lesson13') !== null && win.parseRoute('#/ru/lesson13').view === 'lesson13',
+  'адрес #/ru/lesson13 разбирается в язык и урок');
+ck(win.parseRoute('#playground') === null && win.parseRoute('#/xx/lesson7') === null &&
    win.parseRoute('') === null && win.parseRoute('#/ru/nosuchview') === null,
   'якоря и неверные адреса маршрутом не считаются');
 
@@ -2072,10 +2084,10 @@ win.location.hash = '#/en/lesson8';
 win.dispatchEvent(new win.Event('popstate'));
 ck(win.location.hash === '#/en/lesson8' && win.document.documentElement.lang === 'en' &&
    win.document.getElementById('view-lesson8').classList.contains('active'),
-  'прямая ссылка #/en/lesson8 открывает урок 7 по-английски');
-ck(/Lesson 7/.test(win.document.getElementById('view-lesson8').textContent) ||
+  'прямая ссылка #/en/lesson8 открывает урок 8 по-английски');
+ck(/Lesson 8/.test(win.document.getElementById('view-lesson8').textContent) ||
    win.document.getElementById('view-lesson8').textContent.indexOf('Choose a lesson') >= 0,
-  'содержимое урока 7 отрисовано на английском');
+  'содержимое урока 8 отрисовано на английском');
 win.location.hash = '#/ru/lesson8';
 win.dispatchEvent(new win.Event('popstate'));
 ck(win.document.documentElement.lang === 'ru' &&
@@ -2094,12 +2106,12 @@ const metaOf = () => ({
   ogTitle: (win.document.querySelector('meta[property="og:title"]') || {}).content || '',
   ogLocale: (win.document.querySelector('meta[property="og:locale"]') || {}).content || ''
 });
-win.switchView('lesson7');
+win.switchView('lesson8');
 let mm = metaOf();
-ck(mm.title === 'Урок 7: Цифры 1–5 — Sanskrit in Action',
-  'заголовок вкладки для урока 6: «' + mm.title + '»');
-ck(mm.desc.indexOf('Урок 7: Цифры 1–5') === 0 && mm.desc.indexOf('пять') > 0,
-  'description урока 6 собран из названия и темы');
+ck(mm.title === 'Урок 8: Цифры 1–5 — Sanskrit in Action',
+  'заголовок вкладки для урока 8: «' + mm.title + '»');
+ck(mm.desc.indexOf('Урок 8: Цифры 1–5') === 0 && mm.desc.indexOf('пять') > 0,
+  'description урока 8 собран из названия и темы');
 ck(mm.canonical.indexOf('#') < 0 && mm.canonical === win.location.origin + win.location.pathname,
   'canonical указывает на сам документ без фрагмента: ' + mm.canonical);
 ck((win.document.querySelector('link[rel="canonical"]') || {}).rel === 'canonical' &&
@@ -2108,8 +2120,8 @@ ck((win.document.querySelector('link[rel="canonical"]') || {}).rel === 'canonica
 ck(mm.ogTitle === mm.title && mm.ogLocale === 'ru_RU', 'og:title и локаль обновлены (RU)');
 win.setLanguage('en');
 mm = metaOf();
-ck(mm.title === 'Lesson 7: Numbers 1–5 — Sanskrit in Action', 'EN: заголовок «' + mm.title + '»');
-ck(mm.desc.indexOf('Lesson 7: Numbers 1–5') === 0 && mm.ogLocale === 'en_GB',
+ck(mm.title === 'Lesson 8: Numbers 1–5 — Sanskrit in Action', 'EN: заголовок «' + mm.title + '»');
+ck(mm.desc.indexOf('Lesson 8: Numbers 1–5') === 0 && mm.ogLocale === 'en_GB',
   'EN: description и og:locale');
 win.setLanguage('ru');
 win.switchView('lesson3');
@@ -2119,9 +2131,12 @@ win.setLanguage('en');
 ck(metaOf().title === 'Lesson 3: Colours — Sanskrit in Action',
   'EN: заголовок урока цветов');
 win.setLanguage('ru');
-win.switchView('lesson6');
-ck(metaOf().title === 'Урок 6: Части тела (12) — Sanskrit in Action',
+win.switchView('lesson7');
+ck(metaOf().title === 'Урок 7: Части тела (12) — Sanskrit in Action',
   'заголовок отдельной страницы из 12 слов');
+win.switchView('lesson6');
+ck(metaOf().title === 'Урок 6: Три рода · другие цвета — Sanskrit in Action',
+  'заголовок второго урока рода: «' + metaOf().title + '»');
 win.switchView('details');
 ck(/^Метод и программа курса — /.test(metaOf().title), 'заголовок раздела «о методе»');
 win.switchView('home');
@@ -2134,18 +2149,18 @@ const before = win.salPageViews().length;
 const fired = [];
 const onPageView = e => fired.push(e.detail);
 win.document.addEventListener('sal:pageview', onPageView);
-win.switchView('lesson6');
-win.switchView('lesson6');          // тот же урок — повтора быть не должно
+win.switchView('lesson7');
+win.switchView('lesson7');          // тот же урок — повтора быть не должно
 win.setLanguage('en');
 win.switchView('lesson10');
 ck(fired.length === 3, 'page_view сработал на каждый новый адрес, без повторов (' + fired.length + ')');
-ck(fired[0].route === '#/ru/lesson6' && fired[0].view === 'lesson6' && fired[0].lang === 'ru',
+ck(fired[0].route === '#/ru/lesson7' && fired[0].view === 'lesson7' && fired[0].lang === 'ru',
   'событие несёт адрес, урок и язык');
-ck(fired[1].route === '#/en/lesson6' && fired[1].lang === 'en', 'переключение языка даёт отдельный page_view');
+ck(fired[1].route === '#/en/lesson7' && fired[1].lang === 'en', 'переключение языка даёт отдельный page_view');
 ck(fired.every(ev => ev.type === 'page_view' && typeof ev.ts === 'number' && ev.title),
   'у каждого события есть тип, время и заголовок');
 const pvTail = win.salPageViews().slice(-3).map(ev => ev.route).join(', ');
-ck(pvTail === '#/ru/lesson6, #/en/lesson6, #/en/lesson10' &&
+ck(pvTail === '#/ru/lesson7, #/en/lesson7, #/en/lesson10' &&
    win.salPageViews().length === Math.min(100, before + 3),
   'журнал просмотров пополняется тремя адресами подряд (' + pvTail + ')');
 win.setLanguage('ru');
@@ -2153,10 +2168,10 @@ win.switchView('lesson8');
 const gtagEvents = [];
 const savedGtag = win.gtag;
 win.gtag = (cmd, name, params) => gtagEvents.push({ cmd, name, params });
-win.switchView('lesson10');
+win.switchView('lesson11');
 ck(gtagEvents.length === 1 && gtagEvents[0].name === 'page_view' &&
-   gtagEvents[0].params.page_path === '#/ru/lesson10' &&
-   gtagEvents[0].params.page_title === 'Урок 10: Цифры 16–20 — Sanskrit in Action',
+   gtagEvents[0].params.page_path === '#/ru/lesson11' &&
+   gtagEvents[0].params.page_title === 'Урок 11: Цифры 16–20 — Sanskrit in Action',
   'при наличии gtag событие уходит в GA4 с page_path и page_title (' +
    JSON.stringify(gtagEvents.map(g => g.params.page_path)) + ')');
 win.gtag = savedGtag;
@@ -2294,7 +2309,7 @@ console.log('\n===== Режим «2 ученика» =====');
 
   /* переключатель виден только у парных игр, у соло — подпись */
   SAL.openLesson('L4');
-  const gamesL4 = Array.from(win.document.getElementById('view-lesson7')
+  const gamesL4 = Array.from(win.document.getElementById('view-lesson8')
     .querySelectorAll('.practice-tab-btn[data-game]')).map(b => b.getAttribute('data-game'));
   const shownBad = [];
   gamesL4.forEach(g => {
@@ -2464,22 +2479,22 @@ console.log('\n===== Кнопка «Скрыть подписи» (все реж
   ck(hotChips.length >= 4, '«Схема» при скрытых подписях: кнопки-точки показывают только номера');
   SAL.do('L4', 'toggleLabels');
 
-  /* рукописная страница урока 5 — та же кнопка */
-  win.switchView('lesson6');
+  /* рукописная страница урока 7 — та же кнопка */
+  win.switchView('lesson7');
   if (typeof win.setPresentationMode === 'function') win.setPresentationMode('stepbystep');
   if (typeof win.toggleVocabLabels === 'function') {
     if (win.document.getElementById('lesson1-vocab-grid').classList.contains('labels-hidden')) win.toggleVocabLabels();
     win.toggleVocabLabels();
     const g5 = win.document.getElementById('lesson1-vocab-grid');
     const chips5 = Array.from(g5.querySelectorAll('.chip-btn')).map(b => b.textContent.trim()).filter(t => /^\d+/.test(t));
-    ck(g5.classList.contains('labels-hidden'), 'урок 5: «Скрыть подписи» ставит labels-hidden на сетку');
+    ck(g5.classList.contains('labels-hidden'), 'урок 7: «Скрыть подписи» ставит labels-hidden на сетку');
     ck(chips5.length > 0 && chips5.every(t => /^\d+$/.test(t)),
-      'урок 5, «Пошагово»: на вкладках шагов тоже только номера');
+      'урок 7, «Пошагово»: на вкладках шагов тоже только номера');
     ck(!/[\u0900-\u097F]/.test((g5.textContent.match(/Шаг \d+ из \d+/) || [''])[0]) &&
        /Шаг \d+ из \d+/.test(g5.textContent),
-      'урок 5: заголовок шага при скрытых подписях — «Шаг N из 6», без слов');
+      'урок 7: заголовок шага при скрытых подписях — «Шаг N из 6», без слов');
     win.toggleVocabLabels();
-    ck(!g5.classList.contains('labels-hidden'), 'урок 5: подписи возвращаются');
+    ck(!g5.classList.contains('labels-hidden'), 'урок 7: подписи возвращаются');
   }
   SAL.openLesson('L4');
 }
@@ -2583,8 +2598,9 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
   const doc = win.document;
   ck(!!LG && LG.num === 5, 'LG зарегистрирован под номером 5');
   ck(['L2', 'L3', 'LC', 'LC2', 'LG'].every(k => SAL.lessons[k]) &&
-     SAL.lessons.LC2.num === 4 && LG.num === 5 && SAL.lessons.L4.num === 7,
-    'LG стоит между «Ещё цвета» (4) и 12-словным уроком (6)');
+     SAL.lessons.LC2.num === 4 && LG.num === 5 && SAL.lessons.LG2.num === 6 &&
+     SAL.lessons.L4.num === 8,
+    'LG стоит между «Ещё цвета» (4) и вторым уроком рода (6)');
 
   /* --- восемь существительных и их род ------------------------------------ */
   const GENDER = { hasta: 'm', danta: 'm', pada: 'm',
@@ -2593,7 +2609,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
   ck(LG.words.length === 8, 'в уроке ровно 8 существительных (' + LG.words.length + ')');
   ck(LG.words.every(w => GENDER[w.id] === w.gender),
     'род восьми слов: ' + LG.words.map(w => w.id + '=' + w.gender).join(', '));
-  const ENDING_RE = { m: /\u0903$/, n: /\u092e\u094d$/, f: /\u093e$/ };
+  const ENDING_RE = { m: /\u0903$/, n: /(\u0902|\u092e\u094d)$/, f: /\u093e$/ };
   ck(LG.words.every(w => ENDING_RE[w.gender].test(w.deva)),
     'окончание слова и есть род: ः — м., म् — ср., ा — ж.');
   ck(LG.words.filter(w => w.gender === 'm').length === 3 &&
@@ -3413,6 +3429,259 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
 }
 
 /* ==========================================================================
+   УРОК 6 · लिङ्गानि (द्वितीयः) «Три рода · другие цвета» (LG2)
+   Тот же урок, что LG, но с четырьмя другими цветами: कपिश, हरित, धूसर,
+   नारङ्ग. Проверяем, что урок действительно тот же по устройству, что
+   поменялись только цвета — и что ни одной выдуманной формы не появилось.
+   ========================================================================== */
+console.log('\n===== Урок 6 · Три рода · другие цвета (LG2) =====');
+{
+  const LG2 = SAL.lessons.LG2;
+  const LG = SAL.lessons.LG;
+  const doc = win.document;
+  const no = t => String(t).replace(/ /g, '');
+  const stem = t => t.replace(/म्$/, '').replace(/[ंःा]$/, '');
+  const colourOf = w => stem(w.deva.split(' ')[0]);
+  const nounOf = w => stem(w.deva.split(' ')[1]);
+  const NEW = ['कपिश', 'हरित', 'धूसर', 'नारङ्ग'];
+  const OLD = ['श्याम', 'श्वेत', 'गौर', 'पाटल', 'नील', 'रक्त', 'पीत'];
+
+  ck(!!LG2 && LG2.num === 6, 'LG2 зарегистрирован под номером 6');
+  ck(!!LG2 && LG2.titleDeva === LG.titleDeva && LG2.titleRu !== LG.titleRu,
+    'то же санскритское название लिङ्गानि, но своё имя у урока: ' + (LG2 && LG2.titleRu));
+
+  /* --- те же восемь частей тела и те же роды ------------------------------ */
+  ck(LG2.words.length === 8 && LG2.words.map(w => w.id).join() === LG.words.map(w => w.id).join(),
+    'те же восемь слов в том же порядке: ' + LG2.words.map(w => w.id).join(', '));
+  ck(LG2.words.every((w, i) => w.gender === LG.words[i].gender),
+    'род каждого слова тот же, что в уроке 5');
+
+  /* --- четыре новых цвета, каждый ровно дважды ---------------------------- */
+  const stems = [...new Set(LG2.words.map(colourOf))];
+  ck(stems.length === 4 && stems.every(st => NEW.indexOf(st) >= 0),
+    'в уроке ровно четыре новых цвета: ' + stems.join(' · '));
+  const perColour = {};
+  LG2.words.forEach(w => { perColour[colourOf(w)] = (perColour[colourOf(w)] || 0) + 1; });
+  ck(stems.every(st => perColour[st] === 2),
+    'каждый цвет стоит дважды — с существительными разного рода: ' + JSON.stringify(perColour));
+  ck(LG2.words.every(w => OLD.every(c => w.deva.indexOf(c) < 0)),
+    'в словах урока нет ни одного цвета из урока 5 — цвета действительно другие');
+
+  /* --- женская форма цвета — настоящая, из урока 4 ------------------------ */
+  const lc2Forms = SAL.lessons.LC2.words.map(w => w.ttsText || w.deva);
+  const femColour = LG2.words.filter(w => w.gender === 'f')[0].deva.split(' ')[0];
+  ck(lc2Forms.indexOf(femColour) >= 0,
+    'женская форма цвета «' + femColour + '» — та же, что звучит в уроке 4');
+
+  /* --- цвет и слово кончаются окончанием одного рода ---------------------- */
+  const ENDING_RE = { m: /\u0903$/, n: /(\u0902|\u092e\u094d)$/, f: /\u093e$/ };
+  const badEnd = LG2.words.filter(w => {
+    const p = w.deva.split(' ');
+    return !(ENDING_RE[w.gender].test(p[0]) && ENDING_RE[w.gender].test(p[1]));
+  });
+  ck(badEnd.length === 0,
+    'в каждом слове и цвет, и существительное кончаются окончанием своего рода' +
+      (badEnd.length ? ' — ' + badEnd.map(w => w.deva).join('; ') : ''));
+
+  /* --- данные слов складываются обратно ---------------------------------- */
+  const editDist = (a, b) => {
+    a = [...a]; b = [...b];
+    const d = [];
+    for (let i = 0; i <= a.length; i++) d.push([i].concat(new Array(b.length).fill(0)));
+    for (let j = 0; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  };
+  const broken = [];
+  LG2.words.forEach(w => {
+    if (w.maskedPrefix + w.maskedHidden !== w.deva) broken.push(w.deva + ': masked');
+    if (no(w.gapDeva).replace('_', w.gapAnswer) !== no(w.deva)) broken.push(w.deva + ': gap');
+    if (no(w.missingDisplay).replace('_', w.missingAnswer) !== no(w.deva)) broken.push(w.deva + ': missing');
+    if (!w.gapChoices.some(c => c.deva === w.gapAnswer)) broken.push(w.deva + ': gapChoices');
+    if (!w.missingChoices.includes(w.missingAnswer)) broken.push(w.deva + ': missingChoices');
+    if (editDist(w.deva, w.typoDeva) !== 1) broken.push(w.deva + ': опечатка не в одну букву');
+    if (w.syll.join('') !== no(w.deva)) broken.push(w.deva + ': слоги не складываются в слово');
+  });
+  ck(broken.length === 0, 'данные слов согласованы' + (broken.length ? ' — ' + broken.join('; ') : ''));
+  ck(LG2.words.every(w => w.gapAnswer === { m: 'ः', n: 'म्', f: 'ा' }[w.gender]),
+    'в «Пропусках» спрашивается окончание своего рода: ' + LG2.words.map(w => w.gapAnswer).join(' '));
+  ck(LG2.words.every(w => w.gapChoices.every(c => ['ः', 'म्', 'ा'].indexOf(c.deva) >= 0)),
+    'варианты в пропуске — только ः / म् / ा, выдуманных окончаний нет');
+
+  /* --- восемь предложений: та же схема, свои цвета ------------------------ */
+  const D = LG2.discovery;
+  ck(!!D && D.sentences.length === 8, 'вводный текст — восемь предложений (' + (D ? D.sentences.length : 0) + ')');
+  ck(D.sentences.every(s => /(\u0938\u094d\u092f|\u092f\u093e\u0903)\s/.test(s.deva) && /अस्ति।$/.test(s.deva)),
+    'все восемь предложений построены по схеме «…स्य / …याः … अस्ति»');
+  ck(D.sentences.every((s, i) => s.deva.indexOf(colourOf(LG2.words[i])) >= 0 &&
+     s.deva.indexOf(nounOf(LG2.words[i])) >= 0),
+    'в каждом предложении стоит цвет и часть тела своего слова — ' + D.sentences[0].deva);
+  ck(D.sentences.every((s, i) => s.gender === LG2.words[i].gender &&
+     s.ending.indexOf(LG2.words[i].deva.split(' ')[1]) === 0),
+    'род предложения совпадает со словом, а подпись об окончании начинается с этого слова');
+  ck(D.sentences.every(s => s.ru && s.en && s.iast), 'у каждого предложения есть IAST и перевод на два языка');
+  const mukhaS = D.sentences.filter(s => s.deva.indexOf('मुख') >= 0)[0];
+  ck(!!mukhaS && mukhaS.ru === 'Рот Гауранги оранжевый.' && mukhaS.en.indexOf('mouth') >= 0,
+    'मुख снова «рот», а не лицо: ' + (mukhaS ? mukhaS.ru : '—'));
+  ck(D.sentences.every(s => s.ru.indexOf('Лицо') < 0 && s.en.indexOf('face') < 0),
+    'ни в одном предложении मुख не названо лицом');
+
+  /* --- категории: те же семь, что в уроке 5 ------------------------------- */
+  const byGender = g => LG2.words.filter(w => w.gender === g).map(w => w.id).sort().join();
+  const catKey = c => c.wordIds.slice().sort().join();
+  ck(LG2.categories.length === LG.categories.length && LG2.categories.length === 7,
+    'семь категорий — столько же, сколько в уроке 5 (' + LG2.categories.length + ')');
+  ck(['m', 'n', 'f'].every(g => LG2.categories.filter(c => catKey(c) === byGender(g)).length === 1),
+    'категории родов собраны верно: ' + LG2.categories.slice(0, 3).map(c => c.wordIds.length).join(' / '));
+  ck(LG2.categories.every(c => c.titleRu && c.titleEn && c.wordIds.length >= 1),
+    'у каждой категории есть название на двух языках');
+
+  /* --- ловушки филворда: настоящие словосочетания, чужой род ------------- */
+  const DEC = LG2.decoys || [];
+  const sign = t => { const c = t.slice(-1); return c === 'ः' ? 'm' : c === 'ा' ? 'f' : 'n'; };
+  ck(DEC.length === 12, 'в филворде двенадцать ловушек (' + DEC.length + ')');
+  ck(DEC.every(d => LG2.words.every(w => w.deva !== d)), 'ловушка не совпадает ни с одним словом урока');
+  const fake = DEC.filter(d => {
+    const p = d.split(' ');
+    return p.length !== 2 ||
+      !NEW.concat(OLD).some(c => p[0].indexOf(c) === 0) ||
+      !LG2.words.some(w => p[1].indexOf(nounOf(w)) === 0);
+  });
+  ck(fake.length === 0, 'каждая ловушка собрана из настоящих санскритских слов' +
+    (fake.length ? ' — не настоящие: ' + fake.join('; ') : ''));
+  const wrongGender = DEC.filter(d => { const p = d.split(' '); return sign(p[0]) !== sign(p[1]); });
+  ck(wrongGender.length === 8, 'восемь ловушек с чужим родом: ' + wrongGender.length);
+  const absent = DEC.filter(d => OLD.some(c => d.indexOf(c) === 0));
+  ck(absent.length === 4, 'четыре ловушки с верным согласованием, но цветом не из этого урока: ' + absent.length);
+
+  /* --- ловушки «Мемори»: слова согласованы, род неверный ----------------- */
+  const TR = LG2.memoryTraps || [];
+  const endGender = d => /\u0903$/.test(d) ? 'm' : /(\u0902|\u092e\u094d)$/.test(d) ? 'n' : /\u093e$/.test(d) ? 'f' : '?';
+  const bareStem = d => String(d).replace(/\u092e\u094d$/, '').replace(/[\u0903\u0902\u093e]$/, '');
+  const lessonDeva = LG2.words.map(w => w.deva);
+  ck(TR.length === 4, 'четыре ловушки «Мемори» (' + TR.length + ')');
+  ck(TR.every(t => { const p = t.deva.split(' ');
+    return endGender(p[0]) === endGender(p[1]) && endGender(p[0]) !== '?'; }),
+    'в ловушке оба слова в одном роде — по окончаниям её не вычислить: ' + TR.map(t => t.deva).join(' · '));
+  ck(TR.every(t => { const p = t.deva.split(' '), f = t.fix.split(' ');
+    return endGender(f[0]) === endGender(f[1]) && endGender(f[0]) !== endGender(p[0]) &&
+           bareStem(f[1]) === bareStem(p[1]); }),
+    'род в ловушке неверный, а fix — та же пара в правильном роде: ' +
+      TR.map(t => t.deva + ' → ' + t.fix).join(' · '));
+  ck(TR.every(t => lessonDeva.indexOf(t.fix) >= 0), 'правильная форма ловушки — настоящее слово этого урока');
+  ck(TR.every(t => !!t.iast && !/[\u0900-\u097F]/.test(t.iast)),
+    'у каждой ловушки есть IAST — ' + TR.map(t => t.iast).join(' · '));
+
+  /* --- игры: тот же набор; вторая версия «Покрытого квадрата» работает ---- */
+  ck(LG2.extraGames.join() === LG.extraGames.join(),
+    'тот же набор игр, что в уроке 5: ' + LG2.extraGames.join(', '));
+  SAL.openLesson('LG2');
+  const pane = doc.getElementById('view-lesson6');
+  const lg2tabs = [...pane.querySelectorAll('.practice-tab-btn[data-game]')].map(b => b.getAttribute('data-game'));
+  ck(lg2tabs.length === 14 && lg2tabs.slice(12).join() === 'wordgrid,wordsearch',
+    'четырнадцать вкладок — 12 игр и два филворда');
+
+  SAL.do('LG2', 'setGame', 'masked');
+  SAL.do('LG2', 'restart', 'masked');
+  ck(!!arenaOf('LG2').querySelector('.game-ver-row'),
+    '«Закрыто квадратом»: есть вторая версия — как в уроке рода');
+  const lineOf = () => {
+    const l = arenaOf('LG2').querySelector('.masked-word-line');
+    return l ? l.textContent.replace(/\u00A0/g, ' ') : '';
+  };
+  const bothBad = [];
+  LG2.words.forEach((w, idx) => {
+    SAL.do('LG2', 'restart', 'masked');
+    SAL.do('LG2', 'maskedBoth', '1');
+    for (let k = 0; k < idx; k++) SAL.do('LG2', 'maskedGrade', '1');
+    const squares = (lineOf().match(/■/g) || []).length;
+    SAL.do('LG2', 'maskedFlip');
+    if (squares !== 2) bothBad.push(w.deva + ': квадратиков ' + squares);
+    if (lineOf() !== w.deva) bothBad.push(w.deva + ': открылось «' + lineOf() + '»');
+  });
+  ck(bothBad.length === 0, 'вторая версия закрывает оба окончания и открывает фразу дословно' +
+    (bothBad.length ? ' — ' + bothBad.join('; ') : ''));
+  SAL.do('LG2', 'maskedBoth', '0');
+
+  /* --- «Мемори»: ловушки на поле и кнопка «с ловушками / без ловушек» ----- */
+  SAL.do('LG2', 'setGame', 'memory');
+  SAL.do('LG2', 'restart', 'memory');
+  const mem = gst('LG2', 'memory');
+  ck(mem.cards.length === 18 && mem.cards.filter(c => c.kind === 'trap').length === 2,
+    '«Мемори»: 18 карточек, из них 2 ловушки (' + mem.cards.length + ')');
+  const trapChips = [...arenaOf('LG2').querySelectorAll('.game-ver-row .chip-btn')];
+  ck(trapChips.length === 2 && /с ловушками/.test(trapChips[0].textContent) &&
+     /без ловушек/.test(trapChips[1].textContent),
+    '«Мемори»: кнопка «с ловушками / без ловушек» на месте');
+  const tIdx = mem.cards.findIndex(c => c.kind === 'trap');
+  const pIdx = mem.cards.findIndex(c => c.kind === 'pic');
+  SAL.do('LG2', 'tile', String(tIdx));
+  SAL.do('LG2', 'tile', String(pIdx));
+  const trapHint = arenaOf('LG2').querySelector('.trap-hint');
+  ck(!!trapHint && trapHint.textContent.indexOf(mem.cards[tIdx].trap.fix) >= 0 &&
+     /Правильно/.test(trapHint.textContent),
+    'ловушка объясняется по-русски и с правильной формой: ' +
+      (trapHint ? trapHint.textContent.trim() : '—'));
+  mem.flipped = []; mem.wrong = null; mem.lock = false; SAL.refresh();
+  SAL.do('LG2', 'restart', 'memory');
+
+  /* --- «Категории»: название на экране и кнопка «без окончаний» ----------- */
+  SAL.do('LG2', 'setGame', 'categories');
+  SAL.do('LG2', 'restart', 'categories');
+  const catTitle = arenaOf('LG2').querySelector('.cat-title');
+  ck(!!catTitle && catTitle.textContent.trim() === LG2.categories[0].titleRu,
+    '«Категории»: название категории видно на экране — ' +
+      (catTitle ? catTitle.textContent.trim() : '—'));
+  const bareBtn = [...arenaOf('LG2').querySelectorAll('.chip-btn')]
+    .filter(b => (b.getAttribute('onclick') || '').indexOf('catBare') >= 0)[0];
+  ck(!!bareBtn && /Без окончаний/.test(bareBtn.textContent), '«Категории»: кнопка «без окончаний» есть');
+  SAL.do('LG2', 'catBare', '1');
+  const bareChips = [...arenaOf('LG2').querySelectorAll('button[onclick*="catToggle"]')]
+    .map(b => b.textContent.trim().split(' (')[0]);
+  ck(bareChips.length === 8 && bareChips.every(t => !/[ंःम्ा]$/.test(t.split(' ')[0])),
+    '«Категории» без окончаний: у цветов убраны ं / ः / ा — ' + bareChips[0]);
+  SAL.do('LG2', 'catBare', '0');
+  SAL.do('LG2', 'restart', 'categories');
+
+  /* --- филворд среди слов: ловушки на поле --------------------------------- */
+  delete SAL.lessons.LG2._st.g.wordgrid;
+  SAL.do('LG2', 'setGame', 'wordgrid');
+  const cells = [...arenaOf('LG2').querySelectorAll('.wcell')].map(c => c.textContent.trim());
+  const own = cells.filter(t => LG2.words.some(w => w.deva === t)).length;
+  const trapsOnBoard = new Set(cells.filter(t => wrongGender.indexOf(t) >= 0)).size;
+  ck(own === 16, 'на поле лежат все 8 фраз урока, каждая дважды (' + own + ')');
+  ck(trapsOnBoard >= 8, 'ловушки с чужим родом на поле есть (' + trapsOnBoard + ' из 8)');
+
+  /* --- презентация: восемь мишеней на схеме ------------------------------- */
+  const fig = LG2.hotspots.figures[0];
+  ck(!!fig && fig.pins.length === 8 && fig.viewBox === LG.hotspots.figures[0].viewBox,
+    'плакат-схема та же (320 × 184), восемь мишеней');
+  ck(!!fig && LG2.words.every((w, i) => fig.pins[i].id === w.id && fig.pins[i].num === i + 1),
+    'мишени подписаны теми же номерами, что в уроке 5');
+
+  /* --- по-английски: подписи урока без кириллицы -------------------------- */
+  SAL.openLesson('LG2');
+  SAL.do('LG2', 'setGame', 'categories');
+  SAL.do('LG2', 'restart', 'categories');
+  win.setLanguage('en');
+  const enTitle = arenaOf('LG2').querySelector('.cat-title');
+  const enHead = doc.getElementById('view-lesson6').textContent;
+  ck(!!LG2.titleEn && !/[\u0400-\u04FF]/.test(LG2.titleEn + LG2.topicEn + LG2.introEn),
+    'английские поля урока без кириллицы');
+  ck(!!enTitle && !/[\u0400-\u04FF]/.test(enTitle.textContent) &&
+     enTitle.textContent.trim() === LG2.categories[0].titleEn,
+    'английская версия «Категорий»: название категории по-английски — ' +
+      (enTitle ? enTitle.textContent.trim() : '—'));
+  ck(!/Урок/.test(enHead) && /Choose a lesson/.test(enHead), 'панель урока 6 переведена целиком');
+  win.setLanguage('ru');
+  SAL.openLesson('LG2');
+  SAL.do('LG2', 'setGame', 'masked');
+  SAL.openLesson('L4');
+}
+
+/* ==========================================================================
    ОЗВУЧКА · ВИСАРГА ः
    Хинди-движок читал ः как «е»: हस्तः звучал «хасте». Для речи висарга
    заменяется на ह (лёгкое эхо гласного: aḥ → aha), а на письме остаётся ः.
@@ -3598,7 +3867,7 @@ console.log('\n===== Порядок вариантов: ответ не всег
   /* рукописный урок 12 слов: у него своя отрисовка */
   win.selectPracticeGame('spelling');
   SAL.openLesson('LG');
-  win.switchView('lesson6');
+  win.switchView('lesson7');
   const spMarks = [];
   for (let i = 0; i < 12; i++) {
     win.eval('spIndex = ' + i + '; renderPracticeArena();');
@@ -3798,7 +4067,7 @@ console.log('\n===== Английская версия: сначала по-ру
     [...pane.querySelectorAll('[data-game]')].forEach(b => SAL.do(k, 'setGame', b.getAttribute('data-game')));
     [...pane.querySelectorAll('[data-prod-mode]')].forEach(b => SAL.do(k, 'setProdMode', b.getAttribute('data-prod-mode')));
   });
-  win.switchView('lesson6');
+  win.switchView('lesson7');
 
   /* 2. переключение на английский */
   win.setLanguage('en');
@@ -3819,7 +4088,7 @@ console.log('\n===== Английская версия: сначала по-ру
       cyrIn(pane).forEach(t => off.push('урок ' + SAL.lessons[k].num + '/игра: ' + t));
     });
   });
-  ['lesson6', 'home', 'details'].forEach(v => {
+  ['lesson7', 'home', 'details'].forEach(v => {
     win.switchView(v);
     cyrIn(doc.getElementById('view-' + v)).forEach(t => off.push(v + ': ' + t));
   });

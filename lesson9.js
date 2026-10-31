@@ -1,5 +1,5 @@
 /**
- * LESSON 11 · सङ्ख्याः · "Tens 60–100" (5 слов)
+ * LESSON 12 · सङ्ख्याः · "Tens 60–100" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
  * The same build as Lessons 4–7, for the tens 60–100:
  * - the counting forms: षष्टिः, सप्ततिः, अशीतिः, नवतिः, शतम्
@@ -11,14 +11,14 @@
 
 SAL.registerLesson({
   key: "L9",
-  num: 12,
+  num: 13,
   titleDeva: "सङ्ख्याः",
   titleRu: "Десятки 60–100",
   titleEn: "Tens 60–100",
   topicRu: "шестьдесят, семьдесят, восемьдесят, девяносто, сто",
   topicEn: "sixty, seventy, eighty, ninety, one hundred",
-  introRu: "Одиннадцатый урок: десятки от шестидесяти до ста — <code>षष्टिः</code>, <code>सप्ततिः</code>, <code>अशीतिः</code>, <code>नवतिः</code>, <code>शतम्</code>. Четыре из них кончаются на <code>-तिः</code> с висаргой, а «сто» — слово среднего рода на <code>-म्</code>. Количество показывают арабские цифры: перевода по-прежнему нет.",
-  introEn: "The eleventh lesson: the tens from sixty to a hundred — <code>ṣaṣṭiḥ</code>, <code>saptatiḥ</code>, <code>aśītiḥ</code>, <code>navatiḥ</code>, <code>śatam</code>. Four of them end in <code>-tiḥ</code> with a visarga, while “hundred” is a neuter word in <code>-m</code>. Quantity is shown by Arabic digits: still no translation.",
+  introRu: "Двенадцатый урок: десятки от шестидесяти до ста — <code>षष्टिः</code>, <code>सप्ततिः</code>, <code>अशीतिः</code>, <code>नवतिः</code>, <code>शतम्</code>. Четыре из них кончаются на <code>-तिः</code> с висаргой, а «сто» — слово среднего рода на <code>-म्</code>. Количество показывают арабские цифры: перевода по-прежнему нет.",
+  introEn: "The twelfth lesson: the tens from sixty to a hundred — <code>ṣaṣṭiḥ</code>, <code>saptatiḥ</code>, <code>aśītiḥ</code>, <code>navatiḥ</code>, <code>śatam</code>. Four of them end in <code>-tiḥ</code> with a visarga, while “hundred” is a neuter word in <code>-m</code>. Quantity is shown by Arabic digits: still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {

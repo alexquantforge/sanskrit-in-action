@@ -920,8 +920,8 @@ function setPratyaya(pratyayaKey) {
 /* =========================================================================
    URL-маршруты: у каждого урока свой адрес, у языка — свой префикс
    -------------------------------------------------------------------------
-   #/ru/lesson5   — урок 5 по-русски
-   #/en/lesson5   — урок 5 по-английски
+   #/ru/lesson6   — урок 6 по-русски
+   #/en/lesson6   — урок 6 по-английски
    #/ru/home      — главная, #/en/details — раздел «о методе»
 
    Ссылку можно отправить ученику: он откроет её и попадёт сразу в нужный
@@ -930,7 +930,7 @@ function setPratyaya(pratyayaKey) {
    ========================================================================= */
 const ROUTE_VIEWS = ['home', 'details', 'lesson1', 'lesson2', 'lesson3', 'lesson4',
                      'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9', 'lesson10',
-                     'lesson11', 'lesson12'];
+                     'lesson11', 'lesson12', 'lesson13'];
 let activeView = 'home';
 let routeLock = false;          // URL применяется — обратно не пишем
 
@@ -954,8 +954,9 @@ function writeRoute(lang, view, replace) {
   }
 }
 
-/* какому уроку движка соответствует адрес: view-lesson7 → L4.
-   Урок 5 — отдельная страница из 12 слов, у неё своего ключа нет. */
+/* какому уроку движка соответствует адрес: view-lesson8 → L4 (номер урока
+   в данных — 8). Урок 7 — отдельная страница из 12 слов, у неё своего ключа
+   нет, поэтому адрес открывается напрямую через switchView. */
 function lessonKeyForView(view) {
   const m = /^lesson(\d+)$/.exec(String(view || ''));
   if (!m || !window.SAL || !window.SAL.lessons) return null;
@@ -996,7 +997,7 @@ function applyRoute(hash) {
    Метаданные страницы для каждого маршрута
    -------------------------------------------------------------------------
    Заголовок вкладки, description, canonical и og:-теги меняются вместе с
-   уроком и языком: «Урок 5: Цифры 6–10 — Sanskrit in Action».
+   уроком и языком: «Урок 6: Три рода · другие цвета — Sanskrit in Action».
 
    canonical всегда указывает на сам документ без фрагмента: hash-адреса —
    это один и тот же index.html, и поисковику не нужно видеть в них дубли.
@@ -1033,7 +1034,7 @@ function routeMeta(view, lang) {
             : 'Sanskrit in Action with Alex Vijaya — Communicative Sanskrit (CEFR A1–C2)');
     return { title: title, description: ru ? d.ru : d.en };
   }
-  const key = lessonKeyForView(view) || (view === 'lesson6' ? 'lesson6' : null);
+  const key = lessonKeyForView(view) || (view === 'lesson7' ? 'lesson7' : null);
   if (!key) return null;
   const label = (window.SAL && typeof window.SAL.lessonLabel === 'function' && window.SAL.lessonLabel(key, lang)) ||
     (ru ? 'Урок' : 'Lesson');
@@ -1151,6 +1152,7 @@ function switchView(viewName, targetSectionId = null) {
     lesson10: document.getElementById('view-lesson10'),
     lesson11: document.getElementById('view-lesson11'),
     lesson12: document.getElementById('view-lesson12'),
+    lesson13: document.getElementById('view-lesson13'),
     details: document.getElementById('view-details')
   };
   const buttons = {

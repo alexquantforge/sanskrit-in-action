@@ -1,5 +1,5 @@
 /**
- * LESSON 9 · सङ्ख्याः · "Numbers 16–20" (5 слов)
+ * LESSON 10 · सङ्ख्याः · "Numbers 16–20" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
  * The same build as Lessons 4 and 5, for the numerals 16–20:
  * - the counting forms (neuter nominative-accusative): षोडश, सप्तदश, अष्टादश, नवदश, विंशतिः
@@ -11,14 +11,14 @@
 
 SAL.registerLesson({
   key: "L7",
-  num: 10,
+  num: 11,
   titleDeva: "सङ्ख्याः",
   titleRu: "Цифры 16–20",
   titleEn: "Numbers 16–20",
   topicRu: "шестнадцать, семнадцать, восемнадцать, девятнадцать, двадцать",
   topicEn: "sixteen, seventeen, eighteen, nineteen, twenty",
-  introRu: "Девятый урок: числа от шестнадцати до двадцати — <code>षोडश</code>, <code>सप्तदश</code>, <code>अष्टादश</code>, <code>नवदश</code>, <code>विंशतिः</code>. Первые четыре тоже построены на <code>दश</code>, а «двадцать» — уже отдельное слово с висаргой на конце. Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
-  introEn: "The ninth lesson: sixteen to twenty — <code>ṣoḍaśa</code>, <code>saptadaśa</code>, <code>aṣṭādaśa</code>, <code>navadaśa</code>, <code>viṃśatiḥ</code>. The first four are still built on <code>daśa</code>, while “twenty” is a separate word ending in a visarga. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
+  introRu: "Десятый урок: числа от шестнадцати до двадцати — <code>षोडश</code>, <code>सप्तदश</code>, <code>अष्टादश</code>, <code>नवदश</code>, <code>विंशतिः</code>. Первые четыре тоже построены на <code>दश</code>, а «двадцать» — уже отдельное слово с висаргой на конце. Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
+  introEn: "The tenth lesson: sixteen to twenty — <code>ṣoḍaśa</code>, <code>saptadaśa</code>, <code>aṣṭādaśa</code>, <code>navadaśa</code>, <code>viṃśatiḥ</code>. The first four are still built on <code>daśa</code>, while “twenty” is a separate word ending in a visarga. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {

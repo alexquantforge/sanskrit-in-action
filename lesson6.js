@@ -1,5 +1,5 @@
 /**
- * LESSON 8 · सङ्ख्याः · "Numbers 11–15" (5 слов)
+ * LESSON 9 · सङ्ख्याः · "Numbers 11–15" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
  * The same build as Lessons 4 and 5, for the numerals 11–15:
  * - the counting forms (neuter nominative-accusative): एकादश, द्वादश, त्रयोदश, चतुर्दश, पञ्चदश
@@ -11,14 +11,14 @@
 
 SAL.registerLesson({
   key: "L6",
-  num: 9,
+  num: 10,
   titleDeva: "सङ्ख्याः",
   titleRu: "Цифры 11–15",
   titleEn: "Numbers 11–15",
   topicRu: "одиннадцать, двенадцать, тринадцать, четырнадцать, пятнадцать",
   topicEn: "eleven, twelve, thirteen, fourteen, fifteen",
-  introRu: "Восьмой урок: числа от одиннадцати до пятнадцати — <code>एकादश</code>, <code>द्वादश</code>, <code>त्रयोदश</code>, <code>चतुर्दश</code>, <code>पञ्चदश</code>. Все они построены на <code>दश</code> «десять»: к основе первого числа прибавляется «десять». Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
-  introEn: "The eighth lesson: eleven to fifteen — <code>ekādaśa</code>, <code>dvādaśa</code>, <code>trayodaśa</code>, <code>caturdaśa</code>, <code>pañcadaśa</code>. They are all built on <code>daśa</code> “ten”: the stem of the first number plus “ten”. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
+  introRu: "Девятый урок: числа от одиннадцати до пятнадцати — <code>एकादश</code>, <code>द्वादश</code>, <code>त्रयोदश</code>, <code>चतुर्दश</code>, <code>पञ्चदश</code>. Все они построены на <code>दश</code> «десять»: к основе первого числа прибавляется «десять». Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
+  introEn: "The ninth lesson: eleven to fifteen — <code>ekādaśa</code>, <code>dvādaśa</code>, <code>trayodaśa</code>, <code>caturdaśa</code>, <code>pañcadaśa</code>. They are all built on <code>daśa</code> “ten”: the stem of the first number plus “ten”. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {
