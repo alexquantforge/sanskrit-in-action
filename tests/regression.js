@@ -3794,6 +3794,43 @@ console.log('\n===== «Мемори»: кнопка «только основа�
 }
 
 /* ==========================================================================
+   «МЕМОРИ» · ПРОМАХ: КАРТОЧКИ НЕ ЗАКРЫВАЮТСЯ МГНОВЕННО
+   Раньше промах гасил обе карточки через 750 мс — вторую не успевали
+   прочитать. Теперь они висят открытыми секунду, а поле это время заперто.
+   ========================================================================== */
+console.log('\n===== «Мемори»: пауза на промах — 1 секунда =====');
+{
+  SAL.openLesson('LG2');
+  SAL.do('LG2', 'setGame', 'memory');
+  SAL.do('LG2', 'restart', 'memory');
+  const miss = gst('LG2', 'memory');
+  const iPic = miss.cards.findIndex(c => c.kind === 'pic');
+  const iWord = miss.cards.findIndex((c, i) => i !== iPic && c.kind === 'word' &&
+    c.id !== miss.cards[iPic].id);
+  /* таймер не выполняем, а только записываем паузу: тест синхронный */
+  const realTimeout = win.setTimeout;
+  const waits = [];
+  win.setTimeout = (fn, ms) => { waits.push(ms); return 0; };
+  try {
+    SAL.do('LG2', 'tile', String(iPic));
+    SAL.do('LG2', 'tile', String(iWord));
+  } finally {
+    win.setTimeout = realTimeout;
+  }
+  ck(miss.lock === true && miss.wrong && miss.wrong.length === 2 && miss.flipped.length === 2,
+    'после промаха обе карточки остаются открытыми, а поле заперто до конца паузы');
+  ck(waits.indexOf(1000) >= 0,
+    'карточки промаха висят секунду, а не мигают (' + (waits.join(', ') || '—') + ' мс)');
+  const seen = [...arenaOf('LG2').querySelectorAll('.memory-card.mismatch')];
+  ck(seen.length === 2 && seen.every(c => !c.classList.contains('face-down') &&
+     c.innerHTML.replace(/\s+/g, '').length > 20),
+    'на экране видны обе карточки промаха — открыты и не закрыты: ' + seen.length);
+  /* закрываем вручную: таймер в тесте не срабатывал */
+  miss.flipped = []; miss.wrong = null; miss.lock = false; SAL.refresh();
+  SAL.do('LG2', 'restart', 'memory');
+}
+
+/* ==========================================================================
    ОЗВУЧКА · ВИСАРГА ः
    Хинди-движок читал ः как «е»: हस्तः звучал «хасте». Для речи висарга
    заменяется на ह (лёгкое эхо гласного: aḥ → aha), а на письме остаётся ः.

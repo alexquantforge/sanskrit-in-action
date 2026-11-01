@@ -1693,6 +1693,9 @@ var SAL = (window.SAL = window.SAL || {});
   function memoryBareOn(cfg, g) {
     return !!(g && g.bare && canBareWords(cfg));
   }
+  /* сколько открытые карточки промаха остаются на виду. Раньше было 750 мс —
+     вторая карточка закрывалась почти сразу, и прочитать её не успевали */
+  var MEMORY_MISS_MS = 1000;
   function canMemoryTraps(cfg) {
     return !!(cfg && cfg.memoryTraps && cfg.memoryTraps.length);
   }
@@ -2871,11 +2874,14 @@ var SAL = (window.SAL = window.SAL || {});
           if (c2.kind !== 'trap') g.seen[c2.id] = true;
           if (duoMemT) duoSwap(g);
           g.wrong = g.flipped.slice(); g.lock = true;
+          /* 1 секунда: вторая карточка не закрывается мгновенно — обе висят
+             открытыми, чтобы успеть их сравнить. Поле в это время заперто. */
           setTimeout(function () {
             var gg = gst(cfg, 'memory');
+            if (gg !== g) return;      /* поле уже пересобрали (↺ / размер / режим) */
             gg.flipped = []; gg.wrong = null; gg.lock = false;
             SAL.refresh();
-          }, 750);
+          }, MEMORY_MISS_MS);
         }
       }
     },

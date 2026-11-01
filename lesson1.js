@@ -2246,6 +2246,7 @@ function clickMemoryCard(idx) {
       secondCard.mismatch = true;
       renderPracticeArena();
 
+      /* 1 секунда, как в «Мемори» уроков: вторую карточку надо успеть прочитать */
       setTimeout(() => {
         firstCard.flipped = false;
         secondCard.flipped = false;
@@ -2254,7 +2255,7 @@ function clickMemoryCard(idx) {
         memoryFlippedIndices = [];
         memoryLock = false;
         renderPracticeArena();
-      }, 850);
+      }, 1000);
     }
   }
 }
