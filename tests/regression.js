@@ -3796,13 +3796,16 @@ console.log('\n===== «Мемори»: кнопка «только основа�
 /* ==========================================================================
    «МЕМОРИ» · ПРОМАХ: КАРТОЧКИ НЕ ЗАКРЫВАЮТСЯ МГНОВЕННО
    Раньше промах гасил обе карточки через 750 мс — вторую не успевали
-   прочитать. Теперь они висят открытыми секунду, а поле это время заперто.
+   прочитать. Теперь пауза выбирается кнопками (по умолчанию 3 с), а поле
+   это время заперто.
    ========================================================================== */
-console.log('\n===== «Мемори»: пауза на промах — 1 секунда =====');
+console.log('\n===== «Мемори»: пауза на промах =====');
 {
   SAL.openLesson('LG2');
   SAL.do('LG2', 'setGame', 'memory');
   SAL.do('LG2', 'restart', 'memory');
+  /* выше по файлу «клик по всем кнопкам» уже мог выбрать паузу — задаём явно */
+  SAL.do('LG2', 'memoryPause', '3');
   const miss = gst('LG2', 'memory');
   const iPic = miss.cards.findIndex(c => c.kind === 'pic');
   const iWord = miss.cards.findIndex((c, i) => i !== iPic && c.kind === 'word' &&
@@ -3819,8 +3822,8 @@ console.log('\n===== «Мемори»: пауза на промах — 1 сек
   }
   ck(miss.lock === true && miss.wrong && miss.wrong.length === 2 && miss.flipped.length === 2,
     'после промаха обе карточки остаются открытыми, а поле заперто до конца паузы');
-  ck(waits.indexOf(1000) >= 0,
-    'карточки промаха висят секунду, а не мигают (' + (waits.join(', ') || '—') + ' мс)');
+  ck(waits.indexOf(3000) >= 0,
+    'карточки промаха висят выбранные 3 секунды, а не мигают (' + (waits.join(', ') || '—') + ' мс)');
   const seen = [...arenaOf('LG2').querySelectorAll('.memory-card.mismatch')];
   ck(seen.length === 2 && seen.every(c => !c.classList.contains('face-down') &&
      c.innerHTML.replace(/\s+/g, '').length > 20),
@@ -3828,6 +3831,124 @@ console.log('\n===== «Мемори»: пауза на промах — 1 сек
   /* закрываем вручную: таймер в тесте не срабатывал */
   miss.flipped = []; miss.wrong = null; miss.lock = false; SAL.refresh();
   SAL.do('LG2', 'restart', 'memory');
+}
+
+/* ==========================================================================
+   «МЕМОРИ» · ПАУЗА НА ПРОМАХ: КНОПКИ 1 / 2 / 3 / 4 СЕКУНДЫ
+   Пауза выбирается сверху, как и «с ловушками»; выбор запоминается
+   (localStorage) и действует во всех уроках — и в уроке 1 тоже.
+   ========================================================================== */
+console.log('\n===== «Мемори»: кнопки паузы 1–4 секунды =====');
+{
+  const arena = k => arenaOf(k);
+  const chips = k => [...arena(k).querySelectorAll('[data-mem-row="pause"] .chip-btn')];
+  const activeLabel = k => chips(k).filter(b => b.classList.contains('active'))
+    .map(b => b.textContent.trim()).join();
+  const waitOfMiss = k => {
+    const g = gst(k, 'memory');
+    g.flipped = []; g.wrong = null; g.lock = false;
+    const iPic = g.cards.findIndex(c => c.kind === 'pic');
+    const iWord = g.cards.findIndex((c, i) => i !== iPic && c.kind === 'word' &&
+      c.id !== g.cards[iPic].id);
+    const real = win.setTimeout;
+    const waits = [];
+    win.setTimeout = (fn, ms) => { waits.push(ms); return 0; };
+    try {
+      SAL.do(k, 'tile', String(iPic));
+      SAL.do(k, 'tile', String(iWord));
+    } finally {
+      win.setTimeout = real;
+    }
+    const ms = waits.filter(w => w >= 1000);
+    g.flipped = []; g.wrong = null; g.lock = false; g.missUntil = 0; SAL.refresh();
+    return ms[0];
+  };
+
+  /* чистая настройка: перед проверкой убираем прошлый выбор */
+  win.localStorage.removeItem('sal-memory-pause');
+  SAL.openLesson('LG2');
+  SAL.do('LG2', 'setGame', 'memory');
+  SAL.do('LG2', 'restart', 'memory');
+  const labels = chips('LG2').map(b => b.textContent.trim());
+  ck(labels.length === 4 && labels.join('|') === '1 с|2 с|3 с|4 с',
+    'над полем четыре кнопки паузы — ' + labels.join(' | '));
+  ck(/Пауза/.test(
+    (arena('LG2').querySelector('[data-mem-row="pause"] .game-ver-label') || {}).textContent || ''),
+    'ряд подписан: «Пауза на промах:»');
+  ck(activeLabel('LG2') === '3 с' && waitOfMiss('LG2') === 3000,
+    'по умолчанию 3 секунды: кнопка «3 с» подсвечена, промах ждёт 3000 мс');
+
+  /* выбор 4 секунд: подсветка, пауза, запоминание */
+  SAL.do('LG2', 'memoryPause', '4');
+  ck(activeLabel('LG2') === '4 с' && gst('LG2', 'memory').pause === 4000,
+    'кнопка «4 с» включается и запоминает 4000 мс');
+  ck(waitOfMiss('LG2') === 4000, 'промах теперь ждёт 4 секунды (4000 мс)');
+  ck(win.localStorage.getItem('sal-memory-pause') === '4',
+    'выбор паузы сохраняется в localStorage — ' + win.localStorage.getItem('sal-memory-pause'));
+
+  /* выбор переживает «↺» и переход в другой урок */
+  SAL.do('LG2', 'restart', 'memory');
+  ck(activeLabel('LG2') === '4 с' && waitOfMiss('LG2') === 4000,
+    '«↺» не сбрасывает выбранную паузу — поле новое, пауза прежняя');
+  SAL.openLesson('LG');
+  SAL.do('LG', 'setGame', 'memory');
+  SAL.do('LG', 'restart', 'memory');
+  ck(activeLabel('LG') === '4 с' && waitOfMiss('LG') === 4000,
+    'в другом уроке рода пауза та же — 4 секунды');
+  SAL.openLesson('L2');
+  SAL.do('L2', 'setGame', 'memory');
+  SAL.do('L2', 'restart', 'memory');
+  ck(chips('L2').length === 4 && activeLabel('L2') === '4 с',
+    'кнопки паузы есть в «Мемори» любого урока, а не только в уроке рода');
+
+  /* 1 секунда тоже работает */
+  SAL.do('L2', 'memoryPause', '1');
+  ck(activeLabel('L2') === '1 с' && waitOfMiss('L2') === 1000,
+    'кнопка «1 с» даёт паузу в секунду — выбор не привязан к одному значению');
+
+  /* паузу меняют, пока карточки ещё открыты: пауза применяется сразу */
+  SAL.do('LG', 'memoryPause', '2');
+  const g = gst('LG', 'memory');
+  g.flipped = []; g.wrong = null; g.lock = false; g.missUntil = 0;
+  const iPic = g.cards.findIndex(c => c.kind === 'pic');
+  const iWord = g.cards.findIndex((c, i) => i !== iPic && c.kind === 'word' &&
+    c.id !== g.cards[iPic].id);
+  const real = win.setTimeout;
+  win.setTimeout = () => 0;
+  try {
+    SAL.do('LG', 'tile', String(iPic));
+    SAL.do('LG', 'tile', String(iWord));
+    const before = g.missUntil - Date.now();
+    SAL.do('LG', 'memoryPause', '4');
+    const after = g.missUntil - Date.now();
+    ck(g.lock === true && before > 1500 && before <= 2100 && after > before + 1500 && after <= 4100,
+      'паузу можно удлинить, пока карточки открыты: ' + Math.round(before) + ' → ' + Math.round(after) + ' мс');
+  } finally {
+    win.setTimeout = real;
+    g.flipped = []; g.wrong = null; g.lock = false; g.missUntil = 0; SAL.refresh();
+  }
+
+  /* по-английски подписи переведены, кириллицы нет */
+  SAL.openLesson('LG');
+  SAL.do('LG', 'setGame', 'memory');
+  win.setLanguage('en');
+  const enRow = [...arenaOf('LG').querySelectorAll('[data-mem-row="pause"]')]
+    .map(el => el.textContent.replace(/\s+/g, ' ').trim()).join(' ');
+  const enLabels = [...arenaOf('LG').querySelectorAll('[data-mem-row="pause"] .chip-btn')]
+    .map(b => b.textContent.trim());
+  ck(!/[\u0400-\u04FF]/.test(enRow) && /Miss pause/.test(enRow) && enLabels.join('|') === '1 s|2 s|3 s|4 s',
+    'английская версия: «Miss pause: 1 s / 2 s / 3 s / 4 s» без кириллицы — ' + enRow);
+  win.setLanguage('ru');
+
+  /* возвращаем обычную настройку, чтобы не влиять на остальные проверки */
+  win.localStorage.removeItem('sal-memory-pause');
+  ['LG', 'LG2', 'L2'].forEach(k => {
+    const gm = gst(k, 'memory');
+    if (gm) { gm.pause = 0; gm.missUntil = 0; }
+  });
+  SAL.openLesson('LG');
+  SAL.do('LG', 'setGame', 'memory');
+  SAL.do('LG', 'restart', 'memory');
 }
 
 /* ==========================================================================

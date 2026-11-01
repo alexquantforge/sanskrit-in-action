@@ -2108,6 +2108,30 @@ function clickMatchTile(idx) {
 }
 
 // GAME 7: Classic Memory (Все карточки лежат рубашкой вверх: переворачиваем по 2 карточки — картинка + слово)
+
+/* Пауза на промах: сколько обе открытые карточки остаются на виду. Кнопки
+   «1 с / 2 с / 3 с / 4 с» над полем; выбор запоминается в localStorage под тем
+   же ключом, что и в «Мемори» остальных уроков, — пауза одна на весь сайт. */
+const MEMORY_PAUSE_KEY = 'sal-memory-pause';
+const MEMORY_PAUSE_OPTIONS = [1, 2, 3, 4];
+function loadMemoryPauseSec() {
+  try {
+    const sec = parseInt(window.localStorage ? window.localStorage.getItem(MEMORY_PAUSE_KEY) : '', 10);
+    if (MEMORY_PAUSE_OPTIONS.indexOf(sec) >= 0) return sec;
+  } catch (e) { /* storage unavailable */ }
+  return 3;
+}
+let memoryPauseSec = loadMemoryPauseSec();
+function saveMemoryPauseSec(sec) {
+  try { if (window.localStorage) window.localStorage.setItem(MEMORY_PAUSE_KEY, String(sec)); } catch (e) { }
+}
+function setMemoryPause(sec) {
+  if (MEMORY_PAUSE_OPTIONS.indexOf(sec) < 0) return;
+  memoryPauseSec = sec;
+  saveMemoryPauseSec(sec);
+  renderPracticeArena();
+}
+
 function setMemoryPairsCount(pairsCount) {
   memoryPairGoal = pairsCount;
   initMemoryGame();
@@ -2191,6 +2215,11 @@ function renderMemoryGame(arena) {
       </div>
     </div>
 
+    <div class="game-ver-row" data-mem-row="pause">
+      <span class="game-ver-label">${currentLang === 'ru' ? 'Пауза на промах:' : 'Miss pause:'}</span>
+      ${MEMORY_PAUSE_OPTIONS.map(sec => `<button type="button" class="chip-btn ${memoryPauseSec === sec ? 'active' : ''}" onclick="setMemoryPause(${sec})">${sec} ${currentLang === 'ru' ? 'с' : 's'}</button>`).join('')}
+    </div>
+
     <div class="memory-grid">${cardsHtml}</div>
     ${memoryLock ? `<div class="game-hint" role="status">${currentLang === 'ru'
       ? '🙈 Не совпало — карточки переворачиваются обратно…'
@@ -2246,7 +2275,8 @@ function clickMemoryCard(idx) {
       secondCard.mismatch = true;
       renderPracticeArena();
 
-      /* 1 секунда, как в «Мемори» уроков: вторую карточку надо успеть прочитать */
+      /* пауза из кнопок «1 с / 2 с / 3 с / 4 с» (по умолчанию 3 с): вторую
+         карточку надо успеть прочитать */
       setTimeout(() => {
         firstCard.flipped = false;
         secondCard.flipped = false;
@@ -2255,7 +2285,7 @@ function clickMemoryCard(idx) {
         memoryFlippedIndices = [];
         memoryLock = false;
         renderPracticeArena();
-      }, 1000);
+      }, memoryPauseSec * 1000);
     }
   }
 }

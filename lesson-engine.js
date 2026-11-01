@@ -1367,7 +1367,7 @@ var SAL = (window.SAL = window.SAL || {});
     picquiz: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     wordquiz: function () { return { i: 0, score: 0, answered: false, picked: null, options: null, firstTry: true, redPick: null, finished: false }; },
     match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, failed: {}, score: 0, done: false, tiles: null, scores: [0, 0], turn: 0 }; },
-    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length, scores: [0, 0], turn: 0, traps: true, bare: false }; },
+    memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length, scores: [0, 0], turn: 0, traps: true, bare: false, pause: 0, missUntil: 0 }; },
     wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
     categories: function () { return { i: 0, score: 0, sel: {}, wrong: {}, firstTry: true, checked: false, finished: false, bare: false }; },
@@ -1693,9 +1693,39 @@ var SAL = (window.SAL = window.SAL || {});
   function memoryBareOn(cfg, g) {
     return !!(g && g.bare && canBareWords(cfg));
   }
-  /* сколько открытые карточки промаха остаются на виду. Раньше было 750 мс —
-     вторая карточка закрывалась почти сразу, и прочитать её не успевали */
-  var MEMORY_MISS_MS = 1000;
+  /* Сколько открытые карточки промаха остаются на виду. Раньше было 750 мс,
+     потом 1 с — вторую карточку всё равно не успевали прочитать. Теперь пауза
+     выбирается кнопками «1 с / 2 с / 3 с / 4 с» над полем, по умолчанию 3 с,
+     и запоминается в localStorage (одна на весь сайт, а не на урок). */
+  var MEMORY_PAUSE_KEY = 'sal-memory-pause';
+  var MEMORY_PAUSE_OPTIONS = [1, 2, 3, 4];
+  var MEMORY_PAUSE_DEFAULT = 3;
+  function loadMemoryPauseSec() {
+    try {
+      var raw = window.localStorage ? window.localStorage.getItem(MEMORY_PAUSE_KEY) : null;
+      var sec = parseInt(raw, 10);
+      if (MEMORY_PAUSE_OPTIONS.indexOf(sec) >= 0) return sec;
+    } catch (e) { /* storage unavailable */ }
+    return MEMORY_PAUSE_DEFAULT;
+  }
+  function saveMemoryPauseSec(sec) {
+    try { if (window.localStorage) window.localStorage.setItem(MEMORY_PAUSE_KEY, String(sec)); } catch (e) { }
+  }
+  function memoryPauseSec(g) {
+    var sec = g && g.pause ? Math.round(g.pause / 1000) : loadMemoryPauseSec();
+    return MEMORY_PAUSE_OPTIONS.indexOf(sec) >= 0 ? sec : MEMORY_PAUSE_DEFAULT;
+  }
+  /* закрыть пару после промаха: ждём до missUntil, а если паузу успели
+     удлинить кнопкой — ждём ещё. Несколько таймеров не мешают друг другу. */
+  function memoryCloseMiss(cfg, g) {
+    if (!g || !g.lock) return;
+    var left = (g.missUntil || 0) - Date.now();
+    if (left > 30) { setTimeout(function () { memoryCloseMiss(cfg, g); }, left); return; }
+    var gg = gst(cfg, 'memory');
+    if (gg !== g) return;          /* поле уже пересобрали (↺ / размер / режим) */
+    gg.flipped = []; gg.wrong = null; gg.lock = false; gg.missUntil = 0;
+    SAL.refresh();
+  }
   function canMemoryTraps(cfg) {
     return !!(cfg && cfg.memoryTraps && cfg.memoryTraps.length);
   }
@@ -1800,6 +1830,13 @@ var SAL = (window.SAL = window.SAL || {});
             ru('off in this mode — the endings are hidden', 'выключены в этом режиме — окончаний не видно') +
           '</span></div>'
         : '');
+    /* пауза на промах: 1 / 2 / 3 / 4 секунды */
+    var pauseSec = memoryPauseSec(g);
+    var pauseRow = '<div class="game-ver-row" data-mem-row="pause"><span class="game-ver-label">' +
+      ru('Miss pause:', 'Пауза на промах:') + '</span>' +
+      MEMORY_PAUSE_OPTIONS.map(function (s) {
+        return chip(cfg, 'memoryPause', String(s), ru(s + ' s', s + ' с'), pauseSec === s);
+      }).join('') + '</div>';
     return topBar((duoMem ? duoScorePills(g) + ' ' : '') +
       pill(ru('Pairs', 'Пары') + ': ' + matchedPairs + '/' + g.size) + ' ' + pill(ru('Moves', 'Ходов') + ': ' + g.moves) +
       (duoMem ? '' : ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score)),
@@ -1816,6 +1853,7 @@ var SAL = (window.SAL = window.SAL || {});
       chip(cfg, 'restart', 'memory', '↺')) +
       bareRow +
       trapRow +
+      pauseRow +
       centerCard('<div class="memory-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + html + '</div>' +
         (bareOn ? '<div class="game-hint" role="status">' +
           ru('Stem only: the ending is hidden, so the gender is not visible — that is the point of this mode.',
@@ -2874,14 +2912,11 @@ var SAL = (window.SAL = window.SAL || {});
           if (c2.kind !== 'trap') g.seen[c2.id] = true;
           if (duoMemT) duoSwap(g);
           g.wrong = g.flipped.slice(); g.lock = true;
-          /* 1 секунда: вторая карточка не закрывается мгновенно — обе висят
-             открытыми, чтобы успеть их сравнить. Поле в это время заперто. */
-          setTimeout(function () {
-            var gg = gst(cfg, 'memory');
-            if (gg !== g) return;      /* поле уже пересобрали (↺ / размер / режим) */
-            gg.flipped = []; gg.wrong = null; gg.lock = false;
-            SAL.refresh();
-          }, MEMORY_MISS_MS);
+          /* Обе карточки висят открытыми выбранную паузу (по умолчанию 3 с):
+             вторую успевают прочитать. Поле в это время заперто. */
+          var waitMs = memoryPauseSec(g) * 1000;
+          g.missUntil = Date.now() + waitMs;
+          setTimeout(function () { memoryCloseMiss(cfg, g); }, waitMs);
         }
       }
     },
@@ -2909,6 +2944,21 @@ var SAL = (window.SAL = window.SAL || {});
       st.g.memory.size = Math.min(size, cfg.words.length);
       st.g.memory.traps = want;
       st.g.memory.bare = bare;
+    },
+    /* «Пауза на промах: 1 с / 2 с / 3 с / 4 с»: сколько обе карточки остаются
+       открытыми. Поле не пересобираем — только запоминаем выбор. */
+    memoryPause: function (cfg, st, a) {
+      var g = gst(cfg, 'memory');
+      var sec = parseInt(a, 10);
+      if (MEMORY_PAUSE_OPTIONS.indexOf(sec) < 0) return;
+      g.pause = sec * 1000;
+      saveMemoryPauseSec(sec);
+      /* паузу выбрали, пока карточки промаха ещё открыты: применяем сразу,
+         иначе кнопка выглядит неработающей */
+      if (g.lock) {
+        g.missUntil = Date.now() + g.pause;
+        setTimeout(function () { memoryCloseMiss(cfg, g); }, g.pause);
+      }
     },
     /* «только основа / с окончаниями»: слово на карточке без окончания —
        कपिशः हस्तः → कपिश हस्त. Поле пересобирается, размер сохраняется. */
@@ -3402,12 +3452,14 @@ var SAL = (window.SAL = window.SAL || {});
           ru: base.how.ru.concat([
             'На поле лежат ловушки: оба слова согласованы друг с другом, но род выбран неверный — श्वेतः उदरः (оба в мужском, а उदर среднего рода). Пары у ловушки нет; при промахе игра называет правильную форму — श्वेतम् उदरम्.',
             'Кнопка «Ловушки: ⚠ с ловушками / без ловушек» над полем убирает их: без ловушек это обычное «Мемори» по картинкам.',
-            'Кнопка «Слова: 👁 с окончаниями / 🙈 только основа» показывает слово без окончания — कपिश हस्त вместо कपिशः हस्तः. Окончаний не видно — значит, род приходится помнить самому; ловушки в этом режиме выключены.'
+            'Кнопка «Слова: 👁 с окончаниями / 🙈 только основа» показывает слово без окончания — कपिश हस्त вместо कपिशः हस्तः. Окончаний не видно — значит, род приходится помнить самому; ловушки в этом режиме выключены.',
+            'Кнопки «Пауза на промах: 1 с / 2 с / 3 с / 4 с» задают, сколько обе открытые карточки остаются на виду, если пара не совпала (по умолчанию 3 с). Выбор запоминается и действует во всех уроках.'
           ]),
           en: base.how.en.concat([
             'The board also holds traps: the two words agree with each other, but the gender is the wrong one — श्वेतः उदरः (both masculine, yet उदर is neuter). A trap has no pair; after a miss the game gives the correct form — श्वेतम् उदरम्.',
             'The “Traps: ⚠ with traps / without traps” button above the board removes them: without traps it is a plain picture Memory.',
-            'The “Words: 👁 with endings / 🙈 stem only” button shows the word without its ending — कपिश हस्त instead of कपिशः हस्तः. With the endings hidden the gender has to come from memory, so the traps are off in that mode.'
+            'The “Words: 👁 with endings / 🙈 stem only” button shows the word without its ending — कपिश हस्त instead of कपिशः हस्तः. With the endings hidden the gender has to come from memory, so the traps are off in that mode.',
+            'The “Miss pause: 1 s / 2 s / 3 s / 4 s” buttons set how long both open cards stay visible after a miss (3 s by default). The choice is remembered and applies to every lesson.'
           ])
         };
         return out;
@@ -3577,7 +3629,8 @@ var SAL = (window.SAL = window.SAL || {});
     var isSwitch = action === 'setGame' || action === 'setPresMode' || action === 'setProdMode' ||
       action === 'rcGame' || action === 'rcProd';
     var isRestart = action === 'restart' || /Restart$/.test(action) || action === 'memorySize' ||
-      action === 'memoryBare' || action === 'memoryTraps' || action === 'matchNext';
+      action === 'memoryBare' || action === 'memoryTraps' || action === 'memoryPause' ||
+      action === 'matchNext';
     var id = stageIdFor(cfg, action);
     /* Прокрутка нужна ТОЛЬКО при переключении игры/режима (вкладки могут быть
        у нижнего края экрана). Restart нажимают на самой сцене, которая уже
