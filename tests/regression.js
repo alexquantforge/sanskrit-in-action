@@ -3121,7 +3121,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     /* кнопка «с ловушками / без ловушек» — есть и работает */
     SAL.do('LG', 'restart', 'memory');
     SAL.do('LG', 'setGame', 'memory');
-    const trapRow = memArena().querySelector('.game-ver-row');
+    const trapRow = memArena().querySelector('[data-mem-row="traps"]');
     const trapChips = [...(trapRow ? trapRow.querySelectorAll('.chip-btn') : [])];
     ck(!!trapRow && trapChips.length === 2 &&
        /с ловушками/.test(trapChips[0].textContent) && /без ловушек/.test(trapChips[1].textContent),
@@ -3135,7 +3135,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     ck(memOff.traps === false && memOff.cards.length === 16 &&
        memOff.cards.every(c => c.kind !== 'trap'),
       '«Мемори» без ловушек: поле 16 карточек, ловушек нет (' + memOff.cards.length + ')');
-    ck([...memArena().querySelectorAll('.game-ver-row .chip-btn')][1].classList.contains('active'),
+    ck([...memArena().querySelectorAll('[data-mem-row="traps"] .chip-btn')][1].classList.contains('active'),
       '«Мемори» без ловушек: кнопка показывает выбранный вариант');
     const sizeChipsOff = [...memArena().querySelectorAll('.chip-btn')]
       .map(b => b.textContent.trim()).filter(t => t.indexOf('×') >= 0);
@@ -3211,7 +3211,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     const pEn = memEn.cards.findIndex(c => c.kind === 'pic');
     SAL.do('LG', 'tile', String(tEn));
     SAL.do('LG', 'tile', String(pEn));
-    const enTrapRow = memArena().querySelector('.game-ver-row');
+    const enTrapRow = memArena().querySelector('[data-mem-row="traps"]');
     const enTrapLabels = enTrapRow ? [...enTrapRow.querySelectorAll('.chip-btn')].map(b => b.textContent.trim()) : [];
     ck(enTrapLabels.length === 2 && !/[\u0400-\u04FF]/.test(enTrapLabels.join(' ')) &&
        /with traps/.test(enTrapLabels[0]) && /without traps/.test(enTrapLabels[1]),
@@ -3605,7 +3605,7 @@ console.log('\n===== Урок 6 · Три рода · другие цвета (L
   const mem = gst('LG2', 'memory');
   ck(mem.cards.length === 18 && mem.cards.filter(c => c.kind === 'trap').length === 2,
     '«Мемори»: 18 карточек, из них 2 ловушки (' + mem.cards.length + ')');
-  const trapChips = [...arenaOf('LG2').querySelectorAll('.game-ver-row .chip-btn')];
+  const trapChips = [...arenaOf('LG2').querySelectorAll('[data-mem-row="traps"] .chip-btn')];
   ck(trapChips.length === 2 && /с ловушками/.test(trapChips[0].textContent) &&
      /без ловушек/.test(trapChips[1].textContent),
     '«Мемори»: кнопка «с ловушками / без ловушек» на месте');
@@ -3673,6 +3673,124 @@ console.log('\n===== Урок 6 · Три рода · другие цвета (L
   SAL.openLesson('LG2');
   SAL.do('LG2', 'setGame', 'masked');
   SAL.openLesson('L4');
+}
+
+/* ==========================================================================
+   «МЕМОРИ» · КНОПКА «ТОЛЬКО ОСНОВА» (уроки рода LG и LG2)
+   ----------------------------------------------------------
+   В двух уроках рода на карточке видно окончание — а оно и есть род. Кнопка
+   «Слова: 👁 с окончаниями / 🙈 только основа» показывает слово без окончания:
+   कपिशः हस्तः → कपिश हस्त. Окончаний нет — значит, ловушку от настоящего слова
+   не отличить, поэтому в этом режиме ловушки выключены.
+   ========================================================================== */
+console.log('\n===== «Мемори»: кнопка «только основа» =====');
+{
+  const arena = k => arenaOf(k);
+  const txt = el => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
+  /* ожидаемая основа: у прилагательного отпадает ं / ः / ा, у существительного —
+     ः или म्; женское ा — конец основы, поэтому जिह्वा остаётся जिह्वा */
+  const stemOfWord = w => {
+    const d = w.deva.split(' ');
+    const adj = d[0].replace(/म्$/, '').replace(/[ःंा]$/, '');
+    let noun = d[1];
+    if (/ः$/.test(noun)) noun = noun.slice(0, -1);
+    else if (/म्$/.test(noun)) noun = noun.slice(0, -2);
+    return adj + ' ' + noun;
+  };
+  const bareChips = k => [...arena(k).querySelectorAll('[data-mem-row="words"] .chip-btn')]
+    .filter(b => (b.getAttribute('onclick') || '').indexOf('memoryBare') >= 0);
+  const faceUp = k => {
+    const g = gst(k, 'memory');
+    g.flipped = g.cards.map((_, i) => i);
+    SAL.refresh();
+    return [...arena(k).querySelectorAll('.memory-card')]
+      .map(c => txt(c)).filter(t => /[\u0900-\u097F]/.test(t));
+  };
+
+  ck(['LG', 'LG2'].every(k => {
+    SAL.openLesson(k); SAL.do(k, 'setGame', 'memory'); SAL.do(k, 'restart', 'memory');
+    const chips = bareChips(k);
+    return chips.length === 2 && /с окончаниями/.test(chips[0].textContent) &&
+           /только основа/.test(chips[1].textContent);
+  }), 'кнопка «👁 с окончаниями / 🙈 только основа» есть в обоих уроках рода');
+  ck(bareChips('LG')[0].classList.contains('active') &&
+     gst('LG', 'memory').bare !== true,
+    'по умолчанию показаны окончания, режим основы выключен');
+
+  /* в уроке без рода такой кнопки нет */
+  SAL.openLesson('L2'); SAL.do('L2', 'setGame', 'memory'); SAL.do('L2', 'restart', 'memory');
+  ck(bareChips('L2').length === 0, 'в уроке без рода кнопки «только основа» нет');
+
+  /* включили: на карточках основы, ловушек нет, размер сохранён */
+  const bad = [];
+  ['LG', 'LG2'].forEach(k => {
+    SAL.openLesson(k); SAL.do(k, 'setGame', 'memory'); SAL.do(k, 'restart', 'memory');
+    SAL.do(k, 'memoryBare', '1');
+    const g = gst(k, 'memory');
+    if (g.bare !== true) bad.push(k + ': режим не включился');
+    if (g.cards.length !== 16) bad.push(k + ': карточек ' + g.cards.length + ' вместо 16');
+    if (g.cards.some(c => c.kind === 'trap')) bad.push(k + ': ловушка осталась на поле');
+    if (!bareChips(k)[1].classList.contains('active')) bad.push(k + ': кнопка не подсвечена');
+    const shown = faceUp(k).slice().sort();
+    const want = SAL.lessons[k].words.map(stemOfWord).sort();
+    if (shown.join('|') !== want.join('|')) bad.push(k + ': на карточках «' + shown.join(' · ') + '», а надо «' + want.join(' · ') + '»');
+    if (shown.some(t => /[ःम्]$/.test(t.split(' ')[1]))) bad.push(k + ': у слова осталось окончание');
+  });
+  ck(bad.length === 0, 'включённый режим показывает основу вместо формы с окончанием — ' +
+    'कपिश हस्त вместо कपिशः हस्तः' + (bad.length ? ' — ' + bad.join('; ') : ''));
+
+  /* пояснение: почему ловушек нет, и подписи размера без приписки про них */
+  SAL.openLesson('LG');
+  SAL.do('LG', 'setGame', 'memory');
+  SAL.do('LG', 'restart', 'memory');
+  SAL.do('LG', 'memoryBare', '1');
+  const lgHint = [...arena('LG').querySelectorAll('.game-hint')].map(txt).join(' ');
+  ck(/Только основа/.test(lgHint) && /ловушки/i.test(lgHint + ' ' +
+     [...arena('LG').querySelectorAll('.game-ver-row')].map(txt).join(' ')),
+    'в режиме основы сказано, что окончаний нет, поэтому ловушки выключены — ' + lgHint.slice(0, 90));
+  const sizeChips = [...arena('LG').querySelectorAll('.chip-btn')]
+    .map(b => b.textContent.trim()).filter(t => t.indexOf('×') >= 0);
+  ck(sizeChips.join('|') === '8 × 2 (16)|4 × 2 (8)',
+    'в режиме основы на кнопках размера нет приписки про ловушки — ' + sizeChips.join(' · '));
+
+  /* переключение сохраняет размер поля и возвращает ловушки */
+  SAL.do('LG', 'memorySize', '4');
+  ck(gst('LG', 'memory').bare === true && gst('LG', 'memory').size === 4 &&
+     gst('LG', 'memory').cards.length === 8,
+    'размер поля меняется, режим основы остаётся');
+  SAL.do('LG', 'memoryBare', '0');
+  const memBack = gst('LG', 'memory');
+  ck(memBack.bare === false && memBack.size === 4 && memBack.cards.length === 9 &&
+     memBack.cards.filter(c => c.kind === 'trap').length === 1,
+    'выключение возвращает окончания и ловушку того же размера поля (' + memBack.cards.length + ')');
+  SAL.do('LG', 'memoryBare', '1');
+  SAL.do('LG', 'memoryTraps', '0');
+  ck(gst('LG', 'memory').traps === false && gst('LG', 'memory').bare === true,
+    'кнопка ловушек и режим основы не сбивают друг друга');
+
+  /* перезапуск сбрасывает режим — как и остальные настройки игры */
+  SAL.do('LG', 'restart', 'memory');
+  ck(gst('LG', 'memory').bare === false && gst('LG', 'memory').traps !== false,
+    '«↺» возвращает обычный показ слов');
+
+  /* крупное поле: полный набор пар, основы, кириллицы в EN нет */
+  SAL.openLesson('LG2');
+  SAL.do('LG2', 'setGame', 'memory');
+  SAL.do('LG2', 'restart', 'memory');
+  SAL.do('LG2', 'memoryBare', '1');
+  const bigShown = faceUp('LG2');
+  ck(bigShown.length === 8 && bigShown.every(t => SAL.lessons.LG2.words.some(w => stemOfWord(w) === t)),
+    'на полном поле 8 карточек-слов (плюс 8 картинок), и каждая — основа своего слова (' + bigShown.length + ')');
+  win.setLanguage('en');
+  const enRows = [...arena('LG2').querySelectorAll('.game-ver-row')].map(txt).join(' || ');
+  ck(!/[\u0400-\u04FF]/.test(enRows) && /with endings/.test(enRows) && /stem only/.test(enRows),
+    'английская версия: кнопка переведена и без кириллицы — ' + enRows);
+  win.setLanguage('ru');
+  SAL.do('LG2', 'memoryBare', '0');
+
+  SAL.openLesson('LG');
+  SAL.do('LG', 'restart', 'memory');
+  SAL.do('LG', 'setGame', 'memory');
 }
 
 /* ==========================================================================
