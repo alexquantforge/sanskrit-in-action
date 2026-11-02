@@ -63,12 +63,34 @@
       '<path d="M-2.5 7.4 -3.6 14.2M2.5 7.4 3.6 14.2" stroke="#374151" stroke-width="2.8" stroke-linecap="round"/>' +
       '</g>';
   }
+  /* урок «Счёт девочек»: в вариантах девочки — то же правило, что и у мальчиков */
+  var QTY_GIRLS = {
+    1: [[50, 52, 1.15]],
+    2: [[33, 52, 0.95], [67, 52, 0.95]],
+    3: [[24, 52, 0.8], [50, 52, 0.8], [76, 52, 0.8]],
+    4: [[34, 34, 0.8], [66, 34, 0.8], [34, 70, 0.8], [66, 70, 0.8]],
+    5: [[30, 32, 0.74], [50, 32, 0.74], [70, 32, 0.74], [40, 70, 0.74], [60, 70, 0.74]]
+  };
+  function qtyGirl(x, y, s) {
+    return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">' +
+      '<circle cx="0" cy="-12.6" r="6.1" fill="#3B2438"/>' +
+      '<circle cx="0" cy="-10.8" r="5.7" fill="#F6C89A" stroke="#14213D" stroke-width="1.1"/>' +
+      '<path d="M-5.4 -10.2 -7.0 4.6M5.4 -10.2 7.0 4.6" stroke="#3B2438" stroke-width="2.9" stroke-linecap="round"/>' +
+      '<circle cx="-7.2" cy="-9.0" r="2.4" fill="#3B2438"/>' +
+      '<circle cx="7.2" cy="-9.0" r="2.4" fill="#3B2438"/>' +
+      '<path d="M-4.6 -5.0 4.6 -5.0 8.2 9.0 -8.2 9.0Z" fill="#B03A6E" stroke="#14213D" stroke-width="1.2" stroke-linejoin="round"/>' +
+      '<path d="M-4.3 -2.2 -7.6 4.4M4.3 -2.2 7.6 4.4" stroke="#F6C89A" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<path d="M-2.7 9.0 -3.5 14.6M2.7 9.0 3.5 14.6" stroke="#F6C89A" stroke-width="2.2" stroke-linecap="round"/>' +
+      '</g>';
+  }
   function qtySvg(n, cfg) {
     var card = '<rect width="100" height="100" rx="14" fill="#FFFBEB"/>' +
       '<rect x="6" y="6" width="88" height="88" rx="10" fill="none" stroke="#E5DEC9" stroke-width="1.5"/>';
     var inner;
     if (cfg && cfg.countKind === 'boys' && n <= 5) {
       inner = QTY_BOYS[n].map(function (p) { return qtyBoy(p[0], p[1], p[2]); }).join('');
+    } else if (cfg && cfg.countKind === 'girls' && n <= 5) {
+      inner = QTY_GIRLS[n].map(function (p) { return qtyGirl(p[0], p[1], p[2]); }).join('');
     } else if (n > 5 || !QTY_DOTS[n]) {
       inner = '<text x="50" y="52" text-anchor="middle" dominant-baseline="central" ' +
         'font-family="system-ui, -apple-system, Roboto, sans-serif" font-size="46" font-weight="700" ' +

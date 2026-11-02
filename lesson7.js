@@ -1,10 +1,11 @@
 /**
- * LESSON 10 · सङ्ख्याः · "Numbers 11–15" (5 слов)
+ * LESSON 11 · सङ्ख्याः · "Numbers 6–10" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
- * The same build as Lessons 4 and 5, for the numerals 11–15:
- * - the counting forms (neuter nominative-accusative): एकादश, द्वादश, त्रयोदश, चतुर्दश, पञ्चदश
- * - past ten, quantity is shown by Arabic digits: beads cannot be counted at a glance
- * - the TPR gesture is clapping, not touching a body part
+ * The twin of Lesson 6 (Numbers 1–5), built for the second five Sanskrit numerals:
+ * - the counting forms: neuter nominative-accusative षट्, सप्त, अष्ट, नव, दश
+ * - 6–10 do not change in this form: the stem IS the counting form
+ * - no Arabic digits on the cards: quantity is shown only by beads (Direct Method)
+ * - the TPR gesture here is clapping, not touching a body part
  * - IAST is hidden by default and can be switched on with the 🔤 button.
  * Data file for the generic engine in lesson-engine.js.
  */
@@ -13,28 +14,28 @@ SAL.registerLesson({
   key: "L7",
   num: 11,
   titleDeva: "सङ्ख्याः",
-  titleRu: "Цифры 11–15",
-  titleEn: "Numbers 11–15",
-  topicRu: "одиннадцать, двенадцать, тринадцать, четырнадцать, пятнадцать",
-  topicEn: "eleven, twelve, thirteen, fourteen, fifteen",
-  introRu: "Одиннадцатый урок: числа от одиннадцати до пятнадцати — <code>एकादश</code>, <code>द्वादश</code>, <code>त्रयोदश</code>, <code>चतुर्दश</code>, <code>पञ्चदश</code>. Все они построены на <code>दश</code> «десять»: к основе первого числа прибавляется «десять». Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
-  introEn: "The eleventh lesson: eleven to fifteen — <code>ekādaśa</code>, <code>dvādaśa</code>, <code>trayodaśa</code>, <code>caturdaśa</code>, <code>pañcadaśa</code>. They are all built on <code>daśa</code> “ten”: the stem of the first number plus “ten”. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
+  titleRu: "Цифры 6–10",
+  titleEn: "Numbers 6–10",
+  topicRu: "шесть, семь, восемь, девять, десять",
+  topicEn: "six, seven, eight, nine, ten",
+  introRu: "Одиннадцатый урок: числительные от шести до десяти — <code>षट्</code>, <code>सप्त</code>, <code>अष्ट</code>, <code>नव</code>, <code>दश</code>. В этой форме (именительный-винительный падеж среднего рода) они не меняются: основа и есть счётная форма. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
+  introEn: "The eleventh lesson: the numerals six to ten — <code>ṣaṭ</code>, <code>sapta</code>, <code>aṣṭa</code>, <code>nava</code>, <code>daśa</code>. In this form (neuter nominative-accusative) they do not change: the stem IS the counting form. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {
-      main: "Ввести и отработать числительные 11–15 в контексте счёта предметов и уточнить модель -दश, по которой образуются эти числа.",
+      main: "Ввести и отработать числительные 6–10 в контексте счёта предметов.",
       subs: [
-        "Уточнить словообразование: основа первого числа плюс दश.",
-        "Поставить произношение दश внутри сложного слова.",
-        "Повторить числительные 6–10 перед новым материалом."
+        "Уточнить, что эти основы не меняются в счётной форме.",
+        "Поставить произношение ṣ и ś в словах षट्, सप्त и दश.",
+        "Повторить числительные 1–5 в тех же играх."
       ]
     },
     en: {
-      main: "To introduce and practise the numerals 11–15 in the context of counting everyday objects, and to clarify the -दश pattern used to form the teens.",
+      main: "To introduce and practise the numerals 6–10 in the context of counting everyday objects.",
       subs: [
-        "To clarify the word-formation pattern: the stem of the first number plus दश.",
-        "To give practice in the pronunciation of दश inside a compound.",
-        "To review the numerals 6–10 before the new set."
+        "To clarify that these stems do not change in the counting form.",
+        "To give practice in the pronunciation of ṣ and ś in षट्, सप्त and दश.",
+        "To review the numerals 1–5 through the same games."
       ]
     }
   },
@@ -44,117 +45,117 @@ SAL.registerLesson({
   prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
-      id: "ekadasa", deva: "एकादश", iast: "ekādaśa", ttsText: "एकादश", value: 11,
-      syll: ["एका", "द", "श"],
-      typoDeva: "ऐकादश", typoIast: "aikādaśa",
-      maskedPrefix: "एका", maskedHidden: "दश",
-      gapDeva: "_कादश", gapIast: "_kādaśa", gapAnswer: "ए",
+      id: "shat", deva: "षट्", iast: "ṣaṭ", ttsText: "षट्", value: 6,
+      syll: ["ष", "ट्"],
+      typoDeva: "शट्", typoIast: "śaṭ",
+      maskedPrefix: "ष", maskedHidden: "ट्",
+      gapDeva: "_ट्", gapIast: "_ṭ", gapAnswer: "ष",
       gapChoices: [
-          { deva: "ए", iast: "e" },
-          { deva: "ऐ", iast: "ai" },
-          { deva: "ओ", iast: "o" },
-          { deva: "अ", iast: "a" }
+          { deva: "ष", iast: "ṣ" },
+          { deva: "श", iast: "ś" },
+          { deva: "स", iast: "sa" },
+          { deva: "क्ष", iast: "kṣa" }
       ],
-      missingDisplay: "एका _", missingAnswer: "दश",
-      missingChoices: ["दश", "दस", "धश", "दष"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">11</text>\n    </svg>"
+      missingDisplay: "ष _", missingAnswer: "ट्",
+      missingChoices: ["ट्", "त्", "ठ्", "ड्"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"28\" cy=\"40\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.7\" cy=\"36.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"40\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.7\" cy=\"36.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"40\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.7\" cy=\"36.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"28\" cy=\"64\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.7\" cy=\"60.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"64\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.7\" cy=\"60.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"64\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.7\" cy=\"60.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "dvadasa", deva: "द्वादश", iast: "dvādaśa", ttsText: "द्वादश", value: 12,
-      syll: ["द्वा", "द", "श"],
-      typoDeva: "द्वादस", typoIast: "dvādasa",
-      maskedPrefix: "द्वा", maskedHidden: "दश",
-      gapDeva: "द्वाद _", gapIast: "dvād _", gapAnswer: "श",
+      id: "sapta", deva: "सप्त", iast: "sapta", ttsText: "सप्त", value: 7,
+      syll: ["स", "प्त"],
+      typoDeva: "सपत", typoIast: "sapata",
+      maskedPrefix: "स", maskedHidden: "प्त",
+      gapDeva: "_प्त", gapIast: "_pta", gapAnswer: "स",
       gapChoices: [
+          { deva: "स", iast: "sa" },
           { deva: "श", iast: "śa" },
           { deva: "ष", iast: "ṣa" },
-          { deva: "स", iast: "sa" },
           { deva: "ह", iast: "ha" }
       ],
-      missingDisplay: "_दश", missingAnswer: "द्वा",
-      missingChoices: ["द्वा", "ध्वा", "त्वा", "द्व"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">12</text>\n    </svg>"
+      missingDisplay: "स _ त", missingAnswer: "प्",
+      missingChoices: ["प्", "ब्", "फ्", "भ्"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"28\" cy=\"38\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.7\" cy=\"34.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"38\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.7\" cy=\"34.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"38\" r=\"11\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.7\" cy=\"34.7\" r=\"2.64\" fill=\"#FDE68A\"/>\n      <circle cx=\"25\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"22\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"42\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"39\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"59\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"56\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"76\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"73\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n    </svg>"
     },
     {
-      id: "trayodasa", deva: "त्रयोदश", iast: "trayodaśa", ttsText: "त्रयोदश", value: 13,
-      syll: ["त्र", "यो", "द", "श"],
-      typoDeva: "त्रयादश", typoIast: "trayādaśa",
-      maskedPrefix: "त्रयो", maskedHidden: "दश",
-      gapDeva: "त्रयो _ श", gapIast: "trayo _ śa", gapAnswer: "द",
+      id: "ashta", deva: "अष्ट", iast: "aṣṭa", ttsText: "अष्ट", value: 8,
+      syll: ["अ", "ष्ट"],
+      typoDeva: "अष्ठ", typoIast: "aṣṭha",
+      maskedPrefix: "अ", maskedHidden: "ष्ट",
+      gapDeva: "_ष्ट", gapIast: "_ṣṭa", gapAnswer: "अ",
+      gapChoices: [
+          { deva: "अ", iast: "a" },
+          { deva: "आ", iast: "ā" },
+          { deva: "उ", iast: "u" },
+          { deva: "इ", iast: "i" }
+      ],
+      missingDisplay: "अ _ ट", missingAnswer: "ष्",
+      missingChoices: ["ष्", "श्", "स्", "क्ष्"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"25\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"22\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"42\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"39\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"59\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"56\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"76\" cy=\"38\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"73\" cy=\"35\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"25\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"22\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"42\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"39\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"59\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"56\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n      <circle cx=\"76\" cy=\"66\" r=\"10\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"73\" cy=\"63\" r=\"2.4\" fill=\"#FDE68A\"/>\n    </svg>"
+    },
+    {
+      id: "nava", deva: "नव", iast: "nava", ttsText: "नव", value: 9,
+      syll: ["न", "व"],
+      typoDeva: "नभ", typoIast: "nabha",
+      maskedPrefix: "न", maskedHidden: "व",
+      gapDeva: "_व", gapIast: "_va", gapAnswer: "न",
+      gapChoices: [
+          { deva: "न", iast: "na" },
+          { deva: "ण", iast: "ṇa" },
+          { deva: "म", iast: "ma" },
+          { deva: "त", iast: "ta" }
+      ],
+      missingDisplay: "न _", missingAnswer: "व",
+      missingChoices: ["व", "ब", "य", "र"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"28\" cy=\"30\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.85\" cy=\"26.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"30\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.85\" cy=\"26.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"30\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.85\" cy=\"26.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"28\" cy=\"52\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.85\" cy=\"48.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"52\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.85\" cy=\"48.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"52\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.85\" cy=\"48.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"28\" cy=\"74\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"24.85\" cy=\"70.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"74\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"46.85\" cy=\"70.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n      <circle cx=\"72\" cy=\"74\" r=\"10.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"68.85\" cy=\"70.85\" r=\"2.52\" fill=\"#FDE68A\"/>\n    </svg>"
+    },
+    {
+      id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश", value: 10,
+      syll: ["द", "श"],
+      typoDeva: "दस", typoIast: "dasa",
+      maskedPrefix: "द", maskedHidden: "श",
+      gapDeva: "_श", gapIast: "_śa", gapAnswer: "द",
       gapChoices: [
           { deva: "द", iast: "da" },
           { deva: "ध", iast: "dha" },
           { deva: "ड", iast: "ḍa" },
           { deva: "त", iast: "ta" }
       ],
-      missingDisplay: "त्रयो _", missingAnswer: "दश",
-      missingChoices: ["दश", "दस", "दष", "धश"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">13</text>\n    </svg>"
-    },
-    {
-      id: "caturdasa", deva: "चतुर्दश", iast: "caturdaśa", ttsText: "चतुर्दश", value: 14,
-      syll: ["चतुर्", "द", "श"],
-      typoDeva: "चतूर्दश", typoIast: "catūrdaśa",
-      maskedPrefix: "चतुर्", maskedHidden: "दश",
-      gapDeva: "च _ र्दश", gapIast: "ca _ rdaśa", gapAnswer: "तु",
-      gapChoices: [
-          { deva: "तु", iast: "tu" },
-          { deva: "तू", iast: "tū" },
-          { deva: "त", iast: "ta" },
-          { deva: "थु", iast: "thu" }
-      ],
-      missingDisplay: "चतु _ श", missingAnswer: "र्द",
-      missingChoices: ["र्द", "र्ध", "द्र", "र्ड"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">14</text>\n    </svg>"
-    },
-    {
-      id: "pancadasa", deva: "पञ्चदश", iast: "pañcadaśa", ttsText: "पञ्चदश", value: 15,
-      syll: ["पञ्च", "द", "श"],
-      typoDeva: "पन्चदश", typoIast: "pañcadaśa",
-      maskedPrefix: "पञ्च", maskedHidden: "दश",
-      gapDeva: "प _ दश", gapIast: "pa _ daśa", gapAnswer: "ञ्च",
-      gapChoices: [
-          { deva: "ञ्च", iast: "ñca" },
-          { deva: "न्च", iast: "nca" },
-          { deva: "ञ्छ", iast: "ñcha" },
-          { deva: "ण्च", iast: "ṇca" }
-      ],
-      missingDisplay: "पञ्च _", missingAnswer: "दश",
-      missingChoices: ["दश", "दस", "धश", "दष"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">15</text>\n    </svg>"
+      missingDisplay: "द _", missingAnswer: "श",
+      missingChoices: ["श", "ष", "स", "ह"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"8\" y=\"8\" width=\"84\" height=\"84\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <circle cx=\"20\" cy=\"40\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"17.75\" cy=\"37.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"35\" cy=\"40\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"32.75\" cy=\"37.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"40\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"47.75\" cy=\"37.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"65\" cy=\"40\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"62.75\" cy=\"37.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"80\" cy=\"40\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"77.75\" cy=\"37.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"20\" cy=\"64\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"17.75\" cy=\"61.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"35\" cy=\"64\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"32.75\" cy=\"61.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"50\" cy=\"64\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"47.75\" cy=\"61.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"65\" cy=\"64\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"62.75\" cy=\"61.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n      <circle cx=\"80\" cy=\"64\" r=\"7.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.4\"/>\n      <circle cx=\"77.75\" cy=\"61.75\" r=\"1.8\" fill=\"#FDE68A\"/>\n    </svg>"
     }
   ],
   /* words for the 10 x 10 word grid: real Sanskrit, but never in this lesson */
   decoys: [
-    "ऐकादश",
-    "एकादस",
-    "द्वादस",
-    "ध्वादश",
-    "त्रयादश",
-    "त्रयोदस",
-    "चतूर्दश",
-    "चतुर्दस",
-    "पन्चदश",
-    "पञ्चदस",
+    "षट",
+    "शट्",
+    "सट्",
+    "सपत",
+    "शप्त",
+    "अष्ठ",
+    "अस्त",
+    "नभ",
+    "णव",
+    "दस",
+    "दष",
     "एकम्",
     "द्वे",
     "त्रीणि",
     "चत्वारि",
     "पञ्च",
-    "षट्",
-    "सप्त",
-    "अष्ट",
-    "नव",
-    "दश",
-    "षोडश",
-    "सप्तदश",
-    "अष्टादश",
-    "नवदश",
-    "विंशतिः",
     "शीर्ष",
+    "उदर",
     "हस्त",
+    "अङ्गुली",
+    "जानु",
     "पाद",
+    "ललाट",
+    "नयन",
+    "नासिका",
+    "कर्ण",
     "मुख",
+    "दन्त",
+    "जिह्वा",
     "जलम्",
     "फलम्"
   ],
@@ -167,54 +168,54 @@ SAL.registerLesson({
   ],
   /* the sorting game asks about the shape of the word (see games-extra.js) */
   sortFeatures: [
-    { ru: 'Есть долгий «आ» (ा)', en: 'Has a long "आ" (ा)',
-      test: function (w) { return w.deva.indexOf('ा') >= 0; } },
-    { ru: 'Есть носовой (ञ / ण / न / म)', en: 'Has a nasal (ञ / ण / न / म)',
-      test: function (w) { return /[ञणनम]/.test(w.deva); } },
-    { ru: 'Начинается с гласной «ए»', en: 'Starts with the vowel "ए"',
-      test: function (w) { return w.deva.charAt(0) === 'ए'; } },
+    { ru: 'Есть буква «ष» (ṣa)', en: 'Contains "ष" (ṣa)',
+      test: function (w) { return w.deva.indexOf('ष') >= 0; } },
+    { ru: 'Есть носовой (न / ण / म)', en: 'Has a nasal (न / ण / म)',
+      test: function (w) { return /[णनम]/.test(w.deva); } },
+    { ru: 'Начинается с гласной «अ»', en: 'Starts with the vowel "अ"',
+      test: function (w) { return w.deva.charAt(0) === 'अ'; } },
     { ru: 'Есть знак ् (вирама)', en: 'Has a virāma (्)',
       test: function (w) { return w.deva.indexOf('्') >= 0; } }
   ],
   steps: [
-    { wordIds: ["ekadasa", "dvadasa"] },
-    { wordIds: ["trayodasa", "caturdasa"] },
-    { wordIds: ["pancadasa"] }
+    { wordIds: ["shat", "sapta"] },
+    { wordIds: ["ashta", "nava"] },
+    { wordIds: ["dasha"] }
   ],
   hotspots: {
     figures: [
       {
         key: "frame",
-        captionRu: "Таблица чисел: 11–15",
-        captionEn: "Number Chart: 11–15",
+        captionRu: "Счёты: ряды от шести до десяти",
+        captionEn: "Counting Frame: Rows of Six to Ten",
         viewBox: "0 0 320 300",
-        art: "<rect x=\"36\" y=\"16\" width=\"248\" height=\"268\" rx=\"16\" fill=\"#FFFBEB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <rect x=\"36\" y=\"16\" width=\"248\" height=\"30\" rx=\"16\" fill=\"#FDE68A\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <path d=\"M52 31H268\" stroke=\"#B45309\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <text x=\"160\" y=\"70\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">11</text>\n  <text x=\"160\" y=\"110\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">12</text>\n  <text x=\"160\" y=\"150\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">13</text>\n  <text x=\"160\" y=\"190\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">14</text>\n  <text x=\"160\" y=\"230\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">15</text>",
+        art: "<rect x=\"36\" y=\"16\" width=\"248\" height=\"268\" rx=\"16\" fill=\"#FFFBEB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <rect x=\"36\" y=\"16\" width=\"248\" height=\"30\" rx=\"16\" fill=\"#FDE68A\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <path d=\"M52 31H268\" stroke=\"#B45309\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <line x1=\"52\" y1=\"70\" x2=\"268\" y2=\"70\" stroke=\"#B45309\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>\n  <circle cx=\"60\" cy=\"70\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"57.15\" cy=\"67.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"99.6\" cy=\"70\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"96.75\" cy=\"67.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"139.2\" cy=\"70\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"136.35\" cy=\"67.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"178.8\" cy=\"70\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"175.95\" cy=\"67.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"218.4\" cy=\"70\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"215.55\" cy=\"67.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"258\" cy=\"70\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"255.15\" cy=\"67.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n  <line x1=\"52\" y1=\"110\" x2=\"268\" y2=\"110\" stroke=\"#B45309\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>\n  <circle cx=\"60\" cy=\"110\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"57.15\" cy=\"107.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"93\" cy=\"110\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"90.15\" cy=\"107.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"126\" cy=\"110\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"123.15\" cy=\"107.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"159\" cy=\"110\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"156.15\" cy=\"107.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"192\" cy=\"110\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"189.15\" cy=\"107.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"225\" cy=\"110\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"222.15\" cy=\"107.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"258\" cy=\"110\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"255.15\" cy=\"107.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n  <line x1=\"52\" y1=\"150\" x2=\"268\" y2=\"150\" stroke=\"#B45309\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>\n  <circle cx=\"60\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"57.15\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"88.3\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"85.45\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"116.6\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"113.75\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"144.9\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"142.05\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"173.1\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"170.25\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"201.4\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"198.55\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"229.7\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"226.85\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"258\" cy=\"150\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"255.15\" cy=\"147.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n  <line x1=\"52\" y1=\"190\" x2=\"268\" y2=\"190\" stroke=\"#B45309\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>\n  <circle cx=\"60\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"57.15\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"84.8\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"81.95\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"109.5\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"106.65\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"134.2\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"131.35\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"159\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"156.15\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"183.8\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"180.95\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"208.5\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"205.65\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"233.2\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"230.35\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"258\" cy=\"190\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"255.15\" cy=\"187.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n  <line x1=\"52\" y1=\"230\" x2=\"268\" y2=\"230\" stroke=\"#B45309\" stroke-width=\"3.2\" stroke-linecap=\"round\"/>\n  <circle cx=\"60\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"57.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"82\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"79.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"104\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"101.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"126\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"123.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"148\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"145.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"170\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"167.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"192\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"189.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"214\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"211.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"236\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"233.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>\n      <circle cx=\"258\" cy=\"230\" r=\"9.5\" fill=\"#F59E0B\" stroke=\"#B45309\" stroke-width=\"2.2\"/>\n      <circle cx=\"255.15\" cy=\"227.15\" r=\"2.28\" fill=\"#FDE68A\"/>",
         pins: [
-          { id: "ekadasa", num: 1, x: 300, y: 64, tx: 160, ty: 70 },
-          { id: "dvadasa", num: 2, x: 20, y: 104, tx: 160, ty: 110 },
-          { id: "trayodasa", num: 3, x: 300, y: 144, tx: 160, ty: 150 },
-          { id: "caturdasa", num: 4, x: 20, y: 184, tx: 160, ty: 190 },
-          { id: "pancadasa", num: 5, x: 300, y: 224, tx: 160, ty: 230 }
+          { id: "shat", num: 1, x: 300, y: 64, tx: 178.8, ty: 70 },
+          { id: "sapta", num: 2, x: 20, y: 104, tx: 159, ty: 110 },
+          { id: "ashta", num: 3, x: 300, y: 144, tx: 173.1, ty: 150 },
+          { id: "nava", num: 4, x: 20, y: 184, tx: 159, ty: 190 },
+          { id: "dasha", num: 5, x: 300, y: 224, tx: 170, ty: 230 }
         ]
       }
     ]
   },
   groups: [
-    { titleRu: "Одиннадцать и двенадцать", titleEn: "Eleven and Twelve", wordIds: ["ekadasa", "dvadasa"] },
-    { titleRu: "Тринадцать — пятнадцать", titleEn: "Thirteen to Fifteen", wordIds: ["trayodasa", "caturdasa", "pancadasa"] },
-    { titleRu: "Чётные", titleEn: "Even", wordIds: ["dvadasa", "caturdasa"] },
-    { titleRu: "Нечётные", titleEn: "Odd", wordIds: ["ekadasa", "trayodasa", "pancadasa"] }
+    { titleRu: "Шесть и семь", titleEn: "Six and Seven", wordIds: ["shat", "sapta"] },
+    { titleRu: "Восемь, девять, десять", titleEn: "Eight, Nine, Ten", wordIds: ["ashta", "nava", "dasha"] },
+    { titleRu: "Чётные", titleEn: "Even", wordIds: ["shat", "ashta", "dasha"] },
+    { titleRu: "Нечётные", titleEn: "Odd", wordIds: ["sapta", "nava"] }
   ],
   categories: [
-    { titleRu: "Чётные числа", titleEn: "Even Numbers", wordIds: ["dvadasa", "caturdasa"] },
-    { titleRu: "Нечётные числа", titleEn: "Odd Numbers", wordIds: ["ekadasa", "trayodasa", "pancadasa"] },
-    { titleRu: "Больше двенадцати", titleEn: "More Than Twelve", wordIds: ["trayodasa", "caturdasa", "pancadasa"] },
-    { titleRu: "Меньше тринадцати", titleEn: "Less Than Thirteen", wordIds: ["ekadasa", "dvadasa"] },
-    { titleRu: "Больше одиннадцати", titleEn: "More Than Eleven", wordIds: ["dvadasa", "trayodasa", "caturdasa", "pancadasa"] },
-    { titleRu: "Меньше пятнадцати", titleEn: "Less Than Fifteen", wordIds: ["ekadasa", "dvadasa", "trayodasa", "caturdasa"] },
-    { titleRu: "От двенадцати до четырнадцати", titleEn: "Twelve to Fourteen", wordIds: ["dvadasa", "trayodasa", "caturdasa"] },
-    { titleRu: "Одиннадцать или пятнадцать", titleEn: "Eleven or Fifteen", wordIds: ["ekadasa", "pancadasa"] },
-    { titleRu: "Все, кроме тринадцати", titleEn: "Everything but Thirteen", wordIds: ["ekadasa", "dvadasa", "caturdasa", "pancadasa"] },
-    { titleRu: "Без знака ्", titleEn: "Without a Virāma", wordIds: ["ekadasa", "dvadasa", "trayodasa", "pancadasa"] }
+    { titleRu: "Чётные числа", titleEn: "Even Numbers", wordIds: ["shat", "ashta", "dasha"] },
+    { titleRu: "Нечётные числа", titleEn: "Odd Numbers", wordIds: ["sapta", "nava"] },
+    { titleRu: "Больше семи", titleEn: "More Than Seven", wordIds: ["ashta", "nava", "dasha"] },
+    { titleRu: "Меньше восьми", titleEn: "Less Than Eight", wordIds: ["shat", "sapta"] },
+    { titleRu: "Больше шести", titleEn: "More Than Six", wordIds: ["sapta", "ashta", "nava", "dasha"] },
+    { titleRu: "Восемь или девять", titleEn: "Eight or Nine", wordIds: ["ashta", "nava"] },
+    { titleRu: "С буквой «ष» (ṣa)", titleEn: 'Containing "ष" (ṣa)', wordIds: ["shat", "ashta"] },
+    { titleRu: "Со знаком ् (вирама)", titleEn: 'With a Virāma (्)', wordIds: ["shat", "sapta", "ashta"] },
+    { titleRu: "Без знака ्", titleEn: 'Without a Virāma', wordIds: ["nava", "dasha"] },
+    { titleRu: "Все, кроме «दश»", titleEn: 'Everything but "दश"', wordIds: ["shat", "sapta", "ashta", "nava"] }
   ]
 });
