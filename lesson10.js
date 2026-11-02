@@ -17,8 +17,8 @@ SAL.registerLesson({
   titleEn: "Tens 60–100",
   topicRu: "шестьдесят, семьдесят, восемьдесят, девяносто, сто",
   topicEn: "sixty, seventy, eighty, ninety, one hundred",
-  introRu: "Тринадцатый урок: десятки от шестидесяти до ста — <code>षष्टिः</code>, <code>सप्ततिः</code>, <code>अशीतिः</code>, <code>नवतिः</code>, <code>शतम्</code>. Четыре из них кончаются на <code>-तिः</code> с висаргой, а «сто» — слово среднего рода на <code>-म्</code>. Количество показывают арабские цифры: перевода по-прежнему нет.",
-  introEn: "The twelfth lesson: the tens from sixty to a hundred — <code>ṣaṣṭiḥ</code>, <code>saptatiḥ</code>, <code>aśītiḥ</code>, <code>navatiḥ</code>, <code>śatam</code>. Four of them end in <code>-tiḥ</code> with a visarga, while “hundred” is a neuter word in <code>-m</code>. Quantity is shown by Arabic digits: still no translation.",
+  introRu: "Четырнадцатый урок: десятки от шестидесяти до ста — <code>षष्टिः</code>, <code>सप्ततिः</code>, <code>अशीतिः</code>, <code>नवतिः</code>, <code>शतम्</code>. Четыре из них кончаются на <code>-तिः</code> с висаргой, а «сто» — слово среднего рода на <code>-म्</code>. Количество показывают арабские цифры: перевода по-прежнему нет.",
+  introEn: "The fourteenth lesson: the tens from sixty to a hundred — <code>ṣaṣṭiḥ</code>, <code>saptatiḥ</code>, <code>aśītiḥ</code>, <code>navatiḥ</code>, <code>śatam</code>. Four of them end in <code>-tiḥ</code> with a visarga, while “hundred” is a neuter word in <code>-m</code>. Quantity is shown by Arabic digits: still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {

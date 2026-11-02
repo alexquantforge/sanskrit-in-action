@@ -17,8 +17,8 @@ SAL.registerLesson({
   titleEn: "Numbers 16–20",
   topicRu: "шестнадцать, семнадцать, восемнадцать, девятнадцать, двадцать",
   topicEn: "sixteen, seventeen, eighteen, nineteen, twenty",
-  introRu: "Одиннадцатый урок: числа от шестнадцати до двадцати — <code>षोडश</code>, <code>सप्तदश</code>, <code>अष्टादश</code>, <code>नवदश</code>, <code>विंशतिः</code>. Первые четыре тоже построены на <code>दश</code>, а «двадцать» — уже отдельное слово с висаргой на конце. Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
-  introEn: "The tenth lesson: sixteen to twenty — <code>ṣoḍaśa</code>, <code>saptadaśa</code>, <code>aṣṭādaśa</code>, <code>navadaśa</code>, <code>viṃśatiḥ</code>. The first four are still built on <code>daśa</code>, while “twenty” is a separate word ending in a visarga. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
+  introRu: "Двенадцатый урок: числа от шестнадцати до двадцати — <code>षोडश</code>, <code>सप्तदश</code>, <code>अष्टादश</code>, <code>नवदश</code>, <code>विंशतिः</code>. Первые четыре тоже построены на <code>दश</code>, а «двадцать» — уже отдельное слово с висаргой на конце. Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
+  introEn: "The twelfth lesson: sixteen to twenty — <code>ṣoḍaśa</code>, <code>saptadaśa</code>, <code>aṣṭādaśa</code>, <code>navadaśa</code>, <code>viṃśatiḥ</code>. The first four are still built on <code>daśa</code>, while “twenty” is a separate word ending in a visarga. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {

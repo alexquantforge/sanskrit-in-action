@@ -511,6 +511,24 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10']) {
      SAL.lessons.L7.num === 11 && SAL.lessons.L8.num === 12 && SAL.lessons.L9.num === 13 &&
      SAL.lessons.L10.num === 14,
     'номера в данных: Тело = 1, Лицо = 2, Цвета = 3, Ещё цвета = 4, Три рода = 5, рода·цвета = 6, 12 частей = 7, 1–5 = 8, мальчики = 9, 6–10 = 10, 11–15 = 11, 16–20 = 12, десятки = 13 и 14');
+  /* вводный текст называет урок тем же номером, что и слот на странице */
+  const ORD_RU = ['', 'Первый', 'Второй', 'Третий', 'Четвёртый', 'Пятый', 'Шестой', 'Седьмой',
+    'Восьмой', 'Девятый', 'Десятый', 'Одиннадцатый', 'Двенадцатый', 'Тринадцатый', 'Четырнадцатый'];
+  const ORD_EN = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh',
+    'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth'];
+  const ordinalIssues = Object.keys(SAL.lessons).map(k => SAL.lessons[k])
+    .filter(c => c.num >= 1 && c.num <= 14)
+    .map(c => {
+      const ru = (c.introRu || '').match(/^([А-ЯЁ][а-яё]+)\s+урок/);
+      const en = (c.introEn || '').match(/^The\s+([a-z]+)\s+lesson/i);
+      if (!ru) return null;                 /* у части уроков вводного текста нет */
+      const okRu = ru[1] === ORD_RU[c.num];
+      const okEn = !en || en[1].toLowerCase() === ORD_EN[c.num];
+      return okRu && okEn ? null : c.key + ' (№ ' + c.num + '): ' + ru[1] + ' / ' + (en ? en[1] : '—');
+    }).filter(Boolean);
+  ck(ordinalIssues.length === 0,
+    'вводный текст называет номер урока верно — RU и EN' +
+    (ordinalIssues.length ? ': ' + ordinalIssues.join(', ') : ''));
   /* урок 5 — «Три рода» (движок), урок 7 — написанная вручную страница из 12 слов */
   ck(/УРОК 4 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson4').textContent),
     'слот 4 — урок «Ещё цвета», помечен как УРОК 4');

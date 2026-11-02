@@ -17,8 +17,8 @@ SAL.registerLesson({
   titleEn: "Numbers 11–15",
   topicRu: "одиннадцать, двенадцать, тринадцать, четырнадцать, пятнадцать",
   topicEn: "eleven, twelve, thirteen, fourteen, fifteen",
-  introRu: "Десятый урок: числа от одиннадцати до пятнадцати — <code>एकादश</code>, <code>द्वादश</code>, <code>त्रयोदश</code>, <code>चतुर्दश</code>, <code>पञ्चदश</code>. Все они построены на <code>दश</code> «десять»: к основе первого числа прибавляется «десять». Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
-  introEn: "The ninth lesson: eleven to fifteen — <code>ekādaśa</code>, <code>dvādaśa</code>, <code>trayodaśa</code>, <code>caturdaśa</code>, <code>pañcadaśa</code>. They are all built on <code>daśa</code> “ten”: the stem of the first number plus “ten”. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
+  introRu: "Одиннадцатый урок: числа от одиннадцати до пятнадцати — <code>एकादश</code>, <code>द्वादश</code>, <code>त्रयोदश</code>, <code>चतुर्दश</code>, <code>पञ्चदश</code>. Все они построены на <code>दश</code> «десять»: к основе первого числа прибавляется «десять». Количество показывают арабские цифры: больше десяти бусины уже не сосчитать на глаз. Перевода по-прежнему нет.",
+  introEn: "The eleventh lesson: eleven to fifteen — <code>ekādaśa</code>, <code>dvādaśa</code>, <code>trayodaśa</code>, <code>caturdaśa</code>, <code>pañcadaśa</code>. They are all built on <code>daśa</code> “ten”: the stem of the first number plus “ten”. Quantity is shown by Arabic digits: past ten, beads can no longer be counted at a glance. Still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {
