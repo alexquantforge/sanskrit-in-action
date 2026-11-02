@@ -1,8 +1,8 @@
 /**
- * LESSON 12 · सङ्ख्याः · "Tens 60–100" (5 слов)
+ * LESSON 12 · सङ्ख्याः · "Tens 10–50" (5 слов)
  * Cambridge CELTA / Direct Method PPP: Presentation → Practice → Production.
- * The same build as Lessons 4–7, for the tens 60–100:
- * - the counting forms: षष्टिः, सप्ततिः, अशीतिः, नवतिः, शतम्
+ * The same build as Lessons 4–7, for the tens 10–50:
+ * - the counting forms: दश, विंशतिः, त्रिंशत्, चत्वारिंशत्, पञ्चाशत्
  * - past ten, quantity is shown by Arabic digits: beads cannot be counted at a glance
  * - the TPR gesture is one clap per ten, not a clap per unit
  * - IAST is hidden by default and can be switched on with the 🔤 button.
@@ -13,28 +13,28 @@ SAL.registerLesson({
   key: "L9",
   num: 13,
   titleDeva: "सङ्ख्याः",
-  titleRu: "Десятки 60–100",
-  titleEn: "Tens 60–100",
-  topicRu: "шестьдесят, семьдесят, восемьдесят, девяносто, сто",
-  topicEn: "sixty, seventy, eighty, ninety, one hundred",
-  introRu: "Двенадцатый урок: десятки от шестидесяти до ста — <code>षष्टिः</code>, <code>सप्ततिः</code>, <code>अशीतिः</code>, <code>नवतिः</code>, <code>शतम्</code>. Четыре из них кончаются на <code>-तिः</code> с висаргой, а «сто» — слово среднего рода на <code>-म्</code>. Количество показывают арабские цифры: перевода по-прежнему нет.",
-  introEn: "The twelfth lesson: the tens from sixty to a hundred — <code>ṣaṣṭiḥ</code>, <code>saptatiḥ</code>, <code>aśītiḥ</code>, <code>navatiḥ</code>, <code>śatam</code>. Four of them end in <code>-tiḥ</code> with a visarga, while “hundred” is a neuter word in <code>-m</code>. Quantity is shown by Arabic digits: still no translation.",
+  titleRu: "Десятки 10–50",
+  titleEn: "Tens 10–50",
+  topicRu: "десять, двадцать, тридцать, сорок, пятьдесят",
+  topicEn: "ten, twenty, thirty, forty, fifty",
+  introRu: "Двенадцатый урок: круглые десятки от десяти до пятидесяти — <code>दश</code>, <code>विंशतिः</code>, <code>त्रिंशत्</code>, <code>चत्वारिंशत्</code>, <code>पञ्चाशत्</code>. Обратите внимание на два разных конца: <code>-तिः</code> у двадцати и <code>-शत्</code> у тридцати, сорока и пятидесяти. Количество показывают арабские цифры: перевода по-прежнему нет.",
+  introEn: "The eleventh lesson: the tens from ten to fifty — <code>daśa</code>, <code>viṃśatiḥ</code>, <code>triṃśat</code>, <code>catvāriṃśat</code>, <code>pañcāśat</code>. Note the two different endings: <code>-tiḥ</code> for twenty and <code>-śat</code> for thirty, forty and fifty. Quantity is shown by Arabic digits: still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {
-      main: "Ввести и отработать десятки 60–100 в контексте счёта круглыми числами и уточнить -तिः в противопоставлении शतम्.",
+      main: "Ввести и отработать круглые десятки 10–50 в контексте счёта круглыми числами и уточнить окончания -तिः и -शत्.",
       subs: [
-        "Уточнить четыре формы на -तिः в противопоставлении शतम् на -म्.",
-        "Поставить произношение ṣ и ś в षष्टिः, सप्ततिः и अशीतिः.",
-        "Дать свободную устную практику со всеми десятью числительными прошлых уроков."
+        "Уточнить два окончания: -तिः (विंशतिः) и -शत् (त्रिंशत्, चत्वारिंशत्, पञ्चाशत्).",
+        "Поставить словесное ударение в длинных числительных.",
+        "Повторить числительные 16–20 перед новым материалом."
       ]
     },
     en: {
-      main: "To introduce and practise the tens 60–100 in the context of counting in round numbers, and to clarify -तिः against शतम्.",
+      main: "To introduce and practise the tens 10–50 in the context of counting in round numbers, and to clarify the -तिः and -शत् endings.",
       subs: [
-        "To clarify the four -तिः forms against शतम् in -म्.",
-        "To give practice in the pronunciation of ṣ and ś in षष्टिः, सप्ततिः and अशीतिः.",
-        "To provide fluency practice with all ten numerals of the previous lessons."
+        "To clarify the two endings: -तिः (विंशतिः) and -शत् (त्रिंशत्, चत्वारिंशत्, पञ्चाशत्).",
+        "To give practice in word stress in the longer numerals.",
+        "To review the numerals 16–20 before the new set."
       ]
     }
   },
@@ -44,100 +44,98 @@ SAL.registerLesson({
   prodTitleEn: "Freer Production: Say All {n} Numerals Aloud",
   words: [
     {
-      id: "shashti", deva: "षष्टिः", iast: "ṣaṣṭiḥ", ttsText: "षष्टिः", value: 60,
-      syll: ["ष", "ष्टिः"],
-      typoDeva: "षष्ठिः", typoIast: "ṣaṣṭhiḥ",
-      maskedPrefix: "ष", maskedHidden: "ष्टिः",
-      gapDeva: "_ष्टिः", gapIast: "_ṣṭiḥ", gapAnswer: "ष",
+      id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश", value: 10,
+      syll: ["द", "श"],
+      typoDeva: "दष", typoIast: "daṣa",
+      maskedPrefix: "द", maskedHidden: "श",
+      gapDeva: "_श", gapIast: "_śa", gapAnswer: "द",
       gapChoices: [
-          { deva: "ष", iast: "ṣa" },
-          { deva: "श", iast: "śa" },
-          { deva: "स", iast: "sa" },
-          { deva: "क्ष", iast: "kṣa" }
+          { deva: "द", iast: "da" },
+          { deva: "ध", iast: "dha" },
+          { deva: "ड", iast: "ḍa" },
+          { deva: "त", iast: "ta" }
       ],
-      missingDisplay: "ष _ टिः", missingAnswer: "ष्",
-      missingChoices: ["ष्", "श्", "स्", "ष"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">60</text>\n    </svg>"
+      missingDisplay: "द _", missingAnswer: "श",
+      missingChoices: ["श", "ष", "स", "ह"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">10</text>\n    </svg>"
     },
     {
-      id: "saptati", deva: "सप्ततिः", iast: "saptatiḥ", ttsText: "सप्ततिः", value: 70,
-      syll: ["सप्त", "तिः"],
-      typoDeva: "सप्तति", typoIast: "saptati",
-      maskedPrefix: "सप्त", maskedHidden: "तिः",
-      gapDeva: "सप्त _", gapIast: "sapta _", gapAnswer: "तिः",
+      id: "vimshati", deva: "विंशतिः", iast: "viṃśatiḥ", ttsText: "विंशतिः", value: 20,
+      syll: ["विं", "श", "तिः"],
+      typoDeva: "विंशतीः", typoIast: "viṃśatīḥ",
+      maskedPrefix: "विं", maskedHidden: "शतिः",
+      gapDeva: "विंश _", gapIast: "viṃś _", gapAnswer: "तिः",
       gapChoices: [
           { deva: "तिः", iast: "tiḥ" },
           { deva: "ति", iast: "ti" },
           { deva: "तीः", iast: "tīḥ" },
-          { deva: "थिः", iast: "thiḥ" }
+          { deva: "ती", iast: "tī" }
       ],
-      missingDisplay: "_प्ततिः", missingAnswer: "स",
-      missingChoices: ["स", "श", "ष", "ह"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">70</text>\n    </svg>"
+      missingDisplay: "विं _ तिः", missingAnswer: "श",
+      missingChoices: ["श", "ष", "स", "ह"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">20</text>\n    </svg>"
     },
     {
-      id: "ashiti", deva: "अशीतिः", iast: "aśītiḥ", ttsText: "अशीतिः", value: 80,
-      syll: ["अ", "शी", "तिः"],
-      typoDeva: "अषीतिः", typoIast: "aṣītiḥ",
-      maskedPrefix: "अशी", maskedHidden: "तिः",
-      gapDeva: "_शीतिः", gapIast: "_śītiḥ", gapAnswer: "अ",
+      id: "trimshat", deva: "त्रिंशत्", iast: "triṃśat", ttsText: "त्रिंशत्", value: 30,
+      syll: ["त्रिं", "शत्"],
+      typoDeva: "त्रिशत्", typoIast: "triśat",
+      maskedPrefix: "त्रिं", maskedHidden: "शत्",
+      gapDeva: "त्रिं _", gapIast: "triṃ _", gapAnswer: "शत्",
       gapChoices: [
-          { deva: "अ", iast: "a" },
-          { deva: "आ", iast: "ā" },
-          { deva: "उ", iast: "u" },
-          { deva: "इ", iast: "i" }
+          { deva: "शत्", iast: "śat" },
+          { deva: "षत्", iast: "ṣat" },
+          { deva: "सत्", iast: "sat" },
+          { deva: "शद्", iast: "śad" }
       ],
-      missingDisplay: "अशी _", missingAnswer: "तिः",
-      missingChoices: ["तिः", "ति", "तीः", "थिः"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">80</text>\n    </svg>"
+      missingDisplay: "त्रिंश _", missingAnswer: "त्",
+      missingChoices: ["त्", "थ्", "द्", "ट्"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">30</text>\n    </svg>"
     },
     {
-      id: "navati", deva: "नवतिः", iast: "navatiḥ", ttsText: "नवतिः", value: 90,
-      syll: ["नव", "तिः"],
-      typoDeva: "नवतीः", typoIast: "navatīḥ",
-      maskedPrefix: "नव", maskedHidden: "तिः",
-      gapDeva: "न _ तिः", gapIast: "na _ tiḥ", gapAnswer: "व",
+      id: "catvarimshat", deva: "चत्वारिंशत्", iast: "catvāriṃśat", ttsText: "चत्वारिंशत्", value: 40,
+      syll: ["च", "त्वा", "रिं", "शत्"],
+      typoDeva: "चत्वारिंसत्", typoIast: "catvāriṃsat",
+      maskedPrefix: "चत्वारिं", maskedHidden: "शत्",
+      gapDeva: "च _ रिंशत्", gapIast: "ca _ riṃśat", gapAnswer: "त्वा",
       gapChoices: [
-          { deva: "व", iast: "va" },
-          { deva: "ब", iast: "ba" },
-          { deva: "य", iast: "ya" },
-          { deva: "र", iast: "ra" }
+          { deva: "त्वा", iast: "tvā" },
+          { deva: "त्व", iast: "tva" },
+          { deva: "त्या", iast: "tyā" },
+          { deva: "थ्वा", iast: "thvā" }
       ],
-      missingDisplay: "नवति _", missingAnswer: "ः",
-      missingChoices: ["ः", "ं", "ँ", "ऽ"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">90</text>\n    </svg>"
+      missingDisplay: "चत्वा _ शत्", missingAnswer: "रिं",
+      missingChoices: ["रिं", "रि", "रीं", "लिं"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">40</text>\n    </svg>"
     },
     {
-      id: "shatam", deva: "शतम्", iast: "śatam", ttsText: "शतम्", value: 100,
-      syll: ["श", "त", "म्"],
-      typoDeva: "षतम्", typoIast: "ṣatam",
-      maskedPrefix: "श", maskedHidden: "तम्",
-      gapDeva: "_तम्", gapIast: "_tam", gapAnswer: "श",
+      id: "pancashat", deva: "पञ्चाशत्", iast: "pañcāśat", ttsText: "पञ्चाशत्", value: 50,
+      syll: ["प", "ञ्चा", "शत्"],
+      typoDeva: "पन्चाशत्", typoIast: "pancāśat",
+      maskedPrefix: "पञ्चा", maskedHidden: "शत्",
+      gapDeva: "प _ शत्", gapIast: "pa _ śat", gapAnswer: "ञ्चा",
       gapChoices: [
-          { deva: "श", iast: "śa" },
-          { deva: "ष", iast: "ṣa" },
-          { deva: "स", iast: "sa" },
-          { deva: "ह", iast: "ha" }
+          { deva: "ञ्चा", iast: "ñcā" },
+          { deva: "न्चा", iast: "ncā" },
+          { deva: "ञ्छा", iast: "ñchā" },
+          { deva: "ण्चा", iast: "ṇcā" }
       ],
-      missingDisplay: "शत _", missingAnswer: "म्",
-      missingChoices: ["म्", "म", "न्", "व्"],
-      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"38\" font-weight=\"700\" fill=\"#14213D\">100</text>\n    </svg>"
+      missingDisplay: "पञ्चा _", missingAnswer: "शत्",
+      missingChoices: ["शत्", "षत्", "सत्", "शद्"],
+      svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">50</text>\n    </svg>"
     }
   ],
   /* words for the 10 x 10 word grid: real Sanskrit, but never in this lesson */
   decoys: [
-    "षष्ठिः",
-    "सष्टिः",
-    "षष्टि",
-    "सप्तति",
-    "सप्ततीः",
-    "सप्तत",
-    "अषीतिः",
-    "अशीति",
-    "नवतीः",
-    "नवति",
-    "षतम्",
-    "शत",
+    "दस",
+    "दष",
+    "विंशतीः",
+    "विंसतिः",
+    "त्रिशत्",
+    "त्रिंसत्",
+    "चत्वारिंसत्",
+    "चत्वारिशत्",
+    "पन्चाशत्",
+    "पञ्चासत्",
     "एकम्",
     "द्वे",
     "त्रीणि",
@@ -147,16 +145,18 @@ SAL.registerLesson({
     "सप्त",
     "अष्ट",
     "नव",
-    "दश",
-    "विंशतिः",
-    "त्रिंशत्",
-    "पञ्चाशत्",
+    "षष्टिः",
+    "सप्ततिः",
+    "अशीतिः",
+    "नवतिः",
+    "शतम्",
     "शीर्ष",
     "हस्त",
     "पाद",
     "मुख",
     "जलम्",
-    "फलम्"
+    "फलम्",
+    "गृहम्"
   ],
   /* extra practice games from games-extra.js (solo, then pair, then the grids) */
   extraGames: [
@@ -167,54 +167,54 @@ SAL.registerLesson({
   ],
   /* the sorting game asks about the shape of the word (see games-extra.js) */
   sortFeatures: [
+    { ru: 'Оканчиваются на «तिः» (-tiḥ)', en: 'Ending in "तिः" (-tiḥ)',
+      test: function (w) { return /तिः$/.test(w.deva); } },
+    { ru: 'Оканчиваются на «शत्» (-śat)', en: 'Ending in "शत्" (-śat)',
+      test: function (w) { return /शत्$/.test(w.deva); } },
     { ru: 'Есть висарга ः (ḥ)', en: 'Has a visarga (ः)',
       test: function (w) { return w.deva.indexOf('ः') >= 0; } },
-    { ru: 'Оканчиваются на «म्» (-m)', en: 'Ending in "म्" (-m)',
-      test: function (w) { return /म्$/.test(w.deva); } },
-    { ru: 'Есть буква «ष» (ṣa)', en: 'Contains "ष" (ṣa)',
-      test: function (w) { return w.deva.indexOf('ष') >= 0; } },
-    { ru: 'Начинается с гласной «अ»', en: 'Starts with the vowel "अ"',
-      test: function (w) { return w.deva.charAt(0) === 'अ'; } }
+    { ru: 'Есть носовой ं (ṃ)', en: 'Has an anusvāra (ं)',
+      test: function (w) { return w.deva.indexOf('ं') >= 0; } }
   ],
   steps: [
-    { wordIds: ["shashti", "saptati"] },
-    { wordIds: ["ashiti", "navati"] },
-    { wordIds: ["shatam"] }
+    { wordIds: ["dasha", "vimshati"] },
+    { wordIds: ["trimshat", "catvarimshat"] },
+    { wordIds: ["pancashat"] }
   ],
   hotspots: {
     figures: [
       {
         key: "chart",
-        captionRu: "Таблица чисел: 60–100",
-        captionEn: "Number Chart: 60–100",
+        captionRu: "Таблица чисел: 10–50",
+        captionEn: "Number Chart: 10–50",
         viewBox: "0 0 320 300",
-        art: "<rect x=\"36\" y=\"16\" width=\"248\" height=\"268\" rx=\"16\" fill=\"#FFFBEB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <rect x=\"36\" y=\"16\" width=\"248\" height=\"30\" rx=\"16\" fill=\"#FDE68A\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <path d=\"M52 31H268\" stroke=\"#B45309\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <text x=\"160\" y=\"70\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">60</text>\n  <text x=\"160\" y=\"110\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">70</text>\n  <text x=\"160\" y=\"150\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">80</text>\n  <text x=\"160\" y=\"190\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">90</text>\n  <text x=\"160\" y=\"230\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">100</text>",
+        art: "<rect x=\"36\" y=\"16\" width=\"248\" height=\"268\" rx=\"16\" fill=\"#FFFBEB\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <rect x=\"36\" y=\"16\" width=\"248\" height=\"30\" rx=\"16\" fill=\"#FDE68A\" stroke=\"#14213D\" stroke-width=\"2.6\"/>\n  <path d=\"M52 31H268\" stroke=\"#B45309\" stroke-width=\"2\" stroke-linecap=\"round\"/>\n  <text x=\"160\" y=\"70\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">10</text>\n  <text x=\"160\" y=\"110\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">20</text>\n  <text x=\"160\" y=\"150\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">30</text>\n  <text x=\"160\" y=\"190\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">40</text>\n  <text x=\"160\" y=\"230\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"34\" font-weight=\"700\" fill=\"#14213D\">50</text>",
         pins: [
-          { id: "shashti", num: 1, x: 300, y: 64, tx: 160, ty: 70 },
-          { id: "saptati", num: 2, x: 20, y: 104, tx: 160, ty: 110 },
-          { id: "ashiti", num: 3, x: 300, y: 144, tx: 160, ty: 150 },
-          { id: "navati", num: 4, x: 20, y: 184, tx: 160, ty: 190 },
-          { id: "shatam", num: 5, x: 300, y: 224, tx: 160, ty: 230 }
+          { id: "dasha", num: 1, x: 300, y: 64, tx: 160, ty: 70 },
+          { id: "vimshati", num: 2, x: 20, y: 104, tx: 160, ty: 110 },
+          { id: "trimshat", num: 3, x: 300, y: 144, tx: 160, ty: 150 },
+          { id: "catvarimshat", num: 4, x: 20, y: 184, tx: 160, ty: 190 },
+          { id: "pancashat", num: 5, x: 300, y: 224, tx: 160, ty: 230 }
         ]
       }
     ]
   },
   groups: [
-    { titleRu: "Шестьдесят и семьдесят", titleEn: "Sixty and Seventy", wordIds: ["shashti", "saptati"] },
-    { titleRu: "Восемьдесят — сто", titleEn: "Eighty to a Hundred", wordIds: ["ashiti", "navati", "shatam"] },
-    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["shashti", "ashiti", "shatam"] },
-    { titleRu: "Оканчиваются на «तिः»", titleEn: "Ending in «तिः»", wordIds: ["shashti", "saptati", "ashiti", "navati"] }
+    { titleRu: "Десять и двадцать", titleEn: "Ten and Twenty", wordIds: ["dasha", "vimshati"] },
+    { titleRu: "Тридцать — пятьдесят", titleEn: "Thirty to Fifty", wordIds: ["trimshat", "catvarimshat", "pancashat"] },
+    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["vimshati", "catvarimshat"] },
+    { titleRu: "Оканчиваются на «शत्»", titleEn: "Ending in «शत्»", wordIds: ["trimshat", "catvarimshat", "pancashat"] }
   ],
   categories: [
-    { titleRu: "Больше семидесяти", titleEn: "More Than Seventy", wordIds: ["ashiti", "navati", "shatam"] },
-    { titleRu: "Меньше восьмидесяти", titleEn: "Less Than Eighty", wordIds: ["shashti", "saptati"] },
-    { titleRu: "Больше шестидесяти", titleEn: "More Than Sixty", wordIds: ["saptati", "ashiti", "navati", "shatam"] },
-    { titleRu: "Меньше девяноста", titleEn: "Less Than Ninety", wordIds: ["shashti", "saptati", "ashiti"] },
-    { titleRu: "Больше восьмидесяти", titleEn: "More Than Eighty", wordIds: ["navati", "shatam"] },
-    { titleRu: "Меньше ста", titleEn: "Less Than a Hundred", wordIds: ["shashti", "saptati", "ashiti", "navati"] },
-    { titleRu: "Начинаются с согласной", titleEn: "Starting with a Consonant", wordIds: ["shashti", "saptati", "navati", "shatam"] },
-    { titleRu: "Кратны тридцати", titleEn: "Multiples of Thirty", wordIds: ["shashti", "navati"] },
-    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["shashti", "ashiti", "shatam"] },
-    { titleRu: "Не кратны двадцати", titleEn: "Not Multiples of Twenty", wordIds: ["saptati", "navati"] }
+    { titleRu: "Больше двадцати", titleEn: "More Than Twenty", wordIds: ["trimshat", "catvarimshat", "pancashat"] },
+    { titleRu: "Меньше тридцати", titleEn: "Less Than Thirty", wordIds: ["dasha", "vimshati"] },
+    { titleRu: "Больше десяти", titleEn: "More Than Ten", wordIds: ["vimshati", "trimshat", "catvarimshat", "pancashat"] },
+    { titleRu: "Меньше сорока", titleEn: "Less Than Forty", wordIds: ["dasha", "vimshati", "trimshat"] },
+    { titleRu: "Больше тридцати", titleEn: "More Than Thirty", wordIds: ["catvarimshat", "pancashat"] },
+    { titleRu: "Меньше пятидесяти", titleEn: "Less Than Fifty", wordIds: ["dasha", "vimshati", "trimshat", "catvarimshat"] },
+    { titleRu: "С носовым ं (ṃ)", titleEn: "With an Anusvāra (ं)", wordIds: ["vimshati", "trimshat", "catvarimshat"] },
+    { titleRu: "Без носового ं", titleEn: "Without an Anusvāra", wordIds: ["dasha", "pancashat"] },
+    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["vimshati", "catvarimshat"] },
+    { titleRu: "Не кратны двадцати", titleEn: "Not Multiples of Twenty", wordIds: ["dasha", "trimshat", "pancashat"] }
   ]
 });

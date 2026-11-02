@@ -440,11 +440,12 @@ var SAL = (window.SAL = window.SAL || {});
     LG2: { ru: 'Урок 6: Три рода · другие цвета', en: 'Lesson 6: Three Genders · More Colours' },
     lesson7: { ru: 'Урок 7: Части тела (12)', en: 'Lesson 7: Body Parts (12)' },
     L4: { ru: 'Урок 8: Цифры 1–5', en: 'Lesson 8: Numbers 1–5' },
-    L5: { ru: 'Урок 9: Цифры 6–10', en: 'Lesson 9: Numbers 6–10' },
-    L6: { ru: 'Урок 10: Цифры 11–15', en: 'Lesson 10: Numbers 11–15' },
-    L7: { ru: 'Урок 11: Цифры 16–20', en: 'Lesson 11: Numbers 16–20' },
-    L8: { ru: 'Урок 12: Десятки 10–50', en: 'Lesson 12: Tens 10–50' },
-    L9: { ru: 'Урок 13: Десятки 60–100', en: 'Lesson 13: Tens 60–100' }
+    L5: { ru: 'Урок 9: Счёт мальчиков 1–5', en: 'Lesson 9: Counting Boys 1–5' },
+    L6: { ru: 'Урок 10: Цифры 6–10', en: 'Lesson 10: Numbers 6–10' },
+    L7: { ru: 'Урок 11: Цифры 11–15', en: 'Lesson 11: Numbers 11–15' },
+    L8: { ru: 'Урок 12: Цифры 16–20', en: 'Lesson 12: Numbers 16–20' },
+    L9: { ru: 'Урок 13: Десятки 10–50', en: 'Lesson 13: Tens 10–50' },
+    L10: { ru: 'Урок 14: Десятки 60–100', en: 'Lesson 14: Tens 60–100' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
@@ -3722,7 +3723,7 @@ var SAL = (window.SAL = window.SAL || {});
   /* the lesson dropdown: 'lesson7' is the standalone 12-word lesson, everything
      else is a key registered by a lesson data file */
   /* название урока для адреса, закладки и заголовка вкладки:
-     SAL.lessonLabel('L5', 'ru') → «Урок 9: Цифры 6–10» */
+     SAL.lessonLabel('L6', 'ru') → «Урок 10: Цифры 6–10» */
   SAL.lessonLabel = function (key, lang) {
     var lab = NAV_LABELS[key];
     if (!lab) return null;

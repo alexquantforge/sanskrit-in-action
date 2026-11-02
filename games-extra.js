@@ -45,11 +45,31 @@
     4: [[34, 34], [66, 34], [34, 66], [66, 66]],
     5: [[32, 32], [68, 32], [50, 50], [32, 68], [68, 68]]
   };
-  function qtySvg(n) {
+  /* урок «Счёт мальчиков»: в вариантах тоже мальчики, а не точки — иначе
+     игра показывала бы количество «точками» там, где урок считает людей */
+  var QTY_BOYS = {
+    1: [[50, 52, 1.15]],
+    2: [[33, 52, 0.95], [67, 52, 0.95]],
+    3: [[24, 52, 0.8], [50, 52, 0.8], [76, 52, 0.8]],
+    4: [[34, 34, 0.8], [66, 34, 0.8], [34, 70, 0.8], [66, 70, 0.8]],
+    5: [[30, 32, 0.74], [50, 32, 0.74], [70, 32, 0.74], [40, 70, 0.74], [60, 70, 0.74]]
+  };
+  function qtyBoy(x, y, s) {
+    return '<g transform="translate(' + x + ' ' + y + ') scale(' + s + ')">' +
+      '<circle cx="0" cy="-12.8" r="6.3" fill="#14213D"/>' +
+      '<circle cx="0" cy="-10.9" r="6" fill="#F6C89A" stroke="#14213D" stroke-width="1.2"/>' +
+      '<rect x="-5" y="-4.6" width="10" height="12.6" rx="4.2" fill="#2B4BA8" stroke="#14213D" stroke-width="1.3"/>' +
+      '<path d="M-4.4 -1.4 -8.4 6M4.4 -1.4 8.4 6" stroke="#2B4BA8" stroke-width="2.6" stroke-linecap="round"/>' +
+      '<path d="M-2.5 7.4 -3.6 14.2M2.5 7.4 3.6 14.2" stroke="#374151" stroke-width="2.8" stroke-linecap="round"/>' +
+      '</g>';
+  }
+  function qtySvg(n, cfg) {
     var card = '<rect width="100" height="100" rx="14" fill="#FFFBEB"/>' +
       '<rect x="6" y="6" width="88" height="88" rx="10" fill="none" stroke="#E5DEC9" stroke-width="1.5"/>';
     var inner;
-    if (n > 5 || !QTY_DOTS[n]) {
+    if (cfg && cfg.countKind === 'boys' && n <= 5) {
+      inner = QTY_BOYS[n].map(function (p) { return qtyBoy(p[0], p[1], p[2]); }).join('');
+    } else if (n > 5 || !QTY_DOTS[n]) {
       inner = '<text x="50" y="52" text-anchor="middle" dominant-baseline="central" ' +
         'font-family="system-ui, -apple-system, Roboto, sans-serif" font-size="46" font-weight="700" ' +
         'fill="#14213D">' + n + '</text>';
@@ -61,7 +81,7 @@
     return '<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">' + card + inner + '</svg>';
   }
   function qtyOpt(cfg, w, action, cls, letter) {
-    return opt(cfg, action, w.id, '<span class="qty-opt">' + qtySvg(w.value) + '</span>', cls, letter);
+    return opt(cfg, action, w.id, '<span class="qty-opt">' + qtySvg(w.value, cfg) + '</span>', cls, letter);
   }
   function devaSpan(txt, size) {
     return '<span style="font-family:var(--font-deva);font-weight:700;' +

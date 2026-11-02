@@ -930,7 +930,7 @@ function setPratyaya(pratyayaKey) {
    ========================================================================= */
 const ROUTE_VIEWS = ['home', 'details', 'lesson1', 'lesson2', 'lesson3', 'lesson4',
                      'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9', 'lesson10',
-                     'lesson11', 'lesson12', 'lesson13'];
+                     'lesson11', 'lesson12', 'lesson13', 'lesson14'];
 let activeView = 'home';
 let routeLock = false;          // URL применяется — обратно не пишем
 
@@ -1153,6 +1153,7 @@ function switchView(viewName, targetSectionId = null) {
     lesson11: document.getElementById('view-lesson11'),
     lesson12: document.getElementById('view-lesson12'),
     lesson13: document.getElementById('view-lesson13'),
+    lesson14: document.getElementById('view-lesson14'),
     details: document.getElementById('view-details')
   };
   const buttons = {
