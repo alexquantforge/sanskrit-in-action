@@ -48,7 +48,16 @@ var SAL = (window.SAL = window.SAL || {});
   function tx(o) {
     if (o == null) return '';
     if (typeof o === 'string') return o;
-    return o[L()] || o.en || o.ru || '';
+    if (o[L()] != null) return o[L()];
+    /* data objects (groups, categories) carry titleRu / titleEn */
+    var t = L() === 'ru' ? o.titleRu : o.titleEn;
+    if (t != null) return t;
+    return o.en || o.ru || '';
+  }
+  /* a value that goes into an HTML attribute: a title may contain quotes */
+  function q(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
   function ru(enStr, ruStr) { return L() === 'ru' ? ruStr : enStr; }
   function shuffle(a) {
@@ -354,7 +363,7 @@ var SAL = (window.SAL = window.SAL || {});
       var words = g.wordIds.map(function (id) { return byId(cfg, id); });
       return '<div class="cycle-step"><div class="cycle-step-num">' + (i + 1) + '</div>' +
         '<div style="font-size:0.8rem;font-weight:700;color:var(--accent-cambridge);margin-bottom:0.25rem;"' +
-        ' data-i18n-ru="' + g.titleRu + '" data-i18n-en="' + g.titleEn + '">' + tx(g) + '</div>' +
+        ' data-i18n-ru="' + q(g.titleRu) + '" data-i18n-en="' + q(g.titleEn) + '">' + tx(g) + '</div>' +
         '<h4>' + words.map(function (w) { return w.deva; }).join(' · ') + '</h4>' +
         '<p class="iast-text"><em>' + words.map(function (w) { return w.iast; }).join(' · ') + '</em></p></div>';
     }).join('');
@@ -1238,8 +1247,19 @@ var SAL = (window.SAL = window.SAL || {});
     return topBar(pill(ru('Category', 'Категория') + ' ' + (g.i + 1) + '/' + cats.length) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'categories', '↺')) +
       centerCard(
-        '<div style="font-size:1.05rem;font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;">' + tx(cat) + '</div>' +
-        '<div style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:1rem;">' +
+        '<div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;' +
+          'color:var(--accent-saffron);margin-bottom:0.35rem;"' +
+          ' data-i18n-ru="' + ru('CATEGORY ', 'КАТЕГОРИЯ ') + (g.i + 1) + ' / ' + cats.length + '"' +
+          ' data-i18n-en="' + ru('CATEGORY ', 'CATEGORY ') + (g.i + 1) + ' / ' + cats.length + '">' +
+          ru('CATEGORY ', 'КАТЕГОРИЯ ') + (g.i + 1) + ' / ' + cats.length + '</div>' +
+        '<div style="font-size:1.45rem;font-weight:800;color:var(--text-primary);margin-bottom:0.35rem;"' +
+          ' data-i18n-ru="' + q(cat.titleRu) + '" data-i18n-en="' + q(cat.titleEn) + '">' + tx(cat) + '</div>' +
+        (cat.hintRu || cat.hintEn
+          ? '<div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0.35rem;"' +
+            ' data-i18n-ru="' + q(cat.hintRu) + '" data-i18n-en="' + q(cat.hintEn) + '">' +
+            tx({ ru: cat.hintRu, en: cat.hintEn }) + '</div>'
+          : '') +
+        '<div style="font-size:0.88rem;color:var(--text-secondary);font-weight:600;margin-bottom:1rem;">' +
         ru('Select all the words that belong to this category', 'Выберите все слова, которые относятся к этой категории') + '</div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">' + chips + '</div>' +
         '<div style="margin-top:1.15rem;display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;">' +
@@ -2532,6 +2552,21 @@ var SAL = (window.SAL = window.SAL || {});
     }
   };
   function txPair(o) { return o ? tx({ ru: o.ru, en: o.en }) : ''; }
+  /* Every pair game is hot-seat: two students, one device. Said once, the same
+     way, in every lesson — nobody should have to guess whether a second phone
+     has to join the site. */
+  var PAIR_NOTE = {
+    ru: '<em>Оба игрока — за одним устройством: заходить на сайт с двух телефонов ' +
+        'не нужно, ход просто передаётся по экрану.</em>',
+    en: '<em>Both players share one device: there is nothing to join from a second ' +
+        'phone — the turn simply passes on screen.</em>'
+  };
+  function pairRow(pair) {
+    var t = txPair(pair);
+    if (!t) return '';
+    return t + '<div style="margin-top:0.3rem;">' + tx(PAIR_NOTE) + '</div>';
+  }
+
   function rulesBlock(r, open, onclick) {
     var how = r.how ? txPair(r.how) : null;
     var howHtml = how && how.length
@@ -2550,7 +2585,7 @@ var SAL = (window.SAL = window.SAL || {});
           row(tx({ ru: 'Цель', en: 'Aim' }), txPair(r.aim)) +
           row(tx({ ru: 'Как играть', en: 'Steps' }), howHtml, 'rules-how') +
           row(tx({ ru: 'Счёт и ошибки', en: 'Scoring' }), txPair(r.score)) +
-          row(tx({ ru: 'Вдвоём', en: 'In pairs' }), txPair(r.pair)) +
+          row(tx({ ru: 'Вдвоём', en: 'In pairs' }), pairRow(r.pair)) +
           row(tx({ ru: 'Преподавателю', en: 'Teacher' }), txPair(r.tip)) +
           '</div>'
         : '') +

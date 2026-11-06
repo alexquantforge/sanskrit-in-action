@@ -375,6 +375,60 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9']) {
     SAL.do(key, 'setProdMode', 'sprint');
   }
 
+  /* ---------- game 10: the student must be able to READ the category ---------- */
+  {
+    SAL.do(key, 'restart', 'categories');
+    SAL.do(key, 'setGame', 'categories');
+    const cats = cfg.categories;
+    const emptyTitles = [], badIds = [], badMech = [];
+    const VIR = '\u094d', ANU = '\u0902';
+    for (let i = 0; i < cats.length; i++) {
+      const h = arenaOf(key);
+      const eyebrow = h.querySelector('div[style*="uppercase"]');
+      const titleEl = [...h.querySelectorAll('div')]
+        .find(d => /font-size:1\.45rem/.test(d.getAttribute('style') || ''));
+      const hintEl = [...h.querySelectorAll('div')]
+        .find(d => /font-size:0\.9rem/.test(d.getAttribute('style') || ''));
+      const title = titleEl ? titleEl.textContent.replace(/\s+/g, ' ').trim() : '';
+      if (!title || title !== cats[i].titleRu) emptyTitles.push((i + 1) + ':"' + title + '"');
+      if (eyebrow && !/КАТЕГОРИЯ\s+\d+\s*\/\s*\d+/.test(eyebrow.textContent.replace(/\s+/g, ' ')))
+        emptyTitles.push((i + 1) + ':нет нумерации');
+      if (cats[i].hintRu && (!hintEl || hintEl.textContent.indexOf(cats[i].hintRu.slice(0, 25)) < 0))
+        emptyTitles.push((i + 1) + ':нет подсказки');
+      /* wordIds must be flat ids that exist in this lesson */
+      const ids = cats[i].wordIds;
+      if (ids.some(id => typeof id !== 'string' || !cfg.words.some(w => w.id === id)))
+        badIds.push(cats[i].titleRu);
+      /* a "mechanical" category has to match the letters of the words themselves */
+      const t = cats[i].titleRu;
+      let pred = null;
+      if (/знак[ае]? ्/.test(t)) {
+        const neg = /Нет|Без/.test(t);
+        const inside = /внутри слова|между согласными/.test(t);
+        pred = w => (inside ? /्(?!$)/.test(w.deva) : w.deva.indexOf(VIR) >= 0) !== neg;
+      } else if (/носов|ṃ/.test(t)) {
+        const neg = /Нет|Без/.test(t);
+        pred = w => (w.deva.indexOf(ANU) >= 0) !== neg;
+      } else if (/«ष»/.test(t)) {
+        const neg = /Нет|Без/.test(t);
+        pred = w => (w.deva.indexOf('\u0937') >= 0) !== neg;
+      }
+      if (pred) {
+        const want = cfg.words.filter(pred).map(w => w.id).sort().join();
+        if (want !== ids.slice().sort().join()) badMech.push(t + ' → [' + want + ']');
+      }
+      SAL.do(key, 'catCheck');
+      SAL.do(key, 'catNext');
+      if (cfg._st.g.categories.finished) break;
+    }
+    ck(emptyTitles.length === 0, 'игра 10: название категории видно (' + cats.length + ' шт.)' +
+      (emptyTitles.length ? ' — ' + emptyTitles.join('; ') : ''));
+    ck(badIds.length === 0, 'игра 10: у каждой категории ровно свои слова урока' +
+      (badIds.length ? ' — ' + badIds.join('; ') : ''));
+    ck(badMech.length === 0, 'игра 10: признаки (знак ्, ं, ष) совпадают с написанием слов' +
+      (badMech.length ? ' — ' + badMech.join('; ') : ''));
+  }
+
   /* ---------- the word data must add up: gap + answer = the word, etc. ---------- */
   const nospace = t => t.replace(/ /g, '');
   const editDist = (a, b) => {
@@ -848,6 +902,74 @@ ck([...win.document.getElementById('view-lesson4').querySelector('select.lesson-
 /* ==========================================================================
    RULES — every practice game must carry its own short manual
    ========================================================================== */
+console.log('\n===== Понятность: слепое поле, бинго, пара за одним устройством =====');
+{
+  const KEY = 'L8';
+  SAL.openLesson(KEY);
+
+  /* --- 22. Слепое поле: the game must say WHICH square it is asking about --- */
+  SAL.do(KEY, 'setGame', 'blindboard');
+  {
+    const g = SAL.lessons[KEY]._st.g.blindboard;
+    const h0 = arenaOf(KEY).textContent.replace(/\s+/g, ' ');
+    ck(/Запоминайте/.test(h0) && /2,5 секунды|2,5 с/.test(h0),
+      'слепое поле: фаза «показ» объясняет, что поле закроется через 2,5 с');
+    g.phase = 'ask';
+    g.ask = 3;
+    SAL.refresh();
+    const h1 = arenaOf(KEY).textContent.replace(/\s+/g, ' ');
+    const cell = win.SAL.kit.cellName(3, win.SAL.kit.memoryCols(g.cards.length));
+    ck(h1.indexOf('Что в клетке ' + cell) >= 0, 'слепое поле: вопрос про клетку ' + cell + ' виден на экране');
+    ck(h1.split(cell).length - 1 >= 2, 'слепое поле: клетка названа и в счёте, и над вариантами');
+    ck(/Выберите слово/.test(h1), 'слепое поле: сказано, что выбрать слово');
+    ck(/Показать поле/.test(h1), 'слепое поле: есть подсказка «показать поле»');
+    const rules = arenaOf(KEY).querySelector('.game-rules').textContent.replace(/\s+/g, ' ');
+    ck(/Шаг 1\./.test(rules) && /Шаг 2\./.test(rules) && /Шаг 3\./.test(rules),
+      'слепое поле: правила — по шагам');
+    ck(/координат/.test(rules), 'слепое поле: правила объясняют координаты клеток');
+    SAL.do(KEY, 'restart', 'blindboard');
+  }
+
+  /* --- 24. Бинго: one device, two cards --- */
+  {
+    const rulesOne = (players) => {
+      SAL.do(KEY, 'setPlayers', String(players));
+      SAL.do(KEY, 'restart', 'bingo');
+      SAL.do(KEY, 'setGame', 'bingo');
+      SAL.do(KEY, 'bingoCall');
+      return arenaOf(KEY).textContent.replace(/\s+/g, ' ');
+    };
+    const two = rulesOne(2);
+    ck(/Ученик 1/.test(two) && /Ученик 2/.test(two), 'бинго: при двух учениках две карты — «Ученик 1» и «Ученик 2»');
+    ck(/одн[ои]м устройств/i.test(two), 'бинго: на экране сказано, что оба играют за одним устройством');
+    ck(/СВОЕЙ карте/i.test(two), 'бинго: сказано закрывать клетку только на своей карте');
+    const one = rulesOne(1);
+    ck(!/Ученик 2/.test(one) && /Карта/.test(one), 'бинго: при одном ученике карта одна');
+    ck(/2 ученика/.test(one), 'бинго: подсказано, где включить второго игрока');
+    const rules = arenaOf(KEY).querySelector('.game-rules').textContent.replace(/\s+/g, ' ');
+    ck(/ОДНИМ устройством/i.test(rules), 'бинго: правила отвечают на вопрос «два ученика заходят на сайт?»');
+    ck(/не нужно/i.test(rules) && /телефон/i.test(rules), 'бинго: правила прямо говорят, что второй телефон не нужен');
+    ck(/ведущий/i.test(rules), 'бинго: правила объясняют роль ведущего');
+    SAL.do(KEY, 'setPlayers', '1');
+  }
+
+  /* --- every pair game says it: two students, one device --- */
+  {
+    const PAIR_GAMES = ['blindboard', 'battleship', 'bingo', 'duel', 'describe', 'orderrelay',
+      'coopmemory', 'tictactoe'];
+    const silent = [];
+    for (const gm of PAIR_GAMES) {
+      SAL.do(KEY, 'restart', gm);
+      SAL.do(KEY, 'setGame', gm);
+      const panel = arenaOf(KEY).querySelector('.game-rules');
+      const t = panel ? panel.textContent.replace(/\s+/g, ' ') : '';
+      if (!/одн[ои]м устройств/i.test(t)) silent.push(gm);
+    }
+    ck(silent.length === 0, 'парные игры одинаково говорят: оба игрока за одним устройством' +
+      (silent.length ? ' — молчат: ' + silent.join(', ') : ' (' + PAIR_GAMES.length + ' игр)'));
+  }
+}
+
 console.log('\n===== Правила в каждой игре =====');
 function rulesProbe(keyPair, arena) {
   const panel = arena.querySelector('.game-rules');

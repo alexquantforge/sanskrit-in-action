@@ -194,6 +194,10 @@ SAL.registerLesson({
     { titleRu: "От двенадцати до четырнадцати", titleEn: "Twelve to Fourteen", wordIds: ["dvadasa", "trayodasa", "caturdasa"] },
     { titleRu: "Одиннадцать или пятнадцать", titleEn: "Eleven or Fifteen", wordIds: ["ekadasa", "pancadasa"] },
     { titleRu: "Все, кроме тринадцати", titleEn: "Everything but Thirteen", wordIds: ["ekadasa", "dvadasa", "caturdasa", "pancadasa"] },
-    { titleRu: "Без знака ्", titleEn: "Without a Virāma", wordIds: ["ekadasa", "dvadasa", "trayodasa", "pancadasa"] }
+    { titleRu: "Есть буква «च» (ca)",
+      titleEn: "Contains the letter «च» (ca)",
+      hintRu: "В слове встречается буква च — «ca».",
+      hintEn: "The word contains the letter च — “ca”.",
+      wordIds: ["caturdasa", "pancadasa"] }
   ]
 });

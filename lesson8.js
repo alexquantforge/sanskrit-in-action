@@ -181,7 +181,10 @@ SAL.registerLesson({
   groups: [
     { titleRu: "Десять и двадцать", titleEn: "Ten and Twenty", wordIds: ["dasha", "vimshati"] },
     { titleRu: "Тридцать — пятьдесят", titleEn: "Thirty to Fifty", wordIds: ["trimshat", "catvarimshat", "pancashat"] },
-    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["vimshati", "catvarimshat"] },
+    { titleRu: "Кратны двадцати (20, 40, 60…)", titleEn: "Multiples of twenty (20, 40, 60…)",
+      hintRu: "Число делится на 20 без остатка: 20, 40, 60, 80, 100.",
+      hintEn: "The number divides by 20 with nothing left over: 20, 40, 60, 80, 100.",
+      wordIds: ["vimshati", "catvarimshat"] },
     { titleRu: "Оканчиваются на «शत्»", titleEn: "Ending in «शत्»", wordIds: ["trimshat", "catvarimshat", "pancashat"] }
   ],
   categories: [
@@ -191,9 +194,21 @@ SAL.registerLesson({
     { titleRu: "Меньше сорока", titleEn: "Less Than Forty", wordIds: ["dasha", "vimshati", "trimshat"] },
     { titleRu: "Больше тридцати", titleEn: "More Than Thirty", wordIds: ["catvarimshat", "pancashat"] },
     { titleRu: "Меньше пятидесяти", titleEn: "Less Than Fifty", wordIds: ["dasha", "vimshati", "trimshat", "catvarimshat"] },
-    { titleRu: "С носовым ं (ṃ)", titleEn: "With an Anusvāra (ं)", wordIds: ["vimshati", "trimshat", "catvarimshat"] },
-    { titleRu: "Без носового ं", titleEn: "Without an Anusvāra", wordIds: ["dasha", "pancashat"] },
-    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["vimshati", "catvarimshat"] },
-    { titleRu: "Не кратны двадцати", titleEn: "Not Multiples of Twenty", wordIds: ["dasha", "trimshat", "pancashat"] }
+    { titleRu: "Есть носовой ं (ṃ, анусвара)", titleEn: "Has a nasal ं (ṃ, anusvāra)",
+      hintRu: "Точка над буквой — ं (анусвара): носовой призвук; в латинице он записывается как «ṃ».",
+      hintEn: "A dot above the letter — ं (anusvāra): a nasal sound, written “ṃ” in Latin.",
+      wordIds: ["vimshati", "trimshat", "catvarimshat"] },
+    { titleRu: "Нет носового ं (ṃ)", titleEn: "No nasal ं (ṃ)",
+      hintRu: "Наоборот: точки ं над буквой нет.",
+      hintEn: "The other way round: there is no ं dot above any letter.",
+      wordIds: ["dasha", "pancashat"] },
+    { titleRu: "Кратны двадцати (20, 40, 60…)", titleEn: "Multiples of twenty (20, 40, 60…)",
+      hintRu: "Число делится на 20 без остатка: 20, 40, 60, 80, 100.",
+      hintEn: "The number divides by 20 with nothing left over: 20, 40, 60, 80, 100.",
+      wordIds: ["vimshati", "catvarimshat"] },
+    { titleRu: "Не кратны двадцати", titleEn: "Not multiples of twenty",
+      hintRu: "Наоборот: при делении на 20 остаётся остаток — 10, 30, 50, 70, 90.",
+      hintEn: "The other way round: dividing by 20 leaves a remainder — 10, 30, 50, 70, 90.",
+      wordIds: ["dasha", "trimshat", "pancashat"] }
   ]
 });

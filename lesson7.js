@@ -191,9 +191,18 @@ SAL.registerLesson({
     { titleRu: "Меньше восемнадцати", titleEn: "Less Than Eighteen", wordIds: ["shodasa", "saptadasa"] },
     { titleRu: "Больше шестнадцати", titleEn: "More Than Sixteen", wordIds: ["saptadasa", "ashtadasa", "navadasa", "vimshati"] },
     { titleRu: "Меньше девятнадцати", titleEn: "Less Than Nineteen", wordIds: ["shodasa", "saptadasa", "ashtadasa"] },
-    { titleRu: "Оканчиваются на «दश»", titleEn: "Ending in 'दश'", wordIds: ["shodasa", "saptadasa", "ashtadasa", "navadasa"] },
-    { titleRu: "С буквой «ष» (ṣa)", titleEn: "Containing 'ष' (ṣa)", wordIds: ["shodasa", "ashtadasa"] },
-    { titleRu: "Без буквы «ष» (ṣa)", titleEn: "Without 'ष' (ṣa)", wordIds: ["saptadasa", "navadasa", "vimshati"] },
+    { titleRu: "Оканчиваются на «दश» (daśa)", titleEn: "Ending in «दश» (daśa)",
+      hintRu: "Последние слоги слова — те же, что в слове «दश» (десять).",
+      hintEn: "The word ends with the same syllables as «दश» (ten).",
+      wordIds: ["shodasa", "saptadasa", "ashtadasa", "navadasa"] },
+    { titleRu: "Есть буква «ष» (ṣa)", titleEn: "Contains the letter «ष» (ṣa)",
+      hintRu: "Буква ष — с «хвостиком» внизу слева; в латинице это «ṣ».",
+      hintEn: "The letter ष has a little tail at the bottom left; it is “ṣ” in Latin.",
+      wordIds: ["shodasa", "ashtadasa"] },
+    { titleRu: "Нет буквы «ष» (ṣa)", titleEn: "Without the letter «ष» (ṣa)",
+      hintRu: "Наоборот: буквы ष в слове нет.",
+      hintEn: "The other way round: the word has no ष at all.",
+      wordIds: ["saptadasa", "navadasa", "vimshati"] },
     { titleRu: "Девятнадцать или двадцать", titleEn: "Nineteen or Twenty", wordIds: ["navadasa", "vimshati"] }
   ]
 });

@@ -766,8 +766,14 @@
       chip(cfg, 'blindAgain', '', '👁 ' + tx({ ru: 'Показать поле', en: 'Show board' })) + ' ' + restartChip(cfg, 'blindboard')) +
       K.centerCard(
         '<div class="grid-10" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + cells + '</div>' +
-        (g.phase === 'ask' && !g.answered
-          ? '<div style="margin-top:0.9rem;">' + K.optGrid(shuffle(cfg.words).map(function (o, i) {
+        (g.phase === 'ask' && g.ask !== null && !g.answered
+          ? '<div style="margin-top:0.9rem;font-size:1.15rem;font-weight:800;">' +
+              tx({ ru: 'Что в клетке', en: 'What is in' }) +
+              ' <span style="color:var(--accent-cambridge);">' + K.cellName(g.ask, cols) + '</span>?</div>' +
+            '<div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0.4rem;">' +
+              tx({ ru: 'Выберите слово, которое спрятано в этой клетке — назовите его букву вслух.',
+                   en: 'Choose the word hidden in that square — say its letter aloud.' }) + '</div>' +
+            '<div>' + K.optGrid(shuffle(cfg.words).map(function (o, i) {
               return wordOpt(cfg, o, 'blindPick', '', i);
             }).join('')) + '</div>'
           : '') +
@@ -779,8 +785,12 @@
             ru('Next →', 'Далее →') + '</button></div>'
           : '') +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
-          tx({ ru: 'Поле открыто 2,5 секунды, затем закрыто. Назовите, что спрятано в названной клетке.',
-               en: 'The board shows for 2.5 seconds, then closes. Name what hides in the square you are asked about.' }) + '</div>');
+          (g.phase === 'show'
+            ? tx({ ru: 'Запоминайте: поле закроется через 2,5 секунды. Потом игра назовёт клетку (например b2), и вы выберете, какое слово в ней спрятано.',
+                   en: 'Memorise: the board closes in 2.5 seconds. Then the game names a square (b2, for example) and you choose the word hidden in it.' })
+            : tx({ ru: 'Поле закрыто, клетки видны по координатам (a1, b2…). Названная клетка подсвечена — выберите слово. Забыли поле? Нажмите 👁 «Показать поле».',
+                   en: 'The board is closed and the squares show coordinates (a1, b2…). The square you are asked about is highlighted — choose the word. Forgot the board? Press 👁 “Show board”.' })) +
+          '</div>');
   }
 
   /* ======================================================== 23. BATTLESHIP */
@@ -882,8 +892,12 @@
           : '<div style="padding:1.5rem 0;font-weight:800;">📣 ' + tx({ ru: 'Нажмите «следующее слово»', en: 'Press “next word”' }) + '</div>') +
         '<div style="display:flex;gap:1.1rem;justify-content:center;flex-wrap:wrap;">' + card(0) + card(1) + '</div>' +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
-          tx({ ru: 'Ведущий называет слово — игрок закрывает его у себя на карте. Кто закрыл все девять клеток, тот кричит «бинго!».',
-               en: 'The caller says a word; each player covers it on their own card. All nine covered — shout “bingo!”.' }) + '</div>');
+          (players(cfg) === 2
+            ? tx({ ru: 'Оба игрока — за одним устройством: карта ученика 1 слева, ученика 2 справа. Каждый закрывает клетку только на СВОЕЙ карте — и только то слово, которое назвал ведущий.',
+                   en: 'Both players share one device: student 1’s card is on the left, student 2’s on the right. Each covers a cell only on THEIR OWN card — and only for the word the caller has just said.' })
+            : tx({ ru: 'Один игрок: нажимайте 📣 «Следующее слово» и закрывайте названное слово на карте. Хочется вдвоём — переключитесь на «2 ученика» над вкладками: появится вторая карта.',
+                   en: 'One player: press 📣 “Next word” and cover the word that has been called. For two, switch to “2 students” above the tabs — a second card appears.' })) +
+          '</div>');
   }
 
   /* ============================================================== 25. DUEL */
@@ -1657,18 +1671,20 @@
                en: 'A point for the right count; a miss drops the word into the pile. 🔑 keeps the picture open.' }
     },
     blindboard: {
-      aim: { ru: 'Чистая память: вспомнить, что спрятано в названной клетке, без подсказок.',
-             en: 'Pure recall: remember what hides in the square you are asked about, with no prompts.' },
-      how: { ru: ['Поле открыто 2,5 секунды — запомните, где что лежит.',
-                  'Потом поле закрывается, и игра спрашивает про одну клетку: «Что в b2?»',
-                  'Выберите слово из всех слов урока.',
-                  '👁 «Показать поле» — открыть всё поле заново.'],
-             en: ['The board is open for 2.5 seconds — memorise what is where.',
-                  'Then it closes and the game asks about one square: “What is in b2?”',
-                  'Choose the word from all the words of the lesson.',
-                  '👁 “Show board” opens the whole board again.'] },
-      score: { ru: 'Очко за каждую угаданную клетку; все карточки поля — по два экземпляра каждого слова.',
-               en: 'A point for every square named; the board holds two copies of each word.' },
+      aim: { ru: 'Память на расположение: запомнить поле, а потом назвать, какое слово спрятано в названной клетке.',
+             en: 'Memory for positions: memorise the board, then name the word hidden in the square you are asked about.' },
+      how: { ru: ['Шаг 1. Поле открыто 2,5 секунды: во всех клетках видны слова урока (каждое — дважды). Запомните, где что лежит.',
+                  'Шаг 2. Поле закрывается — вместо слов остаются только координаты: a1, a2, b1… (буква — ряд, цифра — столбец).',
+                  'Шаг 3. Игра называет одну клетку, и она подсвечена: «Что в b2?» Выберите слово из всех слов урока — нажмите ту букву (A, B, C…), которую назвали бы вслух.',
+                  'Шаг 4. Угадали — клетка открывается и остаётся открытой. Ошиблись — игра показывает верное слово, клетка остаётся закрытой.',
+                  'Забыли, где что? 👁 «Показать поле» — откроет всё поле ещё на 2,5 секунды. Так можно делать сколько угодно раз.'],
+             en: ['Step 1. The board is open for 2.5 seconds: every square shows a word of the lesson (each word twice). Memorise what is where.',
+                  'Step 2. The board closes — only the coordinates stay: a1, a2, b1… (letter = row, number = column).',
+                  'Step 3. The game names one square and highlights it: “What is in b2?” Choose the word from all the words of the lesson — press the letter (A, B, C…) you would say aloud.',
+                  'Step 4. A hit: the square opens and stays open. A miss: the game shows the right word and the square stays closed.',
+                  'Forgot the board? 👁 “Show board” opens everything again for another 2.5 seconds — as often as you like.'] },
+      score: { ru: 'Очко за каждую угаданную клетку. Поле — 10 клеток: каждое слово урока лежит в нём дважды, поэтому одно и то же слово могут спросить два раза.',
+               en: 'A point for every square named. The board is 10 squares: every word of the lesson lies there twice, so the same word can be asked about twice.' },
       pair: { ru: 'Игроки отвечают по очереди; кто верно назвал, тот и забирает клетку.',
               en: 'Players answer in turns; whoever names it correctly takes the square.' }
     },
@@ -1691,18 +1707,20 @@
     bingo: {
       aim: { ru: 'Узнавание на скорость: услышал слово — найди его у себя на карте.',
              en: 'Recognition under time pressure: hear a word, find it on your own card.' },
-      how: { ru: ['📣 «Следующее слово» — ведущий называет слово (слово видно и звучит 🔊).',
-                  'Каждый игрок закрывает это слово у себя на карте 3 × 3 — нажмите нужную клетку.',
-                  'Закрыта не та клетка — нажатие не засчитывается.',
-                  'Кто закрыл все девять клеток, тот кричит «бинго!» и побеждает.'],
-             en: ['📣 “Next word” — the caller says a word (shown and spoken with 🔊).',
-                  'Each player covers that word on their own 3 × 3 card by pressing the cell.',
-                  'Pressing the wrong cell simply does not count.',
-                  'Whoever covers all nine cells shouts “bingo!” and wins.'] },
+      how: { ru: ['Два ученика играют за ОДНИМ устройством: обе карты 3 × 3 видны на экране рядом — слева карта ученика 1, справа карта ученика 2. Заходить на сайт с двух телефонов не нужно.',
+                  'Ведущий (учитель или третий ученик) нажимает 📣 «Следующее слово»: слово появляется на экране и звучит 🔊.',
+                  'Каждый игрок ищет это слово у себя на карте и нажимает клетку — она закрывается ✓.',
+                  'Нажимать можно только на СВОЕЙ карте и только на названное слово; другое нажатие просто не засчитывается.',
+                  'Кто первым закрыл все девять клеток — кричит «бинго!» и побеждает.'],
+             en: ['Two students play on ONE device: both 3 × 3 cards are on the screen side by side — student 1 on the left, student 2 on the right. Nobody has to join the site from a second phone.',
+                  'The caller (the teacher or a third student) presses 📣 “Next word”: the word appears and is spoken with 🔊.',
+                  'Each player finds the word on their own card and presses the cell — it is covered with ✓.',
+                  'You may only press a cell on YOUR OWN card and only for the word that has been called; anything else simply does not count.',
+                  'The first to cover all nine cells shouts “bingo!” and wins.'] },
       score: { ru: 'Побеждает первый, кто закрыл карту; в счёте видно, сколько слов успел назвать ведущий.',
                en: 'The first to cover a card wins; the counter shows how many words the caller got through.' },
-      pair: { ru: 'У каждого своя карта, ведущий один — им может быть и третий ученик.',
-              en: 'Each player has their own card and there is one caller — a third student can be the caller.' }
+      pair: { ru: 'У каждого своя карта, ведущий один — им может быть и третий ученик. С одним учеником играет учитель: карта одна, считаем, за сколько слов он закрыл её.',
+              en: 'Each player has their own card and there is one caller — a third student can be the caller. With one student the teacher plays along: there is a single card and you count how many words it took to cover it.' }
     },
     duel: {
       aim: { ru: 'Реакция и точность: кто первый узнал, тот и отвечает.',

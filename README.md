@@ -97,7 +97,9 @@ Lessons 2+ are **pure data** — no code changes are needed:
 1. Create `lessonN.js` with a single `SAL.registerLesson({ ... })` call (copy `lesson5.js` as a template:
    it is the fullest one — numerals, `syll`, `decoys`, `sortFeatures`, `extraGames`). A lesson may also
    declare `unionSprint: ["L2", "L3"]` to get a fifth production mode: one timed sprint over the words
-   of the listed lessons (see «Спринт по двум урокам» above).
+   of the listed lessons (see «Спринт по двум урокам» above). A category may carry `hintRu` / `hintEn`
+   — the line that explains the term under the title of game 10 (see «Название категории и подсказка
+   к нему» above).
 2. Add `<script src="lessonN.js?v=N"></script>` to `index.html` before `app.js`, plus an empty
    `<div id="view-lessonN" class="view-pane" style="display: none;" hidden></div>` next to the other lesson panes.
 3. Register the pane in the `panes` map inside `switchView()` in `app.js`. The lesson dropdown in the
@@ -122,6 +124,20 @@ modes for the new word list — in both RU and EN.
 Панель урока 3 (12 слов) размечается в `index.html` пустым слотом `<span data-lesson-nav></span>`,
 который заполняет `fillNavSlots()` — поэтому список один и тот же во всех девяти панелях и
 переводится вместе с интерфейсом.
+
+### Название категории и подсказка к нему
+
+Упражнение 10 «Категории» — единственное, где ученик должен понять **термин**, а не картинку.
+Поэтому название категории выводится крупно, с нумерацией («КАТЕГОРИЯ 7 / 10»), а под ним —
+**подсказка** из полей `hintRu` / `hintEn`: что за знак имеется в виду, без названий самих слов.
+Так «Со слитным знаком ्» стало «Есть слитная согласная (знак ् внутри слова)» с подсказкой
+«Знак ् под буквой гасит гласную «а», и две согласные слипаются в одну — ज्ञ, क्त, स्त».
+Один и тот же признак звучит одинаково во всех уроках (`Есть буква «ष» (ṣa)`, `Есть носовой ं`,
+`Кратны двадцати (20, 40, 60…)`), а подсказка не называет слова ответа.
+
+Тесты следят за двумя вещами: название категории **видно** (раньше `tx()` не знал про
+`titleRu` / `titleEn` и печатал пустую строку — игра была непроходимой) и признаки
+«есть / нет знак ्», «есть / нет ं», «есть / нет ष» **совпадают с написанием слов урока**.
 
 ### Спринт по двум урокам (урок 2)
 
@@ -154,6 +170,11 @@ unionSprint: ["L2", "L3"],   /* ключи уроков, чьи слова вх�
 Панелью управляет действие `toggleRules`; урок 3 (12 слов) подключает её через
 `SAL.rulesPanel(gameKey)`. Панель раскрыта по умолчанию, переводится вместе с интерфейсом
 и не содержит цифр и слов, привязанных к конкретному уроку.
+
+Раздел **«Вдвоём»** во всех парных играх заканчивается одной и той же фразой — её печатает
+сам движок (`PAIR_NOTE` в `lesson-engine.js`): *«Оба игрока — за одним устройством: заходить
+на сайт с двух телефонов не нужно, ход просто передаётся по экрану»*. Сайт не соединяет
+два устройства, все парные игры — hot seat.
 
 ### Extra Practice Games (`games-extra.js`)
 `games-extra.js` adds 19 further practice games (tabs 13–31) built on `SAL.addGame()`. A lesson opts in
