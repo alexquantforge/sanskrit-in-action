@@ -1,0 +1,470 @@
+diff --git a/games-extra.js b/games-extra.js
+index 9c4e283..d172220 100644
+--- a/games-extra.js
++++ b/games-extra.js
+@@ -873,8 +873,14 @@
+       chip(cfg, 'blindAgain', '', '👁 ' + tx({ ru: 'Показать поле', en: 'Show board' })) + ' ' + restartChip(cfg, 'blindboard')) +
+       K.centerCard(
+         '<div class="grid-10" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + cells + '</div>' +
+-        (g.phase === 'ask' && !g.answered
+-          ? '<div style="margin-top:0.9rem;">' + K.optGrid(shuffle(cfg.words).map(function (o, i) {
++        (g.phase === 'ask' && g.ask !== null && !g.answered
++          ? '<div style="margin-top:0.9rem;font-size:1.15rem;font-weight:800;">' +
++              tx({ ru: 'Что в клетке', en: 'What is in' }) +
++              ' <span style="color:var(--accent-cambridge);">' + K.cellName(g.ask, cols) + '</span>?</div>' +
++            '<div style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0.4rem;">' +
++              tx({ ru: 'Выберите слово, которое спрятано в этой клетке — назовите его букву вслух.',
++                   en: 'Choose the word hidden in that square — say its letter aloud.' }) + '</div>' +
++            '<div>' + K.optGrid(shuffle(cfg.words).map(function (o, i) {
+               return wordOpt(cfg, o, 'blindPick', '', i);
+             }).join('')) + '</div>'
+           : '') +
+@@ -886,8 +892,11 @@
+             ru('Next →', 'Далее →') + '</button></div>'
+           : '') +
+         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
+-          tx({ ru: 'Поле открыто 2,5 секунды, затем закрыто. Назовите, что спрятано в названной клетке.',
+-               en: 'The board shows for 2.5 seconds, then closes. Name what hides in the square you are asked about.' }) +
++          (g.phase === 'show'
++            ? tx({ ru: 'Запоминайте: поле закроется через 2,5 секунды. Потом игра назовёт клетку (например b2), и вы выберете, какое слово в ней спрятано.',
++                   en: 'Memorise: the board closes in 2.5 seconds. Then the game names a square (b2, for example) and you choose the word hidden in it.' })
++            : tx({ ru: 'Поле закрыто, клетки видны по координатам (a1, b2…). Названная клетка подсвечена — выберите слово. Забыли поле? Нажмите 👁 «Показать поле».',
++                   en: 'The board is closed and the squares show coordinates (a1, b2…). The square you are asked about is highlighted — choose the word. Forgot the board? Press 👁 “Show board”.' })) +
+           (duoB ? '<br/>' + tx({ ru: 'Отвечает по очереди: вопрос — одному, следующий — другому.',
+                                  en: 'Turns alternate: one question for each student.' }) : '') + '</div>');
+   }
+@@ -992,8 +1001,11 @@
+           : '<div style="padding:1.5rem 0;font-weight:800;">📣 ' + tx({ ru: 'Нажмите «следующее слово»', en: 'Press “next word”' }) + '</div>') +
+         '<div style="display:flex;gap:1.1rem;justify-content:center;flex-wrap:wrap;">' + card(0) + card(1) + '</div>' +
+         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
+-          tx({ ru: 'Ведущий называет слово — игрок закрывает его у себя на карте. Кто закрыл все девять клеток, тот кричит «бинго!».',
+-               en: 'The caller says a word; each player covers it on their own card. All nine covered — shout “bingo!”.' }) + '</div>');
++          (players(cfg) === 2
++            ? tx({ ru: 'Оба игрока — за одним устройством: карта ученика 1 слева, ученика 2 справа. Каждый закрывает клетку только на СВОЕЙ карте — и только то слово, которое назвал ведущий.',
++                   en: 'Both players share one device: student 1’s card is on the left, student 2’s on the right. Each covers a cell only on THEIR OWN card — and only for the word the caller has just said.' })
++            : tx({ ru: 'Один игрок: нажимайте 📣 «Следующее слово» и закрывайте названное слово на карте. Хочется вдвоём — переключитесь на «2 ученика» над вкладками: появится вторая карта.',
++                   en: 'One player: press 📣 “Next word” and cover the word that has been called. For two, switch to “2 students” above the tabs — a second card appears.' })) + '</div>');
+   }
+ 
+   /* ============================================================== 25. DUEL */
+@@ -2478,16 +2490,18 @@
+                en: 'A point for the right count; a miss drops the word into the pile. 🔑 keeps the picture open.' }
+     },
+     blindboard: {
+-      aim: { ru: 'Чистая память: вспомнить, что спрятано в названной клетке, без подсказок.',
+-             en: 'Pure recall: remember what hides in the square you are asked about, with no prompts.' },
+-      how: { ru: ['Поле открыто 2,5 секунды — запомните, где что лежит.',
+-                  'Потом поле закрывается, и игра спрашивает про одну клетку: «Что в b2?»',
+-                  'Выберите слово из всех слов урока.',
+-                  '👁 «Показать поле» — открыть всё поле заново.'],
+-             en: ['The board is open for 2.5 seconds — memorise what is where.',
+-                  'Then it closes and the game asks about one square: “What is in b2?”',
+-                  'Choose the word from all the words of the lesson.',
+-                  '👁 “Show board” opens the whole board again.'] },
++      aim: { ru: 'Память на расположение: запомнить поле, а потом назвать, какое слово спрятано в названной клетке.',
++             en: 'Memory for positions: memorise the board, then name the word hidden in the square you are asked about.' },
++      how: { ru: ['Шаг 1. Поле открыто 2,5 секунды: во всех клетках видны слова урока (каждое — дважды). Запомните, где что лежит.',
++                  'Шаг 2. Поле закрывается — вместо слов остаются только координаты: a1, a2, b1… (буква — ряд, цифра — столбец).',
++                  'Шаг 3. Игра называет одну клетку, и она подсвечена: «Что в b2?» Выберите слово из всех слов урока — нажмите ту букву (A, B, C…), которую назвали бы вслух.',
++                  'Шаг 4. Угадали — клетка открывается и остаётся открытой. Ошиблись — игра показывает верное слово, клетка остаётся закрытой.',
++                  'Забыли, где что? 👁 «Показать поле» — откроет всё поле ещё на 2,5 секунды. Так можно сколько угодно раз.'],
++             en: ['Step 1. The board is open for 2.5 seconds: every square shows a word of the lesson (each word twice). Memorise what is where.',
++                  'Step 2. The board closes — only the coordinates stay: a1, a2, b1… (letter = row, number = column).',
++                  'Step 3. The game names one square and highlights it: “What is in b2?” Choose the word from all the words of the lesson — press the letter (A, B, C…) you would say aloud.',
++                  'Step 4. A hit: the square opens and stays open. A miss: the game shows the right word and the square stays closed.',
++                  'Forgot the board? 👁 “Show board” opens everything again for another 2.5 seconds — as often as you like.'] },
+       score: { ru: 'Очко за каждую угаданную клетку; все карточки поля — по два экземпляра каждого слова.',
+                en: 'A point for every square named; the board holds two copies of each word.' },
+       pair: { ru: 'Игроки отвечают по очереди; кто верно назвал, тот и забирает клетку.',
+@@ -2512,14 +2526,16 @@
+     bingo: {
+       aim: { ru: 'Узнавание на скорость: услышал слово — найди его у себя на карте.',
+              en: 'Recognition under time pressure: hear a word, find it on your own card.' },
+-      how: { ru: ['📣 «Следующее слово» — ведущий называет слово (слово видно и звучит 🔊).',
+-                  'Каждый игрок закрывает это слово у себя на карте 3 × 3 — нажмите нужную клетку.',
+-                  'Закрыта не та клетка — нажатие не засчитывается.',
+-                  'Кто закрыл все девять клеток, тот кричит «бинго!» и побеждает.'],
+-             en: ['📣 “Next word” — the caller says a word (shown and spoken with 🔊).',
+-                  'Each player covers that word on their own 3 × 3 card by pressing the cell.',
+-                  'Pressing the wrong cell simply does not count.',
+-                  'Whoever covers all nine cells shouts “bingo!” and wins.'] },
++      how: { ru: ['Два ученика играют за ОДНИМ устройством: обе карты 3 × 3 видны на экране рядом — слева карта ученика 1, справа карта ученика 2. Заходить на сайт с двух телефонов не нужно.',
++                  'Ведущий (учитель или третий ученик) нажимает 📣 «Следующее слово»: слово появляется на экране и звучит 🔊.',
++                  'Каждый игрок ищет это слово у себя на карте и нажимает клетку — она закрывается ✓.',
++                  'Нажимать можно только на СВОЕЙ карте и только на названное слово; другое нажатие просто не засчитывается.',
++                  'Кто первым закрыл все девять клеток — кричит «бинго!» и побеждает.'],
++             en: ['Two students play on ONE device: both 3 × 3 cards are on the screen side by side — student 1 on the left, student 2 on the right. Nobody has to join the site from a second phone.',
++                  'The caller (the teacher or a third student) presses 📣 “Next word”: the word appears and is spoken with 🔊.',
++                  'Each player finds the word on their own card and presses the cell — it is covered with ✓.',
++                  'You may only press a cell on YOUR OWN card and only for the word that has been called; anything else simply does not count.',
++                  'The first to cover all nine cells shouts “bingo!” and wins.'] },
+       score: { ru: 'Побеждает первый, кто закрыл карту; в счёте видно, сколько слов успел назвать ведущий.',
+                en: 'The first to cover a card wins; the counter shows how many words the caller got through.' },
+       pair: { ru: 'У каждого своя карта, ведущий один — им может быть и третий ученик.',
+diff --git a/index.html b/index.html
+index 3df567c..51f7139 100644
+--- a/index.html
++++ b/index.html
+@@ -1,5 +1,5 @@
+ <!DOCTYPE html>
+-<html lang="ru" data-build="v113">
++<html lang="ru" data-build="v114">
+ <head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+@@ -22,7 +22,7 @@
+   <link rel="preconnect" href="https://fonts.googleapis.com" />
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+-  <link rel="stylesheet" href="styles.css?v=113" />
++  <link rel="stylesheet" href="styles.css?v=114" />
+   <style>
+     .view-pane { display: none; }
+     .view-pane.active { display: block; }
+@@ -1296,24 +1296,24 @@ https://alexquantforge.github.io/sanskrit-in-action/
+     </div>
+   </footer>
+ 
+-  <script src="lesson1.js?v=113"></script>
+-  <script src="lesson-engine.js?v=113"></script>
+-  <script src="lesson2.js?v=113"></script>
+-  <script src="lesson3.js?v=113"></script>
+-  <script src="lesson4.js?v=113"></script>
+-  <script src="lesson5.js?v=113"></script>
+-  <script src="lesson6.js?v=113"></script>
+-  <script src="lesson7.js?v=113"></script>
+-  <script src="lesson8.js?v=113"></script>
+-  <script src="lesson9.js?v=113"></script>
+-  <script src="lesson10.js?v=113"></script>
+-  <script src="lesson11.js?v=113"></script>
+-  <script src="lesson-colors.js?v=113"></script>
+-  <script src="lesson-colors2.js?v=113"></script>
+-  <script src="lesson-gender.js?v=113"></script>
+-  <script src="lesson-gender2.js?v=113"></script>
+-  <script src="games-extra.js?v=113"></script>
+-  <script src="app.js?v=113"></script>
++  <script src="lesson1.js?v=114"></script>
++  <script src="lesson-engine.js?v=114"></script>
++  <script src="lesson2.js?v=114"></script>
++  <script src="lesson3.js?v=114"></script>
++  <script src="lesson4.js?v=114"></script>
++  <script src="lesson5.js?v=114"></script>
++  <script src="lesson6.js?v=114"></script>
++  <script src="lesson7.js?v=114"></script>
++  <script src="lesson8.js?v=114"></script>
++  <script src="lesson9.js?v=114"></script>
++  <script src="lesson10.js?v=114"></script>
++  <script src="lesson11.js?v=114"></script>
++  <script src="lesson-colors.js?v=114"></script>
++  <script src="lesson-colors2.js?v=114"></script>
++  <script src="lesson-gender.js?v=114"></script>
++  <script src="lesson-gender2.js?v=114"></script>
++  <script src="games-extra.js?v=114"></script>
++  <script src="app.js?v=114"></script>
+ 
+   <!-- ===================================================================
+        Stale-cache guard (GitHub Pages + aggressive browser caches).
+diff --git a/lesson-engine.js b/lesson-engine.js
+index 756aac0..f4d10c1 100644
+--- a/lesson-engine.js
++++ b/lesson-engine.js
+@@ -48,7 +48,15 @@ var SAL = (window.SAL = window.SAL || {});
+   function tx(o) {
+     if (o == null) return '';
+     if (typeof o === 'string') return o;
+-    return o[L()] || o.en || o.ru || '';
++    if (o[L()] != null) return o[L()];
++    var t = L() === 'ru' ? o.titleRu : o.titleEn;
++    if (t != null) return t;
++    return o.en || o.ru || '';
++  }
++  /* a value that goes into an HTML attribute: a title may contain quotes */
++  function q(s) {
++    return String(s == null ? '' : s)
++      .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+   }
+   function ru(enStr, ruStr) { return L() === 'ru' ? ruStr : enStr; }
+   function shuffle(a) {
+@@ -2081,8 +2089,19 @@ var SAL = (window.SAL = window.SAL || {});
+     return topBar(pill(ru('Category', 'Категория') + ' ' + (g.i + 1) + '/' + cats.length) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
+       (bareChip ? bareChip + ' ' : '') + chip(cfg, 'restart', 'categories', '↺')) +
+       centerCard(
+-        '<div class="cat-title" style="font-size:1.05rem;font-weight:800;color:var(--accent-cambridge);margin-bottom:0.35rem;">' + catTitle(cat) + '</div>' +
+-        '<div style="font-size:0.88rem;color:var(--text-secondary);margin-bottom:1rem;">' +
++        '<div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;' +
++          'color:var(--accent-saffron);margin-bottom:0.35rem;"' +
++          ' data-i18n-ru="' + ru('CATEGORY ', 'КАТЕГОРИЯ ') + (g.i + 1) + ' / ' + cats.length + '"' +
++          ' data-i18n-en="' + ru('CATEGORY ', 'CATEGORY ') + (g.i + 1) + ' / ' + cats.length + '">' +
++          ru('CATEGORY ', 'КАТЕГОРИЯ ') + (g.i + 1) + ' / ' + cats.length + '</div>' +
++        '<div class="cat-title" style="font-size:1.45rem;font-weight:800;color:var(--text-primary);margin-bottom:0.35rem;">' +
++          catTitle(cat) + '</div>' +
++        (cat.hintRu || cat.hintEn
++          ? '<div class="cat-hint" style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0.35rem;"' +
++            ' data-i18n-ru="' + q(cat.hintRu) + '" data-i18n-en="' + q(cat.hintEn) + '">' +
++            tx({ ru: cat.hintRu, en: cat.hintEn }) + '</div>'
++          : '') +
++        '<div style="font-size:0.88rem;color:var(--text-secondary);font-weight:600;margin-bottom:1rem;">' +
+         ru('Select all the words that belong to this category', 'Выберите все слова, которые относятся к этой категории') + '</div>' +
+         '<div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">' + chips + '</div>' +
+         '<div style="margin-top:1.15rem;display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;">' +
+@@ -3542,6 +3561,21 @@ var SAL = (window.SAL = window.SAL || {});
+     }
+   };
+   function txPair(o) { return o ? tx({ ru: o.ru, en: o.en }) : ''; }
++  /* Every pair game is hot-seat: two students, one device. Said once, the same
++     way, in every lesson — nobody should have to guess whether a second phone
++     has to join the site. */
++  var PAIR_NOTE = {
++    ru: '<em>Оба игрока — за одним устройством: заходить на сайт с двух телефонов ' +
++        'не нужно, ход просто передаётся по экрану.</em>',
++    en: '<em>Both players share one device: there is nothing to join from a second ' +
++        'phone — the turn simply passes on screen.</em>'
++  };
++  function pairRow(pair) {
++    var t = txPair(pair);
++    if (!t) return '';
++    return t + '<div style="margin-top:0.3rem;">' + tx(PAIR_NOTE) + '</div>';
++  }
++
+   function rulesBlock(r, open, onclick) {
+     var how = r.how ? txPair(r.how) : null;
+     var howHtml = how && how.length
+@@ -3560,7 +3594,7 @@ var SAL = (window.SAL = window.SAL || {});
+           row(tx({ ru: 'Цель', en: 'Aim' }), txPair(r.aim)) +
+           row(tx({ ru: 'Как играть', en: 'Steps' }), howHtml, 'rules-how') +
+           row(tx({ ru: 'Счёт и ошибки', en: 'Scoring' }), txPair(r.score)) +
+-          row(tx({ ru: 'Вдвоём', en: 'In pairs' }), txPair(r.pair)) +
++          row(tx({ ru: 'Вдвоём', en: 'In pairs' }), pairRow(r.pair)) +
+           row(tx({ ru: 'Преподавателю', en: 'Teacher' }), txPair(r.tip)) +
+           '</div>'
+         : '') +
+diff --git a/lesson10.js b/lesson10.js
+index 74f1e53..55c6845 100644
+--- a/lesson10.js
++++ b/lesson10.js
+@@ -212,9 +212,21 @@ SAL.registerLesson({
+     { titleRu: "Меньше сорока", titleEn: "Less Than Forty", wordIds: ["dasha", "vimshati", "trimshat"] },
+     { titleRu: "Больше тридцати", titleEn: "More Than Thirty", wordIds: ["catvarimshat", "pancashat"] },
+     { titleRu: "Меньше пятидесяти", titleEn: "Less Than Fifty", wordIds: ["dasha", "vimshati", "trimshat", "catvarimshat"] },
+-    { titleRu: "С носовым ं (ṃ)", titleEn: "With an Anusvāra (ं)", wordIds: ["vimshati", "trimshat", "catvarimshat"] },
+-    { titleRu: "Без носового ं", titleEn: "Without an Anusvāra", wordIds: ["dasha", "pancashat"] },
+-    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["vimshati", "catvarimshat"] },
+-    { titleRu: "Не кратны двадцати", titleEn: "Not Multiples of Twenty", wordIds: ["dasha", "trimshat", "pancashat"] }
++    { titleRu: "Есть носовой ं (ṃ, анусвара)", titleEn: "Has a nasal ं (ṃ, anusvāra)",
++      hintRu: "Точка над буквой — ं (анусвара): носовой призвук; в латинице он записывается как «ṃ».",
++      hintEn: "A dot above the letter — ं (anusvāra): a nasal sound, written “ṃ” in Latin.",
++      wordIds: ["vimshati", "trimshat", "catvarimshat"] },
++    { titleRu: "Нет носового ं (ṃ)", titleEn: "No nasal ं (ṃ)",
++      hintRu: "Наоборот: точки ं над буквой нет.",
++      hintEn: "The other way round: there is no ं dot above any letter.",
++      wordIds: ["dasha", "pancashat"] },
++    { titleRu: "Кратны двадцати (20, 40, 60…)", titleEn: "Multiples of twenty (20, 40, 60…)",
++      hintRu: "Число делится на 20 без остатка: 20, 40, 60, 80, 100.",
++      hintEn: "The number divides by 20 with nothing left over: 20, 40, 60, 80, 100.",
++      wordIds: ["vimshati", "catvarimshat"] },
++    { titleRu: "Не кратны двадцати", titleEn: "Not multiples of twenty",
++      hintRu: "Наоборот: при делении на 20 остаётся остаток — 10, 30, 50, 70, 90.",
++      hintEn: "The other way round: dividing by 20 leaves a remainder — 10, 30, 50, 70, 90.",
++      wordIds: ["dasha", "trimshat", "pancashat"] }
+   ]
+ });
+diff --git a/lesson11.js b/lesson11.js
+index 9300e3b..f9a2fec 100644
+--- a/lesson11.js
++++ b/lesson11.js
+@@ -212,9 +212,21 @@ SAL.registerLesson({
+     { titleRu: "Меньше девяноста", titleEn: "Less Than Ninety", wordIds: ["shashti", "saptati", "ashiti"] },
+     { titleRu: "Больше восьмидесяти", titleEn: "More Than Eighty", wordIds: ["navati", "shatam"] },
+     { titleRu: "Меньше ста", titleEn: "Less Than a Hundred", wordIds: ["shashti", "saptati", "ashiti", "navati"] },
+-    { titleRu: "Начинаются с согласной", titleEn: "Starting with a Consonant", wordIds: ["shashti", "saptati", "navati", "shatam"] },
+-    { titleRu: "Кратны тридцати", titleEn: "Multiples of Thirty", wordIds: ["shashti", "navati"] },
+-    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["shashti", "ashiti", "shatam"] },
+-    { titleRu: "Не кратны двадцати", titleEn: "Not Multiples of Twenty", wordIds: ["saptati", "navati"] }
++    { titleRu: "Начинаются с согласной (не с гласной)", titleEn: "Start with a consonant (not a vowel)",
++      hintRu: "Первая буква — согласная: слово не начинается на гласную अ, आ, इ или उ.",
++      hintEn: "The first letter is a consonant: the word does not begin with the vowel अ, आ, इ or उ.",
++      wordIds: ["shashti", "saptati", "navati", "shatam"] },
++    { titleRu: "Кратны тридцати (30, 60, 90)", titleEn: "Multiples of thirty (30, 60, 90)",
++      hintRu: "Число делится на 30 без остатка: 30, 60, 90.",
++      hintEn: "The number divides by 30 with nothing left over: 30, 60, 90.",
++      wordIds: ["shashti", "navati"] },
++    { titleRu: "Кратны двадцати (20, 40, 60…)", titleEn: "Multiples of twenty (20, 40, 60…)",
++      hintRu: "Число делится на 20 без остатка: 20, 40, 60, 80, 100.",
++      hintEn: "The number divides by 20 with nothing left over: 20, 40, 60, 80, 100.",
++      wordIds: ["shashti", "ashiti", "shatam"] },
++    { titleRu: "Не кратны двадцати", titleEn: "Not multiples of twenty",
++      hintRu: "Наоборот: при делении на 20 остаётся остаток — 10, 30, 50, 70, 90.",
++      hintEn: "The other way round: dividing by 20 leaves a remainder — 10, 30, 50, 70, 90.",
++      wordIds: ["saptati", "navati"] }
+   ]
+ });
+diff --git a/lesson4.js b/lesson4.js
+index f2ef766..6dcb2f9 100644
+--- a/lesson4.js
++++ b/lesson4.js
+@@ -212,10 +212,22 @@ SAL.registerLesson({
+     { titleRu: "Больше двух", titleEn: "More Than Two", wordIds: ["trini", "catvari", "panca"] },
+     { titleRu: "Меньше трёх", titleEn: "Less Than Three", wordIds: ["ekam", "dve"] },
+     { titleRu: "Меньше четырёх", titleEn: "Less Than Four", wordIds: ["ekam", "dve", "trini"] },
+-    { titleRu: "Оканчиваются на «इ» (i)", titleEn: "Ending in \"i\" (इ)", wordIds: ["trini", "catvari"] },
+-    { titleRu: "С гласным знаком (ि, ी, ा, े)", titleEn: "With a Vowel Sign (ि, ी, ा, े)", wordIds: ["dve", "trini", "catvari"] },
+-    { titleRu: "Со слитным знаком ्", titleEn: "With a Conjunct (्)", wordIds: ["dve", "trini", "catvari", "panca"] },
+-    { titleRu: "Со звуком «च» (ca)", titleEn: "Containing \"च\" (ca)", wordIds: ["catvari", "panca"] },
++    { titleRu: "Последний звук — «i» (знак ि)", titleEn: "Last sound is «i» (sign ि)",
++      hintRu: "Посмотрите на последний слог: он звучит как краткое «i» — это знак ि.",
++      hintEn: "Look at the last syllable: it sounds like a short “i” — the sign ि.",
++      wordIds: ["trini", "catvari"] },
++    { titleRu: "Есть знак гласной (ि, ी, ा, े)", titleEn: "Has a vowel sign (ि, ी, ा, े)",
++      hintRu: "Знак гласной — это «крючок» ि, «палочка» ा или ी либо «галочка» े при согласной. Отдельная гласная буква (अ, आ, इ) знаком не считается.",
++      hintEn: "A vowel sign is the “hook” ि, the “stroke” ा or ी, or the “tick” े attached to a consonant. A standalone vowel letter (अ, आ, इ) is not a sign.",
++      wordIds: ["dve", "trini", "catvari"] },
++    { titleRu: "Есть слитная согласная (знак ् внутри слова)", titleEn: "Has a joined consonant (a ् inside the word)",
++      hintRu: "Знак ् под буквой гасит гласную «а», и две согласные слипаются в одну — ज्ञ, क्त, स्त. Знак ् в самом конце слова (слово просто обрывается на согласной) сюда не идёт.",
++      hintEn: "The sign ् under a letter cancels the vowel “a” and two consonants merge into one — ज्ञ, क्त, स्त. A ् at the very end (the word simply stops on a consonant) does not count here.",
++      wordIds: ["dve", "trini", "catvari", "panca"] },
++    { titleRu: "Есть буква «च» (ca)", titleEn: "Contains the letter «च» (ca)",
++      hintRu: "В слове встречается буква च — «ca».",
++      hintEn: "The word contains the letter च — “ca”.",
++      wordIds: ["catvari", "panca"] },
+     { titleRu: "Все, кроме «पञ्च»", titleEn: "Everything but \"पञ्च\"", wordIds: ["ekam", "dve", "trini", "catvari"] }
+   ]
+ });
+diff --git a/lesson5.js b/lesson5.js
+index f274a85..dc8b25f 100644
+--- a/lesson5.js
++++ b/lesson5.js
+@@ -287,11 +287,26 @@ SAL.registerLesson({
+     { titleRu: "Меньше трёх мальчиков", titleEn: "Fewer Than Three Boys", wordIds: ["ekah", "dvau"] },
+     { titleRu: "Больше трёх мальчиков", titleEn: "More Than Three Boys", wordIds: ["catvarah", "panca"] },
+     { titleRu: "Меньше четырёх мальчиков", titleEn: "Fewer Than Four Boys", wordIds: ["ekah", "dvau", "trayah"] },
+-    { titleRu: "С висаргой ः", titleEn: "Ending in ः", wordIds: ["ekah", "trayah", "catvarah"] },
+-    { titleRu: "Без висарги", titleEn: "No Visarga", wordIds: ["dvau", "panca"] },
+-    { titleRu: "С долгим гласным (ा / ौ)", titleEn: "With a Long Vowel (ा / ौ)", wordIds: ["dvau", "catvarah"] },
+-    { titleRu: "Есть звук «त» (ta)", titleEn: "Containing \"त\" (ta)", wordIds: ["trayah", "catvarah"] },
+-    { titleRu: "Два слога", titleEn: "Two Syllables", wordIds: ["ekah", "trayah", "panca"] },
++    { titleRu: "Оканчиваются на ः (висарга, ḥ)", titleEn: "Ending in ः (visarga, ḥ)",
++      hintRu: "Две точки справа от буквы — ः (висарга): придыхание на конце слова, в латинице «ḥ».",
++      hintEn: "Two dots to the right of the letter — ः (visarga): a breath at the end of the word, written “ḥ” in Latin.",
++      wordIds: ["ekah", "trayah", "catvarah"] },
++    { titleRu: "Не оканчиваются на ः", titleEn: "Not ending in ः",
++      hintRu: "Наоборот: двух точек ः на конце слова нет.",
++      hintEn: "The other way round: there are no two dots ः at the end.",
++      wordIds: ["dvau", "panca"] },
++    { titleRu: "С долгим гласным (ा / ौ)", titleEn: "With a long vowel (ा / ौ)",
++      hintRu: "Долгая гласная — «палочка» ा или «крючок» ौ: она звучит вдвое дольше краткой.",
++      hintEn: "A long vowel is the “stroke” ा or the “hook” ौ: it sounds twice as long as a short one.",
++      wordIds: ["dvau", "catvarah"] },
++    { titleRu: "Есть буква «त» (ta)", titleEn: "Contains the letter «त» (ta)",
++      hintRu: "В слове встречается буква त — «ta».",
++      hintEn: "The word contains the letter त — “ta”.",
++      wordIds: ["trayah", "catvarah"] },
++    { titleRu: "Ровно два слога", titleEn: "Exactly two syllables",
++      hintRu: "Считаем гласные звуки: например, नरः — два слога, जलम् — три.",
++      hintEn: "Count the vowel sounds: नरः has two syllables, जलम् has three.",
++      wordIds: ["ekah", "trayah", "panca"] },
+     { titleRu: "Все пять — мужской род", titleEn: "All Five Are Masculine", wordIds: ["ekah", "dvau", "trayah", "catvarah", "panca"] }
+   ]
+ });
+diff --git a/lesson6.js b/lesson6.js
+index aa8d880..0213bdf 100644
+--- a/lesson6.js
++++ b/lesson6.js
+@@ -296,11 +296,26 @@ SAL.registerLesson({
+     { titleRu: "Меньше трёх девочек", titleEn: "Fewer Than Three Girls", wordIds: ["eka", "dve"] },
+     { titleRu: "Больше трёх девочек", titleEn: "More Than Three Girls", wordIds: ["catasrah", "panca"] },
+     { titleRu: "Меньше четырёх девочек", titleEn: "Fewer Than Four Girls", wordIds: ["eka", "dve", "tisrah"] },
+-    { titleRu: "С висаргой ः", titleEn: "Ending in ः", wordIds: ["tisrah", "catasrah"] },
+-    { titleRu: "Без висарги", titleEn: "No Visarga", wordIds: ["eka", "dve", "panca"] },
+-    { titleRu: "Без звука «स» (sa)", titleEn: "Without \"स\" (sa)", wordIds: ["dve", "panca"] },
+-    { titleRu: "Два слога", titleEn: "Two Syllables", wordIds: ["eka", "tisrah", "panca"] },
+-    { titleRu: "Окончание ा или ः", titleEn: "Ending in ा or ः", wordIds: ["eka", "tisrah", "catasrah"] },
++    { titleRu: "Оканчиваются на ः (висарга, ḥ)", titleEn: "Ending in ः (visarga, ḥ)",
++      hintRu: "Две точки справа от буквы — ः (висарга): придыхание на конце слова, в латинице «ḥ».",
++      hintEn: "Two dots to the right of the letter — ः (visarga): a breath at the end of the word, written “ḥ” in Latin.",
++      wordIds: ["tisrah", "catasrah"] },
++    { titleRu: "Не оканчиваются на ः", titleEn: "Not ending in ः",
++      hintRu: "Наоборот: двух точек ः на конце слова нет.",
++      hintEn: "The other way round: there are no two dots ः at the end.",
++      wordIds: ["eka", "dve", "panca"] },
++    { titleRu: "Нет буквы «स» (sa)", titleEn: "Without the letter «स» (sa)",
++      hintRu: "Наоборот: буквы स в слове нет.",
++      hintEn: "The other way round: the word has no स at all.",
++      wordIds: ["dve", "panca"] },
++    { titleRu: "Ровно два слога", titleEn: "Exactly two syllables",
++      hintRu: "Считаем гласные звуки: например, नरः — два слога, जलम् — три.",
++      hintEn: "Count the vowel sounds: नरः has two syllables, जलम् has three.",
++      wordIds: ["eka", "tisrah", "panca"] },
++    { titleRu: "Окончание ा или ः", titleEn: "Ending in ा or ः",
++      hintRu: "Последний знак слова — либо «палочка» ा, либо две точки ः.",
++      hintEn: "The last sign of the word is either the “stroke” ा or the two dots ः.",
++      wordIds: ["eka", "tisrah", "catasrah"] },
+     { titleRu: "Все пять — женский род", titleEn: "All Five Are Feminine", wordIds: ["eka", "dve", "tisrah", "catasrah", "panca"] }
+   ]
+ });
+diff --git a/lesson7.js b/lesson7.js
+index ac386e9..5f2b292 100644
+--- a/lesson7.js
++++ b/lesson7.js
+@@ -213,9 +213,18 @@ SAL.registerLesson({
+     { titleRu: "Меньше восьми", titleEn: "Less Than Eight", wordIds: ["shat", "sapta"] },
+     { titleRu: "Больше шести", titleEn: "More Than Six", wordIds: ["sapta", "ashta", "nava", "dasha"] },
+     { titleRu: "Восемь или девять", titleEn: "Eight or Nine", wordIds: ["ashta", "nava"] },
+-    { titleRu: "С буквой «ष» (ṣa)", titleEn: 'Containing "ष" (ṣa)', wordIds: ["shat", "ashta"] },
+-    { titleRu: "Со знаком ् (вирама)", titleEn: 'With a Virāma (्)', wordIds: ["shat", "sapta", "ashta"] },
+-    { titleRu: "Без знака ्", titleEn: 'Without a Virāma', wordIds: ["nava", "dasha"] },
++    { titleRu: "Есть буква «ष» (ṣa)", titleEn: "Contains the letter «ष» (ṣa)",
++      hintRu: "Буква ष — с «хвостиком» внизу слева; в латинице это «ṣ».",
++      hintEn: "The letter ष has a little tail at the bottom left; it is “ṣ” in Latin.",
++      wordIds: ["shat", "ashta"] },
++    { titleRu: "Есть знак ् — согласная без гласной", titleEn: "Has a ् — a consonant with no vowel",
++      hintRu: "Знак ् (вирама) под буквой: эта согласная стоит без гласной — она либо слипается со следующей (ज्ञ), либо обрывает слово на конце (वाक्).",
++      hintEn: "The sign ् (virāma) under a letter: that consonant stands without a vowel — it either merges with the next one (ज्ञ) or ends the word (वाक्).",
++      wordIds: ["shat", "sapta", "ashta"] },
++    { titleRu: "Нет знака ् — все согласные с гласной", titleEn: "No ् — every consonant keeps its vowel",
++      hintRu: "Наоборот: ни одной согласной без гласной — каждая стоит со своей гласной.",
++      hintEn: "The other way round: not a single consonant stands without its vowel.",
++      wordIds: ["nava", "dasha"] },
+     { titleRu: "Все, кроме «दश»", titleEn: 'Everything but "दश"', wordIds: ["shat", "sapta", "ashta", "nava"] }
+   ]
+ });
+diff --git a/lesson8.js b/lesson8.js
+index 017b9bd..5614ff9 100644
+--- a/lesson8.js
++++ b/lesson8.js
+@@ -215,6 +215,9 @@ SAL.registerLesson({
+     { titleRu: "От двенадцати до четырнадцати", titleEn: "Twelve to Fourteen", wordIds: ["dvadasa", "trayodasa", "caturdasa"] },
+     { titleRu: "Одиннадцать или пятнадцать", titleEn: "Eleven or Fifteen", wordIds: ["ekadasa", "pancadasa"] },
+     { titleRu: "Все, кроме тринадцати", titleEn: "Everything but Thirteen", wordIds: ["ekadasa", "dvadasa", "caturdasa", "pancadasa"] },
+-    { titleRu: "Без знака ्", titleEn: "Without a Virāma", wordIds: ["ekadasa", "dvadasa", "trayodasa", "pancadasa"] }
++    { titleRu: "Есть буква «च» (ca)", titleEn: "Contains the letter «च» (ca)",
++      hintRu: "В слове встречается буква च — «ca».",
++      hintEn: "The word contains the letter च — “ca”.",
++      wordIds: ["caturdasa", "pancadasa"] }
+   ]
+ });
+diff --git a/lesson9.js b/lesson9.js
+index 080e0d4..ec158d7 100644
+--- a/lesson9.js
++++ b/lesson9.js
+@@ -212,9 +212,18 @@ SAL.registerLesson({
+     { titleRu: "Меньше восемнадцати", titleEn: "Less Than Eighteen", wordIds: ["shodasa", "saptadasa"] },
+     { titleRu: "Больше шестнадцати", titleEn: "More Than Sixteen", wordIds: ["saptadasa", "ashtadasa", "navadasa", "vimshati"] },
+     { titleRu: "Меньше девятнадцати", titleEn: "Less Than Nineteen", wordIds: ["shodasa", "saptadasa", "ashtadasa"] },
+-    { titleRu: "Оканчиваются на «दश»", titleEn: "Ending in 'दश'", wordIds: ["shodasa", "saptadasa", "ashtadasa", "navadasa"] },
+-    { titleRu: "С буквой «ष» (ṣa)", titleEn: "Containing 'ष' (ṣa)", wordIds: ["shodasa", "ashtadasa"] },
+-    { titleRu: "Без буквы «ष» (ṣa)", titleEn: "Without 'ष' (ṣa)", wordIds: ["saptadasa", "navadasa", "vimshati"] },
++    { titleRu: "Оканчиваются на «दश» (daśa)", titleEn: "Ending in «दश» (daśa)",
++      hintRu: "Последние слоги слова — те же, что в слове «दश» (десять).",
++      hintEn: "The word ends with the same syllables as «दश» (ten).",
++      wordIds: ["shodasa", "saptadasa", "ashtadasa", "navadasa"] },
++    { titleRu: "Есть буква «ष» (ṣa)", titleEn: "Contains the letter «ष» (ṣa)",
++      hintRu: "Буква ष — с «хвостиком» внизу слева; в латинице это «ṣ».",
++      hintEn: "The letter ष has a little tail at the bottom left; it is “ṣ” in Latin.",
++      wordIds: ["shodasa", "ashtadasa"] },
++    { titleRu: "Нет буквы «ष» (ṣa)", titleEn: "Without the letter «ष» (ṣa)",
++      hintRu: "Наоборот: буквы ष в слове нет.",
++      hintEn: "The other way round: the word has no ष at all.",
++      wordIds: ["saptadasa", "navadasa", "vimshati"] },
+     { titleRu: "Девятнадцать или двадцать", titleEn: "Nineteen or Twenty", wordIds: ["navadasa", "vimshati"] }
+   ]
+ });
