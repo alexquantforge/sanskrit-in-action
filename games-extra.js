@@ -829,11 +829,70 @@
                en: 'The picture flashes for a moment — count at a glance, the way you do in real life.' }) + '</div>');
   }
 
+  /* Сколько секунд поле «Слепого поля» остаётся открытым. Раньше было ровно
+     2,5 с — за это время десять клеток не запомнить, поэтому длительность
+     выбирается кнопками над полем (3 / 5 / 8 / 12 / 20 / 30 с), по умолчанию
+     8 с, и запоминается в localStorage (одна на весь сайт, а не на урок). */
+  var BLIND_SHOW_KEY = 'sal-blind-show';
+  var BLIND_SHOW_OPTIONS = [3, 5, 8, 12, 20, 30];
+  var BLIND_SHOW_DEFAULT = 8;
+  function loadBlindShowSec() {
+    try {
+      var raw = window.localStorage ? window.localStorage.getItem(BLIND_SHOW_KEY) : null;
+      var sec = parseInt(raw, 10);
+      if (BLIND_SHOW_OPTIONS.indexOf(sec) >= 0) return sec;
+    } catch (e) { /* storage unavailable */ }
+    return BLIND_SHOW_DEFAULT;
+  }
+  function saveBlindShowSec(sec) {
+    try { if (window.localStorage) window.localStorage.setItem(BLIND_SHOW_KEY, String(sec)); } catch (e) { }
+  }
+  function blindShowSec(g) {
+    var sec = g && g.sec ? g.sec : loadBlindShowSec();
+    return BLIND_SHOW_OPTIONS.indexOf(sec) >= 0 ? sec : BLIND_SHOW_DEFAULT;
+  }
+  function blindLeft(g) {
+    return Math.max(0, Math.ceil((((g && g.showUntil) || 0) - Date.now()) / 1000));
+  }
+  /* У поля свои таймеры: один закрывает его, второй перерисовывает экран,
+     чтобы цифра «сколько секунд осталось» шла вниз сама. Общего таймера
+     движка (K.after) здесь мало: после любой другой игры он считается
+     занятым, и новый отсчёт молча не ставится — поле висело бы открытым.
+     Оба таймера перед делом проверяют, что игра та же и поле то же, поэтому
+     чужие срабатывания (игру переключили, поле пересобрали) ничего не делают. */
+  var blindHideId = null, blindTickId = null, blindArmed = 0;
+  function blindSame(cfg, g) {
+    var st = K.state(cfg);
+    return !!st && st.game === 'blindboard' && K.gst(cfg, 'blindboard') === g &&
+      g.phase === 'show' && !!g.showUntil;
+  }
+  function blindStopTimers() {
+    if (blindHideId) { clearTimeout(blindHideId); blindHideId = null; }
+    if (blindTickId) { clearTimeout(blindTickId); blindTickId = null; }
+    blindArmed = 0;
+  }
+  function blindArm(cfg, g) {
+    var left = g.showUntil - Date.now();
+    if (blindArmed !== g.showUntil || !blindHideId) {
+      if (blindHideId) clearTimeout(blindHideId);
+      blindArmed = g.showUntil;
+      blindHideId = setTimeout(function () {
+        blindHideId = null; blindArmed = 0;
+        if (blindSame(cfg, g)) boardHide(cfg);
+      }, left > 0 ? left : 0);
+    }
+    if (blindTickId) clearTimeout(blindTickId);
+    blindTickId = setTimeout(function () {
+      blindTickId = null;
+      if (blindSame(cfg, g)) SAL.refresh();
+    }, 500);
+  }
   /* ======================================================= 22. BLIND BOARD */
   function boardHide(cfg) {
     var g = K.gst(cfg, 'blindboard');
     if (K.state(cfg).game !== 'blindboard') { K.clearAfter(); return; }
-    g.phase = 'ask'; g.ask = null;
+    g.phase = 'ask'; g.ask = null; g.showUntil = 0;
+    blindStopTimers();
     SAL.refresh();
   }
   function renderBlindBoard(cfg) {
@@ -847,7 +906,13 @@
       return done(cfg, 'blindboard', tx({ ru: 'Слепое поле — пройдено', en: 'Blind board — done' }),
         g.score, g.cards.length);
     }
-    if (g.phase === 'show' && !K.pending()) K.after(2500, function () { boardHide(cfg); });
+    /* поле открыто выбранное число секунд; если ушли к другой игре и
+       вернулись, отсчёт начинается заново, а не «уже всё закрылось» */
+    if (g.phase === 'show') {
+      var showMs = blindShowSec(g) * 1000;
+      if (!g.showUntil || g.showUntil - Date.now() < -1500) g.showUntil = Date.now() + showMs;
+      blindArm(cfg, g);
+    }
     if (g.phase === 'ask' && g.ask === null) {
       var free = [];
       g.cards.forEach(function (id, idx) { if (!g.done[idx]) free.push(idx); });
@@ -865,12 +930,21 @@
     }).join('');
     var askW = g.ask === null ? null : byId(cfg, g.cards[g.ask]);
     var duoB = players(cfg) === 2;
+    /* «Поле открыто: 3 / 5 / 8 / 12 / 20 / 30 с» — столько секунд поле
+       видно, прежде чем закрыться. Как пауза на промах в «Мемори». */
+    var showRow = '<div class="game-ver-row" data-blind-row="show"><span class="game-ver-label">' +
+      ru('Board open:', 'Поле открыто:') + '</span>' +
+      BLIND_SHOW_OPTIONS.map(function (s) {
+        return chip(cfg, 'blindSec', String(s), ru(s + ' s', s + ' с'), blindShowSec(g) === s);
+      }).join('') + '</div>';
     return K.topBar(
       (duoB ? scorePills(cfg, g) + ' ' : '') +
       K.pill(tx({ ru: 'Клеток угадано', en: 'Squares named' }) + ': ' + g.score + '/' + g.cards.length) + ' ' +
-        K.pill(g.phase === 'show' ? tx({ ru: 'Запоминайте…', en: 'Memorise…' }) : tx({ ru: 'Что в клетке', en: 'What is in' }) +
+        K.pill(g.phase === 'show' ? tx({ ru: 'Запоминайте', en: 'Memorise' }) + ': ' +
+          blindLeft(g) + ' ' + tx({ ru: 'с', en: 's' }) : tx({ ru: 'Что в клетке', en: 'What is in' }) +
           ' ' + (g.ask === null ? '' : K.cellName(g.ask, cols) + '?')),
       chip(cfg, 'blindAgain', '', '👁 ' + tx({ ru: 'Показать поле', en: 'Show board' })) + ' ' + restartChip(cfg, 'blindboard')) +
+      showRow +
       K.centerCard(
         '<div class="grid-10" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + cells + '</div>' +
         (g.phase === 'ask' && g.ask !== null && !g.answered
@@ -893,8 +967,10 @@
           : '') +
         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
           (g.phase === 'show'
-            ? tx({ ru: 'Запоминайте: поле закроется через 2,5 секунды. Потом игра назовёт клетку (например b2), и вы выберете, какое слово в ней спрятано.',
-                   en: 'Memorise: the board closes in 2.5 seconds. Then the game names a square (b2, for example) and you choose the word hidden in it.' })
+            ? tx({ ru: 'Запоминайте: поле закроется через ', en: 'Memorise: the board closes in ' }) +
+              blindLeft(g) + ' ' + tx({ ru: 'с', en: 's' }) + '. ' +
+              tx({ ru: 'Потом игра назовёт клетку (например b2), и вы выберете, какое слово в ней спрятано.',
+                   en: 'Then the game names a square (b2, for example) and you choose the word hidden in it.' })
             : tx({ ru: 'Поле закрыто, клетки видны по координатам (a1, b2…). Названная клетка подсвечена — выберите слово. Забыли поле? Нажмите 👁 «Показать поле».',
                    en: 'The board is closed and the squares show coordinates (a1, b2…). The square you are asked about is highlighted — choose the word. Forgot the board? Press 👁 “Show board”.' })) +
           (duoB ? '<br/>' + tx({ ru: 'Отвечает по очереди: вопрос — одному, следующий — другому.',
@@ -2014,13 +2090,28 @@
     labelRu: 'Слепое поле (кто в клетке?)',
     labelEn: 'Blind Board (who is in the square?)',
     init: function () {
-      return { cards: null, phase: 'show', i: 0, ask: null, done: {},
+      return { cards: null, phase: 'show', i: 0, ask: null, done: {}, sec: 0, showUntil: 0,
                answered: false, picked: null, score: 0, finished: false,
                scores: [0, 0], turn: 0 };
     },
     render: renderBlindBoard,
     actions: {
-      blindAgain: function (cfg) { var g = K.gst(cfg, 'blindboard'); g.phase = 'show'; K.clearAfter(); },
+      blindAgain: function (cfg) {
+        var g = K.gst(cfg, 'blindboard');
+        g.phase = 'show'; g.showUntil = Date.now() + blindShowSec(g) * 1000;
+        blindStopTimers();
+      },
+      /* «Поле открыто: 3 / 5 / 8 / 12 / 20 / 30 с». Выбор запоминается на
+         весь сайт; если его меняют, пока поле открыто, отсчёт идёт заново
+         по новой длительности — иначе кнопка выглядит неработающей. */
+      blindSec: function (cfg, st, a) {
+        var g = K.gst(cfg, 'blindboard');
+        var sec = parseInt(a, 10);
+        if (BLIND_SHOW_OPTIONS.indexOf(sec) < 0) return;
+        g.sec = sec;
+        saveBlindShowSec(sec);
+        if (g.phase === 'show') { g.showUntil = Date.now() + sec * 1000; blindStopTimers(); }
+      },
       blindPick: function (cfg, st, a) {
         var g = K.gst(cfg, 'blindboard');
         if (g.answered || g.ask === null) return;
@@ -2492,16 +2583,16 @@
     blindboard: {
       aim: { ru: 'Память на расположение: запомнить поле, а потом назвать, какое слово спрятано в названной клетке.',
              en: 'Memory for positions: memorise the board, then name the word hidden in the square you are asked about.' },
-      how: { ru: ['Шаг 1. Поле открыто 2,5 секунды: во всех клетках видны слова урока (каждое — дважды). Запомните, где что лежит.',
+      how: { ru: ['Шаг 1. Поле открыто столько, сколько выбрано кнопками «Поле открыто» над полем: 3, 5, 8, 12, 20 или 30 секунд (по умолчанию 8). Во всех клетках видны слова урока (каждое — дважды). Запомните, где что лежит.',
                   'Шаг 2. Поле закрывается — вместо слов остаются только координаты: a1, a2, b1… (буква — ряд, цифра — столбец).',
                   'Шаг 3. Игра называет одну клетку, и она подсвечена: «Что в b2?» Выберите слово из всех слов урока — нажмите ту букву (A, B, C…), которую назвали бы вслух.',
                   'Шаг 4. Угадали — клетка открывается и остаётся открытой. Ошиблись — игра показывает верное слово, клетка остаётся закрытой.',
-                  'Забыли, где что? 👁 «Показать поле» — откроет всё поле ещё на 2,5 секунды. Так можно сколько угодно раз.'],
-             en: ['Step 1. The board is open for 2.5 seconds: every square shows a word of the lesson (each word twice). Memorise what is where.',
+                  'Забыли, где что? 👁 «Показать поле» — откроет всё поле ещё на выбранное время. Так можно сколько угодно раз.'],
+             en: ['Step 1. The board stays open for as long as you choose with the “Board open” buttons above it: 3, 5, 8, 12, 20 or 30 seconds (8 by default). Every square shows a word of the lesson (each word twice). Memorise what is where.',
                   'Step 2. The board closes — only the coordinates stay: a1, a2, b1… (letter = row, number = column).',
                   'Step 3. The game names one square and highlights it: “What is in b2?” Choose the word from all the words of the lesson — press the letter (A, B, C…) you would say aloud.',
                   'Step 4. A hit: the square opens and stays open. A miss: the game shows the right word and the square stays closed.',
-                  'Forgot the board? 👁 “Show board” opens everything again for another 2.5 seconds — as often as you like.'] },
+                  'Forgot the board? 👁 “Show board” opens everything again for the time you have chosen — as often as you like.'] },
       score: { ru: 'Очко за каждую угаданную клетку; все карточки поля — по два экземпляра каждого слова.',
                en: 'A point for every square named; the board holds two copies of each word.' },
       pair: { ru: 'Игроки отвечают по очереди; кто верно назвал, тот и забирает клетку.',

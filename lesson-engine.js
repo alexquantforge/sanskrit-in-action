@@ -3666,7 +3666,7 @@ var SAL = (window.SAL = window.SAL || {});
       action === 'rcGame' || action === 'rcProd';
     var isRestart = action === 'restart' || /Restart$/.test(action) || action === 'memorySize' ||
       action === 'memoryBare' || action === 'memoryTraps' || action === 'memoryPause' ||
-      action === 'matchNext';
+      action === 'matchNext' || action === 'blindSec';
     var id = stageIdFor(cfg, action);
     /* Прокрутка нужна ТОЛЬКО при переключении игры/режима (вкладки могут быть
        у нижнего края экрана). Restart нажимают на самой сцене, которая уже

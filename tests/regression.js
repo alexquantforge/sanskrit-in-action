@@ -4048,6 +4048,87 @@ console.log('\n===== «Мемори»: кнопки паузы 1–4 секун�
 }
 
 /* ==========================================================================
+   «СЛЕПОЕ ПОЛЕ» · СКОЛЬКО СЕКУНД ПОЛЕ ОТКРЫТО: 3 / 5 / 8 / 12 / 20 / 30 С
+   Раньше поле закрывалось ровно через 2,5 с — десять клеток за это время не
+   запомнить. Теперь длительность выбирается кнопками над полем, сохраняется
+   в localStorage и действует во всех уроках. Таймер в тесте не выполняется,
+   а только записывается — проверка остаётся синхронной (как для паузы
+   в «Мемори»).
+   ========================================================================== */
+console.log('\n===== «Слепое поле»: кнопки «Поле открыто» =====');
+{
+  const chips = k => [...arenaOf(k).querySelectorAll('[data-blind-row="show"] .chip-btn')];
+  const activeLabel = k => chips(k).filter(b => b.classList.contains('active'))
+    .map(b => b.textContent.trim()).join();
+  const rowLabel = k => ((arenaOf(k).querySelector('[data-blind-row="show"] .game-ver-label') || {}).textContent || '');
+  const waitOfShow = k => {
+    const g = gst(k, 'blindboard');
+    g.phase = 'show'; g.showUntil = 0;
+    const real = win.setTimeout;
+    const waits = [];
+    win.setTimeout = (fn, ms) => { waits.push(ms); return 0; };
+    try { SAL.refresh(); } finally { win.setTimeout = real; }
+    g.phase = 'ask'; g.showUntil = 0; SAL.refresh();
+    return waits.filter(w => w >= 1000)[0];
+  };
+
+  win.localStorage.removeItem('sal-blind-show');
+  SAL.openLesson('L4');
+  SAL.do('L4', 'restart', 'blindboard');
+  const labels = chips('L4').map(b => b.textContent.trim());
+  ck(labels.length === 6 && labels.join('|') === '3 с|5 с|8 с|12 с|20 с|30 с',
+    'над полем шесть кнопок длительности — ' + labels.join(' | '));
+  ck(/Поле открыто/.test(rowLabel('L4')),
+    'ряд подписан: «Поле открыто:» — ' + rowLabel('L4').trim());
+  const defMs = waitOfShow('L4');
+  ck(activeLabel('L4') === '8 с' && defMs > 7000 && defMs <= 8000,
+    'по умолчанию 8 секунд: кнопка «8 с» подсвечена, поле ждёт ~8000 мс (' + defMs + ')');
+  ck(!/2,5 секунды|2\.5 seconds/.test(arenaOf('L4').querySelector('.game-rules').textContent),
+    'в правилах больше нет «2,5 секунды» — длительность настраивается');
+
+  SAL.do('L4', 'blindSec', '20');
+  ck(activeLabel('L4') === '20 с' && gst('L4', 'blindboard').sec === 20,
+    'кнопка «20 с» включается и запоминает 20 секунд');
+  const bigMs = waitOfShow('L4');
+  ck(bigMs > 19000 && bigMs <= 20000,
+    'после выбора поле открыто 20 секунд, а не 2,5 (' + bigMs + ' мс)');
+  ck(win.localStorage.getItem('sal-blind-show') === '20',
+    'выбор сохранён в localStorage — ' + win.localStorage.getItem('sal-blind-show'));
+
+  SAL.do('L4', 'restart', 'blindboard');
+  ck(activeLabel('L4') === '20 с' && waitOfShow('L4') > 19000,
+    '«↺» не сбрасывает выбранное время — поле новое, длительность прежняя');
+  SAL.openLesson('L2');
+  SAL.do('L2', 'setGame', 'blindboard');
+  SAL.do('L2', 'restart', 'blindboard');
+  ck(chips('L2').length === 6 && activeLabel('L2') === '20 с',
+    'в уроке лица кнопки те же и время то же — настройка одна на весь сайт');
+
+  const gm = gst('L2', 'blindboard');
+  gm.phase = 'ask'; gm.showUntil = 0;
+  SAL.do('L2', 'blindAgain');
+  const againMs = gm.showUntil - Date.now();
+  ck(gm.phase === 'show' && againMs > 19000 && againMs <= 20000,
+    '«👁 Показать поле» открывает поле на те же 20 секунд (' + Math.round(againMs) + ' мс)');
+
+  const bbPill = [...arenaOf('L2').querySelectorAll('.game-score-pill')].map(p => p.textContent).join(' | ');
+  ck(/Запоминайте: \d+ с/.test(bbPill), 'на плашке идёт обратный отсчёт — ' + bbPill);
+
+  win.setLanguage('en');
+  const enRow = [...arenaOf('L2').querySelectorAll('[data-blind-row="show"]')]
+    .map(el => el.textContent.replace(/\s+/g, ' ').trim()).join(' ');
+  ck(!/[\u0400-\u04FF]/.test(enRow) && /Board open/.test(enRow),
+    'английская версия: «Board open: …» без кириллицы — ' + enRow);
+  win.setLanguage('ru');
+
+  /* возвращаем обычную настройку, чтобы не влиять на остальные проверки */
+  win.localStorage.removeItem('sal-blind-show');
+  SAL.openLesson('L4');
+  SAL.do('L4', 'setGame', 'blindboard');
+  SAL.do('L4', 'restart', 'blindboard');
+}
+
+/* ==========================================================================
    ОЗВУЧКА · ВИСАРГА ः
    Хинди-движок читал ः как «е»: हस्तः звучал «хасте». Для речи висарга
    заменяется на ह (лёгкое эхо гласного: aḥ → aha), а на письме остаётся ः.
