@@ -213,9 +213,18 @@ SAL.registerLesson({
     { titleRu: "Меньше восьми", titleEn: "Less Than Eight", wordIds: ["shat", "sapta"] },
     { titleRu: "Больше шести", titleEn: "More Than Six", wordIds: ["sapta", "ashta", "nava", "dasha"] },
     { titleRu: "Восемь или девять", titleEn: "Eight or Nine", wordIds: ["ashta", "nava"] },
-    { titleRu: "С буквой «ष» (ṣa)", titleEn: 'Containing "ष" (ṣa)', wordIds: ["shat", "ashta"] },
-    { titleRu: "Со знаком ् (вирама)", titleEn: 'With a Virāma (्)', wordIds: ["shat", "sapta", "ashta"] },
-    { titleRu: "Без знака ्", titleEn: 'Without a Virāma', wordIds: ["nava", "dasha"] },
+    { titleRu: "Есть буква «ष» (ṣa)", titleEn: "Contains the letter «ष» (ṣa)",
+      hintRu: "Буква ष — с «хвостиком» внизу слева; в латинице это «ṣ».",
+      hintEn: "The letter ष has a little tail at the bottom left; it is “ṣ” in Latin.",
+      wordIds: ["shat", "ashta"] },
+    { titleRu: "Есть знак ् — согласная без гласной", titleEn: "Has a ् — a consonant with no vowel",
+      hintRu: "Знак ् (вирама) под буквой: эта согласная стоит без гласной — она либо слипается со следующей (ज्ञ), либо обрывает слово на конце (वाक्).",
+      hintEn: "The sign ् (virāma) under a letter: that consonant stands without a vowel — it either merges with the next one (ज्ञ) or ends the word (वाक्).",
+      wordIds: ["shat", "sapta", "ashta"] },
+    { titleRu: "Нет знака ् — все согласные с гласной", titleEn: "No ् — every consonant keeps its vowel",
+      hintRu: "Наоборот: ни одной согласной без гласной — каждая стоит со своей гласной.",
+      hintEn: "The other way round: not a single consonant stands without its vowel.",
+      wordIds: ["nava", "dasha"] },
     { titleRu: "Все, кроме «दश»", titleEn: 'Everything but "दश"', wordIds: ["shat", "sapta", "ashta", "nava"] }
   ]
 });

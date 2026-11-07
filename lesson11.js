@@ -212,9 +212,21 @@ SAL.registerLesson({
     { titleRu: "Меньше девяноста", titleEn: "Less Than Ninety", wordIds: ["shashti", "saptati", "ashiti"] },
     { titleRu: "Больше восьмидесяти", titleEn: "More Than Eighty", wordIds: ["navati", "shatam"] },
     { titleRu: "Меньше ста", titleEn: "Less Than a Hundred", wordIds: ["shashti", "saptati", "ashiti", "navati"] },
-    { titleRu: "Начинаются с согласной", titleEn: "Starting with a Consonant", wordIds: ["shashti", "saptati", "navati", "shatam"] },
-    { titleRu: "Кратны тридцати", titleEn: "Multiples of Thirty", wordIds: ["shashti", "navati"] },
-    { titleRu: "Кратны двадцати", titleEn: "Multiples of Twenty", wordIds: ["shashti", "ashiti", "shatam"] },
-    { titleRu: "Не кратны двадцати", titleEn: "Not Multiples of Twenty", wordIds: ["saptati", "navati"] }
+    { titleRu: "Начинаются с согласной (не с гласной)", titleEn: "Start with a consonant (not a vowel)",
+      hintRu: "Первая буква — согласная: слово не начинается на гласную अ, आ, इ или उ.",
+      hintEn: "The first letter is a consonant: the word does not begin with the vowel अ, आ, इ or उ.",
+      wordIds: ["shashti", "saptati", "navati", "shatam"] },
+    { titleRu: "Кратны тридцати (30, 60, 90)", titleEn: "Multiples of thirty (30, 60, 90)",
+      hintRu: "Число делится на 30 без остатка: 30, 60, 90.",
+      hintEn: "The number divides by 30 with nothing left over: 30, 60, 90.",
+      wordIds: ["shashti", "navati"] },
+    { titleRu: "Кратны двадцати (20, 40, 60…)", titleEn: "Multiples of twenty (20, 40, 60…)",
+      hintRu: "Число делится на 20 без остатка: 20, 40, 60, 80, 100.",
+      hintEn: "The number divides by 20 with nothing left over: 20, 40, 60, 80, 100.",
+      wordIds: ["shashti", "ashiti", "shatam"] },
+    { titleRu: "Не кратны двадцати", titleEn: "Not multiples of twenty",
+      hintRu: "Наоборот: при делении на 20 остаётся остаток — 10, 30, 50, 70, 90.",
+      hintEn: "The other way round: dividing by 20 leaves a remainder — 10, 30, 50, 70, 90.",
+      wordIds: ["saptati", "navati"] }
   ]
 });
