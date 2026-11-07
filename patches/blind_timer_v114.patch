@@ -1,0 +1,347 @@
+diff --git a/games-extra.js b/games-extra.js
+index d172220..adb0e4a 100644
+--- a/games-extra.js
++++ b/games-extra.js
+@@ -829,11 +829,70 @@
+                en: 'The picture flashes for a moment — count at a glance, the way you do in real life.' }) + '</div>');
+   }
+ 
++  /* Сколько секунд поле «Слепого поля» остаётся открытым. Раньше было ровно
++     2,5 с — за это время десять клеток не запомнить, поэтому длительность
++     выбирается кнопками над полем (3 / 5 / 8 / 12 / 20 / 30 с), по умолчанию
++     8 с, и запоминается в localStorage (одна на весь сайт, а не на урок). */
++  var BLIND_SHOW_KEY = 'sal-blind-show';
++  var BLIND_SHOW_OPTIONS = [3, 5, 8, 12, 20, 30];
++  var BLIND_SHOW_DEFAULT = 8;
++  function loadBlindShowSec() {
++    try {
++      var raw = window.localStorage ? window.localStorage.getItem(BLIND_SHOW_KEY) : null;
++      var sec = parseInt(raw, 10);
++      if (BLIND_SHOW_OPTIONS.indexOf(sec) >= 0) return sec;
++    } catch (e) { /* storage unavailable */ }
++    return BLIND_SHOW_DEFAULT;
++  }
++  function saveBlindShowSec(sec) {
++    try { if (window.localStorage) window.localStorage.setItem(BLIND_SHOW_KEY, String(sec)); } catch (e) { }
++  }
++  function blindShowSec(g) {
++    var sec = g && g.sec ? g.sec : loadBlindShowSec();
++    return BLIND_SHOW_OPTIONS.indexOf(sec) >= 0 ? sec : BLIND_SHOW_DEFAULT;
++  }
++  function blindLeft(g) {
++    return Math.max(0, Math.ceil((((g && g.showUntil) || 0) - Date.now()) / 1000));
++  }
++  /* У поля свои таймеры: один закрывает его, второй перерисовывает экран,
++     чтобы цифра «сколько секунд осталось» шла вниз сама. Общего таймера
++     движка (K.after) здесь мало: после любой другой игры он считается
++     занятым, и новый отсчёт молча не ставится — поле висело бы открытым.
++     Оба таймера перед делом проверяют, что игра та же и поле то же, поэтому
++     чужие срабатывания (игру переключили, поле пересобрали) ничего не делают. */
++  var blindHideId = null, blindTickId = null, blindArmed = 0;
++  function blindSame(cfg, g) {
++    var st = K.state(cfg);
++    return !!st && st.game === 'blindboard' && K.gst(cfg, 'blindboard') === g &&
++      g.phase === 'show' && !!g.showUntil;
++  }
++  function blindStopTimers() {
++    if (blindHideId) { clearTimeout(blindHideId); blindHideId = null; }
++    if (blindTickId) { clearTimeout(blindTickId); blindTickId = null; }
++    blindArmed = 0;
++  }
++  function blindArm(cfg, g) {
++    var left = g.showUntil - Date.now();
++    if (blindArmed !== g.showUntil || !blindHideId) {
++      if (blindHideId) clearTimeout(blindHideId);
++      blindArmed = g.showUntil;
++      blindHideId = setTimeout(function () {
++        blindHideId = null; blindArmed = 0;
++        if (blindSame(cfg, g)) boardHide(cfg);
++      }, left > 0 ? left : 0);
++    }
++    if (blindTickId) clearTimeout(blindTickId);
++    blindTickId = setTimeout(function () {
++      blindTickId = null;
++      if (blindSame(cfg, g)) SAL.refresh();
++    }, 500);
++  }
+   /* ======================================================= 22. BLIND BOARD */
+   function boardHide(cfg) {
+     var g = K.gst(cfg, 'blindboard');
+     if (K.state(cfg).game !== 'blindboard') { K.clearAfter(); return; }
+-    g.phase = 'ask'; g.ask = null;
++    g.phase = 'ask'; g.ask = null; g.showUntil = 0;
++    blindStopTimers();
+     SAL.refresh();
+   }
+   function renderBlindBoard(cfg) {
+@@ -847,7 +906,13 @@
+       return done(cfg, 'blindboard', tx({ ru: 'Слепое поле — пройдено', en: 'Blind board — done' }),
+         g.score, g.cards.length);
+     }
+-    if (g.phase === 'show' && !K.pending()) K.after(2500, function () { boardHide(cfg); });
++    /* поле открыто выбранное число секунд; если ушли к другой игре и
++       вернулись, отсчёт начинается заново, а не «уже всё закрылось» */
++    if (g.phase === 'show') {
++      var showMs = blindShowSec(g) * 1000;
++      if (!g.showUntil || g.showUntil - Date.now() < -1500) g.showUntil = Date.now() + showMs;
++      blindArm(cfg, g);
++    }
+     if (g.phase === 'ask' && g.ask === null) {
+       var free = [];
+       g.cards.forEach(function (id, idx) { if (!g.done[idx]) free.push(idx); });
+@@ -865,12 +930,21 @@
+     }).join('');
+     var askW = g.ask === null ? null : byId(cfg, g.cards[g.ask]);
+     var duoB = players(cfg) === 2;
++    /* «Поле открыто: 3 / 5 / 8 / 12 / 20 / 30 с» — столько секунд поле
++       видно, прежде чем закрыться. Как пауза на промах в «Мемори». */
++    var showRow = '<div class="game-ver-row" data-blind-row="show"><span class="game-ver-label">' +
++      ru('Board open:', 'Поле открыто:') + '</span>' +
++      BLIND_SHOW_OPTIONS.map(function (s) {
++        return chip(cfg, 'blindSec', String(s), ru(s + ' s', s + ' с'), blindShowSec(g) === s);
++      }).join('') + '</div>';
+     return K.topBar(
+       (duoB ? scorePills(cfg, g) + ' ' : '') +
+       K.pill(tx({ ru: 'Клеток угадано', en: 'Squares named' }) + ': ' + g.score + '/' + g.cards.length) + ' ' +
+-        K.pill(g.phase === 'show' ? tx({ ru: 'Запоминайте…', en: 'Memorise…' }) : tx({ ru: 'Что в клетке', en: 'What is in' }) +
++        K.pill(g.phase === 'show' ? tx({ ru: 'Запоминайте', en: 'Memorise' }) + ': ' +
++          blindLeft(g) + ' ' + tx({ ru: 'с', en: 's' }) : tx({ ru: 'Что в клетке', en: 'What is in' }) +
+           ' ' + (g.ask === null ? '' : K.cellName(g.ask, cols) + '?')),
+       chip(cfg, 'blindAgain', '', '👁 ' + tx({ ru: 'Показать поле', en: 'Show board' })) + ' ' + restartChip(cfg, 'blindboard')) +
++      showRow +
+       K.centerCard(
+         '<div class="grid-10" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + cells + '</div>' +
+         (g.phase === 'ask' && g.ask !== null && !g.answered
+@@ -893,8 +967,10 @@
+           : '') +
+         '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
+           (g.phase === 'show'
+-            ? tx({ ru: 'Запоминайте: поле закроется через 2,5 секунды. Потом игра назовёт клетку (например b2), и вы выберете, какое слово в ней спрятано.',
+-                   en: 'Memorise: the board closes in 2.5 seconds. Then the game names a square (b2, for example) and you choose the word hidden in it.' })
++            ? tx({ ru: 'Запоминайте: поле закроется через ', en: 'Memorise: the board closes in ' }) +
++              blindLeft(g) + ' ' + tx({ ru: 'с', en: 's' }) + '. ' +
++              tx({ ru: 'Потом игра назовёт клетку (например b2), и вы выберете, какое слово в ней спрятано.',
++                   en: 'Then the game names a square (b2, for example) and you choose the word hidden in it.' })
+             : tx({ ru: 'Поле закрыто, клетки видны по координатам (a1, b2…). Названная клетка подсвечена — выберите слово. Забыли поле? Нажмите 👁 «Показать поле».',
+                    en: 'The board is closed and the squares show coordinates (a1, b2…). The square you are asked about is highlighted — choose the word. Forgot the board? Press 👁 “Show board”.' })) +
+           (duoB ? '<br/>' + tx({ ru: 'Отвечает по очереди: вопрос — одному, следующий — другому.',
+@@ -2014,13 +2090,28 @@
+     labelRu: 'Слепое поле (кто в клетке?)',
+     labelEn: 'Blind Board (who is in the square?)',
+     init: function () {
+-      return { cards: null, phase: 'show', i: 0, ask: null, done: {},
++      return { cards: null, phase: 'show', i: 0, ask: null, done: {}, sec: 0, showUntil: 0,
+                answered: false, picked: null, score: 0, finished: false,
+                scores: [0, 0], turn: 0 };
+     },
+     render: renderBlindBoard,
+     actions: {
+-      blindAgain: function (cfg) { var g = K.gst(cfg, 'blindboard'); g.phase = 'show'; K.clearAfter(); },
++      blindAgain: function (cfg) {
++        var g = K.gst(cfg, 'blindboard');
++        g.phase = 'show'; g.showUntil = Date.now() + blindShowSec(g) * 1000;
++        blindStopTimers();
++      },
++      /* «Поле открыто: 3 / 5 / 8 / 12 / 20 / 30 с». Выбор запоминается на
++         весь сайт; если его меняют, пока поле открыто, отсчёт идёт заново
++         по новой длительности — иначе кнопка выглядит неработающей. */
++      blindSec: function (cfg, st, a) {
++        var g = K.gst(cfg, 'blindboard');
++        var sec = parseInt(a, 10);
++        if (BLIND_SHOW_OPTIONS.indexOf(sec) < 0) return;
++        g.sec = sec;
++        saveBlindShowSec(sec);
++        if (g.phase === 'show') { g.showUntil = Date.now() + sec * 1000; blindStopTimers(); }
++      },
+       blindPick: function (cfg, st, a) {
+         var g = K.gst(cfg, 'blindboard');
+         if (g.answered || g.ask === null) return;
+@@ -2492,16 +2583,16 @@
+     blindboard: {
+       aim: { ru: 'Память на расположение: запомнить поле, а потом назвать, какое слово спрятано в названной клетке.',
+              en: 'Memory for positions: memorise the board, then name the word hidden in the square you are asked about.' },
+-      how: { ru: ['Шаг 1. Поле открыто 2,5 секунды: во всех клетках видны слова урока (каждое — дважды). Запомните, где что лежит.',
++      how: { ru: ['Шаг 1. Поле открыто столько, сколько выбрано кнопками «Поле открыто» над полем: 3, 5, 8, 12, 20 или 30 секунд (по умолчанию 8). Во всех клетках видны слова урока (каждое — дважды). Запомните, где что лежит.',
+                   'Шаг 2. Поле закрывается — вместо слов остаются только координаты: a1, a2, b1… (буква — ряд, цифра — столбец).',
+                   'Шаг 3. Игра называет одну клетку, и она подсвечена: «Что в b2?» Выберите слово из всех слов урока — нажмите ту букву (A, B, C…), которую назвали бы вслух.',
+                   'Шаг 4. Угадали — клетка открывается и остаётся открытой. Ошиблись — игра показывает верное слово, клетка остаётся закрытой.',
+-                  'Забыли, где что? 👁 «Показать поле» — откроет всё поле ещё на 2,5 секунды. Так можно сколько угодно раз.'],
+-             en: ['Step 1. The board is open for 2.5 seconds: every square shows a word of the lesson (each word twice). Memorise what is where.',
++                  'Забыли, где что? 👁 «Показать поле» — откроет всё поле ещё на выбранное время. Так можно сколько угодно раз.'],
++             en: ['Step 1. The board stays open for as long as you choose with the “Board open” buttons above it: 3, 5, 8, 12, 20 or 30 seconds (8 by default). Every square shows a word of the lesson (each word twice). Memorise what is where.',
+                   'Step 2. The board closes — only the coordinates stay: a1, a2, b1… (letter = row, number = column).',
+                   'Step 3. The game names one square and highlights it: “What is in b2?” Choose the word from all the words of the lesson — press the letter (A, B, C…) you would say aloud.',
+                   'Step 4. A hit: the square opens and stays open. A miss: the game shows the right word and the square stays closed.',
+-                  'Forgot the board? 👁 “Show board” opens everything again for another 2.5 seconds — as often as you like.'] },
++                  'Forgot the board? 👁 “Show board” opens everything again for the time you have chosen — as often as you like.'] },
+       score: { ru: 'Очко за каждую угаданную клетку; все карточки поля — по два экземпляра каждого слова.',
+                en: 'A point for every square named; the board holds two copies of each word.' },
+       pair: { ru: 'Игроки отвечают по очереди; кто верно назвал, тот и забирает клетку.',
+diff --git a/index.html b/index.html
+index 51f7139..7c30e0c 100644
+--- a/index.html
++++ b/index.html
+@@ -1,5 +1,5 @@
+ <!DOCTYPE html>
+-<html lang="ru" data-build="v114">
++<html lang="ru" data-build="v115">
+ <head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+@@ -22,7 +22,7 @@
+   <link rel="preconnect" href="https://fonts.googleapis.com" />
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+Devanagari:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+-  <link rel="stylesheet" href="styles.css?v=114" />
++  <link rel="stylesheet" href="styles.css?v=115" />
+   <style>
+     .view-pane { display: none; }
+     .view-pane.active { display: block; }
+@@ -1296,24 +1296,24 @@ https://alexquantforge.github.io/sanskrit-in-action/
+     </div>
+   </footer>
+ 
+-  <script src="lesson1.js?v=114"></script>
+-  <script src="lesson-engine.js?v=114"></script>
+-  <script src="lesson2.js?v=114"></script>
+-  <script src="lesson3.js?v=114"></script>
+-  <script src="lesson4.js?v=114"></script>
+-  <script src="lesson5.js?v=114"></script>
+-  <script src="lesson6.js?v=114"></script>
+-  <script src="lesson7.js?v=114"></script>
+-  <script src="lesson8.js?v=114"></script>
+-  <script src="lesson9.js?v=114"></script>
+-  <script src="lesson10.js?v=114"></script>
+-  <script src="lesson11.js?v=114"></script>
+-  <script src="lesson-colors.js?v=114"></script>
+-  <script src="lesson-colors2.js?v=114"></script>
+-  <script src="lesson-gender.js?v=114"></script>
+-  <script src="lesson-gender2.js?v=114"></script>
+-  <script src="games-extra.js?v=114"></script>
+-  <script src="app.js?v=114"></script>
++  <script src="lesson1.js?v=115"></script>
++  <script src="lesson-engine.js?v=115"></script>
++  <script src="lesson2.js?v=115"></script>
++  <script src="lesson3.js?v=115"></script>
++  <script src="lesson4.js?v=115"></script>
++  <script src="lesson5.js?v=115"></script>
++  <script src="lesson6.js?v=115"></script>
++  <script src="lesson7.js?v=115"></script>
++  <script src="lesson8.js?v=115"></script>
++  <script src="lesson9.js?v=115"></script>
++  <script src="lesson10.js?v=115"></script>
++  <script src="lesson11.js?v=115"></script>
++  <script src="lesson-colors.js?v=115"></script>
++  <script src="lesson-colors2.js?v=115"></script>
++  <script src="lesson-gender.js?v=115"></script>
++  <script src="lesson-gender2.js?v=115"></script>
++  <script src="games-extra.js?v=115"></script>
++  <script src="app.js?v=115"></script>
+ 
+   <!-- ===================================================================
+        Stale-cache guard (GitHub Pages + aggressive browser caches).
+diff --git a/lesson-engine.js b/lesson-engine.js
+index f4d10c1..60f8b14 100644
+--- a/lesson-engine.js
++++ b/lesson-engine.js
+@@ -3666,7 +3666,7 @@ var SAL = (window.SAL = window.SAL || {});
+       action === 'rcGame' || action === 'rcProd';
+     var isRestart = action === 'restart' || /Restart$/.test(action) || action === 'memorySize' ||
+       action === 'memoryBare' || action === 'memoryTraps' || action === 'memoryPause' ||
+-      action === 'matchNext';
++      action === 'matchNext' || action === 'blindSec';
+     var id = stageIdFor(cfg, action);
+     /* Прокрутка нужна ТОЛЬКО при переключении игры/режима (вкладки могут быть
+        у нижнего края экрана). Restart нажимают на самой сцене, которая уже
+diff --git a/tests/regression.js b/tests/regression.js
+index 4d4249b..a0723ef 100644
+--- a/tests/regression.js
++++ b/tests/regression.js
+@@ -4047,6 +4047,87 @@ console.log('\n===== «Мемори»: кнопки паузы 1–4 секун
+   SAL.do('LG', 'restart', 'memory');
+ }
+ 
++/* ==========================================================================
++   «СЛЕПОЕ ПОЛЕ» · СКОЛЬКО СЕКУНД ПОЛЕ ОТКРЫТО: 3 / 5 / 8 / 12 / 20 / 30 С
++   Раньше поле закрывалось ровно через 2,5 с — десять клеток за это время не
++   запомнить. Теперь длительность выбирается кнопками над полем, сохраняется
++   в localStorage и действует во всех уроках. Таймер в тесте не выполняется,
++   а только записывается — проверка остаётся синхронной (как для паузы
++   в «Мемори»).
++   ========================================================================== */
++console.log('\n===== «Слепое поле»: кнопки «Поле открыто» =====');
++{
++  const chips = k => [...arenaOf(k).querySelectorAll('[data-blind-row="show"] .chip-btn')];
++  const activeLabel = k => chips(k).filter(b => b.classList.contains('active'))
++    .map(b => b.textContent.trim()).join();
++  const rowLabel = k => ((arenaOf(k).querySelector('[data-blind-row="show"] .game-ver-label') || {}).textContent || '');
++  const waitOfShow = k => {
++    const g = gst(k, 'blindboard');
++    g.phase = 'show'; g.showUntil = 0;
++    const real = win.setTimeout;
++    const waits = [];
++    win.setTimeout = (fn, ms) => { waits.push(ms); return 0; };
++    try { SAL.refresh(); } finally { win.setTimeout = real; }
++    g.phase = 'ask'; g.showUntil = 0; SAL.refresh();
++    return waits.filter(w => w >= 1000)[0];
++  };
++
++  win.localStorage.removeItem('sal-blind-show');
++  SAL.openLesson('L4');
++  SAL.do('L4', 'restart', 'blindboard');
++  const labels = chips('L4').map(b => b.textContent.trim());
++  ck(labels.length === 6 && labels.join('|') === '3 с|5 с|8 с|12 с|20 с|30 с',
++    'над полем шесть кнопок длительности — ' + labels.join(' | '));
++  ck(/Поле открыто/.test(rowLabel('L4')),
++    'ряд подписан: «Поле открыто:» — ' + rowLabel('L4').trim());
++  const defMs = waitOfShow('L4');
++  ck(activeLabel('L4') === '8 с' && defMs > 7000 && defMs <= 8000,
++    'по умолчанию 8 секунд: кнопка «8 с» подсвечена, поле ждёт ~8000 мс (' + defMs + ')');
++  ck(!/2,5 секунды|2\.5 seconds/.test(arenaOf('L4').querySelector('.game-rules').textContent),
++    'в правилах больше нет «2,5 секунды» — длительность настраивается');
++
++  SAL.do('L4', 'blindSec', '20');
++  ck(activeLabel('L4') === '20 с' && gst('L4', 'blindboard').sec === 20,
++    'кнопка «20 с» включается и запоминает 20 секунд');
++  const bigMs = waitOfShow('L4');
++  ck(bigMs > 19000 && bigMs <= 20000,
++    'после выбора поле открыто 20 секунд, а не 2,5 (' + bigMs + ' мс)');
++  ck(win.localStorage.getItem('sal-blind-show') === '20',
++    'выбор сохранён в localStorage — ' + win.localStorage.getItem('sal-blind-show'));
++
++  SAL.do('L4', 'restart', 'blindboard');
++  ck(activeLabel('L4') === '20 с' && waitOfShow('L4') > 19000,
++    '«↺» не сбрасывает выбранное время — поле новое, длительность прежняя');
++  SAL.openLesson('L2');
++  SAL.do('L2', 'setGame', 'blindboard');
++  SAL.do('L2', 'restart', 'blindboard');
++  ck(chips('L2').length === 6 && activeLabel('L2') === '20 с',
++    'в уроке лица кнопки те же и время то же — настройка одна на весь сайт');
++
++  const gm = gst('L2', 'blindboard');
++  gm.phase = 'ask'; gm.showUntil = 0;
++  SAL.do('L2', 'blindAgain');
++  const againMs = gm.showUntil - Date.now();
++  ck(gm.phase === 'show' && againMs > 19000 && againMs <= 20000,
++    '«👁 Показать поле» открывает поле на те же 20 секунд (' + Math.round(againMs) + ' мс)');
++
++  const bbPill = [...arenaOf('L2').querySelectorAll('.game-score-pill')].map(p => p.textContent).join(' | ');
++  ck(/Запоминайте: \d+ с/.test(bbPill), 'на плашке идёт обратный отсчёт — ' + bbPill);
++
++  win.setLanguage('en');
++  const enRow = [...arenaOf('L2').querySelectorAll('[data-blind-row="show"]')]
++    .map(el => el.textContent.replace(/\s+/g, ' ').trim()).join(' ');
++  ck(!/[\u0400-\u04FF]/.test(enRow) && /Board open/.test(enRow),
++    'английская версия: «Board open: …» без кириллицы — ' + enRow);
++  win.setLanguage('ru');
++
++  /* возвращаем обычную настройку, чтобы не влиять на остальные проверки */
++  win.localStorage.removeItem('sal-blind-show');
++  SAL.openLesson('L4');
++  SAL.do('L4', 'setGame', 'blindboard');
++  SAL.do('L4', 'restart', 'blindboard');
++}
++
+ /* ==========================================================================
+    ОЗВУЧКА · ВИСАРГА ः
+    Хинди-движок читал ः как «е»: हस्तः звучал «хасте». Для речи висарга
