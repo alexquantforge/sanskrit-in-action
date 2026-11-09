@@ -1400,6 +1400,8 @@ function toggleIast() {
 
 // 2. Render Stage 2: PRACTICE (ELT Games — zero translations)
 function selectPracticeGame(gameKey) {
+  /* заглянули в игры — микрофон из Production больше не нужен */
+  if (typeof stopProdMicRecognitionQuietly === 'function') stopProdMicRecognitionQuietly();
   const alreadyOpen = currentPracticeGame === gameKey;
   currentPracticeGame = gameKey;
   document.querySelectorAll('.practice-tab-btn[data-game]').forEach(btn => {
@@ -2859,7 +2861,43 @@ let prodSprintTimerId = null;
 let prodMicIndex = 0;
 let prodMicScore = 0;
 let prodMicListening = false;
-let prodMicStatusMsg = '';
+/* Статус карточки храним как факт (что случилось), а фразу собираем при
+   отрисовке: иначе сообщение остаётся на языке, который был в момент события. */
+let prodMicStatusKind = '';      /* '' | listening | ok | heard | error | stopped */
+let prodMicStatusCode = '';      /* код ошибки распознавания */
+let prodMicStatusHeard = '';     /* что услышали */
+function setProdMicStatus(kind, code, heard) {
+  prodMicStatusKind = kind || '';
+  prodMicStatusCode = code || '';
+  prodMicStatusHeard = heard || '';
+}
+function escapeMicHtml(text) {
+  return String(text == null ? '' : text)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function prodMicStatusText() {
+  const heard = escapeMicHtml(prodMicStatusHeard);
+  switch (prodMicStatusKind) {
+    case 'listening':
+      return currentLang === 'ru'
+        ? '🎙 Слушаю... Произнесите слово на санскрите!'
+        : '🎙 Listening... Speak the Sanskrit word aloud!';
+    case 'ok':
+      return currentLang === 'ru'
+        ? `✓ Распознано: «${heard}» — отлично!`
+        : `✓ Recognized: "${heard}" — great job!`;
+    case 'heard':
+      return currentLang === 'ru'
+        ? `Распознано: «${heard}». Сравните с эталоном 🔊 и отметьте ниже:`
+        : `Heard: "${heard}". Compare with the audio 🔊 and mark below:`;
+    case 'error':
+      return (window.SAL && SAL.speech) ? SAL.speech.errorText(prodMicStatusCode) : '';
+    case 'stopped':
+      return currentLang === 'ru' ? 'Запись остановлена.' : 'Recording stopped.';
+    default:
+      return '';
+  }
+}
 let prodMicRevealed = false;
 let prodMicFinished = false;
 
@@ -2877,6 +2915,8 @@ const speechAcceptMap = {
   danta:   ['दन्त', 'दन्ता', 'दंत', 'दंता', 'दान्त', 'danta', 'dant'],
   anguli:  ['अङ्गुली', 'अंगुली', 'अङ्गुलि', 'अंगुलि', 'उंगली', 'anguli', 'angulee']
 };
+/* общий распознаватель (lesson-engine.js) берёт варианты отсюда */
+window.speechAcceptMap = speechAcceptMap;
 
 // Mode 3: What's Missing on the Portrait? ❓ state
 let prodMissingIndex = 0;
@@ -2904,6 +2944,8 @@ function stopAllProductionTimers() {
 
 function selectProductionMode(mode) {
   stopAllProductionTimers();
+  /* уходим с микрофонной карточки — незачем держать микрофон открытым */
+  if (mode !== 'mic') stopProdMicRecognitionQuietly();
   const alreadyOpen = currentProductionMode === mode;
   currentProductionMode = mode;
   document.querySelectorAll('.practice-tab-btn[data-prod-mode]').forEach(btn => {
@@ -3229,73 +3271,57 @@ function renderProdSprintMode(container) {
 }
 
 // MODE 2: Speak into Microphone 🎙 (Speech Recognition + Self-Check Fallback)
+/* Распознавание живёт в общем модуле SAL.speech (lesson-engine.js): он сам
+   перебирает языки (sa-IN → hi-IN …), сравнивает деванагари с IAST и внятно
+   объясняет, что случилось с микрофоном. Здесь — только состояние карточки. */
 function startProdMicRecognition() {
-  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   const item = bodyPartsVocab[prodMicIndex];
   if (!item) return;
+  if (prodMicListening) { stopProdMicRecognition(); return; }
 
-  if (!SpeechRec) {
-    prodMicStatusMsg = currentLang === 'ru'
-      ? 'Браузер не поддерживает распознавание речи. Произнесите слово вслух и нажмите «🔊 Проверить звуком».'
-      : 'Speech recognition is not supported in this browser. Say the word aloud and click "🔊 Check with Audio".';
+  if (!window.SAL || !SAL.speech) {
+    setProdMicStatus('error', 'unsupported');
     prodMicRevealed = true;
     speakSanskritWord(item.ttsText);
     renderProductionStage();
     return;
   }
 
-  try {
-    const rec = new SpeechRec();
-    rec.lang = 'hi-IN';
-    rec.interimResults = false;
-    rec.maxAlternatives = 5;
-    prodMicListening = true;
-    prodMicStatusMsg = currentLang === 'ru' ? '🎙 Слушаю... Произнесите слово на санскрите!' : '🎙 Listening... Speak the Sanskrit word aloud!';
-    renderProductionStage();
+  prodMicListening = true;
+  setProdMicStatus('listening');
+  renderProductionStage();
 
-    rec.onresult = (event) => {
+  SAL.speech.listen({
+    forms: SAL.speech.forms(item),
+    onResult: (r) => {
       prodMicListening = false;
-      const alts = [];
-      for (let i = 0; i < event.results[0].length; i++) {
-        alts.push(event.results[0][i].transcript.trim().toLowerCase());
-      }
-      const accepted = speechAcceptMap[item.id] || [item.deva, item.iast];
-      const matched = alts.some(t => accepted.some(acc => t.includes(acc.toLowerCase()) || acc.toLowerCase().includes(t)));
-      const heardDisplay = alts[0] || '';
+      const heard = (r.transcript || '').trim();
       prodMicRevealed = true;
       speakSanskritWord(item.ttsText);
-      if (matched) {
-        prodMicStatusMsg = currentLang === 'ru'
-          ? `✓ Распознано: «${heardDisplay}» — отлично!`
-          : `✓ Recognized: "${heardDisplay}" — great job!`;
-      } else {
-        prodMicStatusMsg = currentLang === 'ru'
-          ? `Распознано: «${heardDisplay}». Сравните с эталоном 🔊 и отметьте ниже:`
-          : `Heard: "${heardDisplay}". Compare with the audio 🔊 and mark below:`;
+      setProdMicStatus(r.matched ? 'ok' : 'heard', '', heard);
+      renderProductionStage();
+    },
+    onError: (e) => {
+      prodMicListening = false;
+      setProdMicStatus('error', e.code || 'error');
+      if (SAL.speech.isFatal(e.code)) {
+        prodMicRevealed = true;
+        speakSanskritWord(item.ttsText);
       }
       renderProductionStage();
-    };
+    }
+  });
+}
 
-    rec.onerror = () => {
-      prodMicListening = false;
-      prodMicRevealed = true;
-      prodMicStatusMsg = currentLang === 'ru'
-        ? 'Микрофон недоступен. Произнесите слово вслух и сверьте с эталоном 🔊:'
-        : 'Microphone unavailable. Speak the word aloud and check against the audio 🔊:';
-      speakSanskritWord(item.ttsText);
-      renderProductionStage();
-    };
-
-    rec.start();
-  } catch (e) {
-    prodMicListening = false;
-    prodMicRevealed = true;
-    speakSanskritWord(item.ttsText);
-    renderProductionStage();
-  }
+function stopProdMicRecognition() {
+  if (window.SAL && SAL.speech) SAL.speech.abort();
+  prodMicListening = false;
+  setProdMicStatus('stopped');
+  renderProductionStage();
 }
 
 function revealProdMicManual() {
+  stopProdMicRecognitionQuietly();
   const item = bodyPartsVocab[prodMicIndex];
   prodMicRevealed = true;
   if (item) speakSanskritWord(item.ttsText);
@@ -3303,25 +3329,33 @@ function revealProdMicManual() {
 }
 
 function gradeProdMicCard(knewIt) {
+  stopProdMicRecognitionQuietly();
   if (knewIt) prodMicScore++;
   if (prodMicIndex + 1 >= bodyPartsVocab.length) {
     prodMicFinished = true;
   } else {
     prodMicIndex++;
     prodMicRevealed = false;
-    prodMicStatusMsg = '';
+    setProdMicStatus('');
   }
   renderProductionStage();
 }
 
 function restartProdMic() {
+  stopProdMicRecognitionQuietly();
   prodMicIndex = 0;
   prodMicScore = 0;
   prodMicListening = false;
   prodMicRevealed = false;
-  prodMicStatusMsg = '';
+  setProdMicStatus('');
   prodMicFinished = false;
   renderProductionStage();
+}
+
+/* тихая отмена: без сообщения «запись остановлена» */
+function stopProdMicRecognitionQuietly() {
+  if (window.SAL && SAL.speech) SAL.speech.abort();
+  prodMicListening = false;
 }
 
 function renderProdMicMode(container) {
@@ -3334,7 +3368,7 @@ function renderProdMicMode(container) {
   const item = bodyPartsVocab[prodMicIndex];
   const resetText = currentLang === 'ru' ? '↺ Начать сначала' : '↺ Start Over';
   const speakBtnText = prodMicListening
-    ? (currentLang === 'ru' ? '🎙 Слушаю...' : '🎙 Listening...')
+    ? (currentLang === 'ru' ? '⏹ Остановить запись' : '⏹ Stop Listening')
     : (currentLang === 'ru' ? '🎙 Нажать и сказать в микрофон' : '🎙 Click & Speak into Mic');
   const manualCheckText = currentLang === 'ru' ? '🔊 Проверить звуком (без микрофона)' : '🔊 Check with Audio (No Mic)';
 
@@ -3357,9 +3391,9 @@ function renderProdMicMode(container) {
         <button type="button" class="chip-btn" onclick="revealProdMicManual()">${manualCheckText}</button>
       </div>
 
-      ${prodMicStatusMsg ? `
+      ${prodMicStatusText() ? `
         <div style="font-size:0.88rem;font-weight:600;color:var(--accent-cambridge);margin-bottom:0.65rem;">
-          ${prodMicStatusMsg}
+          ${prodMicStatusText()}
         </div>
       ` : ''}
 

@@ -930,7 +930,7 @@ function setPratyaya(pratyayaKey) {
    ========================================================================= */
 const ROUTE_VIEWS = ['home', 'details', 'lesson1', 'lesson2', 'lesson3', 'lesson4',
                      'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9', 'lesson10',
-                     'lesson11', 'lesson12', 'lesson13', 'lesson14', 'lesson15'];
+                     'lesson11', 'lesson12', 'lesson13', 'lesson14', 'lesson15', 'lesson16'];
 let activeView = 'home';
 let routeLock = false;          // URL применяется — обратно не пишем
 
@@ -1135,6 +1135,9 @@ function noteRoute(view, lang) {
 }
 
 function switchView(viewName, targetSectionId = null) {
+  /* смена экрана — самый частый способ уйти с микрофонной карточки:
+     распознавание не должно оставаться включённым в фоне */
+  if (window.SAL && SAL.speech) SAL.speech.abort();
   if (ROUTE_VIEWS.indexOf(viewName) >= 0) activeView = viewName;
   writeRoute(currentLang, activeView);
   noteRoute(activeView, currentLang);
@@ -1155,6 +1158,7 @@ function switchView(viewName, targetSectionId = null) {
     lesson13: document.getElementById('view-lesson13'),
     lesson14: document.getElementById('view-lesson14'),
     lesson15: document.getElementById('view-lesson15'),
+    lesson16: document.getElementById('view-lesson16'),
     details: document.getElementById('view-details')
   };
   const buttons = {

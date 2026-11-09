@@ -30,7 +30,8 @@ const dom = new JSDOM(fs.readFileSync(path.join(REPO, 'index.html'), 'utf8'), {
 });
 const win = dom.window;
 ['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'lesson5.js',
-  'lesson6.js', 'lesson7.js', 'lesson8.js', 'lesson9.js', 'lesson10.js', 'lesson11.js',
+  'lesson6.js', 'lesson-endings.js', 'lesson7.js', 'lesson8.js', 'lesson9.js', 'lesson10.js',
+  'lesson11.js',
   'lesson-colors.js',
   'lesson-colors2.js', 'lesson-gender.js', 'lesson-gender2.js', 'games-extra.js', 'app.js'].forEach(f => {
   const s = win.document.createElement('script');
@@ -64,7 +65,7 @@ const GAMES = ['masked', 'flashcards', 'gaps', 'picquiz', 'wordquiz', 'match', '
 const PRESMODES = ['stepbystep', 'hotspots', 'audiofirst', 'poster'];
 const PRODMODES = ['sprint', 'mic', 'missingpart', 'chant'];
 
-for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']) {
+for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11']) {
   const cfg = SAL.lessons[key];
   const N = cfg.words.length;
   SAL.openLesson(key);
@@ -401,8 +402,10 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']
   const broken = [];
   cfg.words.forEach(w => {
     if (w.maskedPrefix + w.maskedHidden !== w.deva) broken.push(w.deva + ': masked');
-    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== w.deva) broken.push(w.deva + ': gap');
-    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== w.deva) broken.push(w.deva + ': missing');
+    /* сравниваем без пробелов с обеих сторон: у «фразовых» уроков слово —
+       это словосочетание из двух-трёх слов, и пропуск стоит в последнем */
+    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== nospace(w.deva)) broken.push(w.deva + ': gap');
+    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== nospace(w.deva)) broken.push(w.deva + ': missing');
     if (!w.gapChoices.some(c => c.deva === w.gapAnswer)) broken.push(w.deva + ': gapChoices');
     if (!w.missingChoices.includes(w.missingAnswer)) broken.push(w.deva + ': missingChoices');
     if (editDist(w.deva, w.typoDeva) !== 1) broken.push(w.deva + ': опечатка не в одну букву');
@@ -514,10 +517,10 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']
   const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
                  'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
                  'view-lesson11', 'view-lesson12', 'view-lesson13', 'view-lesson14',
-                 'view-lesson15']
+                 'view-lesson15', 'view-lesson16']
     .map(id => win.document.getElementById(id));
   SAL.openLesson('LC2');   /* панель урока 4 строится движком — собираем её заранее */
-  ck(order.every(Boolean), 'все пятнадцать панелей урока есть на странице');
+  ck(order.every(Boolean), 'все шестнадцать панелей урока есть на странице');
   for (let i = 0; i < order.length - 1; i++) {
     ck(order[i].compareDocumentPosition(order[i + 1]) & 4,
       'порядок панелей: урок ' + (i + 1) + ' → урок ' + (i + 2));
@@ -525,17 +528,19 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']
   ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2 && SAL.lessons.LC.num === 3 &&
      SAL.lessons.LC2.num === 4 && SAL.lessons.LG.num === 5 && SAL.lessons.LG2.num === 6 &&
      SAL.lessons.L4.num === 8 && SAL.lessons.L5.num === 9 && SAL.lessons.L6.num === 10 &&
-     SAL.lessons.L7.num === 11 && SAL.lessons.L8.num === 12 && SAL.lessons.L9.num === 13 &&
-     SAL.lessons.L10.num === 14 && SAL.lessons.L11.num === 15,
-    'номера в данных: Тело = 1, Лицо = 2, Цвета = 3, Ещё цвета = 4, Три рода = 5, рода·цвета = 6, 12 частей = 7, 1–5 = 8, мальчики = 9, девочки = 10, 6–10 = 11, 11–15 = 12, 16–20 = 13, десятки = 14 и 15');
+     SAL.lessons.LV.num === 11 &&
+     SAL.lessons.L7.num === 12 && SAL.lessons.L8.num === 13 && SAL.lessons.L9.num === 14 &&
+     SAL.lessons.L10.num === 15 && SAL.lessons.L11.num === 16,
+    'номера в данных: Тело = 1, Лицо = 2, Цвета = 3, Ещё цвета = 4, Три рода = 5, рода·цвета = 6, 12 частей = 7, 1–5 = 8, мальчики = 9, девочки = 10, окончания = 11, 6–10 = 12, 11–15 = 13, 16–20 = 14, десятки = 15 и 16');
   /* вводный текст называет урок тем же номером, что и слот на странице */
   const ORD_RU = ['', 'Первый', 'Второй', 'Третий', 'Четвёртый', 'Пятый', 'Шестой', 'Седьмой',
     'Восьмой', 'Девятый', 'Десятый', 'Одиннадцатый', 'Двенадцатый', 'Тринадцатый', 'Четырнадцатый',
-    'Пятнадцатый'];
+    'Пятнадцатый', 'Шестнадцатый'];
   const ORD_EN = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh',
-    'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth'];
+    'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth',
+    'sixteenth'];
   const ordinalIssues = Object.keys(SAL.lessons).map(k => SAL.lessons[k])
-    .filter(c => c.num >= 1 && c.num <= 15)
+    .filter(c => c.num >= 1 && c.num <= 16)
     .map(c => {
       const ru = (c.introRu || '').match(/^([А-ЯЁ][а-яё]+)\s+урок/);
       const en = (c.introEn || '').match(/^The\s+([a-z]+)\s+lesson/i);
@@ -565,11 +570,13 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']
     'слот 9 — Счёт мальчиков 1–5');
   ck(/Урок 10: Счёт девочек 1–5/.test(win.document.getElementById('view-lesson10').textContent),
     'слот 10 — Счёт девочек 1–5');
-  ck(/Урок 11: Цифры 6–10/.test(win.document.getElementById('view-lesson11').textContent), 'слот 11 — Цифры 6–10');
-  ck(/Урок 12: Цифры 11–15/.test(win.document.getElementById('view-lesson12').textContent), 'слот 12 — Цифры 11–15');
-  ck(/Урок 13: Цифры 16–20/.test(win.document.getElementById('view-lesson13').textContent), 'слот 13 — Цифры 16–20');
-  ck(/Урок 14: Десятки 10–50/.test(win.document.getElementById('view-lesson14').textContent), 'слот 14 — Десятки 10–50');
-  ck(/Урок 15: Десятки 60–100/.test(win.document.getElementById('view-lesson15').textContent), 'слот 15 — Десятки 60–100');
+  ck(/Урок 11: Окончания/.test(win.document.getElementById('view-lesson11').textContent),
+    'слот 11 — Окончания: один · два · много');
+  ck(/Урок 12: Цифры 6–10/.test(win.document.getElementById('view-lesson12').textContent), 'слот 12 — Цифры 6–10');
+  ck(/Урок 13: Цифры 11–15/.test(win.document.getElementById('view-lesson13').textContent), 'слот 13 — Цифры 11–15');
+  ck(/Урок 14: Цифры 16–20/.test(win.document.getElementById('view-lesson14').textContent), 'слот 14 — Цифры 16–20');
+  ck(/Урок 15: Десятки 10–50/.test(win.document.getElementById('view-lesson15').textContent), 'слот 15 — Десятки 10–50');
+  ck(/Урок 16: Десятки 60–100/.test(win.document.getElementById('view-lesson16').textContent), 'слот 16 — Десятки 60–100');
   const w5list = SAL.lessons.L5.words.map(w => w.deva).join(' ');
   ck(w5list === 'एकः द्वौ त्रयः चत्वारः पञ्च',
     'урок 9: пять числительных мужского рода — ' + w5list);
@@ -584,10 +591,45 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11']
   ck(/УРОК 3 · CAMBRIDGE PPP/.test(win.document.getElementById('view-lesson3').textContent), 'слот 3 — цвета, помечен как УРОК 3');
 }
 
+/* ---------- урок 11: окончания в трёх числах на двух родах ---------- */
+console.log('\n===== Урок 11: ед. / дв. / мн. на двух родах =====');
+{
+  const L = SAL.lessons.LV;
+  ck(!!L, 'урок окончаний зарегистрирован (LV)');
+  ck(L.num === 11 && SAL.lessons.L6.num === 10 && SAL.lessons.L7.num === 12,
+    'окончания стоят между «Счётом девочек» (10) и «Цифрами 6–10» (12)');
+  SAL.openLesson('LV');
+  const deva = L.words.map(w => w.deva);
+  const want = ['एकं नीलं नयनम्', 'द्वे हरिते नयने', 'त्रीणि नारङ्गाणि नयनानि',
+    'चत्वारि पाटलानि नयनानि', 'एकः कृष्णः पादः', 'द्वौ श्वेतौ पादौ',
+    'त्रयः गौराः हस्ताः', 'चत्वारः श्यामाः दन्ताः'];
+  ck(deva.length === 8 && deva.every((d, i) => d === want[i]),
+    'восемь словосочетаний ровно те, что заданы: ' + deva.join(' · '));
+  const nums = L.words.map(w => w.grammaticalNumber).join(',');
+  ck(nums === 'sg,du,pl,pl,sg,du,pl,pl', 'числа: ед., дв., мн. в обоих родах — ' + nums);
+  ck(L.words.slice(0, 4).every(w => w.gender === 'n') && L.words.slice(4).every(w => w.gender === 'm'),
+    'первые четыре слова — средний род, последние четыре — мужской');
+  ck(L.words[0].deva.endsWith('नयनम्') && L.words[1].deva.endsWith('नयने') && L.words[2].deva.endsWith('नयनानि'),
+    'парадигма среднего рода: नयनम् / नयने / नयनानि (-म् / -े / -ानि)');
+  ck(L.words[4].deva.endsWith('पादः') && L.words[5].deva.endsWith('पादौ') &&
+     L.words[6].deva.endsWith('हस्ताः') && L.words[7].deva.endsWith('दन्ताः'),
+    'парадигма мужского рода: पादः / पादौ / हस्ताः / दन्ताः (-ः / -ौ / -ाः)');
+  ck(JSON.stringify(L.extraGames) === JSON.stringify(SAL.lessons.L5.extraGames),
+    'дополнительные игры те же и в том же порядке, что в «Счёте мальчиков»');
+  ck(L.steps.length === 4 && L.hotspots.figures[0].pins.length === 8,
+    'четыре шага по два слова и восемь точек на посте');
+  ck(L.groups.length >= 4 && L.categories.length >= 6 && L.sortFeatures.length >= 4,
+    'группы, категории и вопросы сортировки на месте');
+  ck(win.document.getElementById('view-lesson11').textContent.indexOf('नयनम्') >= 0,
+    'слот 11 показывает парадигму на панели');
+  ck(win.parseRoute('#/ru/lesson11') !== null && win.parseRoute('#/ru/lesson11').view === 'lesson11',
+    'урок окончаний живёт по адресу #/ru/lesson11');
+}
+
 /* ---------- внизу каждого урока: «← Предыдущий урок / Следующий урок →» ---------- */
 console.log('\n===== Кнопки предыдущего и следующего урока =====');
 {
-  const ORDER = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11'];
+  const ORDER = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'];
   const paneOf = key => win.document.getElementById(
     'view-lesson' + (key === 'lesson7' ? 7 : SAL.lessons[key].num));
   const pagerOf = key => paneOf(key).querySelector('[data-lesson-pager]');
@@ -625,10 +667,12 @@ console.log('\n===== Кнопки предыдущего и следующего
   ck(linksOf('L2').join() === 'L3' && linksOf('L11').join() === 'L10',
     'у первого урока только «следующий», у последнего — только «предыдущий»');
   ck(linksOf('L4').join() === 'lesson7,L5' && linksOf('L5').join() === 'L4,L6' &&
-     linksOf('L6').join() === 'L5,L7' && linksOf('L7').join() === 'L6,L8',
-    'счёт мальчиков и девочек встал между «Цифрами 1–5» и «Цифрами 6–10»: ' +
+     linksOf('L6').join() === 'L5,LV' && linksOf('LV').join() === 'L6,L7' &&
+     linksOf('L7').join() === 'LV,L8',
+    'счёт мальчиков, счёт девочек и окончания встали между «Цифрами 1–5» и «Цифрами 6–10»: ' +
     linksOf('L4').join(' / ') + ' · ' + linksOf('L5').join(' / ') + ' · ' +
-    linksOf('L6').join(' / ') + ' · ' + linksOf('L7').join(' / '));
+    linksOf('L6').join(' / ') + ' · ' + linksOf('LV').join(' / ') + ' · ' +
+    linksOf('L7').join(' / '));
   ck(linksOf('LG').join() === 'LC2,LG2' && linksOf('LG2').join() === 'LG,lesson7' &&
      linksOf('lesson7').join() === 'LG2,L4',
     'урок рода ведёт ко второму уроку рода, тот — к 12 частям тела, а 12 частей — к числам: ' +
@@ -863,8 +907,10 @@ console.log('\n===== Урок 3: повторение «цвет + часть т
   const broken = [];
   shim.words.forEach(w => {
     if (w.maskedPrefix + w.maskedHidden !== w.deva) broken.push(w.deva + ': masked');
-    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== w.deva) broken.push(w.deva + ': gap');
-    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== w.deva) broken.push(w.deva + ': missing');
+    /* сравниваем без пробелов с обеих сторон: у «фразовых» уроков слово —
+       это словосочетание из двух-трёх слов, и пропуск стоит в последнем */
+    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== nospace(w.deva)) broken.push(w.deva + ': gap');
+    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== nospace(w.deva)) broken.push(w.deva + ': missing');
     if (!w.gapChoices.some(c => c.deva === w.gapAnswer)) broken.push(w.deva + ': gapChoices');
     if (!w.missingChoices.includes(w.missingAnswer)) broken.push(w.deva + ': missingChoices');
     if (editDist(w.deva, w.typoDeva) !== 1) broken.push(w.deva + ': опечатка не в одну букву');
@@ -1098,8 +1144,10 @@ console.log('\n===== Урок 4: ещё цвета =====');
   const broken = [];
   W.concat(rc0.words, rc1.words).forEach(w => {
     if (w.maskedPrefix + w.maskedHidden !== w.deva) broken.push(w.deva + ': masked');
-    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== w.deva) broken.push(w.deva + ': gap');
-    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== w.deva) broken.push(w.deva + ': missing');
+    /* сравниваем без пробелов с обеих сторон: у «фразовых» уроков слово —
+       это словосочетание из двух-трёх слов, и пропуск стоит в последнем */
+    if (nospace(w.gapDeva).replace('_', w.gapAnswer) !== nospace(w.deva)) broken.push(w.deva + ': gap');
+    if (nospace(w.missingDisplay).replace('_', w.missingAnswer) !== nospace(w.deva)) broken.push(w.deva + ': missing');
     if (!w.gapChoices.some(c => c.deva === w.gapAnswer)) broken.push(w.deva + ': gapChoices');
     if (!w.missingChoices.includes(w.missingAnswer)) broken.push(w.deva + ': missingChoices');
     if (editDist(w.deva, w.typoDeva) !== 1) broken.push(w.deva + ': опечатка не в одну букву');
@@ -1224,7 +1272,7 @@ console.log('\n===== Урок 4: ещё цвета =====');
    ========================================================================== */
 console.log('\n===== Цели уроков (main aim / subsidiary aims) =====');
 {
-  const KEYS = ['L2', 'L3', 'LC', 'LC2', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11'];
+  const KEYS = ['L2', 'L3', 'LC', 'LC2', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'];
   const NO_AIM = [], BAD = [];
   KEYS.forEach(k => {
     const a = SAL.lessons[k].aim;
@@ -1851,7 +1899,9 @@ Object.keys(NUMS).forEach(key => {
   const L = SAL.lessons[key];
   const byIdOf = id => L.words.filter(w => w.id === id)[0];
   console.log('\n----- ' + key + ' · ' + NUMS[key].ru + ' -----');
-  ck(!!L && L.num === Number(key.slice(1)) + 4, key + ': зарегистрирован под номером ' + (L && L.num));
+  /* номера заданы явно: после «Окончаний» (урок 11) числительные сдвинулись */
+  const NUM_NUM = { L5: 9, L6: 10, L7: 12, L8: 13, L9: 14, L10: 15, L11: 16 };
+  ck(!!L && L.num === NUM_NUM[key], key + ': зарегистрирован под номером ' + (L && L.num));
   ck(L.words.map(w => w.deva).join(' ') === NUMS[key].deva,
     key + ': ровно пять числительных — ' + L.words.map(w => w.deva).join(' '));
   ck(L.words.every(w => w.syll.join('') === w.deva), key + ': слоги складываются в слово');
@@ -1937,18 +1987,18 @@ Object.keys(NUMS).forEach(key => {
 
 /* navigation: one dropdown lists every lesson, in every pane */
 console.log('\n===== Выпадающий список уроков =====');
-const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11'];
+const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'];
 const PANES = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
                'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
                'view-lesson11', 'view-lesson12', 'view-lesson13', 'view-lesson14',
-               'view-lesson15'];
+               'view-lesson15', 'view-lesson16'];
 const CUR = { 'view-lesson1': 'L2', 'view-lesson2': 'L3', 'view-lesson3': 'LC',
               'view-lesson4': 'LC2', 'view-lesson5': 'LG', 'view-lesson6': 'LG2',
               'view-lesson7': 'lesson7',
               'view-lesson8': 'L4', 'view-lesson9': 'L5', 'view-lesson10': 'L6',
-              'view-lesson11': 'L7', 'view-lesson12': 'L8', 'view-lesson13': 'L9',
-              'view-lesson14': 'L10', 'view-lesson15': 'L11' };
-['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'L4', 'L5', 'L6', 'L7', 'L8', 'L9', 'L10', 'L11'].forEach(k => SAL.openLesson(k));
+              'view-lesson11': 'LV', 'view-lesson12': 'L7', 'view-lesson13': 'L8',
+              'view-lesson14': 'L9', 'view-lesson15': 'L10', 'view-lesson16': 'L11' };
+['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'].forEach(k => SAL.openLesson(k));
 win.switchView('lesson7');
 PANES.forEach(id => {
   const pane = win.document.getElementById(id);
@@ -1957,7 +2007,7 @@ PANES.forEach(id => {
   const sel = sels[0];
   if (!sel) return;
   ck(NAV_VALUES.every(v => [...sel.options].some(o => o.value === v)) && sel.options.length === NAV_VALUES.length,
-    id + ': в списке ровно все пятнадцать уроков (' + sel.options.length + ')');
+    id + ': в списке ровно все шестнадцать уроков (' + sel.options.length + ')');
   ck(sel.value === CUR[id] && sel.options[sel.selectedIndex].value === CUR[id],
     id + ': выбран текущий урок (' + sel.value + ')');
   ck(pane.querySelectorAll('.ppp-top-row [onclick*="openLesson"]').length === 0,
@@ -2155,8 +2205,8 @@ win.switchView('lesson3');
 ck(win.location.hash === '#/en/lesson3', 'урок 3 по-английски: #/en/lesson3');
 win.setLanguage('ru');
 ck(win.location.hash === '#/ru/lesson3', 'обратно на RU: #/ru/lesson3');
-win.switchView('lesson15');
-ck(win.location.hash === '#/ru/lesson15', 'у последнего урока свой адрес: #/ru/lesson15');
+win.switchView('lesson16');
+ck(win.location.hash === '#/ru/lesson16', 'у последнего урока свой адрес: #/ru/lesson16');
 win.switchView('lesson7');
 ck(win.location.hash === '#/ru/lesson7', '12-словная страница: #/ru/lesson7');
 win.switchView('details');
@@ -2165,8 +2215,8 @@ win.switchView('home');
 ck(win.location.hash === '#/ru/home', 'главная: #/ru/home');
 ck(win.parseRoute('#/en/lesson10').lang === 'en' && win.parseRoute('#/en/lesson10').view === 'lesson10',
   'адрес #/en/lesson10 разбирается в язык и урок');
-ck(win.parseRoute('#/ru/lesson15') !== null && win.parseRoute('#/ru/lesson15').view === 'lesson15',
-  'адрес #/ru/lesson15 разбирается в язык и урок');
+ck(win.parseRoute('#/ru/lesson16') !== null && win.parseRoute('#/ru/lesson16').view === 'lesson16',
+  'адрес #/ru/lesson16 разбирается в язык и урок');
 ck(win.parseRoute('#/ru/lesson9') !== null && win.parseRoute('#/ru/lesson9').view === 'lesson9',
   'урок 9 (мальчики) живёт по адресу #/ru/lesson9');
 ck(win.parseRoute('#/ru/lesson10') !== null && win.parseRoute('#/ru/lesson10').view === 'lesson10',
@@ -2264,10 +2314,10 @@ win.switchView('lesson8');
 const gtagEvents = [];
 const savedGtag = win.gtag;
 win.gtag = (cmd, name, params) => gtagEvents.push({ cmd, name, params });
-win.switchView('lesson11');
+win.switchView('lesson12');
 ck(gtagEvents.length === 1 && gtagEvents[0].name === 'page_view' &&
-   gtagEvents[0].params.page_path === '#/ru/lesson11' &&
-   gtagEvents[0].params.page_title === 'Урок 11: Цифры 6–10 — Sanskrit in Action',
+   gtagEvents[0].params.page_path === '#/ru/lesson12' &&
+   gtagEvents[0].params.page_title === 'Урок 12: Цифры 6–10 — Sanskrit in Action',
   'при наличии gtag событие уходит в GA4 с page_path и page_title (' +
    JSON.stringify(gtagEvents.map(g => g.params.page_path)) + ')');
 win.gtag = savedGtag;
@@ -4560,6 +4610,148 @@ console.log('\n===== Английская версия: сначала по-ру
   ck(/Три рода/.test(back), 'после EN → RU заголовок снова русский: «' + back + '»');
   SAL.openLesson('L4');
 }
+
+
+/* ============================================================================
+   МИКРОФОН (режим «2. Произнеси в микрофон») — общий распознаватель SAL.speech
+
+   Раньше здесь было две разных реализации, и обе ломались: в движке вызывалась
+   несуществующая normalize() (ReferenceError на каждом распознанном слове), а
+   язык распознавания sa-IN не поддерживает ни один браузер. Тесты ниже держат:
+   язык перебирается по цепочке, деванагари сравнивается с IAST, ошибки
+   объясняются словами, «🎙 Слушаю…» не залипает и микрофон отпускается при
+   уходе с карточки.
+   ========================================================================= */
+console.log('\n===== Микрофон: распознавание и сравнение =====');
+(function micChecks() {
+  ck(typeof SAL.speech === 'object' && typeof SAL.speech.listen === 'function',
+    'общий распознаватель SAL.speech загружен');
+
+  /* 1. деванагари → IAST → скелет */
+  ck(SAL.speech.devaToIast('शीर्ष') === 'śīrṣa', 'деванагари → IAST: शीर्ष → śīrṣa');
+  ck(SAL.speech.devaToIast('नासिका') === 'nāsikā', 'деванагари → IAST: नासिका → nāsikā');
+  ck(SAL.speech.norm('śīrṣa') === SAL.speech.norm('शीर्ष'),
+    'IAST и деванагари приводятся к одной форме (sirsa)');
+  ck(SAL.speech.norm('ŚĪRṢA') === 'sirsa', 'регистр и диакритика снимаются');
+
+  /* 2. сравнение ответа со словом урока */
+  const forms = SAL.speech.forms({ deva: 'शीर्ष', iast: 'śīrṣa' });
+  ck(SAL.speech.matches(['शीर्ष'], forms), 'хинди-транскрипт «शीर्ष» засчитывается как śīrṣa');
+  ck(SAL.speech.matches(['sirsha'], forms), 'латинский вариант с лишней h засчитывается');
+  ck(SAL.speech.matches(['om shirsha'], forms), 'лишнее слово в транскрипте не мешает');
+  ck(!SAL.speech.matches(['दश'], SAL.speech.forms({ deva: 'द्वादश', iast: 'dvādaśa' })),
+    'दश не засчитывается за द्वादश (нет ложных срабатываний)');
+  ck(!SAL.speech.matches(['कर'], SAL.speech.forms({ deva: 'पाद', iast: 'pāda' })),
+    'कर не засчитывается за पाद');
+
+  /* 2b. транслитерация сходится с IAST у всех слов сайта — иначе микрофон
+     «слышит» одно, а сравнивает с другим */
+  const devaBad = [];
+  let devaTotal = 0;
+  Object.keys(SAL.lessons).forEach(k => (SAL.lessons[k].words || []).forEach(w => {
+    devaTotal++;
+    if (SAL.speech.norm(w.deva) !== SAL.speech.norm(w.iast)) devaBad.push(w.deva + '/' + w.iast);
+  }));
+  try {
+    win.eval('bodyPartsVocab').forEach(w => {
+      devaTotal++;
+      if (SAL.speech.norm(w.deva) !== SAL.speech.norm(w.iast)) devaBad.push(w.deva + '/' + w.iast);
+    });
+  } catch (e) { /* урок 7 не загрузился — тогда и проверять нечего */ }
+  ck(devaBad.length === 0, 'деванагари ⇄ IAST сходится у всех ' + devaTotal + ' слов' +
+    (devaBad.length ? ' — расходится: ' + devaBad.slice(0, 4).join(', ') : ''));
+
+  /* 3. движок уроков: падения и перебор языков */
+  const SR = function FakeRecognition() {
+    FakeRecognition.made.push(this);
+    this.start = function () {};
+    this.abort = function () { this.aborted = true; if (this.onend) this.onend(); };
+  };
+  SR.made = [];
+  win.SpeechRecognition = SR;
+
+  SAL.openLesson('L2');
+  SAL.do('L2', 'setProdMode', 'mic');
+  const cfg = SAL.lessons['L2'];
+  let m = cfg._st.prod.mic;
+
+  SR.made = [];
+  let threw = null;
+  try { SAL.do('L2', 'micStart'); } catch (e) { threw = e; }
+  ck(!threw, 'micStart не падает' + (threw ? ' — ' + threw.message : ''));
+  ck(SR.made.length === 1 && SR.made[0].lang === 'sa-IN',
+    'сначала пробуем sa-IN');
+  ck(m.listening === true, 'пока слушаем — состояние «слушаю»');
+
+  SR.made[0].onerror({ error: 'language-not-supported' });
+  ck(SR.made.length === 2 && SR.made[1].lang === 'hi-IN',
+    'неподдерживаемый sa-IN → автоматический переход на hi-IN');
+
+  const word = cfg.words[m.i];
+  let resultThrew = null;
+  try {
+    SR.made[1].onresult({ results: [Object.assign([{ transcript: word.deva }], { length: 1 })] });
+  } catch (e) { resultThrew = e; }
+  ck(!resultThrew, 'распознанное слово не роняет страницу' +
+    (resultThrew ? ' — ' + resultThrew.message : ''));
+  ck(m.result === 'ok' && m.listening === false && m.revealed === true,
+    'верное слово даёт «✓ Верно» и раскрывает карточку');
+  ck(m.transcript === word.deva, 'распознанный текст показан ученику');
+
+  /* 4. отказ микрофона: сообщение вместо тишины */
+  SAL.do('L2', 'micGrade', '1');
+  SR.made = [];
+  SAL.do('L2', 'micStart');
+  SR.made[0].onerror({ error: 'not-allowed' });
+  ck(m.errorCode === 'not-allowed' && m.listening === false,
+    'запрет микрофона запоминается кодом, «слушаю» снимается');
+  const micStage = () => win.document.getElementById('L2-production-stage').innerHTML;
+  ck(/Доступ к микрофону запрещён/.test(micStage()), 'на экране — понятное объяснение отказа');
+  win.setLanguage('en');
+  SAL.refresh();
+  ck(/Microphone access is blocked/.test(micStage()),
+    'после RU → EN сообщение о микрофоне переведено');
+  win.setLanguage('ru');
+  SAL.refresh();
+  ck(m.revealed === true, 'после запрета микрофона слово показано — есть чем проверить себя');
+
+  /* 5. микрофон отпускается при рестарте и смене экрана */
+  SR.made = [];
+  SAL.do('L2', 'micStart');
+  const live = SR.made[0];
+  SAL.do('L2', 'micRestart');
+  /* micRestart заменяет объект состояния целиком — читаем его заново */
+  ck(live.aborted === true && cfg._st.prod.mic.listening === false,
+    '«Начать сначала» отменяет распознавание');
+  SR.made = [];
+  SAL.do('L2', 'micStart');
+  const live2 = SR.made[0];
+  win.switchView('home');
+  ck(live2.aborted === true, 'уход на другой экран отменяет распознавание');
+
+  /* 6. самостоятельный урок 7 (lesson1.js) */
+  win.switchView('lesson7');
+  win.selectProductionMode('mic');
+  SR.made = [];
+  win.startProdMicRecognition();
+  ck(SR.made.length === 1, 'урок 7 тоже включает распознавание');
+  const st7 = () => win.eval('({ msg: prodMicStatusText(), on: prodMicListening, shown: prodMicRevealed })');
+  ck(st7().on === true, 'урок 7: состояние «слушаю»');
+  const deva7 = win.eval('bodyPartsVocab[0].deva');
+  SR.made[0].onresult({ results: [Object.assign([{ transcript: deva7 }], { length: 1 })] });
+  ck(/✓/.test(st7().msg) && st7().on === false, 'урок 7: верное слово даёт «✓ Распознано»');
+  SR.made = [];
+  win.startProdMicRecognition();
+  SR.made[0].onerror({ error: 'no-speech' });
+  ck(/услышали|heard/i.test(st7().msg) && st7().on === false,
+    'урок 7: «ничего не услышали» вместо залипшего «слушаю»');
+  SR.made = [];
+  win.startProdMicRecognition();
+  win.startProdMicRecognition();
+  ck(SR.made[0].aborted === true && st7().on === false,
+    'урок 7: повторное нажатие останавливает запись');
+  delete win.SpeechRecognition;
+})();
 
 console.log(errs.length ? '\nJS ERRORS: ' + errs.slice(0, 5).join(' | ') : '\nJS-ошибок нет');
 console.log(bad === 0 && errs.length === 0 ? 'ALL CHECKS PASSED' : bad + ' FAILURES');

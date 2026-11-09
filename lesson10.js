@@ -11,14 +11,14 @@
 
 SAL.registerLesson({
   key: "L10",
-  num: 14,
+  num: 15,
   titleDeva: "सङ्ख्याः",
   titleRu: "Десятки 10–50",
   titleEn: "Tens 10–50",
   topicRu: "десять, двадцать, тридцать, сорок, пятьдесят",
   topicEn: "ten, twenty, thirty, forty, fifty",
-  introRu: "Четырнадцатый урок: круглые десятки от десяти до пятидесяти — <code>दश</code>, <code>विंशतिः</code>, <code>त्रिंशत्</code>, <code>चत्वारिंशत्</code>, <code>पञ्चाशत्</code>. Обратите внимание на два разных конца: <code>-तिः</code> у двадцати и <code>-शत्</code> у тридцати, сорока и пятидесяти. Количество показывают арабские цифры: перевода по-прежнему нет.",
-  introEn: "The fourteenth lesson: the tens from ten to fifty — <code>daśa</code>, <code>viṃśatiḥ</code>, <code>triṃśat</code>, <code>catvāriṃśat</code>, <code>pañcāśat</code>. Note the two different endings: <code>-tiḥ</code> for twenty and <code>-śat</code> for thirty, forty and fifty. Quantity is shown by Arabic digits: still no translation.",
+  introRu: "Пятнадцатый урок: круглые десятки от десяти до пятидесяти — <code>दश</code>, <code>विंशतिः</code>, <code>त्रिंशत्</code>, <code>चत्वारिंशत्</code>, <code>पञ्चाशत्</code>. Обратите внимание на два разных конца: <code>-तिः</code> у двадцати и <code>-शत्</code> у тридцати, сорока и пятидесяти. Количество показывают арабские цифры: перевода по-прежнему нет.",
+  introEn: "The fifteenth lesson: the tens from ten to fifty — <code>daśa</code>, <code>viṃśatiḥ</code>, <code>triṃśat</code>, <code>catvāriṃśat</code>, <code>pañcāśat</code>. Note the two different endings: <code>-tiḥ</code> for twenty and <code>-śat</code> for thirty, forty and fifty. Quantity is shown by Arabic digits: still no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {

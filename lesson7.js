@@ -12,14 +12,14 @@
 
 SAL.registerLesson({
   key: "L7",
-  num: 11,
+  num: 12,
   titleDeva: "सङ्ख्याः",
   titleRu: "Цифры 6–10",
   titleEn: "Numbers 6–10",
   topicRu: "шесть, семь, восемь, девять, десять",
   topicEn: "six, seven, eight, nine, ten",
-  introRu: "Одиннадцатый урок: числительные от шести до десяти — <code>षट्</code>, <code>सप्त</code>, <code>अष्ट</code>, <code>नव</code>, <code>दश</code>. В этой форме (именительный-винительный падеж среднего рода) они не меняются: основа и есть счётная форма. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
-  introEn: "The eleventh lesson: the numerals six to ten — <code>ṣaṭ</code>, <code>sapta</code>, <code>aṣṭa</code>, <code>nava</code>, <code>daśa</code>. In this form (neuter nominative-accusative) they do not change: the stem IS the counting form. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
+  introRu: "Двенадцатый урок: числительные от шести до десяти — <code>षट्</code>, <code>सप्त</code>, <code>अष्ट</code>, <code>नव</code>, <code>दश</code>. В этой форме (именительный-винительный падеж среднего рода) они не меняются: основа и есть счётная форма. Количество показывают только бусины на картинке: ни арабских цифр, ни перевода.",
+  introEn: "The twelfth lesson: the numerals six to ten — <code>ṣaṭ</code>, <code>sapta</code>, <code>aṣṭa</code>, <code>nava</code>, <code>daśa</code>. In this form (neuter nominative-accusative) they do not change: the stem IS the counting form. Quantity is shown only by beads in the picture: no Arabic digits, no translation.",
   /* цели урока по схеме CELTA: главная цель — языковой материал, подцели — «другая половина» */
   aim: {
     ru: {

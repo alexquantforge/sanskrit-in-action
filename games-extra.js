@@ -109,6 +109,23 @@
     return '<span style="font-family:var(--font-deva);font-weight:700;' +
       (size ? 'font-size:' + size + ';' : '') + '">' + txt + '</span>';
   }
+  /* Подпись слова в тесной клетке (филворд, мемори, бинго, поле боя).
+     У «фразовых» уроков (числительное + цвет + предмет) есть короткая форма
+     short: в клетку 40 × 40 px полное словосочетание не влезает и обрезается,
+     а цвет с предметом — влезает и по-прежнему показывает окончание.
+     У остальных уроков short нет, и подпись остаётся самим словом. */
+  function cellText(w) {
+    if (!w) return '';
+    return w.short || w.deva;
+  }
+  /* длинная подпись ещё и мельче: две-три строки в клетке вместо одной */
+  function cellSize(w, size) {
+    var t = cellText(w);
+    if (!size || t.indexOf(' ') < 0) return size;
+    var m = /^([\d.]+)rem$/.exec(String(size));
+    if (!m) return size;
+    return (Math.max(0.5, parseFloat(m[1]) * 0.66)).toFixed(2) + 'rem';
+  }
   /* onclick builder for cells and other buttons the helpers do not cover */
   function call(cfg, action, v1, v2) {
     var s = ' onclick="SAL.do(\'' + cfg.key + '\',\'' + action + '\'';
@@ -925,7 +942,7 @@
       var cls = 'wcell' + (g.done[idx] ? ' found' : '') + (open ? '' : ' card-back');
       if (g.phase === 'ask' && g.ask === idx) cls += ' asked';
       return '<button type="button" class="' + cls + '">' +
-        (open ? devaSpan(w.deva, '0.95rem') : '<span class="memory-card-back-emblem memory-coord">' +
+        (open ? devaSpan(cellText(w), cellSize(w, '0.95rem')) : '<span class="memory-card-back-emblem memory-coord">' +
           K.cellName(idx, cols) + '</span>') + '</button>';
     }).join('');
     var askW = g.ask === null ? null : byId(cfg, g.cards[g.ask]);
@@ -1000,7 +1017,7 @@
       var owner = g.claimed[idx];
       return '<button type="button" class="' + cls + '"' + (open ? '' : call(cfg, 'battleOpen', String(idx))) + '>' +
         (open
-          ? devaSpan(w.deva, '0.95rem') + (owner !== undefined && players(cfg) === 2
+          ? devaSpan(cellText(w), cellSize(w, '0.95rem')) + (owner !== undefined && players(cfg) === 2
               ? '<span class="cell-owner">' + (owner + 1) + '</span>' : '')
           : '<span class="memory-card-back-emblem memory-coord">' + K.cellName(idx, cols) + '</span>') + '</button>';
     }).join('');
@@ -1058,7 +1075,7 @@
         var cov = g.covered[p][idx] !== undefined;
         return '<button type="button" class="bingo-cell' + (cov ? ' covered' : '') + '"' +
           (cov ? '' : call(cfg, 'bingoCover', String(p), String(idx))) + '>' +
-          (cov ? '✓' : devaSpan(w.deva, '1rem')) + '</button>';
+          (cov ? '✓' : devaSpan(cellText(w), cellSize(w, '1rem'))) + '</button>';
       }).join('');
       return '<div style="flex:1 1 180px;max-width:240px;">' +
         '<div style="font-weight:800;font-size:0.9rem;margin-bottom:0.35rem;">' +
@@ -1243,7 +1260,7 @@
       var flipped = g.flipped.indexOf(idx) >= 0 || g.matched[id];
       var cls = 'bcell' + (g.matched[id] ? ' captured' : '') + (flipped ? '' : ' card-back');
       return '<button type="button" class="' + cls + '"' + call(cfg, 'coopFlip', String(idx)) + '>' +
-        (flipped ? devaSpan(w.deva, '0.95rem')
+        (flipped ? devaSpan(cellText(w), cellSize(w, '0.95rem'))
                  : '<span class="memory-card-back-emblem memory-coord">' + K.cellName(idx, cols) + '</span>') + '</button>';
     }).join('');
     return K.topBar(
@@ -1283,7 +1300,7 @@
         (g.ask === idx ? ' asked' : '');
       return '<button type="button" class="' + cls + '"' +
         (owner === null ? call(cfg, 'tttOpen', String(idx)) : '') + '>' +
-        (owner === null ? devaSpan(w.deva, '0.9rem') : (owner === 0 ? '✕' : '◯')) + '</button>';
+        (owner === null ? devaSpan(cellText(w), cellSize(w, '0.9rem')) : (owner === 0 ? '✕' : '◯')) + '</button>';
     }).join('');
     var askW = g.ask === null ? null : byId(cfg, g.cells[g.ask]);
     var numeric = !!(askW && askW.value);
@@ -1840,10 +1857,13 @@
   /* Пул отвлекающих слов для «филворда среди слов»: настоящие санскритские
      слова из данных урока плюс почти-двойники слов этого урока. */
   function decoyPool(cfg) {
-    var real = cfg.words.map(function (w) { return w.deva; });
+    /* в клетке филворда стоит cellText(w): у «фразовых» уроков это короткая
+       форма, и двойники должны строиться от неё же, иначе на поле окажутся
+       длинные варианты, которых в клетке не видно целиком */
+    var real = cfg.words.map(function (w) { return cellText(w); });
     var out = (cfg.decoys || []).slice();
     cfg.words.forEach(function (w) {
-      out = out.concat(devaVariants(w.deva));
+      out = out.concat(devaVariants(cellText(w)));
     });
     return uniq(out).filter(function (s) { return real.indexOf(s) < 0; });
   }
@@ -1926,13 +1946,15 @@
         sizeRow(cfg, 'wgSize', g.size);
     }
     var cells = g.grid.map(function (c, idx) {
-      var txt = c.t ? byId(cfg, c.id).deva : c.s;
+      var txt = c.t ? cellText(byId(cfg, c.id)) : c.s;
       var cls = 'wcell' + (g.found[idx] ? ' found' : '') + (g.wrong[idx] ? ' wrong' : '') +
         (keyOn(cfg) && c.t ? ' hint' : '');
       var coord = String.fromCharCode(97 + Math.floor(idx / n)) + ((idx % n) + 1);
       return '<button type="button" class="' + cls + '" aria-label="' + coord + ' ' + txt + '"' +
         call(cfg, 'wgTap', String(idx)) + '>' +
-        devaSpan(txt, (1.3 - n * 0.055).toFixed(2) + 'rem') + '</button>';
+        devaSpan(txt, txt.indexOf(' ') >= 0
+          ? (Math.max(0.5, 1.3 - n * 0.055) * 0.72).toFixed(2) + 'rem'
+          : (1.3 - n * 0.055).toFixed(2) + 'rem') + '</button>';
     });
     return K.topBar(
       K.pill(tx({ ru: 'Найдено', en: 'Found' }) + ': ' + found + '/' + g.total) + ' ' +

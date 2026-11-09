@@ -102,6 +102,325 @@ var SAL = (window.SAL = window.SAL || {});
     } catch (e) { /* TTS unavailable */ }
   };
 
+  /* ======================================================= SPEECH RECOGNITION
+     Одна точка для ВСЕХ микрофонных игр: движок уроков (режим «2. Произнеси в
+     микрофон») и самостоятельный урок 7 (lesson1.js). Здесь собрано то, что
+     раньше было размазано по двум файлам и работало по-разному:
+
+       • язык. `sa-IN` (санскрит) не поддерживает ни один браузер: Chromium
+         отвечает ошибкой language-not-supported и раньше это молча съедалось,
+         поэтому кнопка «сказать в микрофон» выглядела сломанной. Теперь языки
+         перебираются по цепочке sa-IN → hi-IN → en-IN → язык браузера, а
+         рабочий язык запоминается, чтобы не дёргать браузер зря.
+       • сравнение. Распознанный текст — это деванагари (хинди-движок), а слово
+         в уроке — IAST. Оба вида приводятся к одной латинской «скелетной»
+         форме (деванагари транслитерируется, диакритика снимается), и только
+         потом сравниваются: точное совпадение, вхождение слова или опечатка в
+         1–2 знака. Раньше в движке вызывалась несуществующая normalize() —
+         каждое распознанное слово падало с ReferenceError, и вердикт не
+         появлялся никогда.
+       • ошибки. Различаем запрет микрофона, отсутствие речи, отсутствие сети,
+         таймаут и неподдерживаемый язык — и говорим об этом словами, вместо
+         тихого сброса.
+       • одна сессия. Перед новым стартом прежнее распознавание отменяется;
+         restart/смена режима/смена урока его тоже отменяют, иначе «🎙 Слушаю…»
+         оставалось висеть после ухода с карточки.                                */
+
+  var speechSession = null;      /* активная сессия распознавания (одна на сайт) */
+  var speechLang = null;         /* язык, который браузер реально принял          */
+  var SPEECH_LANGS = ['sa-IN', 'hi-IN', 'en-IN', ''];
+  var SPEECH_TIMEOUT = 12000;    /* молчание дольше — считаем, что не расслышали  */
+
+  /* --- деванагари → IAST (без неё хинди-транскрипт не сравнить с IAST) ------ */
+  var DEVA_VOWELS = { 'अ': 'a', 'आ': 'ā', 'इ': 'i', 'ई': 'ī', 'उ': 'u', 'ऊ': 'ū',
+    'ऋ': 'ṛ', 'ॠ': 'ṝ', 'ऌ': 'ḷ', 'ॡ': 'ḹ', 'ए': 'e', 'ऐ': 'ai', 'ओ': 'o', 'औ': 'au' };
+  var DEVA_MATRAS = { 'ा': 'ā', 'ि': 'i', 'ी': 'ī', 'ु': 'u', 'ू': 'ū', 'ृ': 'ṛ',
+    'ॄ': 'ṝ', 'ॢ': 'ḷ', 'ॣ': 'ḹ', 'े': 'e', 'ै': 'ai', 'ो': 'o', 'ौ': 'au',
+    'ॉ': 'ŏ', 'ॅ': 'ĕ' };
+  var DEVA_CONS = { 'क': 'k', 'ख': 'kh', 'ग': 'g', 'घ': 'gh', 'ङ': 'ṅ',
+    'च': 'c', 'छ': 'ch', 'ज': 'j', 'झ': 'jh', 'ञ': 'ñ',
+    'ट': 'ṭ', 'ठ': 'ṭh', 'ड': 'ḍ', 'ढ': 'ḍh', 'ण': 'ṇ',
+    'त': 't', 'थ': 'th', 'द': 'd', 'ध': 'dh', 'न': 'n',
+    'प': 'p', 'फ': 'ph', 'ब': 'b', 'भ': 'bh', 'म': 'm',
+    'य': 'y', 'र': 'r', 'ल': 'l', 'व': 'v', 'श': 'ś', 'ष': 'ṣ', 'स': 's',
+    'ह': 'h', 'ळ': 'ḷ', 'क़': 'q', 'ख़': 'ḵ', 'ग़': 'ġ', 'ज़': 'z',
+    'ड़': 'ṛ', 'ढ़': 'ṛh', 'फ़': 'f', 'य़': 'ẏ' };
+  var DEVA_NUKTA = { 'क': 'q', 'ख': 'ḵ', 'ग': 'ġ', 'ज': 'z', 'ड': 'ṛ',
+    'ढ': 'ṛh', 'फ': 'f', 'य': 'ẏ' };
+  var DEVA_DIGITS = '०१२३४५६७८९';
+
+  function devaToIast(input) {
+    var s = String(input == null ? '' : input), out = '', i, ch, next, cons;
+    for (i = 0; i < s.length; i++) {
+      ch = s.charAt(i);
+      next = s.charAt(i + 1);
+      cons = DEVA_CONS[ch];
+      if (cons !== undefined) {
+        if (next === '\u093C') {                      /* знак nukta отдельным кодом */
+          cons = DEVA_NUKTA[ch] || cons;
+          i++; next = s.charAt(i + 1);
+        }
+        out += cons;
+        if (next === '्') { i++; }                    /* халф-форма: гласной нет    */
+        else if (DEVA_MATRAS[next] !== undefined) { out += DEVA_MATRAS[next]; i++; }
+        else { out += 'a'; }                          /* врождённая «а»             */
+      } else if (DEVA_VOWELS[ch] !== undefined) {
+        out += DEVA_VOWELS[ch];
+      } else if (ch === 'ं') {
+        out += 'ṃ';
+      } else if (ch === 'ः') {
+        out += 'ḥ';
+      } else if (ch === 'ँ' || ch === 'ॐ') {
+        out += ch === 'ॐ' ? 'oṃ' : 'm';
+      } else if (ch === '्' || ch === 'ऽ') {
+        /* висячая вирама / аваграха — сами по себе звука не дают */
+      } else if (DEVA_DIGITS.indexOf(ch) >= 0) {
+        out += String(DEVA_DIGITS.indexOf(ch));
+      } else if (/[\u0900-\u097F]/.test(ch)) {
+        /* прочие знаки письма не произносятся */
+      } else {
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  /* Приводим строку (IAST, деванагари или латиницу) к одному скелету:
+     sirsa / śīrṣa / शीर्ष → 'sirsa'. Диакритика снимается через NFD. */
+  function speechNorm(input) {
+    var t = devaToIast(input);
+    try { t = t.normalize('NFD'); } catch (e) { /* старые движки */ }
+    t = t.replace(/[\u0300-\u036f]/g, '');
+    t = t.replace(/[’'`´]/g, '').toLowerCase();
+    return t.replace(/[^a-z0-9]/g, '');
+  }
+  /* Гласные у разных движков гуляют сильнее всего: сравниваем ещё и согласный
+     скелет (sirsa → srs). */
+  function speechSkeleton(s) {
+    return speechNorm(s).replace(/[aeiou]/g, '').replace(/(.)\1+/g, '$1');
+  }
+  function editDistance(a, b) {
+    if (a === b) return 0;
+    if (!a.length) return b.length;
+    if (!b.length) return a.length;
+    var prev = [], cur = [], i, j;
+    for (j = 0; j <= b.length; j++) prev[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      cur[0] = i;
+      for (j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1,
+          prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+      }
+      prev = cur.slice();
+    }
+    return prev[b.length];
+  }
+  function speechClose(heard, target) {
+    if (!heard || !target) return false;
+    if (heard === target) return true;
+    var longest = Math.max(heard.length, target.length);
+    var allowed = longest <= 3 ? 0 : longest <= 5 ? 1 : longest <= 9 ? 2 : 3;
+    if (allowed && editDistance(heard, target) <= allowed) return true;
+    var sh = speechSkeleton(heard), st = speechSkeleton(target);
+    if (sh.length >= 3 && st.length >= 3) {
+      if (sh === st) return true;
+      /* скелет короче — допускаем одну выпавшую согласную */
+      if (editDistance(sh, st) <= 1 && Math.min(sh.length, st.length) >= 4) return true;
+    }
+    return false;
+  }
+  /* heard — альтернативы распознавания, forms — что считаем верным ответом.
+     Разбираем и по фразе целиком, и по словам: движок любит добавлять «om»
+     или служебные слова к короткому санскритскому слову. */
+  function speechMatches(heard, forms) {
+    var alts = (Array.isArray(heard) ? heard : [heard]).filter(function (x) { return x != null; });
+    var targets = (Array.isArray(forms) ? forms : [forms]).filter(function (x) { return x != null; });
+    var ti, ai, tok;
+    var nt = [];
+    for (ti = 0; ti < targets.length; ti++) {
+      var n = speechNorm(targets[ti]);
+      if (n) nt.push(n);
+    }
+    if (!nt.length) return false;
+    for (ai = 0; ai < alts.length; ai++) {
+      var raw = String(alts[ai]);
+      var candidates = [raw].concat(raw.split(/[\s,.;:!?«»"()\[\]—–-]+/));
+      for (var ci = 0; ci < candidates.length; ci++) {
+        tok = speechNorm(candidates[ci]);
+        if (!tok) continue;
+        for (ti = 0; ti < nt.length; ti++) if (speechClose(tok, nt[ti])) return true;
+      }
+    }
+    return false;
+  }
+  /* Осмысленный текст ошибки вместо тишины. */
+  function speechErrorText(code) {
+    switch (code) {
+      case 'unsupported':
+        return ru('Speech recognition is not supported in this browser — use the audio check button',
+          'Браузер не поддерживает распознавание речи — используйте проверку звуком');
+      case 'not-allowed':
+      case 'service-not-allowed':
+        return ru('Microphone access is blocked. Allow it in the browser settings, or use the audio check',
+          'Доступ к микрофону запрещён. Разрешите его в настройках сайта или проверьте звуком');
+      case 'audio-capture':
+        return ru('No microphone found. Use the audio check instead',
+          'Микрофон не найден. Проверьте звуком');
+      case 'no-speech':
+        return ru('Nothing was heard — say the word again a little louder',
+          'Ничего не услышали — произнесите слово ещё раз, чуть громче');
+      case 'network':
+        return ru('Recognition needs a network connection — use the audio check',
+          'Распознаванию нужна сеть — проверьте звуком');
+      case 'language-not-supported':
+        return ru('This browser cannot recognise Sanskrit or Hindi — use the audio check',
+          'Этот браузер не умеет распознавать санскрит и хинди — проверьте звуком');
+      case 'timeout':
+        return ru('No answer from the microphone — try again or use the audio check',
+          'Микрофон молчит слишком долго — попробуйте ещё раз или проверьте звуком');
+      case 'start-failed':
+        return ru('Could not start the microphone — use the audio check',
+          'Не удалось включить микрофон — проверьте звуком');
+      default:
+        return ru('Could not make out the word — listen again and check yourself',
+          'Не удалось разобрать слово — послушайте эталон и проверьте себя');
+    }
+  }
+  /* Ошибки, после которых микрофон в этом браузере уже не поможет. */
+  function speechFatal(code) {
+    return code === 'unsupported' || code === 'not-allowed' || code === 'service-not-allowed' ||
+      code === 'audio-capture' || code === 'network' || code === 'language-not-supported';
+  }
+  function speechAbort() {
+    var s = speechSession;
+    if (!s) return;
+    speechSession = null;
+    s.settled = true;
+    if (s.timer) { try { clearTimeout(s.timer); } catch (e) {} s.timer = null; }
+    if (s.rec) { try { s.rec.abort && s.rec.abort(); } catch (e) {} }
+  }
+  function speechLangChain() {
+    return speechLang != null ? [speechLang] : SPEECH_LANGS.slice();
+  }
+  /* listen({ forms, onResult, onError, onListening, timeoutMs })
+     onResult({ alternatives, transcript, matched, lang })
+     onError({ code, message })                                            */
+  function speechListen(opts) {
+    opts = opts || {};
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      if (opts.onError) opts.onError({ code: 'unsupported', message: speechErrorText('unsupported') });
+      return;
+    }
+    speechAbort();
+    var langs = speechLangChain(), attempt = 0, lastCode = '';
+    var session = { rec: null, timer: null, settled: false };
+    speechSession = session;
+
+    function finish(fn, payload) {
+      if (session.settled) return;
+      session.settled = true;
+      if (session.timer) { try { clearTimeout(session.timer); } catch (e) {} session.timer = null; }
+      if (speechSession === session) speechSession = null;
+      if (fn) { try { fn(payload); } catch (e) { /* колбэк не должен ломать игру */ } }
+    }
+    function fail(code) {
+      if (session.settled) return;
+      lastCode = code || 'error';
+      if (code === 'language-not-supported' && attempt < langs.length - 1) {
+        /* со старого движка снимаем обработчики: его запоздавший onend не должен
+           запустить ещё один переход по цепочке языков */
+        detach(session.rec);
+        attempt++;
+        start();
+        return;
+      }
+      /* язык запоминаем только когда распознавание реально дошло до распознавания:
+         при запрете микрофона или без сети про язык мы ничего не узнали */
+      if (code === 'no-speech' || code === 'timeout') {
+        if (langs[attempt]) speechLang = langs[attempt];
+      }
+      finish(opts.onError, { code: lastCode, message: speechErrorText(lastCode) });
+    }
+    function detach(rec) {
+      if (!rec) return;
+      try { rec.onresult = null; rec.onerror = null; rec.onend = null; } catch (e) {}
+      try { rec.abort && rec.abort(); } catch (e) {}
+    }
+    function start() {
+      var rec;
+      try { rec = new SR(); } catch (e) { fail('start-failed'); return; }
+      session.rec = rec;
+      try { rec.lang = langs[attempt]; } catch (e) {}
+      rec.interimResults = false;
+      rec.continuous = false;
+      rec.maxAlternatives = 5;
+      rec.onresult = function (ev) {
+        var alts = [], i, res;
+        try {
+          res = ev && ev.results && ev.results[0];
+          for (i = 0; res && i < res.length; i++) {
+            if (res[i] && res[i].transcript) alts.push(String(res[i].transcript).trim());
+          }
+        } catch (e) { /* экзотические движки */ }
+        if (!alts.length) { fail('no-speech'); return; }
+        speechLang = langs[attempt];
+        finish(opts.onResult, {
+          alternatives: alts,
+          transcript: alts.join(' / '),
+          matched: speechMatches(alts, opts.forms),
+          lang: langs[attempt] || ''
+        });
+      };
+      rec.onerror = function (ev) { fail((ev && ev.error) || 'error'); };
+      rec.onend = function () { if (!session.settled) fail(lastCode || 'no-speech'); };
+      try { rec.start(); } catch (e) { fail('start-failed'); return; }
+      try {
+        session.timer = setTimeout(function () {
+          if (session.settled) return;
+          /* сначала фиксируем вердикт, потом гасим микрофон: синхронный onend
+             после abort() не должен превратить таймаут в «ничего не услышали» */
+          var dying = rec;
+          fail('timeout');
+          try { dying.abort && dying.abort(); } catch (e) {}
+        }, opts.timeoutMs || SPEECH_TIMEOUT);
+      } catch (e) { /* без таймера тоже живём */ }
+    }
+    if (opts.onListening) { try { opts.onListening(); } catch (e) {} }
+    start();
+  }
+
+  SAL.speech = {
+    supported: function () { return !!(window.SpeechRecognition || window.webkitSpeechRecognition); },
+    norm: speechNorm,
+    devaToIast: devaToIast,
+    skeleton: speechSkeleton,
+    matches: speechMatches,
+    errorText: speechErrorText,
+    isFatal: speechFatal,
+    abort: speechAbort,
+    listen: speechListen,
+    /* Все формы, которые считаем правильным произношением: деванагари, IAST,
+       озвучиваемый вариант, необязательный word.accept и общий словарь
+       вариантов speechAcceptMap из lesson1.js (कान, जीभ, «sirsha» …). */
+    forms: function (word) {
+      var out = [];
+      function push(v) {
+        if (v == null) return;
+        if (Array.isArray(v)) { for (var i = 0; i < v.length; i++) push(v[i]); return; }
+        var s = String(v).trim();
+        if (s && out.indexOf(s) < 0) out.push(s);
+      }
+      if (!word) return out;
+      push(word.deva); push(word.iast); push(word.ttsText); push(word.accept);
+      try {
+        var map = window.speechAcceptMap;
+        if (map && word.id && map[word.id]) push(map[word.id]);
+      } catch (e) { /* карты может не быть */ }
+      return out;
+    }
+  };
+
   /* ------------------------------------------------------------------ state */
   function makeState(cfg) {
     return {
@@ -138,7 +457,7 @@ var SAL = (window.SAL = window.SAL || {});
           timeLeft: 4, elapsed: 0,
           running: false, started: false, revealed: false, finished: false
         },
-        mic: { i: 0, score: 0, listening: false, revealed: false, transcript: '', result: null, finished: false },
+        mic: { i: 0, score: 0, listening: false, revealed: false, transcript: '', result: null, error: '', errorCode: '', finished: false },
         missing: { order: null, i: 0, score: 0, revealed: false, finished: false }
       }
     };
@@ -351,7 +670,9 @@ var SAL = (window.SAL = window.SAL || {});
           (revealed ? p.m : '■') + '</span>';
       }).join('') + '</div>';
   }
-  var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+  /* восемь букв: в уроке окончаний восемь слов, и все восемь попадают в варианты
+     игры «сколько?» — с шестью буквами седьмой вариант подписывался «undefined» */
+  var LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
   /* memory board shape: rows are lettered a, b, c... and columns numbered 1, 2, 3...
      so a face-down card can be named aloud, e.g. "b2" */
   function memoryCols(n) {
@@ -450,11 +771,12 @@ var SAL = (window.SAL = window.SAL || {});
     L4: { ru: 'Урок 8: Цифры 1–5', en: 'Lesson 8: Numbers 1–5' },
     L5: { ru: 'Урок 9: Счёт мальчиков 1–5', en: 'Lesson 9: Counting Boys 1–5' },
     L6: { ru: 'Урок 10: Счёт девочек 1–5', en: 'Lesson 10: Counting Girls 1–5' },
-    L7: { ru: 'Урок 11: Цифры 6–10', en: 'Lesson 11: Numbers 6–10' },
-    L8: { ru: 'Урок 12: Цифры 11–15', en: 'Lesson 12: Numbers 11–15' },
-    L9: { ru: 'Урок 13: Цифры 16–20', en: 'Lesson 13: Numbers 16–20' },
-    L10: { ru: 'Урок 14: Десятки 10–50', en: 'Lesson 14: Tens 10–50' },
-    L11: { ru: 'Урок 15: Десятки 60–100', en: 'Lesson 15: Tens 60–100' }
+    LV: { ru: 'Урок 11: Окончания: один · два · много', en: 'Lesson 11: Endings — Singular, Dual, Plural' },
+    L7: { ru: 'Урок 12: Цифры 6–10', en: 'Lesson 12: Numbers 6–10' },
+    L8: { ru: 'Урок 13: Цифры 11–15', en: 'Lesson 13: Numbers 11–15' },
+    L9: { ru: 'Урок 14: Цифры 16–20', en: 'Lesson 14: Numbers 16–20' },
+    L10: { ru: 'Урок 15: Десятки 10–50', en: 'Lesson 15: Tens 10–50' },
+    L11: { ru: 'Урок 16: Десятки 60–100', en: 'Lesson 16: Tens 60–100' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
@@ -2547,11 +2869,22 @@ var SAL = (window.SAL = window.SAL || {});
     var title = ru('2. Speak into Microphone 🎙', '2. Произнеси в микрофон 🎙');
     if (m.finished || m.i >= N) return finalScreen(cfg, 'micRestart', title, m.score, N);
     var w = cfg.words[m.i];
-    var supported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+    var supported = SAL.speech.supported();
     var statusHtml = '';
+    /* код ошибки переводим при отрисовке: иначе после RU → EN сообщение
+       осталось бы на языке, который был в момент сбоя */
+    var micError = m.errorCode ? SAL.speech.errorText(m.errorCode) : m.error;
+    if (micError) {
+      statusHtml += '<div style="font-size:0.88rem;font-weight:600;color:#b91c1c;margin-bottom:0.5rem;">' +
+        q(micError) + '</div>';
+    }
+    if (m.listening) {
+      statusHtml += '<div style="font-size:0.88rem;font-weight:600;color:var(--accent-cambridge);margin-bottom:0.5rem;">' +
+        ru('🎙 Listening… say the word aloud', '🎙 Слушаю… произнесите слово вслух') + '</div>';
+    }
     if (m.transcript) {
       statusHtml += '<div style="font-size:0.88rem;font-weight:600;color:var(--accent-cambridge);margin-bottom:0.5rem;">' +
-        ru('Heard', 'Распознано') + ': ' + m.transcript + '</div>';
+        ru('Heard', 'Распознано') + ': ' + q(m.transcript) + '</div>';
     }
     if (m.result === 'ok') {
       statusHtml += '<div style="font-size:0.9rem;font-weight:700;color:#15803d;margin-bottom:0.5rem;">✓ ' +
@@ -2568,8 +2901,9 @@ var SAL = (window.SAL = window.SAL || {});
       '<div class="flashcard-box" style="cursor:default;">' +
       '<div class="vocab-svg-box" style="width:138px;height:138px;margin-bottom:0.75rem;">' + w.svg + '</div>' +
       '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;margin-bottom:0.75rem;">' +
-      '<button type="button" class="chip-btn active" onclick="SAL.do(\'' + cfg.key + '\',\'micStart\')">' +
-      (m.listening ? ru('🎙 Listening...', '🎙 Слушаю...') : ru('🎙 Click & Speak into Mic', '🎙 Нажать и сказать в микрофон')) + '</button>' +
+      '<button type="button" class="chip-btn active" onclick="SAL.do(\'' + cfg.key + '\',\'' +
+        (m.listening ? 'micStop' : 'micStart') + '\')">' +
+      (m.listening ? ru('⏹ Stop Listening', '⏹ Остановить запись') : ru('🎙 Click & Speak into Mic', '🎙 Нажать и сказать в микрофон')) + '</button>' +
       '<button type="button" class="chip-btn" onclick="SAL.do(\'' + cfg.key + '\',\'micReveal\')">🔊 ' +
       ru('Check with Audio (No Mic)', 'Проверить звуком (без микрофона)') + '</button>' +
       '</div>' +
@@ -2758,6 +3092,7 @@ var SAL = (window.SAL = window.SAL || {});
     setGame: function (cfg, st, a) {
       stopTimers();
       clearExtra();
+      SAL.speech.abort();
       if (st.prod.sprint) st.prod.sprint.running = false;
       if (st.prod.union) st.prod.union.running = false;
       st.game = a;
@@ -3107,6 +3442,8 @@ var SAL = (window.SAL = window.SAL || {});
     /* production */
     setProdMode: function (cfg, st, a) {
       stopTimers();
+      /* ушли с микрофонной карточки — распознавание больше не нужно */
+      if (a !== 'mic') SAL.speech.abort();
       st.prod.sprint.running = false;
       if (st.prod.union) st.prod.union.running = false;
       st.prod.mode = a;
@@ -3244,48 +3581,71 @@ var SAL = (window.SAL = window.SAL || {});
     /* Microphone */
     micStart: function (cfg, st) {
       var m = st.prod.mic;
-      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { m.revealed = true; SAL.speak(cfg.words[m.i].ttsText); return; }
-      try {
-        var rec = new SR();
-        rec.lang = 'sa-IN';
-        rec.interimResults = false;
-        rec.maxAlternatives = 3;
-        m.listening = true;
-        rec.onresult = function (ev) {
-          var alts = [];
-          for (var i = 0; i < ev.results[0].length; i++) alts.push(ev.results[0][i].transcript);
-          m.transcript = alts.join(' / ');
-          var w = cfg.words[m.i];
-          var target = normalize(w.iast);
-          var hit = alts.some(function (t) {
-            var n = normalize(t);
-            return n === target || n.indexOf(target) >= 0 || (target.length > 4 && n.indexOf(target.slice(0, target.length - 1)) >= 0);
-          });
-          m.result = hit ? 'ok' : 'no';
-          m.listening = false;
-          m.revealed = true;
+      var w = cfg.words[m.i];
+      if (!w) return;
+      if (m.listening) { SAL.do(cfg.key, 'micStop'); return; }
+      m.error = '';
+      m.errorCode = '';
+      m.transcript = '';
+      m.result = null;
+      m.listening = true;
+      /* cfg держим в замыкании: у блоков повторения (recycle) своего ключа в
+         lessons нет, искать его заново по key нельзя */
+      SAL.speech.listen({
+        forms: SAL.speech.forms(w),
+        onListening: function () { SAL.refresh(); },
+        onResult: function (r) {
+          var mm = state(cfg).prod.mic;
+          mm.listening = false;
+          mm.transcript = r.transcript || '';
+          mm.result = r.matched ? 'ok' : 'no';
+          mm.error = '';
+          mm.errorCode = '';
+          mm.revealed = true;
           SAL.refresh();
-        };
-        rec.onerror = function () { m.listening = false; SAL.refresh(); };
-        rec.onend = function () { m.listening = false; SAL.refresh(); };
-        rec.start();
-      } catch (e) { m.listening = false; m.revealed = true; }
+        },
+        onError: function (e) {
+          var mm = state(cfg).prod.mic;
+          mm.listening = false;
+          mm.error = e.message || '';
+          mm.errorCode = e.code || '';
+          /* если микрофон в этом браузере бесполезен — сразу показываем слово,
+             чтобы ученик мог сверить себя по кнопке 🔊 */
+          if (SAL.speech.isFatal(e.code)) {
+            mm.revealed = true;
+            SAL.speak(w.ttsText);
+          }
+          SAL.refresh();
+        }
+      });
+    },
+    micStop: function (cfg, st) {
+      SAL.speech.abort();
+      var m = st.prod.mic;
+      m.listening = false;
+      SAL.refresh();
     },
     micReveal: function (cfg, st) {
       var m = st.prod.mic;
+      SAL.speech.abort();
+      m.listening = false;
+      m.error = '';
+      m.errorCode = '';
       m.revealed = true;
       SAL.speak(cfg.words[m.i].ttsText);
     },
     micGrade: function (cfg, st, a) {
       var m = st.prod.mic;
+      SAL.speech.abort();
       if (a === '1') { m.score++; st.prod.produced[cfg.words[m.i].id] = true; }
       m.transcript = ''; m.result = null; m.listening = false; m.revealed = false;
+      m.error = ''; m.errorCode = '';
       m.i++;
       if (m.i >= cfg.words.length) m.finished = true;
     },
     micRestart: function (cfg, st) {
-      st.prod.mic = { i: 0, score: 0, listening: false, revealed: false, transcript: '', result: null, finished: false };
+      SAL.speech.abort();
+      st.prod.mic = makeState(cfg).prod.mic;
       st.prod.mode = 'mic';
     },
 
@@ -3656,7 +4016,8 @@ var SAL = (window.SAL = window.SAL || {});
   var PROD_RESTART_RE = /^(sprint|mic|missing|union)Restart$/;
   function stageIdFor(cfg, action, block) {
     if (action === 'setPresMode') return cfg.key + '-pres-grid';
-    if (action === 'setProdMode' || PROD_RESTART_RE.test(action)) return cfg.key + '-production-stage';
+    if (action === 'setProdMode' || PROD_RESTART_RE.test(action) ||
+        /^mic(Start|Stop|Reveal|Grade)$/.test(action)) return cfg.key + '-production-stage';
     if (action === 'rcGame') return recycleShimKey(cfg, recycleIndex(block)) + '-practice-arena';
     if (action === 'rcProd') return recycleShimKey(cfg, recycleIndex(block)) + '-production-stage';
     return cfg.key + '-practice-arena';
@@ -3766,6 +4127,7 @@ var SAL = (window.SAL = window.SAL || {});
   };
 
   SAL.gotoLesson = function (v) {
+    SAL.speech.abort();
     if (v === 'lesson7') { if (typeof switchView === 'function') switchView('lesson7'); return; }
     SAL.openLesson(v);
   };
@@ -3786,6 +4148,7 @@ var SAL = (window.SAL = window.SAL || {});
   SAL.openLesson = function (key) {
     var cfg = lessons[key];
     if (!cfg) return;
+    SAL.speech.abort();
     activeKey = key;
     stopTimers();
     var pane = document.getElementById('view-lesson' + cfg.num);
