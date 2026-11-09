@@ -264,7 +264,7 @@ SAL.registerLesson({
   introEn: 'The sixth lesson is about <strong>gender</strong> again, and it is built exactly like the fifth: the same eight body and face words and the same eight sentences about the deities. Only the colours are new — <code>kapiśa</code> (brown), <code>harita</code> (green), <code>dhūsara</code> (grey) and <code>nāraṅga</code> (orange) — and each one appears twice, with a noun of a different gender. Read <code>kṛṣṇasya lalāṭaṃ kapiśam asti</code> aloud and check the rule once more: the colour always ends the way the noun ends — <code>-ḥ</code> for masculine, <code>-m</code> for neuter, <code>-ā</code> for feminine. The analysis stays closed until the button is pressed.',
   aim: {
     ru: {
-      main: 'Закрепить три рода санскритских существительных на новых цветах — на тех же восьми частях тела и восьми предложениях, что в уроке 5.',
+      main: 'Закрепить три рода санскритских существительных на четырёх новых цветах — в контексте описания тех же восьми частей тела, что в уроке 5.',
       subs: [
         'Повторить четыре цвета урока 4 (कपिश, हरित, धूसर, नारङ्ग) в роли определений.',
         'Провести guided discovery ещё раз: ученики сами выводят правило ः / म् / ा на новом материале.',
@@ -272,7 +272,7 @@ SAL.registerLesson({
       ]
     },
     en: {
-      main: 'To consolidate the three genders of Sanskrit nouns with new colours — on the same eight body parts and eight sentences as in lesson 5.',
+      main: 'To consolidate the three genders of Sanskrit nouns with four new colours, in the context of describing the same eight body parts as in lesson 5.',
       subs: [
         'To recycle four colours from lesson 4 (kapiśa, harita, dhūsara, nāraṅga) as attributes.',
         'To run the guided discovery again: learners work out the ः / म् / ा rule themselves on new material.',

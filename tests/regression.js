@@ -1272,23 +1272,42 @@ console.log('\n===== Урок 4: ещё цвета =====');
    ========================================================================== */
 console.log('\n===== Цели уроков (main aim / subsidiary aims) =====');
 {
-  const KEYS = ['L2', 'L3', 'LC', 'LC2', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'];
+  /* все уроки движка, кроме скрытого служебного L1B (филворд урока 7) и
+     рукописной страницы урока 7 — у неё цель вписана прямо в index.html
+     и проверяется отдельным блоком ниже */
+  const KEYS = Object.keys(SAL.lessons)
+    .filter(k => !SAL.lessons[k].hidden)
+    .sort((a, b) => SAL.lessons[a].num - SAL.lessons[b].num);
   const NO_AIM = [], BAD = [];
   KEYS.forEach(k => {
     const a = SAL.lessons[k].aim;
     if (!a || !a.ru || !a.en || !a.ru.main || !a.en.main || !a.ru.subs || !a.en.subs) { NO_AIM.push(k); return; }
     if (a.ru.subs.length !== a.en.subs.length || a.ru.subs.length < 2) BAD.push(k + ': подцели разной длины');
-    /* systems-урок формулируется инфинитивом: To introduce / clarify / practise / review … */
-    if (!/^To (introduce|clarify|practise|review|develop|give|provide|raise)\b/.test(a.en.main)) BAD.push(k + ': главная цель не по формуле CELTA');
+    /* systems-урок формулируется инфинитивом: To introduce / clarify / practise / consolidate / review … */
+    if (!/^To (introduce|clarify|practise|consolidate|review|develop|give|provide|raise)\b/.test(a.en.main)) BAD.push(k + ': главная цель не по формуле CELTA');
     if (!a.en.subs.every(s => /^To \w/.test(s))) BAD.push(k + ': подцель не по формуле CELTA');
     if (!/[А-Яа-я]/.test(a.ru.main)) BAD.push(k + ': нет русской формулировки');
     /* главная цель — про языковой материал и контекст, а не про активность */
     if (a.en.main.indexOf('in the context of') < 0) BAD.push(k + ': в главной цели нет контекста');
   });
-  ck(NO_AIM.length === 0, 'у всех десяти уроков движка есть цели (main + subsidiary aims)' +
+  ck(NO_AIM.length === 0, 'у всех ' + KEYS.length + ' уроков движка есть цели (main + subsidiary aims)' +
     (NO_AIM.length ? ' — нет у: ' + NO_AIM.join(', ') : ''));
   ck(BAD.length === 0, 'цели сформулированы по схеме CELTA: инфинитив, материал и контекст' +
     (BAD.length ? ' — ' + BAD.join('; ') : ''));
+
+  ck(KEYS.length === 15 && KEYS.indexOf('LG') >= 0 && KEYS.indexOf('LG2') >= 0 && KEYS.indexOf('LV') >= 0,
+    'в проверку целей попали все уроки движка, включая два урока рода и окончания (' + KEYS.length + ')');
+
+  /* английская цель — без единого русского слова (и в плашке, и в подцелях) */
+  const LEAK_EN = [];
+  KEYS.forEach(k => {
+    const a = SAL.lessons[k].aim;
+    [a.en.main].concat(a.en.subs).forEach(t => {
+      if (/[А-Яа-яЁё]/.test(t)) LEAK_EN.push(k + ': «' + t.slice(0, 48) + '…»');
+    });
+  });
+  ck(LEAK_EN.length === 0, 'в английских целях нет русских слов' +
+    (LEAK_EN.length ? ' — ' + LEAK_EN.join('; ') : ''));
 
   /* плашка в шапке урока и те же цели в инструкции преподавателя */
   const plaqueBad = [], guideBad = [];
@@ -1304,7 +1323,7 @@ console.log('\n===== Цели уроков (main aim / subsidiary aims) =====');
     if (!guide || !guide.querySelector('.teacher-guide-aim')) guideBad.push(k + ': нет целей в инструкции');
     else if (guide.querySelector('.teacher-guide-aim').textContent.indexOf(SAL.lessons[k].aim.ru.main) < 0) guideBad.push(k + ': инструкция расходится с данными');
   });
-  ck(plaqueBad.length === 0, 'плашка «🎯 Цель урока» стоит под описанием урока у всех десяти уроков' +
+  ck(plaqueBad.length === 0, 'плашка «🎯 Цель урока» стоит под описанием урока у всех ' + KEYS.length + ' уроков движка' +
     (plaqueBad.length ? ' — ' + plaqueBad.join('; ') : ''));
   ck(guideBad.length === 0, 'цели продублированы первым блоком в инструкции преподавателя' +
     (guideBad.length ? ' — ' + guideBad.join('; ') : ''));
