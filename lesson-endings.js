@@ -333,9 +333,9 @@ function lvBoardArt() {
     art += lvFigure(w.kind, w.fill, w.count, x + LV_CELL_W / 2, y + 42, 0.58);
   });
   /* подписи рядов: средний род и мужской род */
-  art += '<text x="12" y="' + LV_ROW_LABEL_Y[0] + '" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#1D4ED8">' +
+  art += '<text x="12" y="' + LV_ROW_LABEL_Y[0] + '" font-family="Noto Serif Devanagari, Noto Sans Devanagari, sans-serif" font-size="10" font-weight="700" fill="#1D4ED8">' +
     'नयन · -म् / -े / -ानि</text>';
-  art += '<text x="12" y="' + LV_ROW_LABEL_Y[1] + '" font-family="Plus Jakarta Sans, sans-serif" font-size="10" font-weight="700" fill="#B45309">' +
+  art += '<text x="12" y="' + LV_ROW_LABEL_Y[1] + '" font-family="Noto Serif Devanagari, Noto Sans Devanagari, sans-serif" font-size="10" font-weight="700" fill="#B45309">' +
     'पाद · हस्त · दन्त · -ः / -ौ / -ाः</text>';
   return art;
 }
