@@ -30,8 +30,8 @@ const dom = new JSDOM(fs.readFileSync(path.join(REPO, 'index.html'), 'utf8'), {
 });
 const win = dom.window;
 ['lesson1.js', 'lesson-engine.js', 'lesson2.js', 'lesson3.js', 'lesson4.js', 'lesson5.js',
-  'lesson6.js', 'lesson-endings.js', 'lesson7.js', 'lesson8.js', 'lesson9.js', 'lesson10.js',
-  'lesson11.js',
+  'lesson6.js', 'lesson-endings.js', 'lesson-tongues.js', 'lesson7.js', 'lesson8.js',
+  'lesson9.js', 'lesson10.js', 'lesson11.js',
   'lesson-colors.js',
   'lesson-colors2.js', 'lesson-gender.js', 'lesson-gender2.js', 'games-extra.js', 'app.js'].forEach(f => {
   const s = win.document.createElement('script');
@@ -65,7 +65,7 @@ const GAMES = ['masked', 'flashcards', 'gaps', 'picquiz', 'wordquiz', 'match', '
 const PRESMODES = ['stepbystep', 'hotspots', 'audiofirst', 'poster'];
 const PRODMODES = ['sprint', 'mic', 'missingpart', 'chant'];
 
-for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11']) {
+for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'LT', 'L7', 'L8', 'L9', 'L10', 'L11']) {
   const cfg = SAL.lessons[key];
   const N = cfg.words.length;
   SAL.openLesson(key);
@@ -517,10 +517,10 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 
   const order = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
                  'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
                  'view-lesson11', 'view-lesson12', 'view-lesson13', 'view-lesson14',
-                 'view-lesson15', 'view-lesson16']
+                 'view-lesson15', 'view-lesson16', 'view-lesson17']
     .map(id => win.document.getElementById(id));
   SAL.openLesson('LC2');   /* панель урока 4 строится движком — собираем её заранее */
-  ck(order.every(Boolean), 'все шестнадцать панелей урока есть на странице');
+  ck(order.every(Boolean), 'все семнадцать панелей урока есть на странице');
   for (let i = 0; i < order.length - 1; i++) {
     ck(order[i].compareDocumentPosition(order[i + 1]) & 4,
       'порядок панелей: урок ' + (i + 1) + ' → урок ' + (i + 2));
@@ -528,19 +528,19 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 
   ck(SAL.lessons.L2.num === 1 && SAL.lessons.L3.num === 2 && SAL.lessons.LC.num === 3 &&
      SAL.lessons.LC2.num === 4 && SAL.lessons.LG.num === 5 && SAL.lessons.LG2.num === 6 &&
      SAL.lessons.L4.num === 8 && SAL.lessons.L5.num === 9 && SAL.lessons.L6.num === 10 &&
-     SAL.lessons.LV.num === 11 &&
-     SAL.lessons.L7.num === 12 && SAL.lessons.L8.num === 13 && SAL.lessons.L9.num === 14 &&
-     SAL.lessons.L10.num === 15 && SAL.lessons.L11.num === 16,
-    'номера в данных: Тело = 1, Лицо = 2, Цвета = 3, Ещё цвета = 4, Три рода = 5, рода·цвета = 6, 12 частей = 7, 1–5 = 8, мальчики = 9, девочки = 10, окончания = 11, 6–10 = 12, 11–15 = 13, 16–20 = 14, десятки = 15 и 16');
+     SAL.lessons.LV.num === 11 && SAL.lessons.LT.num === 12 &&
+     SAL.lessons.L7.num === 13 && SAL.lessons.L8.num === 14 && SAL.lessons.L9.num === 15 &&
+     SAL.lessons.L10.num === 16 && SAL.lessons.L11.num === 17,
+    'номера в данных: Тело = 1, Лицо = 2, Цвета = 3, Ещё цвета = 4, Три рода = 5, рода·цвета = 6, 12 частей = 7, 1–5 = 8, мальчики = 9, девочки = 10, окончания = 11, языки = 12, 6–10 = 13, 11–15 = 14, 16–20 = 15, десятки = 16 и 17');
   /* вводный текст называет урок тем же номером, что и слот на странице */
   const ORD_RU = ['', 'Первый', 'Второй', 'Третий', 'Четвёртый', 'Пятый', 'Шестой', 'Седьмой',
     'Восьмой', 'Девятый', 'Десятый', 'Одиннадцатый', 'Двенадцатый', 'Тринадцатый', 'Четырнадцатый',
-    'Пятнадцатый', 'Шестнадцатый'];
+    'Пятнадцатый', 'Шестнадцатый', 'Семнадцатый'];
   const ORD_EN = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh',
     'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth',
-    'sixteenth'];
+    'sixteenth', 'seventeenth'];
   const ordinalIssues = Object.keys(SAL.lessons).map(k => SAL.lessons[k])
-    .filter(c => c.num >= 1 && c.num <= 16)
+    .filter(c => c.num >= 1 && c.num <= 17)
     .map(c => {
       const ru = (c.introRu || '').match(/^([А-ЯЁ][а-яё]+)\s+урок/);
       const en = (c.introEn || '').match(/^The\s+([a-z]+)\s+lesson/i);
@@ -572,11 +572,13 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 
     'слот 10 — Счёт девочек 1–5');
   ck(/Урок 11: Окончания/.test(win.document.getElementById('view-lesson11').textContent),
     'слот 11 — Окончания: один · два · много');
-  ck(/Урок 12: Цифры 6–10/.test(win.document.getElementById('view-lesson12').textContent), 'слот 12 — Цифры 6–10');
-  ck(/Урок 13: Цифры 11–15/.test(win.document.getElementById('view-lesson13').textContent), 'слот 13 — Цифры 11–15');
-  ck(/Урок 14: Цифры 16–20/.test(win.document.getElementById('view-lesson14').textContent), 'слот 14 — Цифры 16–20');
-  ck(/Урок 15: Десятки 10–50/.test(win.document.getElementById('view-lesson15').textContent), 'слот 15 — Десятки 10–50');
-  ck(/Урок 16: Десятки 60–100/.test(win.document.getElementById('view-lesson16').textContent), 'слот 16 — Десятки 60–100');
+  ck(/Урок 12: Языки/.test(win.document.getElementById('view-lesson12').textContent),
+    'слот 12 — Языки: пять цветов');
+  ck(/Урок 13: Цифры 6–10/.test(win.document.getElementById('view-lesson13').textContent), 'слот 13 — Цифры 6–10');
+  ck(/Урок 14: Цифры 11–15/.test(win.document.getElementById('view-lesson14').textContent), 'слот 14 — Цифры 11–15');
+  ck(/Урок 15: Цифры 16–20/.test(win.document.getElementById('view-lesson15').textContent), 'слот 15 — Цифры 16–20');
+  ck(/Урок 16: Десятки 10–50/.test(win.document.getElementById('view-lesson16').textContent), 'слот 16 — Десятки 10–50');
+  ck(/Урок 17: Десятки 60–100/.test(win.document.getElementById('view-lesson17').textContent), 'слот 17 — Десятки 60–100');
   const w5list = SAL.lessons.L5.words.map(w => w.deva).join(' ');
   ck(w5list === 'एकः द्वौ त्रयः चत्वारः पञ्च',
     'урок 9: пять числительных мужского рода — ' + w5list);
@@ -584,7 +586,7 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 
   ck(w6list === 'एका द्वे तिस्रः चतस्रः पञ्च',
     'урок 10: пять числительных женского рода — ' + w6list);
   const w7list = SAL.lessons.L7.words.map(w => w.deva).join(' ');
-  ck(w7list === 'षट् सप्त अष्ट नव दश', 'урок 11: ровно пять числительных — ' + w7list);
+  ck(w7list === 'षट् सप्त अष्ट नव दश', 'урок 13: ровно пять числительных — ' + w7list);
   ck(/Урок 1: Тело/.test(win.document.getElementById('view-lesson1').textContent), 'слот 1 — Тело (6 слов)');
   ck(/Урок 2: Лицо/.test(win.document.getElementById('view-lesson2').textContent), 'слот 2 — Лицо (7 слов)');
   SAL.openLesson('LC');
@@ -596,8 +598,8 @@ console.log('\n===== Урок 11: ед. / дв. / мн. на двух родах
 {
   const L = SAL.lessons.LV;
   ck(!!L, 'урок окончаний зарегистрирован (LV)');
-  ck(L.num === 11 && SAL.lessons.L6.num === 10 && SAL.lessons.L7.num === 12,
-    'окончания стоят между «Счётом девочек» (10) и «Цифрами 6–10» (12)');
+  ck(L.num === 11 && SAL.lessons.L6.num === 10 && SAL.lessons.L7.num === 13,
+    'окончания стоят между «Счётом девочек» (10) и «Цифрами 6–10» (13), сразу перед уроком языков');
   SAL.openLesson('LV');
   const deva = L.words.map(w => w.deva);
   const want = ['एकं नीलं नयनम्', 'द्वे हरिते नयने', 'त्रीणि नारङ्गाणि नयनानि',
@@ -626,10 +628,64 @@ console.log('\n===== Урок 11: ед. / дв. / мн. на двух родах
     'урок окончаний живёт по адресу #/ru/lesson11');
 }
 
+console.log('\n===== Урок 12: пять языков, женский род =====');
+{
+  const L = SAL.lessons.LT;
+  ck(!!L, 'урок языков зарегистрирован (LT)');
+  ck(L.num === 12 && SAL.lessons.LV.num === 11 && SAL.lessons.L7.num === 13,
+    'языки стоят между «Окончаниями» (11) и «Цифрами 6–10» (13)');
+  SAL.openLesson('LT');
+  const deva = L.words.map(w => w.deva);
+  const want = ['एका पाटला जिह्वा', 'द्वे रक्ते जिह्वे', 'तिस्रः पीताः जिह्वाः',
+    'चतस्रः हरिताः जिह्वाः', 'पञ्च नारङ्गाः जिह्वाः'];
+  ck(deva.length === 5 && deva.every((d, i) => d === want[i]),
+    'пять словосочетаний ровно те, что заданы: ' + deva.join(' · '));
+  ck(L.words.map(w => w.grammaticalNumber).join(',') === 'sg,du,pl,pl,pl',
+    'числа: ед., дв., три раза мн. — ' + L.words.map(w => w.grammaticalNumber).join(','));
+  ck(L.words.every(w => w.gender === 'f'), 'все пять — женский род');
+  ck(L.words.every((w, i) => w.count === i + 1), 'количество 1…5 идёт по порядку');
+  /* три женских окончания: -ा, -े, -ाः; पञ्च не меняется */
+  ck(/\u093E$/u.test(L.words[0].deva.split(' ')[1]) && /\u093E$/u.test(L.words[0].deva.split(' ')[2]),
+    'ед. ч.: पाटला जिह्वा — оба слова на -ा (долгая आ)');
+  ck(L.words[1].deva.split(' ').slice(1).every(w => /े$/.test(w)),
+    'дв. ч.: रक्ते जिह्वे — оба слова на -े');
+  ck(L.words.slice(2).every(w => /ाः$/.test(w.deva.split(' ').slice(-1)[0])),
+    'мн. ч.: जिह्वाः с окончанием -ाः во всех трёх фразах');
+  ck(L.words[4].deva.indexOf('पञ्च') === 0 && L.words[4].deva.split(' ')[1] !== 'पञ्चाः',
+    'पञ्च не меняется — женский род несут цвет и слово');
+  /* те же числительные, что в «Счёте девочек» */
+  ck(L.words.map(w => w.deva.split(' ')[0]).join(' ') ===
+     SAL.lessons.L6.words.map(w => w.deva).join(' '),
+    'числительные те же, что в уроке 10: ' + L.words.map(w => w.deva.split(' ')[0]).join(' '));
+  /* цвета — из уроков 3–4, все пять знакомы */
+  const colours = ['पाटल', 'रक्त', 'पीत', 'हरित', 'नारङ्ग'];
+  ck(colours.every((c, i) => L.words[i].deva.indexOf(c) >= 0),
+    'пять цветов урока: ' + colours.join(' · '));
+  ck(JSON.stringify(L.extraGames) === JSON.stringify(SAL.lessons.L5.extraGames),
+    'дополнительные игры те же и в том же порядке, что в «Счёте мальчиков»');
+  ck(L.steps.length === 3 && L.hotspots.figures[0].pins.length === 5,
+    'три шага (2 + 2 + 1) и пять точек на посте');
+  ck(L.groups.length >= 4 && L.categories.length >= 6 && L.sortFeatures.length >= 4,
+    'группы, категории и вопросы сортировки на месте');
+  /* каждая карточка: ровно N языков нужного цвета и ни одной цифры */
+  ck(L.words.every((w, i) => (w.svg.match(/<g transform="translate\(/g) || []).length === i + 1) &&
+     !L.words.some(w => /<text[^>]*>\d+<\/text>/.test(w.svg)),
+    'на карточке столько языков, сколько названо, и ни одной арабской цифры');
+  ck(L.words.every(w => w.svg.indexOf(w.fill) >= 0), 'цвет языка на карточке — тот же, что в слове');
+  ck(win.document.getElementById('view-lesson12').textContent.indexOf('जिह्वा') >= 0,
+    'слот 12 показывает जिह्वा на панели');
+  ck(win.parseRoute('#/ru/lesson12') !== null && win.parseRoute('#/ru/lesson12').view === 'lesson12',
+    'урок языков живёт по адресу #/ru/lesson12');
+  /* все пять — фразы из трёх слов, поэтому у каждой есть короткая подпись */
+  ck(L.words.every(w => w.short && w.short.split(' ').length === 2),
+    'у каждого словосочетания есть короткая подпись из двух слов: ' +
+    L.words.map(w => w.short).join(' · '));
+}
+
 /* ---------- внизу каждого урока: «← Предыдущий урок / Следующий урок →» ---------- */
 console.log('\n===== Кнопки предыдущего и следующего урока =====');
 {
-  const ORDER = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'];
+  const ORDER = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'LV', 'LT', 'L7', 'L8', 'L9', 'L10', 'L11'];
   const paneOf = key => win.document.getElementById(
     'view-lesson' + (key === 'lesson7' ? 7 : SAL.lessons[key].num));
   const pagerOf = key => paneOf(key).querySelector('[data-lesson-pager]');
@@ -661,18 +717,18 @@ console.log('\n===== Кнопки предыдущего и следующего
     const expect = want.filter(Boolean);
     if (got.join() !== expect.join()) wrongLinks.push(k + ': ' + got.join('/') + ' вместо ' + expect.join('/'));
   });
-  ck(wrongLinks.length === 0, 'кнопки ведут на соседние уроки по порядку 1 … 15' +
+  ck(wrongLinks.length === 0, 'кнопки ведут на соседние уроки по порядку 1 … 17' +
     (wrongLinks.length ? ' — ' + wrongLinks.join('; ') : ''));
 
   ck(linksOf('L2').join() === 'L3' && linksOf('L11').join() === 'L10',
     'у первого урока только «следующий», у последнего — только «предыдущий»');
   ck(linksOf('L4').join() === 'lesson7,L5' && linksOf('L5').join() === 'L4,L6' &&
-     linksOf('L6').join() === 'L5,LV' && linksOf('LV').join() === 'L6,L7' &&
-     linksOf('L7').join() === 'LV,L8',
-    'счёт мальчиков, счёт девочек и окончания встали между «Цифрами 1–5» и «Цифрами 6–10»: ' +
+     linksOf('L6').join() === 'L5,LV' && linksOf('LV').join() === 'L6,LT' &&
+     linksOf('LT').join() === 'LV,L7' && linksOf('L7').join() === 'LT,L8',
+    'счёт мальчиков, счёт девочек, окончания и языки встали между «Цифрами 1–5» и «Цифрами 6–10»: ' +
     linksOf('L4').join(' / ') + ' · ' + linksOf('L5').join(' / ') + ' · ' +
     linksOf('L6').join(' / ') + ' · ' + linksOf('LV').join(' / ') + ' · ' +
-    linksOf('L7').join(' / '));
+    linksOf('LT').join(' / ') + ' · ' + linksOf('L7').join(' / '));
   ck(linksOf('LG').join() === 'LC2,LG2' && linksOf('LG2').join() === 'LG,lesson7' &&
      linksOf('lesson7').join() === 'LG2,L4',
     'урок рода ведёт ко второму уроку рода, тот — к 12 частям тела, а 12 частей — к числам: ' +
@@ -1295,7 +1351,8 @@ console.log('\n===== Цели уроков (main aim / subsidiary aims) =====');
   ck(BAD.length === 0, 'цели сформулированы по схеме CELTA: инфинитив, материал и контекст' +
     (BAD.length ? ' — ' + BAD.join('; ') : ''));
 
-  ck(KEYS.length === 15 && KEYS.indexOf('LG') >= 0 && KEYS.indexOf('LG2') >= 0 && KEYS.indexOf('LV') >= 0,
+  ck(KEYS.length === 16 && KEYS.indexOf('LG') >= 0 && KEYS.indexOf('LG2') >= 0 &&
+     KEYS.indexOf('LV') >= 0 && KEYS.indexOf('LT') >= 0,
     'в проверку целей попали все уроки движка, включая два урока рода и окончания (' + KEYS.length + ')');
 
   /* английская цель — без единого русского слова (и в плашке, и в подцелях) */
@@ -1898,9 +1955,9 @@ ck(gst('L4', 'hotcards').score === 1 && gst('L4', 'hotcards').streak === 1,
 
 
 /* ==========================================================================
-   THE NUMERAL LESSONS 9–14 — each on its own data; lesson 9 counts boys
+   THE NUMERAL LESSONS 9–17 — each on its own data; lesson 9 counts boys
    ========================================================================== */
-console.log('\n===== Уроки 9–14: числительные =====');
+console.log('\n===== Уроки 9–17: числительные =====');
 const NUMS = {
   L5: { ru: 'Счёт мальчиков 1–5', deva: 'एकः द्वौ त्रयः चत्वारः पञ्च' },
   L6: { ru: 'Счёт девочек 1–5', deva: 'एका द्वे तिस्रः चतस्रः पञ्च' },
@@ -1919,7 +1976,7 @@ Object.keys(NUMS).forEach(key => {
   const byIdOf = id => L.words.filter(w => w.id === id)[0];
   console.log('\n----- ' + key + ' · ' + NUMS[key].ru + ' -----');
   /* номера заданы явно: после «Окончаний» (урок 11) числительные сдвинулись */
-  const NUM_NUM = { L5: 9, L6: 10, L7: 12, L8: 13, L9: 14, L10: 15, L11: 16 };
+  const NUM_NUM = { L5: 9, L6: 10, L7: 13, L8: 14, L9: 15, L10: 16, L11: 17 };
   ck(!!L && L.num === NUM_NUM[key], key + ': зарегистрирован под номером ' + (L && L.num));
   ck(L.words.map(w => w.deva).join(' ') === NUMS[key].deva,
     key + ': ровно пять числительных — ' + L.words.map(w => w.deva).join(' '));
@@ -2006,18 +2063,19 @@ Object.keys(NUMS).forEach(key => {
 
 /* navigation: one dropdown lists every lesson, in every pane */
 console.log('\n===== Выпадающий список уроков =====');
-const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'];
+const NAV_VALUES = ['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'lesson7', 'L4', 'L5', 'L6', 'LV', 'LT', 'L7', 'L8', 'L9', 'L10', 'L11'];
 const PANES = ['view-lesson1', 'view-lesson2', 'view-lesson3', 'view-lesson4', 'view-lesson5',
                'view-lesson6', 'view-lesson7', 'view-lesson8', 'view-lesson9', 'view-lesson10',
                'view-lesson11', 'view-lesson12', 'view-lesson13', 'view-lesson14',
-               'view-lesson15', 'view-lesson16'];
+               'view-lesson15', 'view-lesson16', 'view-lesson17'];
 const CUR = { 'view-lesson1': 'L2', 'view-lesson2': 'L3', 'view-lesson3': 'LC',
               'view-lesson4': 'LC2', 'view-lesson5': 'LG', 'view-lesson6': 'LG2',
               'view-lesson7': 'lesson7',
               'view-lesson8': 'L4', 'view-lesson9': 'L5', 'view-lesson10': 'L6',
-              'view-lesson11': 'LV', 'view-lesson12': 'L7', 'view-lesson13': 'L8',
-              'view-lesson14': 'L9', 'view-lesson15': 'L10', 'view-lesson16': 'L11' };
-['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'L4', 'L5', 'L6', 'LV', 'L7', 'L8', 'L9', 'L10', 'L11'].forEach(k => SAL.openLesson(k));
+              'view-lesson11': 'LV', 'view-lesson12': 'LT', 'view-lesson13': 'L7',
+              'view-lesson14': 'L8', 'view-lesson15': 'L9', 'view-lesson16': 'L10',
+              'view-lesson17': 'L11' };
+['L2', 'L3', 'LC', 'LC2', 'LG', 'LG2', 'L4', 'L5', 'L6', 'LV', 'LT', 'L7', 'L8', 'L9', 'L10', 'L11'].forEach(k => SAL.openLesson(k));
 win.switchView('lesson7');
 PANES.forEach(id => {
   const pane = win.document.getElementById(id);
@@ -2026,7 +2084,7 @@ PANES.forEach(id => {
   const sel = sels[0];
   if (!sel) return;
   ck(NAV_VALUES.every(v => [...sel.options].some(o => o.value === v)) && sel.options.length === NAV_VALUES.length,
-    id + ': в списке ровно все шестнадцать уроков (' + sel.options.length + ')');
+    id + ': в списке ровно все семнадцать уроков (' + sel.options.length + ')');
   ck(sel.value === CUR[id] && sel.options[sel.selectedIndex].value === CUR[id],
     id + ': выбран текущий урок (' + sel.value + ')');
   ck(pane.querySelectorAll('.ppp-top-row [onclick*="openLesson"]').length === 0,
@@ -2224,8 +2282,8 @@ win.switchView('lesson3');
 ck(win.location.hash === '#/en/lesson3', 'урок 3 по-английски: #/en/lesson3');
 win.setLanguage('ru');
 ck(win.location.hash === '#/ru/lesson3', 'обратно на RU: #/ru/lesson3');
-win.switchView('lesson16');
-ck(win.location.hash === '#/ru/lesson16', 'у последнего урока свой адрес: #/ru/lesson16');
+win.switchView('lesson17');
+ck(win.location.hash === '#/ru/lesson17', 'у последнего урока свой адрес: #/ru/lesson17');
 win.switchView('lesson7');
 ck(win.location.hash === '#/ru/lesson7', '12-словная страница: #/ru/lesson7');
 win.switchView('details');
@@ -2234,8 +2292,8 @@ win.switchView('home');
 ck(win.location.hash === '#/ru/home', 'главная: #/ru/home');
 ck(win.parseRoute('#/en/lesson10').lang === 'en' && win.parseRoute('#/en/lesson10').view === 'lesson10',
   'адрес #/en/lesson10 разбирается в язык и урок');
-ck(win.parseRoute('#/ru/lesson16') !== null && win.parseRoute('#/ru/lesson16').view === 'lesson16',
-  'адрес #/ru/lesson16 разбирается в язык и урок');
+ck(win.parseRoute('#/ru/lesson17') !== null && win.parseRoute('#/ru/lesson17').view === 'lesson17',
+  'адрес #/ru/lesson17 разбирается в язык и урок');
 ck(win.parseRoute('#/ru/lesson9') !== null && win.parseRoute('#/ru/lesson9').view === 'lesson9',
   'урок 9 (мальчики) живёт по адресу #/ru/lesson9');
 ck(win.parseRoute('#/ru/lesson10') !== null && win.parseRoute('#/ru/lesson10').view === 'lesson10',
@@ -2336,7 +2394,7 @@ win.gtag = (cmd, name, params) => gtagEvents.push({ cmd, name, params });
 win.switchView('lesson12');
 ck(gtagEvents.length === 1 && gtagEvents[0].name === 'page_view' &&
    gtagEvents[0].params.page_path === '#/ru/lesson12' &&
-   gtagEvents[0].params.page_title === 'Урок 12: Цифры 6–10 — Sanskrit in Action',
+   gtagEvents[0].params.page_title === 'Урок 12: Языки: пять цветов — Sanskrit in Action',
   'при наличии gtag событие уходит в GA4 с page_path и page_title (' +
    JSON.stringify(gtagEvents.map(g => g.params.page_path)) + ')');
 win.gtag = savedGtag;

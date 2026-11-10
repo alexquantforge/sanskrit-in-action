@@ -772,11 +772,12 @@ var SAL = (window.SAL = window.SAL || {});
     L5: { ru: 'Урок 9: Счёт мальчиков 1–5', en: 'Lesson 9: Counting Boys 1–5' },
     L6: { ru: 'Урок 10: Счёт девочек 1–5', en: 'Lesson 10: Counting Girls 1–5' },
     LV: { ru: 'Урок 11: Окончания: один · два · много', en: 'Lesson 11: Endings — Singular, Dual, Plural' },
-    L7: { ru: 'Урок 12: Цифры 6–10', en: 'Lesson 12: Numbers 6–10' },
-    L8: { ru: 'Урок 13: Цифры 11–15', en: 'Lesson 13: Numbers 11–15' },
-    L9: { ru: 'Урок 14: Цифры 16–20', en: 'Lesson 14: Numbers 16–20' },
-    L10: { ru: 'Урок 15: Десятки 10–50', en: 'Lesson 15: Tens 10–50' },
-    L11: { ru: 'Урок 16: Десятки 60–100', en: 'Lesson 16: Tens 60–100' }
+    LT: { ru: 'Урок 12: Языки: пять цветов', en: 'Lesson 12: Five Tongues' },
+    L7: { ru: 'Урок 13: Цифры 6–10', en: 'Lesson 13: Numbers 6–10' },
+    L8: { ru: 'Урок 14: Цифры 11–15', en: 'Lesson 14: Numbers 11–15' },
+    L9: { ru: 'Урок 15: Цифры 16–20', en: 'Lesson 15: Numbers 16–20' },
+    L10: { ru: 'Урок 16: Десятки 10–50', en: 'Lesson 16: Tens 10–50' },
+    L11: { ru: 'Урок 17: Десятки 60–100', en: 'Lesson 17: Tens 60–100' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
