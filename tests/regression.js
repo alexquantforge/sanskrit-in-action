@@ -571,9 +571,9 @@ for (const key of ['L2', 'L3', 'L4', 'L5', 'L6', 'LV', 'LT', 'L7', 'L8', 'L9', '
   ck(/Урок 10: Счёт девочек 1–5/.test(win.document.getElementById('view-lesson10').textContent),
     'слот 10 — Счёт девочек 1–5');
   ck(/Урок 11: Окончания/.test(win.document.getElementById('view-lesson11').textContent),
-    'слот 11 — Окончания: один · два · много');
-  ck(/Урок 12: Языки/.test(win.document.getElementById('view-lesson12').textContent),
-    'слот 12 — Языки: пять цветов');
+    'слот 11 — окончания: ед., дв. и мн. число среднего и мужского рода');
+  ck(/Урок 12: Окончания/.test(win.document.getElementById('view-lesson12').textContent),
+    'слот 12 — окончания: ед., дв. и мн. число женского рода');
   ck(/Урок 13: Цифры 6–10/.test(win.document.getElementById('view-lesson13').textContent), 'слот 13 — Цифры 6–10');
   ck(/Урок 14: Цифры 11–15/.test(win.document.getElementById('view-lesson14').textContent), 'слот 14 — Цифры 11–15');
   ck(/Урок 15: Цифры 16–20/.test(win.document.getElementById('view-lesson15').textContent), 'слот 15 — Цифры 16–20');
@@ -2320,6 +2320,34 @@ win.setLanguage('ru');
 win.switchView('home');
 ck(win.location.hash === '#/ru/home', 'после проверок адрес снова #/ru/home');
 
+/* ===== иконка вкладки ===== */
+console.log('\n===== Фавикон =====');
+{
+  const icons = [...win.document.querySelectorAll('link[rel*="icon"]')]
+    .map(l => ({ rel: l.getAttribute('rel'), href: l.getAttribute('href'), type: l.getAttribute('type') }));
+  ck(icons.some(i => i.rel === 'icon' && /favicon\.svg$/.test(i.href) && i.type === 'image/svg+xml'),
+    'в <head> есть SVG-иконка: ' + JSON.stringify(icons.map(i => i.href)));
+  ck(icons.some(i => /favicon\.ico$/.test(i.href)),
+    'ICO-иконка подключена — её понимают все браузеры, включая старые');
+  ck(icons.some(i => i.rel === 'apple-touch-icon' && /apple-touch-icon\.png$/.test(i.href)),
+    'есть apple-touch-icon для «на главный экран» на iOS');
+  /* сами файлы лежат в репозитории и не пустые */
+  const fileChecks = [['favicon.svg', '<svg'], ['favicon.ico', null], ['apple-touch-icon.png', '\x89PNG']];
+  const missing = [];
+  fileChecks.forEach(([name, magic]) => {
+    const p = path.join(REPO, name);
+    if (!fs.existsSync(p)) { missing.push(name + ': нет файла'); return; }
+    const buf = fs.readFileSync(p);
+    if (buf.length < 200) missing.push(name + ': файл пустой');
+    if (magic && buf.slice(0, 20).toString('latin1').indexOf(magic) < 0) missing.push(name + ': не тот формат');
+  });
+  ck(missing.length === 0, 'файлы иконок лежат в репозитории и не пустые' +
+    (missing.length ? ' — ' + missing.join('; ') : ''));
+  const svg = fs.readFileSync(path.join(REPO, 'favicon.svg'), 'utf8');
+  ck(/viewBox="0 0 64 64"/.test(svg) && /fill="#14213d"/.test(svg),
+    'иконка нарисована в палитре сайта (тёмно-синий #14213d) и масштабируется из 64 × 64');
+}
+
 /* ===== заголовок, description и canonical под каждый урок ===== */
 console.log('\n===== Метаданные страницы =====');
 const metaOf = () => ({
@@ -2394,7 +2422,7 @@ win.gtag = (cmd, name, params) => gtagEvents.push({ cmd, name, params });
 win.switchView('lesson12');
 ck(gtagEvents.length === 1 && gtagEvents[0].name === 'page_view' &&
    gtagEvents[0].params.page_path === '#/ru/lesson12' &&
-   gtagEvents[0].params.page_title === 'Урок 12: Языки: пять цветов — Sanskrit in Action',
+   gtagEvents[0].params.page_title === 'Урок 12: Окончания: ед., дв., мн. (жен. р.) — Sanskrit in Action',
   'при наличии gtag событие уходит в GA4 с page_path и page_title (' +
    JSON.stringify(gtagEvents.map(g => g.params.page_path)) + ')');
 win.gtag = savedGtag;
