@@ -2399,6 +2399,28 @@ body.hide-iast .level-sample-iast {
   word-break: break-word;
 }
 .relay-slot-num { font-size: 1.6rem; font-weight: 800; color: var(--text-secondary); }
+
+/* «Эстафета порядка»: какое число идёт следующим и что годится любое слово
+   с этим числом (в уроке 11 «1 नयन» и «1 पादः» — оба первые) */
+.relay-next-hint {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+.relay-next-num {
+  font-size: 1.45rem;
+  color: var(--accent-cambridge);
+}
+.relay-next-note {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
 /* числительные: в вопросе — слово, в вариантах ответа — количество */
 .ttt-ask-word {
   font-family: var(--font-deva);

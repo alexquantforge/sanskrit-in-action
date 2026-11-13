@@ -1197,10 +1197,59 @@
   }
 
   /* ======================================================= 27. ORDER RELAY */
+  /* Число, которое называет карточка. В уроках числительных это value
+     (1…5, 6…10, 11…16…), во фразах уроков 11–12 — count. В уроках частей
+     тела и цветов числа в данных нет, и тогда порядок — обычный порядок
+     слов урока (1, 2, 3, …, как в уроке 1). */
+  function relayNumber(w) {
+    if (!w) return null;
+    if (typeof w.value === 'number') return w.value;
+    if (typeof w.count === 'number') return w.count;
+    return null;
+  }
+  /* Порядок эстафеты. В уроке 11 одного «один» два: एकं नयनम् и एकः पादः —
+     если вести счёт по номеру в массиве, верное слово «1 पादः» объявляется
+     ошибкой. Поэтому порядок задаёт само число: сначала все «один», потом
+     все «два» и так далее; внутри одного числа — порядок слов урока
+     (नयन раньше पाद). */
+  function relayOrder(cfg) {
+    var words = cfg.words;
+    var withNum = words.every(function (w) { return relayNumber(w) !== null; });
+    var list = words.map(function (w, i) { return { w: w, i: i }; });
+    if (withNum) {
+      list.sort(function (a, b) {
+        return relayNumber(a.w) - relayNumber(b.w) || a.i - b.i;
+      });
+    }
+    return list.map(function (x) { return x.w; });
+  }
+  /* Что стоит следующим: первый ещё не выложенный в этом порядке */
+  /* Какие слова сейчас верны. Если у слов есть числа, верны ВСЕ слова с
+     наименьшим ещё не выложенным числом: в уроке 11 «1 नयन» и «1 पादः»
+     равноправны, и любое из них можно поставить первым. Если чисел нет
+     (части тела, цвета), верно ровно одно следующее слово урока. */
+  function relayOptions(cfg, g) {
+    var order = relayOrder(cfg);
+    var left = order.filter(function (w) { return g.placed.indexOf(w.id) < 0; });
+    if (!left.length) return [];
+    var nums = left.map(relayNumber);
+    if (nums.every(function (n) { return n !== null; })) {
+      var min = Math.min.apply(null, nums);
+      return left.filter(function (w) { return relayNumber(w) === min; });
+    }
+    return [left[0]];
+  }
+  function relayNext(cfg, g) {
+    var opts = relayOptions(cfg, g);
+    return opts.length ? opts[0] : null;
+  }
   function renderOrderRelay(cfg) {
     var g = K.gst(cfg, 'orderrelay');
     var N = cfg.words.length;
     if (!g.order) g.order = shuffle(cfg.words.map(function (w) { return w.id; }));
+    var nextW = relayNext(cfg, g);
+    var nextNum = relayNumber(nextW);
+    var slotNum = g.placed.length + 1;
     if (g.finished || g.placed.length >= N) {
       return done(cfg, 'orderrelay', tx({ ru: 'Эстафета — пройдена', en: 'Order relay — done' }),
         Math.max(g.scores[0], g.scores[1]), N,
@@ -1226,9 +1275,19 @@
       K.pill(tx({ ru: 'Выложено', en: 'Placed' }) + ': ' + g.placed.length + '/' + N) + ' ' + scorePills(cfg, g),
       restartChip(cfg, 'orderrelay')) +
       K.centerCard(
+        (nextW && nextNum !== null
+          ? '<div class="relay-next-hint">' +
+            tx({ ru: 'Следующее число', en: 'Next number' }) + ': <b class="relay-next-num">' + nextNum + '</b>' +
+            (relayOptions(cfg, g).length > 1
+              ? ' <span class="relay-next-note">' +
+                tx({ ru: '(подходит любое слово с этим числом)', en: '(any word with this number fits)' }) +
+                '</span>'
+              : '') +
+            '</div>'
+          : '') +
         '<div class="vocab-grid-6" style="margin-bottom:0.9rem;">' + placed +
           '<div class="vocab-item-card relay-slot relay-empty">' +
-          '<div class="relay-slot-num">' + (g.placed.length + 1) + '</div></div></div>' +
+          '<div class="relay-slot-num">' + slotNum + '</div></div></div>' +
         '<div class="vocab-grid-6">' + left + '</div>' +
         (g.wrong ? '<div style="margin-top:0.6rem;color:#dc2626;font-weight:800;">✕ ' +
           tx({ ru: 'Не в том порядке — ход переходит.', en: 'Wrong order — the turn passes.' }) + '</div>' : '') +
@@ -2262,16 +2321,19 @@
     actions: {
       relayTap: function (cfg, st, a) {
         var g = K.gst(cfg, 'orderrelay');
-        var nextW = cfg.words[g.placed.length];
-        if (a === nextW.id) {
+        var opts = relayOptions(cfg, g);
+        if (!opts.length) return;
+        var hit = opts.filter(function (w) { return w.id === a; })[0];
+        /* верно и «1 नयन», и «1 पादः»: подходит любое слово того же числа */
+        if (hit) {
           g.placed.push(a);
           award(g, g.turn);
           g.wrong = null;
-          SAL.speak(nextW.ttsText);
+          SAL.speak(hit.ttsText);
           if (g.placed.length >= cfg.words.length) g.finished = true;
         } else {
           g.wrong = a;
-          K.noteWrong(cfg, nextW.id);
+          K.noteWrong(cfg, opts[0].id);
           if (players(cfg) === 2) swapTurn(g);
         }
       }
@@ -2687,14 +2749,16 @@
     orderrelay: {
       aim: { ru: 'Порядок счёта: выложить числительные одно за другим, как они идут.',
              en: 'The order of counting: lay the numerals out one after another as they come.' },
-      how: { ru: ['Внизу — все слова вперемешку, сверху — полка, куда они выкладываются по порядку.',
+      how: { ru: ['Внизу — все слова вперемешку, сверху — полка, куда они выкладываются по порядку счёта: 1, 2, 3…',
                   'На каждой карточке написано само числительное словом — картинки нет: значение нужно вспомнить, а не пересчитать.',
-                  'Нажмите слово, которое идёт следующим (в начале — первым).',
+                  'Игра подсказывает, какое число идёт следующим: нажмите любое слово с этим числом.',
+                  'Если таких слов несколько (в уроке 11 «1 नयन» и «1 पादः» — оба первые), подходит любое: порядок считают по числу, а не по номеру слова в списке.',
                   'Верно — слово встаёт на полку и звучит; неверно — ход переходит.',
                   'Цель — выложить весь ряд по порядку, от первого слова до последнего.'],
-             en: ['Below are all the words, shuffled; above is the shelf where they are laid out in order.',
+             en: ['Below are all the words, shuffled; above is the shelf where they are laid out in counting order: 1, 2, 3…',
                   'Each card carries the numeral itself in words — there is no picture: recall the value instead of counting it.',
-                  'Press the word that comes next (the first one at the start).',
+                  'The game says which number comes next: press any word with that number.',
+                  'If several words share it (in Lesson 11 “1 नयन” and “1 पादः” are both first), any of them is right: the order follows the number, not the position in the list.',
                   'Right — the word goes on the shelf and is spoken; wrong — the turn passes.',
                   'The aim is to lay out the whole row in order, from the first word to the last.'] },
       score: { ru: 'Очко за каждое верно поставленное слово.',

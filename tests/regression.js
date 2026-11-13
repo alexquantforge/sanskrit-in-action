@@ -1961,6 +1961,56 @@ ck(/словом/.test(arenaOf('L4').querySelector('.rules-list').textContent),
   'эстафета: в правилах сказано, что на карточке числительное словом');
 SAL.do('L4', 'restart', 'orderrelay');
 
+/* ---------- 27b. эстафета: порядок по ЧИСЛУ, а не по номеру в списке ----------
+   В уроке 11 одного «один» два: एकं नीलं नयनम् и एकः कृष्णः पादः. Раньше
+   игра сверяла нажатие с cfg.words[g.placed.length], и верное «1 पादः»
+   объявлялось ошибкой — ученик не мог понять логику порядка. */
+SAL.openLesson('LV');
+SAL.do('LV', 'restart', 'orderrelay');
+const lvW = id => SAL.lessons.LV.words.filter(w => w.id === id)[0];
+const lvG = () => gst('LV', 'orderrelay');
+/* «1 पादः» первым — верно: это тоже один */
+SAL.do('LV', 'relayTap', 'ekapadah');
+ck(lvG().placed.length === 1 && lvG().wrong === null,
+  'урок 11: «1 पादः» можно поставить первым — это тоже «один»');
+/* «1 नयन» вторым — тоже верно: второе слово того же числа */
+SAL.do('LV', 'relayTap', 'ekanayanam');
+ck(lvG().placed.length === 2 && lvG().wrong === null,
+  'урок 11: «1 नयन» после «1 पादः» тоже верно — число одно и то же');
+/* а «2 नयने» уже правильно: следующее число — два */
+SAL.do('LV', 'relayTap', 'dvenayane');
+ck(lvG().placed.length === 3, 'урок 11: после двух единиц идёт двойка');
+/* «3» слишком рано — ошибка */
+SAL.do('LV', 'relayTap', 'trininayanani');
+ck(lvG().wrong === 'trininayanani' && lvG().placed.length === 3,
+  'урок 11: тройка раньше времени — ошибка, полка не растёт');
+/* подсказка называет число, а не номер места */
+SAL.do('LV', 'restart', 'orderrelay');
+const lvHint = arenaOf('LV').querySelector('.relay-next-hint');
+ck(lvHint && /Следующее число/.test(lvHint.textContent) && /1/.test(lvHint.textContent),
+  'урок 11: над полкой написано, какое число следующее');
+ck(/любое слово с этим числом/.test(lvHint.textContent),
+  'урок 11: подсказка говорит, что годится любое слово с этим числом');
+/* весь ряд выкладывается: по одному слову каждого числа */
+let guard = 0;
+while (lvG().placed.length < SAL.lessons.LV.words.length && guard++ < 20) {
+  const placed = lvG().placed;
+  const left = SAL.lessons.LV.words.filter(w => placed.indexOf(w.id) < 0);
+  const minNum = Math.min.apply(null, left.map(w => w.count));
+  SAL.do('LV', 'relayTap', left.filter(w => w.count === minNum)[0].id);
+}
+ck(lvG().placed.length === SAL.lessons.LV.words.length,
+  'урок 11: все восемь фраз встают на полку по числу');
+/* в уроках без чисел (части тела, цвета) порядок — обычный порядок слов */
+SAL.openLesson('L2');
+SAL.do('L2', 'setGame', 'orderrelay');
+SAL.do('L2', 'restart', 'orderrelay');
+SAL.do('L2', 'relayTap', SAL.lessons.L2.words[0].id);
+ck(gst('L2', 'orderrelay').placed.length === 1,
+  'урок без чисел: эстафета работает как раньше — по порядку слов урока');
+/* возвращаемся в урок 4: следующие проверки ждут открытой арену L4 */
+SAL.openLesson('L4');
+
 /* ---------- 20. sorting: every box has at least two words ---------- */
 const feats = [
   { ru: 'носовой', test: w => /[ंङञणनम]/.test(w.deva) },
