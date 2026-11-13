@@ -114,6 +114,8 @@ var LT_WORDS = [
   {
     id: "ekapatala", deva: "एका पाटला जिह्वा", iast: "ekā pāṭalā jihvā", ttsText: "एका पाटला जिह्वा",
     short: "पाटला जिह्वा",
+    bareDeva: "1 पाटल जिह्वा",
+    bareIast: "1 pāṭala jihvā",
     grammaticalNumber: "sg", gender: "f", count: 1, fill: "#EC4899",
     syll: ltChunks("एका पाटला जिह्वा"),
     /* цвет потерял женское окончание -ा: पाटला → पाटल */
@@ -133,6 +135,8 @@ var LT_WORDS = [
   {
     id: "dverakte", deva: "द्वे रक्ते जिह्वे", iast: "dve rakte jihve", ttsText: "द्वे रक्ते जिह्वे",
     short: "रक्ते जिह्वे",
+    bareDeva: "2 रक्त जिह्वा",
+    bareIast: "2 rakta jihvā",
     grammaticalNumber: "du", gender: "f", count: 2, fill: "#DC2626",
     syll: ltChunks("द्वे रक्ते जिह्वे"),
     /* двойственное число потеряло -े: रक्ते → रक्ता (форма мн. ч. — частая ошибка) */
@@ -152,6 +156,8 @@ var LT_WORDS = [
   {
     id: "tisrahpita", deva: "तिस्रः पीताः जिह्वाः", iast: "tisraḥ pītāḥ jihvāḥ", ttsText: "तिस्रः पीताः जिह्वाः",
     short: "पीताः जिह्वाः",
+    bareDeva: "3 पीत जिह्वा",
+    bareIast: "3 pīta jihvā",
     grammaticalNumber: "pl", gender: "f", count: 3, fill: "#FFEE58",
     syll: ltChunks("तिस्रः पीताः जिह्वाः"),
     /* множественное число потеряло висаргу: पीताः → पीता */
@@ -172,6 +178,8 @@ var LT_WORDS = [
     id: "catasrahharita", deva: "चतस्रः हरिताः जिह्वाः", iast: "catasraḥ haritāḥ jihvāḥ",
     ttsText: "चतस्रः हरिताः जिह्वाः",
     short: "हरिताः जिह्वाः",
+    bareDeva: "4 हरित जिह्वा",
+    bareIast: "4 harita jihvā",
     grammaticalNumber: "pl", gender: "f", count: 4, fill: "#16A34A",
     syll: ltChunks("चतस्रः हरिताः जिह्वाः"),
     /* हरिता — форма без висарги, которой в этом числе нет */
@@ -192,6 +200,8 @@ var LT_WORDS = [
     id: "pancanaranga", deva: "पञ्च नारङ्गाः जिह्वाः", iast: "pañca nāraṅgāḥ jihvāḥ",
     ttsText: "पञ्च नारङ्गाः जिह्वाः",
     short: "नारङ्गाः जिह्वाः",
+    bareDeva: "5 नारङ्ग जिह्वा",
+    bareIast: "5 nāraṅga jihvā",
     grammaticalNumber: "pl", gender: "f", count: 5, fill: "#F97316",
     syll: ltChunks("पञ्च नारङ्गाः जिह्वाः"),
     /* здесь ошибка в самом числительном: पञ्च пишется с ञ्, а не с ङ् */

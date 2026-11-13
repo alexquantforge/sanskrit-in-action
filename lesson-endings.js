@@ -158,6 +158,8 @@ var LV_WORDS = [
     id: "ekanayanam", deva: "एकं नीलं नयनम्", iast: "ekaṃ nīlaṃ nayanam", ttsText: "एकं नीलं नयनम्",
     /* короткая подпись для тесных клеток филворда и мемори */
     short: "नीलं नयनम्",
+    bareDeva: "1 नील नयन",
+    bareIast: "1 nīla nayana",
     grammaticalNumber: "sg", gender: "n", count: 1, kind: "eye", fill: "#2563EB",
     syll: lvChunks("एकं नीलं नयनम्"),
     /* потерянная вирама: नयनम् → नयनम — самая частая ошибка письма */
@@ -177,6 +179,8 @@ var LV_WORDS = [
   {
     id: "dvenayane", deva: "द्वे हरिते नयने", iast: "dve harite nayane", ttsText: "द्वे हरिते नयने",
     short: "हरिते नयने",
+    bareDeva: "2 हरित नयन",
+    bareIast: "2 harita nayana",
     grammaticalNumber: "du", gender: "n", count: 2, kind: "eye", fill: "#16A34A",
     syll: lvChunks("द्वे हरिते नयने"),
     /* цвет потерял двойственное окончание: हरिते → हरिता */
@@ -197,6 +201,8 @@ var LV_WORDS = [
     id: "trininayanani", deva: "त्रीणि नारङ्गाणि नयनानि", iast: "trīṇi nāraṅgāṇi nayanāni",
     ttsText: "त्रीणि नारङ्गाणि नयनानि",
     short: "नारङ्गाणि नयनानि",
+    bareDeva: "3 नारङ्ग नयन",
+    bareIast: "3 nāraṅga nayana",
     grammaticalNumber: "pl", gender: "n", count: 3, kind: "eye", fill: "#F97316",
     syll: lvChunks("त्रीणि नारङ्गाणि नयनानि"),
     /* ण → न: «н из другой варги» — ровно та ошибка, которую слышит учитель */
@@ -217,6 +223,8 @@ var LV_WORDS = [
     id: "catvarinayanani", deva: "चत्वारि पाटलानि नयनानि", iast: "catvāri pāṭalāni nayanāni",
     ttsText: "चत्वारि पाटलानि नयनानि",
     short: "पाटलानि नयनानि",
+    bareDeva: "4 पाटल नयन",
+    bareIast: "4 pāṭala nayana",
     grammaticalNumber: "pl", gender: "n", count: 4, kind: "eye", fill: "#EC4899",
     syll: lvChunks("चत्वारि पाटलानि नयनानि"),
     /* ि → ी: короткая «и» вместо долгой */
@@ -236,6 +244,8 @@ var LV_WORDS = [
   {
     id: "ekapadah", deva: "एकः कृष्णः पादः", iast: "ekaḥ kṛṣṇaḥ pādaḥ", ttsText: "एकः कृष्णः पादः",
     short: "कृष्णः पादः",
+    bareDeva: "1 कृष्ण पाद",
+    bareIast: "1 kṛṣṇa pāda",
     grammaticalNumber: "sg", gender: "m", count: 1, kind: "foot", fill: "#0B1220",
     syll: lvChunks("एकः कृष्णः पादः"),
     /* ः → ं: числительное взято в форме среднего рода */
@@ -255,6 +265,8 @@ var LV_WORDS = [
   {
     id: "dvaupadau", deva: "द्वौ श्वेतौ पादौ", iast: "dvau śvetau pādau", ttsText: "द्वौ श्वेतौ पादौ",
     short: "श्वेतौ पादौ",
+    bareDeva: "2 श्वेत पाद",
+    bareIast: "2 śveta pāda",
     grammaticalNumber: "du", gender: "m", count: 2, kind: "foot", fill: "#FFFFFF",
     syll: lvChunks("द्वौ श्वेतौ पादौ"),
     /* द्वौ → द्वे: двойственное число взято в форме среднего рода */
@@ -274,6 +286,8 @@ var LV_WORDS = [
   {
     id: "trayahastah", deva: "त्रयः गौराः हस्ताः", iast: "trayaḥ gaurāḥ hastāḥ", ttsText: "त्रयः गौराः हस्ताः",
     short: "गौराः हस्ताः",
+    bareDeva: "3 गौर हस्त",
+    bareIast: "3 gaura hasta",
     grammaticalNumber: "pl", gender: "m", count: 3, kind: "hand", fill: "#F2C46B",
     syll: lvChunks("त्रयः गौराः हस्ताः"),
     /* हस्ताः → हस्तः: множественное число стало единственным */
@@ -294,6 +308,8 @@ var LV_WORDS = [
     id: "catvarahdantah", deva: "चत्वारः श्यामाः दन्ताः", iast: "catvāraḥ śyāmāḥ dantāḥ",
     ttsText: "चत्वारः श्यामाः दन्ताः",
     short: "श्यामाः दन्ताः",
+    bareDeva: "4 श्याम दन्त",
+    bareIast: "4 śyāma danta",
     grammaticalNumber: "pl", gender: "m", count: 4, kind: "tooth", fill: "#1F3A5F",
     syll: lvChunks("चत्वारः श्यामाः दन्ताः"),
     /* दन्ताः → दन्तः: та же ошибка числа, но на другом слове */

@@ -628,6 +628,57 @@ console.log('\n===== Урок 11: ед. / дв. / мн. на двух родах
     'урок окончаний живёт по адресу #/ru/lesson11');
 }
 
+/* --- «только основа» в уроках 11 и 12: цифра + основа прилагательного и имени --- */
+{
+  const BARE = {
+    LV: ['1 नील नयन', '2 हरित नयन', '3 नारङ्ग नयन', '4 पाटल नयन',
+         '1 कृष्ण पाद', '2 श्वेत पाद', '3 गौर हस्त', '4 श्याम दन्त'],
+    LT: ['1 पाटल जिह्वा', '2 रक्त जिह्वा', '3 पीत जिह्वा', '4 हरित जिह्वा', '5 नारङ्ग जिह्वा']
+  };
+  const BARE_IAST = {
+    LV: ['1 nīla nayana', '2 harita nayana', '3 nāraṅga nayana', '4 pāṭala nayana',
+         '1 kṛṣṇa pāda', '2 śveta pāda', '3 gaura hasta', '4 śyāma danta'],
+    LT: ['1 pāṭala jihvā', '2 rakta jihvā', '3 pīta jihvā', '4 harita jihvā', '5 nāraṅga jihvā']
+  };
+  ['LV', 'LT'].forEach(k => {
+    SAL.openLesson(k);
+    SAL.do(k, 'restart', 'categories');
+    SAL.do(k, 'setGame', 'categories');
+    SAL.do(k, 'catBare', '1');
+    const chips = [...arenaOf(k).querySelectorAll('button[onclick*="catToggle"]')]
+      .map(b => b.textContent.replace(/\s+/g, ' ').trim());
+    const deva = chips.map(t => t.split(' (')[0]);
+    const iast = chips.map(t => (t.match(/\(([^)]*)\)/) || [])[1] || '');
+    ck(deva.join('|') === BARE[k].join('|'),
+      k + ': «только основа» — цифра и две основы — ' + deva.join(' · '));
+    ck(iast.join('|') === BARE_IAST[k].join('|'),
+      k + ': то же в IAST — ' + iast.join(' · '));
+    /* ни окончаний, ни обрубков: в каждом слове есть гласная на конце основы */
+    const broken = deva.filter(t => {
+      const parts = t.split(' ');
+      if (parts.length !== 3) return true;
+      if (!/^[1-5]$/.test(parts[0])) return true;
+      if (/[ःं]$/.test(parts[1]) || /[ःं]$/.test(parts[2])) return true;
+      if (k === 'LV' && /ा$/.test(parts[1])) return true;          /* गौर, а не गौरा */
+      if (/\u094D$/.test(parts[1]) || /\u094D$/.test(parts[2])) return true;   /* без вирамы на конце */
+      return false;
+    });
+    ck(broken.length === 0, k + ': в основе нет ни окончаний, ни обрубков' +
+      (broken.length ? ' — ' + broken.join('; ') : ''));
+  });
+  /* мемори в этом режиме показывает то же самое */
+  ['LV', 'LT'].forEach(k => {
+    SAL.openLesson(k);
+    SAL.do(k, 'restart', 'memory');
+    SAL.do(k, 'setGame', 'memory');
+    SAL.do(k, 'memoryBare', '1');
+    const g = gst(k, 'memory');
+    const face = g.cards.filter(c => c.kind === 'word').length;
+    ck(face === SAL.lessons[k].words.length,
+      k + ': в мемори все ' + face + ' карточек-слов');
+  });
+}
+
 console.log('\n===== Урок 12: пять языков, женский род =====');
 {
   const L = SAL.lessons.LT;
@@ -3197,7 +3248,7 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     const BARE_DEVA = ['श्याम ललाट', 'श्वेत उदर', 'गौर हस्त', 'श्वेत दन्त',
                        'पाटल जिह्वा', 'नील नयन', 'श्याम पाद', 'रक्त मुख'];
     const BARE_IAST = ['śyāma lalāṭa', 'śveta udara', 'gaura hasta', 'śveta danta',
-                       'pāṭal jihvā', 'nīla nayana', 'śyāma pāda', 'rakta mukha'];
+                       'pāṭala jihvā', 'nīla nayana', 'śyāma pāda', 'rakta mukha'];
     const bareChips = wordChips();
     const bareDeva = bareChips.map(t => t.split(' (')[0]);
     const bareIast = [...catArena().querySelectorAll('button[onclick*="catToggle"] .iast-text')]
@@ -3210,7 +3261,8 @@ console.log('\n===== Урок 5 · Три рода (LG) =====');
     ck(bareDeva.every(t => { const w = t.split(' ')[1]; return !/(ः|म्)$/.test(w); }) &&
        bareDeva[0].split(' ')[0] === 'श्याम' && bareDeva[0].split(' ')[1] === 'ललाट',
       '«Категории» без окончаний: у имён убраны только ः / म्, основа цела');
-    ck(bareDeva.every(t => !/[ंःा]$/.test(t.split(' ')[0])),
+    ck(bareDeva.every(t => !/[ंः]$/.test(t.split(' ')[0]) &&
+       !/ा$/.test(t.split(' ')[0].replace('जिह्वा', ''))),
       '«Категории» без окончаний: у прилагательных убраны ं / ः / ा');
 
     /* выбор по-прежнему идёт по id — режим меняет только показ */
@@ -3942,7 +3994,8 @@ console.log('\n===== «Мемори»: кнопка «только основа�
      ः или म्; женское ा — конец основы, поэтому जिह्वा остаётся जिह्वा */
   const stemOfWord = w => {
     const d = w.deva.split(' ');
-    const adj = d[0].replace(/म्$/, '').replace(/[ःंा]$/, '');
+    /* у прилагательного снимаем ं / ः / ा и вираму म् (после ः ा могла остаться) */
+    const adj = d[0].replace(/म्$/, '').replace(/[ःं]$/, '').replace(/ा$/, '');
     let noun = d[1];
     if (/ः$/.test(noun)) noun = noun.slice(0, -1);
     else if (/म्$/.test(noun)) noun = noun.slice(0, -2);

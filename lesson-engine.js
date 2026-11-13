@@ -641,21 +641,87 @@ var SAL = (window.SAL = window.SAL || {});
     if (!cat) return '';
     return tx({ ru: cat.ru || cat.titleRu || '', en: cat.en || cat.titleEn || '' });
   }
-  /* «Слово без окончания» для игры «Категории»: у прилагательного отпадает ं/ः/ा,
-     у существительного — ः или म्. Женское ा — конец основы, окончание нулевое,
-     поэтому जिह्वा остаётся जिह्वा: выдуманных форм не показываем. */
+  /* «Слово без окончания» для игр «Категории» и «Мемори»: у прилагательного
+     отпадает ं / ः / ा, у существительного — ः или म्.
+     Женское ा — конец основы, окончание нулевое, поэтому जिह्वा остаётся जिह्वा:
+     выдуманных форм не показываем (जिह्व был бы обрубком, а не основой). */
+  function bareStem(word, isNoun, gender) {
+    if (!word) return '';
+    var deva = String(word.deva || ''), iast = String(word.iast || '');
+    if (!deva) return '';
+    var tail = deva.slice(-1);
+    if (isNoun) {
+      /* имя: -ाः → основа. В мужском и среднем роде вся -ाः — окончание
+         (हस्ताः → हस्त, दन्ताः → दन्त); в женском ा принадлежит основе,
+         поэтому снимаем только ः (जिह्वाः → जिह्वा) и её IAST-«ḥ». */
+      if (/[ः]$/.test(deva) && deva.slice(-2, -1) === '\u093E') {
+        if (gender === 'f') {
+          deva = deva.slice(0, -1);
+          iast = iast.replace(/ḥ$/, '');
+        } else {
+          deva = deva.slice(0, -2);
+          iast = iast.replace(/ḥ$/, '').replace(/ā$/, '');
+        }
+      } else if (/[ः]$/.test(deva)) {
+        deva = deva.slice(0, -1);
+        iast = iast.replace(/ḥ$/, '');
+      } else if (/\u092E\u094D$/.test(deva)) {
+        deva = deva.slice(0, -2);
+        iast = iast.replace(/m$/, '');
+      }
+    } else {
+      /* прилагательное: -ं / -ः / -म् / -ा (и -ाः из мн. ч.) снимаются до основы
+         (श्याम, हरित, पाटल, गौर, श्यामा). Висаргу снимаем ПЕРВОЙ, иначе
+         गौराः → गौरा, а нужна основа गौर. */
+      if (/\u092E\u094D$/.test(deva)) { deva = deva.slice(0, -2); iast = iast.replace(/m$/, ''); }
+      else if (/[ःं]$/.test(deva)) { deva = deva.slice(0, -1); iast = iast.replace(/[ḥṃ]$/, ''); }
+      if (deva.slice(-1) === '\u093E') {
+        deva = deva.slice(0, -1);
+        /* В деванагари ा — это долгая ā, а основа кончается на краткую a:
+           pāṭalā → pāṭala (не «pāṭal» и не «pāṭal-a»). Поэтому ā → a. */
+        iast = iast.replace(/ā$/, 'a');
+      }
+    }
+    if (!deva) return '';
+    return { deva: deva, iast: iast };
+  }
+  /* Основа фразы «числительное + цвет + предмет» → «4 श्याम दन्त» / «2 रक्त जिह्वा»:
+     цифра арабская (в этом режиме окончаний всё равно не видно, зато сразу ясно,
+     о каком числе речь), потом основа прилагательного и основа существительного.
+     Род при этом не подсказан: окончаний нет — его приходится вспоминать. */
+  function barePhrase(w) {
+    if (!w || !w.deva) return null;
+    var dp = String(w.deva).split(' ');
+    if (dp.length < 3) return null;              /* только фразы из трёх слов */
+    var ip = String(w.iast || '').split(' ');
+    var adj = bareStem({ deva: dp.slice(1, -1).join(' '), iast: ip.slice(1, -1).join(' ') }, false);
+    var nou = bareStem({ deva: dp[dp.length - 1], iast: ip[ip.length - 1] || '' }, true, w.gender);
+    if (!adj || !adj.deva || !nou || !nou.deva) return null;
+    var num = String(w.count || w.value || 0);
+    if (!num || num === '0') return null;
+    return { deva: num + ' ' + adj.deva + ' ' + nou.deva,
+             iast: adj.iast ? num + ' ' + adj.iast + ' ' + nou.iast : '' };
+  }
+  /* для уроков из одного слова (числительные, цвета) — прежняя основа */
   function bareWord(w) {
     if (!w || !w.deva || !w.iast) return null;
     var dp = w.deva.split(' '), ip = w.iast.split(' ');
     if (dp.length !== 2 || ip.length !== 2) return null;
-    /* у прилагательного в среднем роде пишут и ं, и म् (श्यामं / श्वेतम्) */
-    var adj = { deva: dp[0].replace(/म्$/, '').replace(/[ःंा]$/, ''),
-                iast: ip[0].replace(/[ḥṃm]$/, '').replace(/ā$/, '') };
-    var noun = { deva: dp[1], iast: ip[1] };
-    if (/ः$/.test(noun.deva)) { noun.deva = noun.deva.slice(0, -1); noun.iast = noun.iast.replace(/ḥ$/, ''); }
-    else if (/म्$/.test(noun.deva)) { noun.deva = noun.deva.slice(0, -2); noun.iast = noun.iast.replace(/m$/, ''); }
-    if (!adj.deva || !noun.deva || !adj.iast || !noun.iast) return null;
+    var adj = bareStem({ deva: dp[0], iast: ip[0] }, false);
+    var noun = bareStem({ deva: dp[1], iast: ip[1] }, true);
+    if (!adj || !noun || !adj.deva || !noun.deva) return null;
     return { deva: adj.deva + ' ' + noun.deva, iast: adj.iast + ' ' + noun.iast };
+  }
+  /* Общая точка входа: у фразового урока (числительное + цвет + предмет)
+     показываем «4 श्याम दन्त», у остальных — прежнюю пару основ. */
+  function bareDisplay(w) {
+    /* Урок может задать основу сам — тогда никаких догадок: bareDeva/bareIast
+       это готовая строка вида «4 श्याम दन्त». Так сделано в уроках 11 и 12,
+       где у одного и того же слова несколько разных окончаний. */
+    if (w && w.bareDeva) return { deva: w.bareDeva, iast: w.bareIast || '' };
+    var p = barePhrase(w);
+    if (p) return p;
+    return bareWord(w);
   }
   /* кнопка «без окончаний» нужна там, где окончание выдаёт род */
   function canBareWords(cfg) {
@@ -2084,7 +2150,7 @@ var SAL = (window.SAL = window.SAL || {});
      поэтому выдуманных форм здесь быть не может; если слово не из двух частей —
      отпадает только окончание (stemOf). */
   function memoryStemDeva(w) {
-    var b = bareWord(w);
+    var b = bareDisplay(w);
     if (b && b.deva) return b.deva;
     return String((w && w.deva) || '').split(' ').map(stemOf).join(' ');
   }
@@ -2191,8 +2257,8 @@ var SAL = (window.SAL = window.SAL || {});
       pauseRow +
       centerCard('<div class="memory-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + html + '</div>' +
         (bareOn ? '<div class="game-hint" role="status">' +
-          ru('Stem only: the ending is hidden, so the gender is not visible — that is the point of this mode.',
-             'Только основа: окончания не видно, поэтому и род не видно — в этом и смысл режима.') +
+          ru('Stem only: the number is shown as a digit, the endings are hidden, so the gender has to come from memory.',
+             'Только основа: число показано цифрой, окончаний не видно — род придётся вспомнить по памяти.') +
           '</div>' : '') +
         (g.trapNote ? '<div class="game-hint trap-hint" role="status">' + memoryTrapNote(g.trapNote) + '</div>' : '') +
         (g.lock && !g.trapNote ? '<div class="game-hint" role="status">' +
@@ -2402,7 +2468,7 @@ var SAL = (window.SAL = window.SAL || {});
         if (on) cls += ' active';
         if (g.wrong[w.id]) style = 'border-color:#dc2626;background:#fef2f2;color:#b91c1c;';
       }
-      var shown = (bare && bareWord(w)) || w;
+      var shown = (bare && bareDisplay(w)) || w;
       return '<button type="button" class="' + cls + '" style="' + style + '" onclick="SAL.do(\'' + cfg.key + '\',\'catToggle\',\'' + w.id + '\')">' +
         shown.deva + iastSpan(shown.iast) + '</button>';
     }).join('');
