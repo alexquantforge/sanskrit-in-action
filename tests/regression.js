@@ -4138,11 +4138,12 @@ console.log('\n===== «Мемори»: пауза на промах =====');
 }
 
 /* ==========================================================================
-   «МЕМОРИ» · ПАУЗА НА ПРОМАХ: КНОПКИ 1 / 2 / 3 / 4 СЕКУНДЫ
+   «МЕМОРИ» · ПАУЗА НА ПРОМАХ: КНОПКИ 1–4, 6, 10, 15, 20, 30 СЕКУНД
    Пауза выбирается сверху, как и «с ловушками»; выбор запоминается
-   (localStorage) и действует во всех уроках — и в уроке 1 тоже.
+   (localStorage) и действует во всех уроках — и в уроке 1 тоже. Длинные
+   паузы (6–30 с) нужны, когда промах разбирают с классом вслух.
    ========================================================================== */
-console.log('\n===== «Мемори»: кнопки паузы 1–4 секунды =====');
+console.log('\n===== «Мемори»: кнопки паузы 1–4, 6, 10, 15, 20, 30 секунд =====');
 {
   const arena = k => arenaOf(k);
   const chips = k => [...arena(k).querySelectorAll('[data-mem-row="pause"] .chip-btn')];
@@ -4174,8 +4175,8 @@ console.log('\n===== «Мемори»: кнопки паузы 1–4 секун�
   SAL.do('LG2', 'setGame', 'memory');
   SAL.do('LG2', 'restart', 'memory');
   const labels = chips('LG2').map(b => b.textContent.trim());
-  ck(labels.length === 4 && labels.join('|') === '1 с|2 с|3 с|4 с',
-    'над полем четыре кнопки паузы — ' + labels.join(' | '));
+  ck(labels.length === 9 && labels.join('|') === '1 с|2 с|3 с|4 с|6 с|10 с|15 с|20 с|30 с',
+    'над полем девять кнопок паузы — ' + labels.join(' | '));
   ck(/Пауза/.test(
     (arena('LG2').querySelector('[data-mem-row="pause"] .game-ver-label') || {}).textContent || ''),
     'ряд подписан: «Пауза на промах:»');
@@ -4202,13 +4203,25 @@ console.log('\n===== «Мемори»: кнопки паузы 1–4 секун�
   SAL.openLesson('L2');
   SAL.do('L2', 'setGame', 'memory');
   SAL.do('L2', 'restart', 'memory');
-  ck(chips('L2').length === 4 && activeLabel('L2') === '4 с',
+  ck(chips('L2').length === 9 && activeLabel('L2') === '4 с',
     'кнопки паузы есть в «Мемори» любого урока, а не только в уроке рода');
 
   /* 1 секунда тоже работает */
   SAL.do('L2', 'memoryPause', '1');
   ck(activeLabel('L2') === '1 с' && waitOfMiss('L2') === 1000,
     'кнопка «1 с» даёт паузу в секунду — выбор не привязан к одному значению');
+
+  /* длинные паузы: 6 / 10 / 15 / 20 / 30 секунд — для долгого разбора промаха */
+  [6, 10, 15, 20, 30].forEach(sec => {
+    SAL.do('L2', 'memoryPause', String(sec));
+    ck(activeLabel('L2') === sec + ' с' && waitOfMiss('L2') === sec * 1000,
+      'кнопка «' + sec + ' с» даёт паузу ' + sec * 1000 + ' мс');
+  });
+  ck(win.localStorage.getItem('sal-memory-pause') === '30',
+    'самая длинная пауза тоже запоминается — 30');
+  SAL.do('L2', 'memoryPause', '999');
+  ck(activeLabel('L2') === '30 с' && waitOfMiss('L2') === 30000,
+    'чужая длительность (999 с) не принимается — остаются прежние 30 с');
 
   /* паузу меняют, пока карточки ещё открыты: пауза применяется сразу */
   SAL.do('LG', 'memoryPause', '2');
@@ -4240,8 +4253,9 @@ console.log('\n===== «Мемори»: кнопки паузы 1–4 секун�
     .map(el => el.textContent.replace(/\s+/g, ' ').trim()).join(' ');
   const enLabels = [...arenaOf('LG').querySelectorAll('[data-mem-row="pause"] .chip-btn')]
     .map(b => b.textContent.trim());
-  ck(!/[\u0400-\u04FF]/.test(enRow) && /Miss pause/.test(enRow) && enLabels.join('|') === '1 s|2 s|3 s|4 s',
-    'английская версия: «Miss pause: 1 s / 2 s / 3 s / 4 s» без кириллицы — ' + enRow);
+  ck(!/[\u0400-\u04FF]/.test(enRow) && /Miss pause/.test(enRow) &&
+    enLabels.join('|') === '1 s|2 s|3 s|4 s|6 s|10 s|15 s|20 s|30 s',
+    'английская версия: «Miss pause: 1 s … 30 s» без кириллицы — ' + enRow);
   win.setLanguage('ru');
 
   /* возвращаем обычную настройку, чтобы не влиять на остальные проверки */

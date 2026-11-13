@@ -2112,10 +2112,11 @@ function clickMatchTile(idx) {
 // GAME 7: Classic Memory (Все карточки лежат рубашкой вверх: переворачиваем по 2 карточки — картинка + слово)
 
 /* Пауза на промах: сколько обе открытые карточки остаются на виду. Кнопки
-   «1 с / 2 с / 3 с / 4 с» над полем; выбор запоминается в localStorage под тем
-   же ключом, что и в «Мемори» остальных уроков, — пауза одна на весь сайт. */
+   «1 с / 2 с / 3 с / 4 с / 6 / 10 / 15 / 20 / 30 с» над полем; выбор
+   запоминается в localStorage под тем же ключом, что и в «Мемори» остальных
+   уроков, — пауза одна на весь сайт. */
 const MEMORY_PAUSE_KEY = 'sal-memory-pause';
-const MEMORY_PAUSE_OPTIONS = [1, 2, 3, 4];
+const MEMORY_PAUSE_OPTIONS = [1, 2, 3, 4, 6, 10, 15, 20, 30];
 function loadMemoryPauseSec() {
   try {
     const sec = parseInt(window.localStorage ? window.localStorage.getItem(MEMORY_PAUSE_KEY) : '', 10);

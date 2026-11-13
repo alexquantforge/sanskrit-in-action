@@ -2096,10 +2096,12 @@ var SAL = (window.SAL = window.SAL || {});
   }
   /* Сколько открытые карточки промаха остаются на виду. Раньше было 750 мс,
      потом 1 с — вторую карточку всё равно не успевали прочитать. Теперь пауза
-     выбирается кнопками «1 с / 2 с / 3 с / 4 с» над полем, по умолчанию 3 с,
-     и запоминается в localStorage (одна на весь сайт, а не на урок). */
+     выбирается кнопками «1 с / 2 с / 3 с / 4 с / 6 / 10 / 15 / 20 / 30 с» над
+     полем, по умолчанию 3 с, и запоминается в localStorage (одна на весь сайт,
+     а не на урок); длину паузы можно менять и на ходу — после промаха карточки
+     долежат столько, сколько выбрано последним нажатием. */
   var MEMORY_PAUSE_KEY = 'sal-memory-pause';
-  var MEMORY_PAUSE_OPTIONS = [1, 2, 3, 4];
+  var MEMORY_PAUSE_OPTIONS = [1, 2, 3, 4, 6, 10, 15, 20, 30];
   var MEMORY_PAUSE_DEFAULT = 3;
   function loadMemoryPauseSec() {
     try {
@@ -2231,7 +2233,7 @@ var SAL = (window.SAL = window.SAL || {});
             ru('off in this mode — the endings are hidden', 'выключены в этом режиме — окончаний не видно') +
           '</span></div>'
         : '');
-    /* пауза на промах: 1 / 2 / 3 / 4 секунды */
+    /* пауза на промах: 1 / 2 / 3 / 4 / 6 / 10 / 15 / 20 / 30 секунд */
     var pauseSec = memoryPauseSec(g);
     var pauseRow = '<div class="game-ver-row" data-mem-row="pause"><span class="game-ver-label">' +
       ru('Miss pause:', 'Пауза на промах:') + '</span>' +
@@ -3370,7 +3372,7 @@ var SAL = (window.SAL = window.SAL || {});
       st.g.memory.traps = want;
       st.g.memory.bare = bare;
     },
-    /* «Пауза на промах: 1 с / 2 с / 3 с / 4 с»: сколько обе карточки остаются
+    /* «Пауза на промах: 1 … 30 с»: сколько обе карточки остаются
        открытыми. Поле не пересобираем — только запоминаем выбор. */
     memoryPause: function (cfg, st, a) {
       var g = gst(cfg, 'memory');
@@ -3903,13 +3905,13 @@ var SAL = (window.SAL = window.SAL || {});
             'На поле лежат ловушки: оба слова согласованы друг с другом, но род выбран неверный — श्वेतः उदरः (оба в мужском, а उदर среднего рода). Пары у ловушки нет; при промахе игра называет правильную форму — श्वेतम् उदरम्.',
             'Кнопка «Ловушки: ⚠ с ловушками / без ловушек» над полем убирает их: без ловушек это обычное «Мемори» по картинкам.',
             'Кнопка «Слова: 👁 с окончаниями / 🙈 только основа» показывает слово без окончания — कपिश हस्त вместо कपिशः हस्तः. Окончаний не видно — значит, род приходится помнить самому; ловушки в этом режиме выключены.',
-            'Кнопки «Пауза на промах: 1 с / 2 с / 3 с / 4 с» задают, сколько обе открытые карточки остаются на виду, если пара не совпала (по умолчанию 3 с). Выбор запоминается и действует во всех уроках.'
+            'Кнопки «Пауза на промах: 1–4, 6, 10, 15, 20, 30 с» задают, сколько обе открытые карточки остаются на виду, если пара не совпала (по умолчанию 3 с). Выбор запоминается и действует во всех уроках.'
           ]),
           en: base.how.en.concat([
             'The board also holds traps: the two words agree with each other, but the gender is the wrong one — श्वेतः उदरः (both masculine, yet उदर is neuter). A trap has no pair; after a miss the game gives the correct form — श्वेतम् उदरम्.',
             'The “Traps: ⚠ with traps / without traps” button above the board removes them: without traps it is a plain picture Memory.',
             'The “Words: 👁 with endings / 🙈 stem only” button shows the word without its ending — कपिश हस्त instead of कपिशः हस्तः. With the endings hidden the gender has to come from memory, so the traps are off in that mode.',
-            'The “Miss pause: 1 s / 2 s / 3 s / 4 s” buttons set how long both open cards stay visible after a miss (3 s by default). The choice is remembered and applies to every lesson.'
+            'The “Miss pause: 1–4, 6, 10, 15, 20, 30 s” buttons set how long both open cards stay visible after a miss (3 s by default). The choice is remembered and applies to every lesson.'
           ])
         };
         return out;
