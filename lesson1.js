@@ -2294,19 +2294,25 @@ function clickMemoryCard(idx) {
 }
 
 // GAME 8: Spot the Wrong Label (3 Pictures, 1 Wrongly Labeled — 12 rounds + Final Score)
+/* Подпись под «плохой» картинкой — она же, но с одной незаметной ошибкой
+   (typoDeva: शीर्ष → शिर्ष). Раньше там стояло совсем другое слово, и ответ
+   было видно с первого взгляда; теперь надо дочитать написание до конца. */
+function wlLabelOf(item, wrong) {
+  if (!wrong) return { deva: item.deva, iast: item.iast };
+  return { deva: item.typoDeva || item.deva, iast: item.typoIast || item.iast };
+}
 function prepareWrongLabelRound() {
   wlAnswered = false;
   wlFirstTry = true;
   const n = bodyPartsVocab.length;
   const wrongPicItem = bodyPartsVocab[wlIndex];
-  const wrongLabelItem = bodyPartsVocab[(wlIndex + 2) % n];
   const correct1 = bodyPartsVocab[(wlIndex + 4) % n];
   const correct2 = bodyPartsVocab[(wlIndex + 8) % n];
 
   const rawCards = [
-    { picItem: wrongPicItem, labelItem: wrongLabelItem, isWrong: true },
-    { picItem: correct1, labelItem: correct1, isWrong: false },
-    { picItem: correct2, labelItem: correct2, isWrong: false }
+    { picItem: wrongPicItem, labelItem: wlLabelOf(wrongPicItem, true), isWrong: true },
+    { picItem: correct1, labelItem: wlLabelOf(correct1, false), isWrong: false },
+    { picItem: correct2, labelItem: wlLabelOf(correct2, false), isWrong: false }
   ];
 
   const shift = (wlIndex * 5 + 1) % 3;
@@ -2335,7 +2341,9 @@ function renderWrongLabelGame(arena) {
         <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.picItem.svg}</div>
         ${!showCorrection ? `
           <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.labelItem.deva}</div>
-          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.labelItem.iast}</div>
+          ${c.isWrong
+            ? `<div style="font-size:0.78rem;color:var(--text-secondary);letter-spacing:0.08em;">IAST 🙈</div>`
+            : `<div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.labelItem.iast}</div>`}
         ` : `
           <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.8;">${c.labelItem.deva}</div>
           <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.picItem.deva}</div>
@@ -2418,7 +2426,8 @@ function prepareTypoRound() {
   const correct2 = bodyPartsVocab[(typoIndex + 7) % n];
 
   const rawCards = [
-    { item: typoItem, displayedDeva: typoItem.typoDeva, displayedIast: typoItem.typoIast, hasTypo: true },
+    /* у испорченной карточки латиницы нет: IAST выдаёт ошибку сразу */
+    { item: typoItem, displayedDeva: typoItem.typoDeva, displayedIast: '', hasTypo: true },
     { item: correct1, displayedDeva: correct1.deva, displayedIast: correct1.iast, hasTypo: false },
     { item: correct2, displayedDeva: correct2.deva, displayedIast: correct2.iast, hasTypo: false }
   ];
@@ -2449,7 +2458,9 @@ function renderTypoGame(arena) {
         <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.item.svg}</div>
         ${!showCorrection ? `
           <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.displayedDeva}</div>
-          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.displayedIast}</div>
+          ${c.displayedIast
+            ? `<div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.displayedIast}</div>`
+            : `<div style="font-size:0.78rem;color:var(--text-secondary);letter-spacing:0.08em;">IAST 🙈</div>`}
         ` : `
           <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">${c.displayedDeva}</div>
           <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.item.deva}</div>

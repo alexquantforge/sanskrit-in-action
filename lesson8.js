@@ -46,7 +46,7 @@ SAL.registerLesson({
     {
       id: "ekadasa", deva: "एकादश", iast: "ekādaśa", ttsText: "एकादश", value: 11,
       syll: ["एका", "द", "श"],
-      typoDeva: "ऐकादश", typoIast: "aikādaśa",
+      typoDeva: "एखादश", typoIast: "ekhādaśa",
       maskedPrefix: "एका", maskedHidden: "दश",
       gapDeva: "_कादश", gapIast: "_kādaśa", gapAnswer: "ए",
       gapChoices: [
@@ -62,7 +62,7 @@ SAL.registerLesson({
     {
       id: "dvadasa", deva: "द्वादश", iast: "dvādaśa", ttsText: "द्वादश", value: 12,
       syll: ["द्वा", "द", "श"],
-      typoDeva: "द्वादस", typoIast: "dvādasa",
+      typoDeva: "द्वादष", typoIast: "dvādaṣa",
       maskedPrefix: "द्वा", maskedHidden: "दश",
       gapDeva: "द्वाद _", gapIast: "dvād _", gapAnswer: "श",
       gapChoices: [
@@ -94,7 +94,7 @@ SAL.registerLesson({
     {
       id: "caturdasa", deva: "चतुर्दश", iast: "caturdaśa", ttsText: "चतुर्दश", value: 14,
       syll: ["चतुर्", "द", "श"],
-      typoDeva: "चतूर्दश", typoIast: "catūrdaśa",
+      typoDeva: "चतुरदश", typoIast: "caturadaśa",
       maskedPrefix: "चतुर्", maskedHidden: "दश",
       gapDeva: "च _ र्दश", gapIast: "ca _ rdaśa", gapAnswer: "तु",
       gapChoices: [
@@ -108,9 +108,9 @@ SAL.registerLesson({
       svg: "<svg viewBox=\"0 0 100 100\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n      <rect width=\"100\" height=\"100\" rx=\"14\" fill=\"#FFFBEB\"/>\n      <rect x=\"6\" y=\"6\" width=\"88\" height=\"88\" rx=\"10\" fill=\"none\" stroke=\"#E5DEC9\" stroke-width=\"1.5\"/>\n      <text x=\"50\" y=\"52\" text-anchor=\"middle\" dominant-baseline=\"central\" font-family=\"system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif\" font-size=\"46\" font-weight=\"700\" fill=\"#14213D\">14</text>\n    </svg>"
     },
     {
-      id: "pancadasa", deva: "पञ्चदश", iast: "pañcadaśa", ttsText: "पञ्चदश", value: 15,
+      id: "pancadasa", deva: "पञ्चदश", iast: "pancadaśa", ttsText: "पञ्चदश", value: 15,
       syll: ["पञ्च", "द", "श"],
-      typoDeva: "पन्चदश", typoIast: "pañcadaśa",
+      typoDeva: "पन्चदश", typoIast: "pancadaśa",
       maskedPrefix: "पञ्च", maskedHidden: "दश",
       gapDeva: "प _ दश", gapIast: "pa _ daśa", gapAnswer: "ञ्च",
       gapChoices: [

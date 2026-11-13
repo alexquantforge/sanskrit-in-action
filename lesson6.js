@@ -87,7 +87,7 @@ var L6_WORDS = [
       /* женский род: -ा у एका, -े у द्वे, -ः у तिस्रः / चतस्रः, पञ्च не меняется */
       grammaticalNumber: "sg",
       syll: ["ए", "का"],
-      typoDeva: "ऐका", typoIast: "aikā",
+      typoDeva: "एखा", typoIast: "ekhā",
       maskedPrefix: "ए", maskedHidden: "का",
       gapDeva: "एक_", gapIast: "eka_", gapAnswer: "ा",
       gapChoices: [
@@ -123,7 +123,7 @@ var L6_WORDS = [
       /* женский род: -ा у एका, -े у द्वे, -ः у तिस्रः / चतस्रः, पञ्च не меняется */
       grammaticalNumber: "pl",
       syll: ["ति", "स्रः"],
-      typoDeva: "तिसरः", typoIast: "tisaraḥ",
+      typoDeva: "तिश्रः", typoIast: "tiśraḥ",
       maskedPrefix: "तिस्र", maskedHidden: "ः",
       gapDeva: "तिस्र_", gapIast: "tisra_", gapAnswer: "ः",
       gapChoices: [
@@ -141,7 +141,7 @@ var L6_WORDS = [
       /* женский род: -ा у एका, -े у द्वे, -ः у तिस्रः / चतस्रः, पञ्च не меняется */
       grammaticalNumber: "pl",
       syll: ["चत", "स्रः"],
-      typoDeva: "चतश्रः", typoIast: "cataśraḥ",
+      typoDeva: "चतसरः", typoIast: "catasaraḥ",
       maskedPrefix: "चतस्र", maskedHidden: "ः",
       gapDeva: "चतस्र_", gapIast: "catasra_", gapAnswer: "ः",
       gapChoices: [

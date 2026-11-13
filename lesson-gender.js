@@ -139,7 +139,7 @@ var LG_WORDS = [
   {
     id: 'udara', deva: 'श्वेतम् उदरम्', iast: 'śvetam udaram', ttsText: 'श्वेतम् उदरम्',
     gender: 'n',
-    typoDeva: 'श्वेतम् उदारम्', typoIast: 'śvetam udāram',
+    typoDeva: 'श्वेतम् उडरम्', typoIast: 'śvetam uḍaram',
     syll: ['श्वे', 'तम्', 'उ', 'द', 'रम्'],
     maskedPrefix: 'श्वेतम् उ', maskedHidden: 'दरम्',
     gapDeva: 'श्वेतम् उदर_', gapIast: 'śvetam udara_', gapAnswer: 'म्',
@@ -151,7 +151,7 @@ var LG_WORDS = [
   {
     id: 'hasta', deva: 'गौरः हस्तः', iast: 'gauraḥ hastaḥ', ttsText: 'गौरः हस्तः',
     gender: 'm',
-    typoDeva: 'गौरः हास्तः', typoIast: 'gauraḥ hāstaḥ',
+    typoDeva: 'गौरः हश्तः', typoIast: 'gauraḥ haśtaḥ',
     syll: ['गौ', 'रः', 'ह', 'स्तः'],
     maskedPrefix: 'गौरः ह', maskedHidden: 'स्तः',
     gapDeva: 'गौरः हस्त_', gapIast: 'gauraḥ hasta_', gapAnswer: 'ः',
@@ -175,7 +175,7 @@ var LG_WORDS = [
   {
     id: 'jihva', deva: 'पाटला जिह्वा', iast: 'pāṭalā jihvā', ttsText: 'पाटला जिह्वा',
     gender: 'f',
-    typoDeva: 'पाटल जिह्वा', typoIast: 'pāṭala jihvā',
+    typoDeva: 'पटला जिह्वा', typoIast: 'paṭalā jihvā',
     syll: ['पा', 'ट', 'ला', 'जि', 'ह्वा'],
     maskedPrefix: 'पाटला जि', maskedHidden: 'ह्वा',
     gapDeva: 'पाटला जिह्व_', gapIast: 'pāṭalā jihvā_', gapAnswer: 'ा',
@@ -199,7 +199,7 @@ var LG_WORDS = [
   {
     id: 'pada', deva: 'श्यामः पादः', iast: 'śyāmaḥ pādaḥ', ttsText: 'श्यामः पादः',
     gender: 'm',
-    typoDeva: 'श्यामः पाद', typoIast: 'śyāmaḥ pāda',
+    typoDeva: 'श्याम पादः', typoIast: 'śyāma pādaḥ',
     syll: ['श्या', 'मः', 'पा', 'दः'],
     maskedPrefix: 'श्यामः पा', maskedHidden: 'दः',
     gapDeva: 'श्यामः पाद_', gapIast: 'śyāmaḥ pāda_', gapAnswer: 'ः',
@@ -211,7 +211,7 @@ var LG_WORDS = [
   {
     id: 'mukha', deva: 'रक्तं मुखम्', iast: 'raktaṃ mukham', ttsText: 'रक्तं मुखम्',
     gender: 'n',
-    typoDeva: 'रक्त मुखम्', typoIast: 'rakta mukham',
+    typoDeva: 'रक्तं मूखम्', typoIast: 'raktaṃ mūkham',
     syll: ['र', 'क्तं', 'मु', 'खम्'],
     maskedPrefix: 'रक्तं मु', maskedHidden: 'खम्',
     gapDeva: 'रक्तं मुख_', gapIast: 'raktaṃ mukha_', gapAnswer: 'म्',

@@ -72,7 +72,7 @@ var LG2_WORDS = [
   {
     id: 'udara', deva: 'हरितम् उदरम्', iast: 'haritam udaram', ttsText: 'हरितम् उदरम्',
     gender: 'n',
-    typoDeva: 'हरितम् उदारम्', typoIast: 'haritam udāram',
+    typoDeva: 'हरितम् उडरम्', typoIast: 'haritam uḍaram',
     syll: ['ह', 'रि', 'तम्', 'उ', 'द', 'रम्'],
     maskedPrefix: 'हरितम् उ', maskedHidden: 'दरम्',
     gapDeva: 'हरितम् उदर_', gapIast: 'haritam udara_', gapAnswer: 'म्',
@@ -84,7 +84,7 @@ var LG2_WORDS = [
   {
     id: 'hasta', deva: 'कपिशः हस्तः', iast: 'kapiśaḥ hastaḥ', ttsText: 'कपिशः हस्तः',
     gender: 'm',
-    typoDeva: 'कपिशः हास्तः', typoIast: 'kapiśaḥ hāstaḥ',
+    typoDeva: 'कपिशः हश्तः', typoIast: 'kapiśaḥ haśtaḥ',
     syll: ['क', 'पि', 'शः', 'ह', 'स्तः'],
     maskedPrefix: 'कपिशः ह', maskedHidden: 'स्तः',
     gapDeva: 'कपिशः हस्त_', gapIast: 'kapiśaḥ hasta_', gapAnswer: 'ः',
@@ -108,7 +108,7 @@ var LG2_WORDS = [
   {
     id: 'jihva', deva: 'नारङ्गा जिह्वा', iast: 'nāraṅgā jihvā', ttsText: 'नारङ्गा जिह्वा',
     gender: 'f',
-    typoDeva: 'नारङ्ग जिह्वा', typoIast: 'nāraṅga jihvā',
+    typoDeva: 'नरङ्गा जिह्वा', typoIast: 'naraṅgā jihvā',
     syll: ['ना', 'र', 'ङ्गा', 'जि', 'ह्वा'],
     maskedPrefix: 'नारङ्गा जि', maskedHidden: 'ह्वा',
     gapDeva: 'नारङ्गा जिह्व_', gapIast: 'nāraṅgā jihvā_', gapAnswer: 'ा',
@@ -132,7 +132,7 @@ var LG2_WORDS = [
   {
     id: 'pada', deva: 'हरितः पादः', iast: 'haritaḥ pādaḥ', ttsText: 'हरितः पादः',
     gender: 'm',
-    typoDeva: 'हरितः पाद', typoIast: 'haritaḥ pāda',
+    typoDeva: 'हरित पादः', typoIast: 'harita pādaḥ',
     syll: ['ह', 'रि', 'तः', 'पा', 'दः'],
     maskedPrefix: 'हरितः पा', maskedHidden: 'दः',
     gapDeva: 'हरितः पाद_', gapIast: 'haritaḥ pāda_', gapAnswer: 'ः',
@@ -144,7 +144,7 @@ var LG2_WORDS = [
   {
     id: 'mukha', deva: 'नारङ्गं मुखम्', iast: 'nāraṅgaṃ mukham', ttsText: 'नारङ्गं मुखम्',
     gender: 'n',
-    typoDeva: 'नारङ्ग मुखम्', typoIast: 'nāraṅga mukham',
+    typoDeva: 'नारङ्गं मूखम्', typoIast: 'nāraṅgaṃ mūkham',
     syll: ['ना', 'र', 'ङ्गं', 'मु', 'खम्'],
     maskedPrefix: 'नारङ्गं मु', maskedHidden: 'खम्',
     gapDeva: 'नारङ्गं मुख_', gapIast: 'nāraṅgaṃ mukha_', gapAnswer: 'म्',

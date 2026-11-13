@@ -4925,6 +4925,153 @@ console.log('\n===== Микрофон: распознавание и сравн�
   delete win.SpeechRecognition;
 })();
 
+/* ==========================================================================
+   ИГРЫ 8 И 9: ОШИБКИ В КАЖДОМ УРОКЕ — РАЗНЫЕ И НЕОЧЕВИДНЫЕ
+   Правила: ровно одна буква на слово (для фраз — в самом коварном месте);
+   внутри урока ошибки не повторяются; признак — долгота, другая варга,
+   ि/ी, ऋ/रि, ं/ः/ँ, шипящая, вирама или похожее начертание, — а не «взяли
+   другое слово урока». В игре 8 подпись — испорченная форма того же слова,
+   в игре 9 IAST у испорченной карточки не показывается.
+   ========================================================================== */
+console.log('\n===== Игры 8 и 9: ошибки по всем урокам =====');
+(function () {
+  const editDistance = (a, b) => {
+    a = [...a]; b = [...b];
+    const d = [];
+    for (let i = 0; i <= a.length; i++) d.push([i].concat(new Array(b.length).fill(0)));
+    for (let j = 0; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  };
+  /* одна и та же замена должна давать один и тот же IAST */
+  const CONS = { 'क':'k','ख':'kh','ग':'g','घ':'gh','ङ':'ṅ','च':'c','छ':'ch','ज':'j','झ':'jh','ञ':'ñ',
+    'ट':'ṭ','ठ':'ṭh','ड':'ḍ','ढ':'ḍh','ण':'ṇ','त':'t','थ':'th','द':'d','ध':'dh','न':'n',
+    'प':'p','फ':'ph','ब':'b','भ':'bh','म':'m','य':'y','र':'r','ल':'l','व':'v','श':'ś','ष':'ṣ','स':'s','ह':'h','ळ':'ḷ' };
+  const VOW = { 'अ':'a','आ':'ā','इ':'i','ई':'ī','उ':'u','ऊ':'ū','ऋ':'ṛ','ॠ':'ṝ','ऌ':'ḷ','ए':'e','ऐ':'ai','ओ':'o','औ':'au' };
+  const MATRA = { 'ा':'ā','ि':'i','ी':'ī','ु':'u','ू':'ū','ृ':'ṛ','ॄ':'ṝ','े':'e','ै':'ai','ो':'o','ौ':'au' };
+  const toIast = (src) => {
+    const ch = [...src], out = [];
+    for (let i = 0; i < ch.length; i++) {
+      const c = ch[i];
+      if (c === ' ' || c === '-') { out.push(c); continue; }
+      if (VOW[c]) { out.push(VOW[c]); continue; }
+      if (CONS[c]) {
+        const nx = ch[i + 1];
+        if (nx === '\u094d') { out.push(CONS[c]); i++; continue; }
+        if (nx && MATRA[nx]) { out.push(CONS[c] + MATRA[nx]); i++; continue; }
+        out.push(CONS[c] + 'a'); continue;
+      }
+      if (c === 'ं') { out.push('ṃ'); continue; }
+      if (c === 'ः') { out.push('ḥ'); continue; }
+      out.push(c);
+    }
+    return out.join('');
+  };
+  const checkWord = (key, w) => {
+    const errsY = [];
+    if (!w.typoDeva || w.typoDeva === w.deva) errsY.push('нет ошибки');
+    else if (editDistance(w.deva, w.typoDeva) !== 1) errsY.push('ошибка не в одну букву');
+    if (w.typoDeva && !w.typoIast) errsY.push('нет IAST у ошибки');
+    else if (w.typoDeva && toIast(w.typoDeva) !== w.typoIast)
+      errsY.push('IAST не совпадает с деванагари (' + toIast(w.typoDeva) + ' ≠ ' + w.typoIast + ')');
+    return errsY.map(e => key + '/' + w.deva + ': ' + e);
+  };
+  /* 1. каждая ошибка — одна буква и правильный IAST; внутри урока без повторов */
+  const broken = [];
+  Object.keys(SAL.lessons).forEach(key => {
+    const L = SAL.lessons[key];
+    if (!L.words || !L.words.length) return;
+    const seen = {};
+    L.words.forEach(w => {
+      broken.push(...checkWord(key, w));
+      if (w.typoDeva && seen[w.typoDeva]) broken.push(key + ': ошибка «' + w.typoDeva + '» повторяется');
+      seen[w.typoDeva] = true;
+    });
+  });
+  ck(broken.length === 0, 'во всех уроках ошибка ровно в одну букву, IAST ей соответствует, повторов нет' +
+    (broken.length ? ' — ' + broken.slice(0, 4).join('; ') : ''));
+
+  /* 2. ошибки не «чужое слово»: почти всегда меняется буква ВНУТРИ слова,
+        а не подменяется всё слово целиком */
+  const whole = [];
+  Object.keys(SAL.lessons).forEach(key => {
+    (SAL.lessons[key].words || []).forEach(w => {
+      if (!w.typoDeva) return;
+      const a = [...w.deva], b = [...w.typoDeva];
+      let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++;
+      let j = 0;
+      while (j < a.length - i && j < b.length - i && a[a.length - 1 - j] === b[b.length - 1 - j]) j++;
+      const tail = a.length - i - j;
+      /* хвост короче половины слова — правка точечная */
+      if (tail >= Math.max(2, Math.ceil(a.length / 2))) whole.push(key + '/' + w.deva);
+    });
+  });
+  ck(whole.length === 0, 'ни одна ошибка не меняет половину слова — правка точечная' +
+    (whole.length ? ' — ' + whole.join(', ') : ''));
+
+  /* 3. игра 8: подпись под плохой картинкой — та же основа с ошибкой */
+  const nearBad = [];
+  Object.keys(SAL.lessons).forEach(key => {
+    const L = SAL.lessons[key];
+    if (!L.words || L.words.length < 3) return;
+    SAL.openLesson(key);
+    SAL.do(key, 'setGame', 'wronglabel');
+    SAL.do(key, 'restart', 'wronglabel');
+    const g = L._st.g.wronglabel;
+    if (!g.round || !g.round.near) { nearBad.push(key + ': подпись не «почти то же слово»'); return; }
+    const c = g.round.cards[g.round.wrongIdx];
+    const w = L.words.filter(x => x.id === c.wordId)[0];
+    if (c.labelDeva !== w.typoDeva) nearBad.push(key + ': подпись ' + c.labelDeva + ' ≠ ' + w.typoDeva);
+    if (c.labelIast !== w.typoIast) nearBad.push(key + ': IAST подписи ' + c.labelIast + ' ≠ ' + w.typoIast);
+    /* остальные две подписи верные */
+    g.round.cards.forEach((cc, i) => {
+      if (i === g.round.wrongIdx) return;
+      const ww = L.words.filter(x => x.id === cc.wordId)[0];
+      if (cc.labelDeva !== ww.deva) nearBad.push(key + ': верная подпись ' + cc.labelDeva + ' ≠ ' + ww.deva);
+    });
+  });
+  ck(nearBad.length === 0, 'игра 8: ошибка — та же основа с одной буквой, а не другое слово' +
+    (nearBad.length ? ' — ' + nearBad.slice(0, 4).join('; ') : ''));
+
+  /* 4. игра 9: у испорченной карточки IAST скрыт, у двух других — на месте */
+  const typoBad = [];
+  Object.keys(SAL.lessons).forEach(key => {
+    const L = SAL.lessons[key];
+    if (!L.words || L.words.length < 3) return;
+    SAL.openLesson(key);
+    SAL.do(key, 'setGame', 'typo');
+    SAL.do(key, 'restart', 'typo');
+    const g = L._st.g.typo;
+    if (!g.round || !g.round.trio) { typoBad.push(key + ': раунд не собран'); return; }
+    const arena = win.document.getElementById(key + '-practice-arena');
+    const cards = [...arena.querySelectorAll('.quiz-opt-btn')];
+    if (cards.length !== 3) { typoBad.push(key + ': карточек ' + cards.length); return; }
+    g.round.trio.forEach((id, i) => {
+      const w = L.words.filter(x => x.id === id)[0];
+      const text = cards[i].textContent.replace(/\s+/g, ' ');
+      if (i === g.round.wrongIdx) {
+        if (text.indexOf(w.typoDeva) < 0) typoBad.push(key + ': нет опечатки ' + w.typoDeva);
+        if (text.indexOf(w.iast) >= 0) typoBad.push(key + ': IAST выдаёт опечатку');
+      } else if (text.indexOf(w.iast) < 0) typoBad.push(key + ': у верной карточки нет IAST');
+    });
+    if (g.round.wrongIdx < 3 && !/IAST 🙈/.test(arena.textContent)) typoBad.push(key + ': нет пометки IAST 🙈');
+  });
+  ck(typoBad.length === 0, 'игра 9: опечатка показана, её IAST скрыт — ответ не подсмотреть' +
+    (typoBad.length ? ' — ' + typoBad.slice(0, 4).join('; ') : ''));
+
+  /* 5. после ответа объяснение называет ровно ту букву, что исправлена */
+  SAL.openLesson('L3');
+  SAL.do('L3', 'setGame', 'typo');
+  SAL.do('L3', 'restart', 'typo');
+  const g3 = SAL.lessons.L3._st.g.typo;
+  SAL.do('L3', 'pick3', String(g3.round.wrongIdx));
+  const l3arena = win.document.getElementById('L3-practice-arena').textContent;
+  ck(/Разница/.test(l3arena) && /✕/.test(l3arena),
+    'после ответа игра 9 объясняет разницу в буквах');
+})();
+
 console.log(errs.length ? '\nJS ERRORS: ' + errs.slice(0, 5).join(' | ') : '\nJS-ошибок нет');
 console.log(bad === 0 && errs.length === 0 ? 'ALL CHECKS PASSED' : bad + ' FAILURES');
 process.exit(bad || errs.length ? 1 : 0);

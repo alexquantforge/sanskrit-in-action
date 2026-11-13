@@ -81,7 +81,7 @@ var L5_WORDS = [
       /* мужской род: -ः у एकः / त्रयः / चत्वारः и -ौ у द्वौ; पञ्च не меняется */
       grammaticalNumber: "sg",
       syll: ["ए", "कः"],
-      typoDeva: "ऐकः", typoIast: "aikaḥ",
+      typoDeva: "एखः", typoIast: "ekhaḥ",
       maskedPrefix: "ए", maskedHidden: "कः",
       gapDeva: "एक_", gapIast: "eka_", gapAnswer: "ः",
       gapChoices: [
@@ -117,7 +117,7 @@ var L5_WORDS = [
       /* мужской род: -ः у एकः / त्रयः / चत्वारः и -ौ у द्वौ; पञ्च не меняется */
       grammaticalNumber: "pl",
       syll: ["त्र", "यः"],
-      typoDeva: "त्रियः", typoIast: "triyaḥ",
+      typoDeva: "त्रिः", typoIast: "triḥ",
       maskedPrefix: "त्र", maskedHidden: "यः",
       gapDeva: "त्रय_", gapIast: "traya_", gapAnswer: "ः",
       gapChoices: [
@@ -135,7 +135,7 @@ var L5_WORDS = [
       /* мужской род: -ः у एकः / त्रयः / चत्वारः и -ौ у द्वौ; पञ्च не меняется */
       grammaticalNumber: "pl",
       syll: ["च", "त्वा", "रः"],
-      typoDeva: "चत्वादः", typoIast: "catvādaḥ",
+      typoDeva: "चत्वाः", typoIast: "catvāḥ",
       maskedPrefix: "चत्वा", maskedHidden: "रः",
       gapDeva: "चत्वार_", gapIast: "catvāra_", gapAnswer: "ः",
       gapChoices: [

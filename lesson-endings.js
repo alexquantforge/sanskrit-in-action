@@ -184,7 +184,7 @@ var LV_WORDS = [
     grammaticalNumber: "du", gender: "n", count: 2, kind: "eye", fill: "#16A34A",
     syll: lvChunks("द्वे हरिते नयने"),
     /* цвет потерял двойственное окончание: हरिते → हरिता */
-    typoDeva: "द्वे हरिता नयने", typoIast: "dve haritā nayane",
+    typoDeva: "द्वा हरिते नयने", typoIast: "dvā harite nayane",
     maskedPrefix: "द्वे हरिते नयन", maskedHidden: "े",
     gapDeva: "द्वे हरिते नयन_", gapIast: "dve harite nayana_", gapAnswer: "े",
     gapChoices: [
@@ -206,7 +206,7 @@ var LV_WORDS = [
     grammaticalNumber: "pl", gender: "n", count: 3, kind: "eye", fill: "#F97316",
     syll: lvChunks("त्रीणि नारङ्गाणि नयनानि"),
     /* ण → न: «н из другой варги» — ровно та ошибка, которую слышит учитель */
-    typoDeva: "त्रीणि नारङ्गानि नयनानि", typoIast: "trīṇi nāraṅgāni nayanāni",
+    typoDeva: "त्रीनि नारङ्गाणि नयनानि", typoIast: "trīni nāraṅgāṇi nayanāni",
     maskedPrefix: "त्रीणि नारङ्गाणि नयन", maskedHidden: "ानि",
     gapDeva: "त्रीणि नारङ्गाणि नयन_", gapIast: "trīṇi nāraṅgāṇi nayana_", gapAnswer: "ानि",
     gapChoices: [
@@ -291,7 +291,7 @@ var LV_WORDS = [
     grammaticalNumber: "pl", gender: "m", count: 3, kind: "hand", fill: "#F2C46B",
     syll: lvChunks("त्रयः गौराः हस्ताः"),
     /* हस्ताः → हस्तः: множественное число стало единственным */
-    typoDeva: "त्रयः गौराः हस्तः", typoIast: "trayaḥ gaurāḥ hastaḥ",
+    typoDeva: "त्रयः गौरः हस्ताः", typoIast: "trayaḥ gauraḥ hastāḥ",
     maskedPrefix: "त्रयः गौराः हस्त", maskedHidden: "ाः",
     gapDeva: "त्रयः गौराः हस्त_", gapIast: "trayaḥ gaurāḥ hasta_", gapAnswer: "ाः",
     gapChoices: [
@@ -313,7 +313,7 @@ var LV_WORDS = [
     grammaticalNumber: "pl", gender: "m", count: 4, kind: "tooth", fill: "#1F3A5F",
     syll: lvChunks("चत्वारः श्यामाः दन्ताः"),
     /* दन्ताः → दन्तः: та же ошибка числа, но на другом слове */
-    typoDeva: "चत्वारः श्यामाः दन्तः", typoIast: "catvāraḥ śyāmāḥ dantaḥ",
+    typoDeva: "चत्वारः श्यामः दन्ताः", typoIast: "catvāraḥ śyāmaḥ dantāḥ",
     maskedPrefix: "चत्वारः श्यामाः दन्त", maskedHidden: "ाः",
     gapDeva: "चत्वारः श्यामाः दन्त_", gapIast: "catvāraḥ śyāmāḥ danta_", gapAnswer: "ाः",
     gapChoices: [

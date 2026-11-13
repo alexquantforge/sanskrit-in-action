@@ -47,7 +47,7 @@ SAL.registerLesson({
     {
       id: "ekam", deva: "एकम्", iast: "ekam", ttsText: "एकं", value: 1,
       syll: ["ए", "क", "म्"],
-      typoDeva: "ऐकम्", typoIast: "aikam",
+      typoDeva: "एखम्", typoIast: "ekham",
       maskedPrefix: "ए", maskedHidden: "कम्",
       gapDeva: "_कम्", gapIast: "_kam", gapAnswer: "ए",
       gapChoices: [

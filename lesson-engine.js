@@ -2292,17 +2292,39 @@ var SAL = (window.SAL = window.SAL || {});
     return { ru: 'ошибка в одной букве', en: 'a one-letter mistake' };
   }
 
-  /* 8. Spot the Wrong Word (3 pictures) ----------------------------------- */
+  /* 8. Spot the Wrong Word (3 pictures) -----------------------------------
+     Подпись под «плохой» картинкой — не другое слово урока, а ОНА ЖЕ,
+     испорченная одной незаметной буквой (typoDeva): शीर्ष → शिर्ष, नासिका →
+     नाषिका. Раньше там стояло совсем другое слово, и ошибку было видно
+     с первого взгляда; теперь надо дочитать написание до конца.
+     В уроках без опечаток (или с одной карточкой) остаётся прежний путь:
+     подпись берётся у другого слова урока. */
+  function wrongLabelOf(cfg, w) {
+    return w.typoDeva || w.deva;
+  }
   function prepareWrongLabel(cfg) {
     var trio = shuffle(cfg.words).slice(0, 3);
     var wrongIdx = Math.floor(Math.random() * 3);
+    var target = trio[wrongIdx];
+    var canTypo = target && target.typoDeva && target.typoDeva !== target.deva &&
+      trio.every(function (w) { return w.typoDeva !== w.deva; });
+    if (canTypo) {
+      return {
+        cards: trio.map(function (w, i) {
+          return { wordId: w.id, labelDeva: i === wrongIdx ? wrongLabelOf(cfg, w) : w.deva,
+                   labelIast: i === wrongIdx ? (w.typoIast || w.iast) : w.iast };
+        }),
+        wrongIdx: wrongIdx, near: true
+      };
+    }
     var pool = cfg.words.filter(function (w) { return trio.indexOf(w) < 0; });
     var wrongWord = pool.length ? shuffle(pool)[0] : shuffle(trio.filter(function (w, i) { return i !== wrongIdx; }))[0];
     return {
       cards: trio.map(function (w, i) {
-        return { wordId: w.id, labelId: i === wrongIdx ? wrongWord.id : w.id };
+        var lab = i === wrongIdx ? wrongWord : w;
+        return { wordId: w.id, labelId: lab.id, labelDeva: lab.deva, labelIast: lab.iast };
       }),
-      wrongIdx: wrongIdx
+      wrongIdx: wrongIdx, near: false
     };
   }
   function renderWrongLabel(cfg, st) {
@@ -2313,11 +2335,12 @@ var SAL = (window.SAL = window.SAL || {});
     if (!g.round) g.round = prepareWrongLabel(cfg);
 
     var good = byId(cfg, g.round.cards[g.round.wrongIdx].wordId);
-    var bad = byId(cfg, g.round.cards[g.round.wrongIdx].labelId);
+    var badCard = g.round.cards[g.round.wrongIdx];
+    var bad = { deva: badCard.labelDeva, iast: badCard.labelIast };
 
     var cards = g.round.cards.map(function (c, idx) {
       var w = byId(cfg, c.wordId);
-      var label = byId(cfg, c.labelId);
+      var label = { deva: c.labelDeva, iast: c.labelIast };
       var isTarget = idx === g.round.wrongIdx;
       var showCorrection = g.answered && isTarget;
       var cls = '';
@@ -2338,6 +2361,7 @@ var SAL = (window.SAL = window.SAL || {});
 
     var explain = '';
     if (g.answered) {
+      var nearDiff = g.round.near ? diffSegments(bad.deva, good.deva) : null;
       explain = '<div style="margin-top:1.15rem;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:12px;padding:0.9rem 1.15rem;text-align:center;">' +
         '<div style="font-size:0.98rem;line-height:1.6;">' +
         (L() === 'ru'
@@ -2346,6 +2370,12 @@ var SAL = (window.SAL = window.SAL || {});
           : 'The wrong label was under the picture <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + good.deva + '</strong> (' + good.iast + '): it read ' +
             '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + bad.deva + '</span> (' + bad.iast + ').') +
         '</div>' +
+        (nearDiff
+          ? '<div style="margin-top:0.5rem;font-size:0.92rem;font-weight:700;color:var(--accent-cambridge);">' +
+            ru('The difference', 'Разница') + ': <span style="font-family:var(--font-deva);color:#dc2626;text-decoration:line-through;">' +
+            (nearDiff.from || '—') + '</span> ✕ → <span style="font-family:var(--font-deva);color:#15803d;">' +
+            (nearDiff.to || '—') + '</span> ✓ — ' + tx(mistakeKind(nearDiff.from + nearDiff.to)) + '</div>'
+          : '') +
         (!g.firstTry
           ? '<div style="margin-top:0.4rem;font-size:0.88rem;color:#b45309;font-weight:700;">' +
             ru('Found on the 2nd try — the point is only awarded for the first try.',
@@ -2388,7 +2418,9 @@ var SAL = (window.SAL = window.SAL || {});
       var w = byId(cfg, id);
       var isTarget = idx === g.round.wrongIdx;
       var shownDeva = isTarget ? w.typoDeva : w.deva;
-      var shownIast = isTarget ? w.typoIast : w.iast;
+      /* IAST у испорченной карточки НЕ показываем: латиница выдаёт ошибку
+         (śirṣa против śīrṣa видно сразу), а всё задание — про деванагари */
+      var shownIast = isTarget ? '' : w.iast;
       var showCorrection = g.answered && isTarget;
       var cls = '';
       if (g.answered && isTarget) cls = 'correct';
@@ -2402,7 +2434,9 @@ var SAL = (window.SAL = window.SAL || {});
             '<div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ' + w.deva + '</div>' +
             '<div class="vocab-iast" style="font-size:0.85rem;color:#15803d;">' + w.iast + '</div>'
           : '<div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">' + shownDeva + '</div>' +
-            '<div class="vocab-iast" style="font-size:0.85rem;color:var(--accent-saffron);">' + shownIast + '</div>') +
+            (shownIast
+              ? '<div class="vocab-iast" style="font-size:0.85rem;color:var(--accent-saffron);">' + shownIast + '</div>'
+              : '<div style="font-size:0.78rem;color:var(--text-secondary);letter-spacing:0.08em;">IAST 🙈</div>')) +
         '</button>';
     }).join('');
 
@@ -3400,7 +3434,10 @@ var SAL = (window.SAL = window.SAL || {});
       st.g.memory.bare = want;
     },
 
-    /* 8 / 9 pick one of three (Lesson 1: a wrong pick only costs the first-try point) */
+    /* 8 / 9 pick one of three (Lesson 1: a wrong pick only costs the first-try point)
+       В «Ошибке в 1 букве» неверная карточка озвучивается своим НАСТОЯЩИМ
+       словом, а не испорченным написанием: иначе в наушниках звучит форма
+       с ошибкой и слух запоминает неверное. */
     pick3: function (cfg, st, a) {
       var g = gst(cfg, st.game);
       if (g.answered) return;

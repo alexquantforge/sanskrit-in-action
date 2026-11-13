@@ -63,7 +63,7 @@ SAL.registerLesson({
     {
       id: "sapta", deva: "सप्त", iast: "sapta", ttsText: "सप्त", value: 7,
       syll: ["स", "प्त"],
-      typoDeva: "सपत", typoIast: "sapata",
+      typoDeva: "सफ्त", typoIast: "saphta",
       maskedPrefix: "स", maskedHidden: "प्त",
       gapDeva: "_प्त", gapIast: "_pta", gapAnswer: "स",
       gapChoices: [
@@ -79,7 +79,7 @@ SAL.registerLesson({
     {
       id: "ashta", deva: "अष्ट", iast: "aṣṭa", ttsText: "अष्ट", value: 8,
       syll: ["अ", "ष्ट"],
-      typoDeva: "अष्ठ", typoIast: "aṣṭha",
+      typoDeva: "अश्ट", typoIast: "aśṭa",
       maskedPrefix: "अ", maskedHidden: "ष्ट",
       gapDeva: "_ष्ट", gapIast: "_ṣṭa", gapAnswer: "अ",
       gapChoices: [
@@ -95,7 +95,7 @@ SAL.registerLesson({
     {
       id: "nava", deva: "नव", iast: "nava", ttsText: "नव", value: 9,
       syll: ["न", "व"],
-      typoDeva: "नभ", typoIast: "nabha",
+      typoDeva: "नब", typoIast: "naba",
       maskedPrefix: "न", maskedHidden: "व",
       gapDeva: "_व", gapIast: "_va", gapAnswer: "न",
       gapChoices: [
@@ -111,7 +111,7 @@ SAL.registerLesson({
     {
       id: "dasha", deva: "दश", iast: "daśa", ttsText: "दश", value: 10,
       syll: ["द", "श"],
-      typoDeva: "दस", typoIast: "dasa",
+      typoDeva: "दष", typoIast: "daṣa",
       maskedPrefix: "द", maskedHidden: "श",
       gapDeva: "_श", gapIast: "_śa", gapAnswer: "द",
       gapChoices: [

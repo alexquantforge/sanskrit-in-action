@@ -62,7 +62,7 @@ SAL.registerLesson({
     {
       id: "vimshati", deva: "विंशतिः", iast: "viṃśatiḥ", ttsText: "विंशतिः", value: 20,
       syll: ["विं", "श", "तिः"],
-      typoDeva: "विंशतीः", typoIast: "viṃśatīḥ",
+      typoDeva: "विंशटिः", typoIast: "viṃśaṭiḥ",
       maskedPrefix: "विं", maskedHidden: "शतिः",
       gapDeva: "विंश _", gapIast: "viṃś _", gapAnswer: "तिः",
       gapChoices: [
@@ -78,7 +78,7 @@ SAL.registerLesson({
     {
       id: "trimshat", deva: "त्रिंशत्", iast: "triṃśat", ttsText: "त्रिंशत्", value: 30,
       syll: ["त्रिं", "शत्"],
-      typoDeva: "त्रिशत्", typoIast: "triśat",
+      typoDeva: "त्रिंषत्", typoIast: "triṃṣat",
       maskedPrefix: "त्रिं", maskedHidden: "शत्",
       gapDeva: "त्रिं _", gapIast: "triṃ _", gapAnswer: "शत्",
       gapChoices: [

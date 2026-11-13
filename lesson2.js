@@ -56,7 +56,7 @@ SAL.registerLesson({
     },
     {
       id: "udara", deva: "उदर", iast: "udara", ttsText: "उदरा",
-      typoDeva: "उदार", typoIast: "udāra",
+      typoDeva: "उडर", typoIast: "uḍara",
       maskedPrefix: "उद", maskedHidden: "र",
       gapDeva: "_दर", gapIast: "_dara", gapAnswer: "उ",
       gapChoices: [
@@ -71,7 +71,7 @@ SAL.registerLesson({
     },
     {
       id: "hasta", deva: "हस्त", iast: "hasta", ttsText: "हस्ता",
-      typoDeva: "हास्त", typoIast: "hāsta",
+      typoDeva: "हश्त", typoIast: "haśta",
       maskedPrefix: "हस", maskedHidden: "्त",
       gapDeva: "_स्त", gapIast: "_sta", gapAnswer: "ह",
       gapChoices: [
@@ -86,7 +86,7 @@ SAL.registerLesson({
     },
     {
       id: "anguli", deva: "अङ्गुली", iast: "aṅgulī", ttsText: "अङ्गुली",
-      typoDeva: "अङ्गुलि", typoIast: "aṅguli",
+      typoDeva: "अङ्गूली", typoIast: "aṅgūlī",
       maskedPrefix: "अङ्गु", maskedHidden: "ली",
       gapDeva: "अङ्गु_", gapIast: "aṅgu_", gapAnswer: "ली",
       gapChoices: [

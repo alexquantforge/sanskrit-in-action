@@ -140,7 +140,7 @@ var LT_WORDS = [
     grammaticalNumber: "du", gender: "f", count: 2, fill: "#DC2626",
     syll: ltChunks("द्वे रक्ते जिह्वे"),
     /* двойственное число потеряло -े: रक्ते → रक्ता (форма мн. ч. — частая ошибка) */
-    typoDeva: "द्वे रक्ता जिह्वे", typoIast: "dve raktā jihve",
+    typoDeva: "द्वा रक्ते जिह्वे", typoIast: "dvā rakte jihve",
     maskedPrefix: "द्वे रक्ते जिह्व", maskedHidden: "े",
     gapDeva: "द्वे रक्ते जिह्व_", gapIast: "dve rakte jihv_", gapAnswer: "े",
     gapChoices: [
@@ -161,7 +161,7 @@ var LT_WORDS = [
     grammaticalNumber: "pl", gender: "f", count: 3, fill: "#FFEE58",
     syll: ltChunks("तिस्रः पीताः जिह्वाः"),
     /* множественное число потеряло висаргу: पीताः → पीता */
-    typoDeva: "तिस्रः पीता जिह्वाः", typoIast: "tisraḥ pītā jihvāḥ",
+    typoDeva: "तिस्रः पीतः जिह्वाः", typoIast: "tisraḥ pītaḥ jihvāḥ",
     maskedPrefix: "तिस्रः पीताः जिह्व", maskedHidden: "ाः",
     gapDeva: "तिस्रः पीताः जिह्व_", gapIast: "tisraḥ pītāḥ jihv_", gapAnswer: "ाः",
     gapChoices: [
@@ -183,7 +183,7 @@ var LT_WORDS = [
     grammaticalNumber: "pl", gender: "f", count: 4, fill: "#16A34A",
     syll: ltChunks("चतस्रः हरिताः जिह्वाः"),
     /* हरिता — форма без висарги, которой в этом числе нет */
-    typoDeva: "चतस्रः हरिता जिह्वाः", typoIast: "catasraḥ haritā jihvāḥ",
+    typoDeva: "चतस्रः हरितः जिह्वाः", typoIast: "catasraḥ haritaḥ jihvāḥ",
     maskedPrefix: "चतस्रः हरिताः जिह्व", maskedHidden: "ाः",
     gapDeva: "चतस्रः हरिताः जिह्व_", gapIast: "catasraḥ haritāḥ jihv_", gapAnswer: "ाः",
     gapChoices: [

@@ -256,7 +256,7 @@ SAL.registerLesson({
     },
     {
       id: "rakta", deva: "रक्त", iast: "rakta", ttsText: "रक्त",
-      typoDeva: "रक्ता", typoIast: "raktā",
+      typoDeva: "रख्त", typoIast: "rakhta",
       maskedPrefix: "र", maskedHidden: "क्त",
       gapDeva: "_क्त", gapIast: "_kta", gapAnswer: "र",
       gapChoices: [

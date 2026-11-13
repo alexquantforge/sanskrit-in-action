@@ -41,7 +41,7 @@ SAL.registerLesson({
   words: [
     {
       id: "lalata", deva: "ललाट", iast: "lalāṭa", ttsText: "ललाटा",
-      typoDeva: "ललट", typoIast: "lalaṭa",
+      typoDeva: "ललात", typoIast: "lalāta",
       maskedPrefix: "लला", maskedHidden: "ट",
       gapDeva: "ल_ट", gapIast: "la_ṭa", gapAnswer: "ला",
       gapChoices: [
@@ -56,7 +56,7 @@ SAL.registerLesson({
     },
     {
       id: "nayana", deva: "नयन", iast: "nayana", ttsText: "नयना",
-      typoDeva: "नयान", typoIast: "nayāna",
+      typoDeva: "णयन", typoIast: "ṇayana",
       maskedPrefix: "नय", maskedHidden: "न",
       gapDeva: "_यन", gapIast: "_yana", gapAnswer: "न",
       gapChoices: [
@@ -71,7 +71,7 @@ SAL.registerLesson({
     },
     {
       id: "nasika", deva: "नासिका", iast: "nāsikā", ttsText: "नासिका",
-      typoDeva: "नसिका", typoIast: "nasikā",
+      typoDeva: "नाषिका", typoIast: "nāṣikā",
       maskedPrefix: "नासि", maskedHidden: "का",
       gapDeva: "_सिका", gapIast: "_sikā", gapAnswer: "ना",
       gapChoices: [
@@ -116,7 +116,7 @@ SAL.registerLesson({
     },
     {
       id: "danta", deva: "दन्त", iast: "danta", ttsText: "दन्ता",
-      typoDeva: "दान्त", typoIast: "dānta",
+      typoDeva: "दनत", typoIast: "danata",
       maskedPrefix: "द", maskedHidden: "न्त",
       gapDeva: "_न्त", gapIast: "_nta", gapAnswer: "द",
       gapChoices: [
@@ -131,7 +131,7 @@ SAL.registerLesson({
     },
     {
       id: "jihva", deva: "जिह्वा", iast: "jihvā", ttsText: "जिह्वा",
-      typoDeva: "जिह्व", typoIast: "jihva",
+      typoDeva: "जिह्भा", typoIast: "jihbhā",
       maskedPrefix: "जि", maskedHidden: "ह्वा",
       gapDeva: "_ह्वा", gapIast: "_hvā", gapAnswer: "जि",
       gapChoices: [
