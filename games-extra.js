@@ -1296,43 +1296,161 @@
                en: 'The cards show the numerals themselves in words. Lay them out in order: one, two, three… Players take one word each; a miss passes the turn.' }) + '</div>');
   }
 
-  /* ======================================================= 28. CO-OP MEMORY */
+  /* ======================================================= 28. CO-OP MEMORY
+     Всё то же, что в игре 7 «Классическое Мемори» — пары «картинка + слово»,
+     переворот, пауза на промахе, ловушки рода, режим «только основа», два
+     размера поля, называние клеток (a1, b2) — только ПОБЕДА ОБЩАЯ: пара
+     играет вместе и должна очистить поле за выбранное число ходов.
+     ---------------------------------------------------------------------- */
+  var COOP_LIMITS = [12, 16, 20, 25, 30, 40, 50];
+  var COOP_LIMIT_KEY = 'sal-coop-moves';
+  function coopLimitDefault() { return 20; }
+  function loadCoopLimit() {
+    try {
+      var raw = window.localStorage ? window.localStorage.getItem(COOP_LIMIT_KEY) : null;
+      var n = parseInt(raw, 10);
+      if (COOP_LIMITS.indexOf(n) >= 0) return n;
+    } catch (e) { /* storage unavailable */ }
+    return coopLimitDefault();
+  }
+  function saveCoopLimit(n) {
+    try { if (window.localStorage) window.localStorage.setItem(COOP_LIMIT_KEY, String(n)); } catch (e) { }
+  }
+  function coopLimit(g) {
+    var n = g && g.limit ? g.limit : loadCoopLimit();
+    return COOP_LIMITS.indexOf(n) >= 0 ? n : coopLimitDefault();
+  }
+  /* сколько ходов нужно, чтобы честно очистить поле: пар + небольшой запас */
+  function coopMinMoves(g) { return g.size + 4; }
+
   function renderCoopMemory(cfg) {
     var g = K.gst(cfg, 'coopmemory');
+    var N = cfg.words.length;
+    /* поле собирается ровно как в игре 7: пары картинка + слово, ловушки, размер */
     if (!g.cards) {
-      var two = cfg.words.concat(cfg.words);
-      g.cards = shuffle(two.map(function (w) { return w.id; }));
-      g.limit = Math.round(g.cards.length / 2) + 4;
+      var picks = K.shuffle(cfg.words).slice(0, g.size);
+      var cards = [];
+      picks.forEach(function (w) {
+        cards.push({ id: w.id, kind: 'pic' });
+        cards.push({ id: w.id, kind: 'word' });
+      });
+      K.memoryTrapsFor(cfg, g.size, g.traps, K.memoryBareOn(cfg, g)).forEach(function (t, i) {
+        cards.push({ id: 'trap' + i, kind: 'trap', trap: t });
+      });
+      g.cards = K.shuffle(cards);
+    }
+    var matchedPairs = Object.keys(g.matched).length;
+    var limit = coopLimit(g);
+    var outOfMoves = g.moves >= limit && matchedPairs < g.size;
+    if (matchedPairs >= g.size) {
+      var failed = Object.keys(g.failed).length;
+      return K.finalScreen(cfg, 'coopmemory',
+        tx({ ru: 'Поле очищено вместе!', en: 'Board cleared together!' }),
+        Math.max(1, g.size - failed), g.size,
+        tx({ ru: 'Ходов', en: 'Moves' }) + ': ' + g.moves + ' / ' + limit +
+        (failed ? ' · ' + tx({ ru: 'Пар на повтор', en: 'Pairs to review' }) + ': ' + failed : ''));
+    }
+    if (outOfMoves) {
+      return K.finalScreen(cfg, 'coopmemory',
+        tx({ ru: 'Не уложились в ходы', en: 'Out of moves' }),
+        matchedPairs, g.size,
+        tx({ ru: 'Ходов', en: 'Moves' }) + ': ' + g.moves + ' / ' + limit);
     }
     var cols = K.memoryCols(g.cards.length);
-    var pairs = Object.keys(g.matched).length;
-    if (g.finished) {
-      return done(cfg, 'coopmemory',
-        pairs >= g.cards.length / 2
-          ? tx({ ru: 'Поле очищено вместе!', en: 'Board cleared together!' })
-          : tx({ ru: 'Не уложились в ходы', en: 'Out of moves' }),
-        pairs, g.cards.length / 2, tx({ ru: 'Ходов', en: 'Moves' }) + ': ' + g.moves + ' / ' + g.limit);
-    }
-    if (g.moves > g.limit) g.finished = true;
-    var cells = g.cards.map(function (id, idx) {
-      var w = byId(cfg, id);
-      var flipped = g.flipped.indexOf(idx) >= 0 || g.matched[id];
-      var cls = 'bcell' + (g.matched[id] ? ' captured' : '') + (flipped ? '' : ' card-back');
+    var bareOn = K.memoryBareOn(cfg, g);
+    var cells = g.cards.map(function (c, idx) {
+      var w = c.kind === 'trap' ? null : K.byId(cfg, c.id);
+      var flipped = g.flipped.indexOf(idx) >= 0 || !!g.matched[c.id];
+      var cls = 'memory-card';
+      if (g.matched[c.id]) cls += ' matched';
+      cls += flipped ? ' flipped' : ' face-down';
+      if (g.wrong && g.wrong.indexOf(idx) >= 0) cls += ' mismatch';
+      var inner;
+      if (c.kind === 'pic') inner = K.svgBox(w, 62);
+      else if (c.kind === 'trap') inner = K.WORD_CARD_HTML(c.trap.deva);
+      else inner = K.WORD_CARD_HTML(bareOn ? K.memoryStemDeva(w) : w.deva);
+      var back = '<span class="memory-card-back-emblem memory-coord">' + K.cellName(idx, cols) + '</span>';
       return '<button type="button" class="' + cls + '"' + call(cfg, 'coopFlip', String(idx)) + '>' +
-        (flipped ? devaSpan(cellText(w), cellSize(w, '0.95rem'))
-                 : '<span class="memory-card-back-emblem memory-coord">' + K.cellName(idx, cols) + '</span>') + '</button>';
+        (flipped ? inner : back) + '</button>';
     }).join('');
+
+    /* ряд «Слова: с окончаниями / только основа» — как в игре 7 */
+    var bareRow = K.canBareWords(cfg)
+      ? '<div class="game-ver-row" data-mem-row="words"><span class="game-ver-label">' +
+          tx({ ru: 'Слова:', en: 'Words:' }) + '</span>' +
+          chip(cfg, 'coopBare', '0', tx({ ru: '👁 с окончаниями', en: '👁 with endings' }), !bareOn) +
+          chip(cfg, 'coopBare', '1', tx({ ru: '🙈 только основа', en: '🙈 stem only' }), bareOn) +
+        '</div>'
+      : '';
+    /* ряд «Ловушки: с / без» — как в игре 7 (в режиме основы выключены) */
+    var trapRow = K.canMemoryTraps(cfg) && !bareOn
+      ? '<div class="game-ver-row" data-mem-row="traps"><span class="game-ver-label">' +
+          tx({ ru: 'Ловушки:', en: 'Traps:' }) + '</span>' +
+          chip(cfg, 'coopTraps', '1', tx({ ru: '⚠ с ловушками', en: '⚠ with traps' }), g.traps !== false) +
+          chip(cfg, 'coopTraps', '0', tx({ ru: 'без ловушек', en: 'without traps' }), g.traps === false) +
+        '</div>'
+      : (K.canMemoryTraps(cfg) && bareOn
+        ? '<div class="game-ver-row" data-mem-row="traps"><span class="game-ver-label">' +
+            tx({ ru: 'Ловушки:', en: 'Traps:' }) + '</span>' +
+            '<span style="font-size:0.86rem;color:var(--text-secondary);">' +
+            tx({ ru: 'выключены в этом режиме — окончаний не видно',
+                 en: 'off in this mode — the endings are hidden' }) + '</span></div>'
+        : '');
+    /* пауза на промах — ровно те же 9 кнопок, что в игре 7 */
+    var pauseSec = K.memoryPauseSec(g);
+    var pauseRow = '<div class="game-ver-row" data-mem-row="pause"><span class="game-ver-label">' +
+      tx({ ru: 'Пауза на промах:', en: 'Miss pause:' }) + '</span>' +
+      K.MEMORY_PAUSE_OPTIONS.map(function (sec) {
+        return chip(cfg, 'coopPause', String(sec), tx({ ru: sec + ' с', en: sec + ' s' }), pauseSec === sec);
+      }).join('') + '</div>';
+    /* лимит ходов — новый ряд: 12 / 16 / 20 / 25 / 30 / 40 / 50 */
+    var limitRow = '<div class="game-ver-row" data-mem-row="limit"><span class="game-ver-label">' +
+      tx({ ru: 'Лимит ходов:', en: 'Move limit:' }) + '</span>' +
+      COOP_LIMITS.map(function (n) {
+        /* честный минимум для поля из g.size пар — размер поля + 4;
+           если лимит меньше, кнопка помечена «мало» и подписана ещё и словами */
+        var tooTight = n < g.size + 4;
+        return chip(cfg, 'coopLimit', String(n),
+          String(n) + (tooTight ? ' ⚠' : ''), limit === n);
+      }).join('') + '</div>';
+
+    var left = Math.max(0, limit - g.moves);
     return K.topBar(
-      K.pill(tx({ ru: 'Пары', en: 'Pairs' }) + ': ' + pairs + '/' + (g.cards.length / 2)) + ' ' +
-        K.pill(tx({ ru: 'Ходов', en: 'Moves' }) + ': ' + g.moves + '/' + g.limit) + ' ' +
+      K.pill(tx({ ru: 'Пары', en: 'Pairs' }) + ': ' + matchedPairs + '/' + g.size) + ' ' +
+        K.pill(tx({ ru: 'Ходов', en: 'Moves' }) + ': ' + g.moves + '/' + limit) + ' ' +
+        K.pill(tx({ ru: 'Осталось', en: 'Left' }) + ': ' + left) + ' ' +
         (players(cfg) === 2 ? K.pill(tx({ ru: 'Ход', en: 'Turn' }) + ': ' +
           tx({ ru: 'Ученик', en: 'Student' }) + ' ' + (g.turn + 1)) : ''),
-      restartChip(cfg, 'coopmemory')) +
-      K.centerCard(
-        '<div class="grid-10" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + cells + '</div>' +
-        '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);">' +
-          tx({ ru: 'Не друг против друга, а вместе: очистите поле за ' + g.limit + ' ходов, обсуждая каждую клетку вслух.',
-               en: 'Not against each other but together: clear the board in ' + g.limit + ' moves, discussing every square out loud.' }) + '</div>');
+      (function () {
+        var full = cfg.words.length, half = Math.max(3, Math.ceil(cfg.words.length / 2));
+        var tFull = K.memoryTrapCount(cfg, full, g.traps, bareOn);
+        var tHalf = K.memoryTrapCount(cfg, half, g.traps, bareOn);
+        return chip(cfg, 'coopSize', String(full),
+            full + ' × 2' + (tFull ? ' + ' + tFull + ' ⚠' : '') + ' (' + (full * 2 + tFull) + ')',
+            g.size >= full) +
+          chip(cfg, 'coopSize', String(half),
+            half + ' × 2' + (tHalf ? ' + ' + tHalf + ' ⚠' : '') + ' (' + (half * 2 + tHalf) + ')',
+            g.size < full);
+      })() +
+      chip(cfg, 'restart', 'coopmemory', '↺')) +
+      bareRow + trapRow + pauseRow + limitRow +
+      K.centerCard('<div class="memory-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">' + cells + '</div>' +
+        (bareOn ? '<div class="game-hint" role="status">' +
+          tx({ ru: 'Только основа: число показано цифрой, окончаний не видно — род придётся вспомнить по памяти.',
+               en: 'Stem only: the number is shown as a digit, the endings are hidden, so the gender has to come from memory.' }) +
+          '</div>' : '') +
+        (g.trapNote ? '<div class="game-hint trap-hint" role="status">' + K.memoryTrapNote(g.trapNote) + '</div>' : '') +
+        (g.lock && !g.trapNote ? '<div class="game-hint" role="status">' +
+          tx({ ru: '🙈 Не совпало — карточки переворачиваются обратно…',
+               en: '🙈 No match — the cards are flipping back…' }) + '</div>' : '') +
+        (left <= 3 ? '<div class="game-hint" role="status" style="color:#b45309;font-weight:700;">' +
+          tx({ ru: 'Осталось ходов: ' + left + ' — дальше поле не очистить.',
+               en: 'Moves left: ' + left + ' — the board will not clear.' }) + '</div>' : '') +
+        '<div style="margin-top:0.85rem;font-size:0.88rem;color:var(--text-secondary);text-align:center;">' +
+        tx({ ru: 'Называйте карточку по клетке: буква — ряд, цифра — столбец (например <strong>b2</strong>).',
+             en: 'Name the card by its square: the letter is the row, the number is the column (for example <strong>b2</strong>).' }) +
+        '<br/>' + tx({ ru: 'Не друг против друга, а вместе: очистите поле за ' + limit + ' ходов, обсуждая каждую клетку вслух.',
+                       en: 'Not against each other but together: clear the board in ' + limit + ' moves, discussing every square out loud.' }) + '</div>');
   }
 
   /* ========================================================= 29. TIC-TAC-TOE */
@@ -2343,33 +2461,105 @@
   SAL.addGame('coopmemory', {
     labelRu: 'Мемори вдвоём (кооператив)',
     labelEn: 'Co-op Memory (together)',
-    init: function () {
-      return { cards: null, flipped: [], matched: {}, seen: {}, moves: 0,
-               limit: 0, turn: 0, finished: false };
+    /* Состояние — как у игры 7: cards/flipped/matched/wrong/lock/moves/score/
+       seen/failed/size/traps/bare/pause/missUntil, плюс limit (лимит ходов)
+       и scores/turn для переключателя 👤/👥. */
+    init: function (cfg) {
+      return { cards: null, flipped: [], matched: {}, wrong: null, lock: false,
+               moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length,
+               scores: [0, 0], turn: 0, traps: true, bare: false, pause: 0,
+               missUntil: 0, trapNote: null, limit: loadCoopLimit(), finished: false };
     },
     render: renderCoopMemory,
     actions: {
+      /* переворот — та же механика, что tile() в игре 7 */
       coopFlip: function (cfg, st, a) {
         var g = K.gst(cfg, 'coopmemory');
         var idx = parseInt(a, 10);
-        if (g.flipped.length >= 2) { g.flipped = []; }
-        if (g.matched[g.cards[idx]] || g.flipped.indexOf(idx) >= 0) return;
+        if (g.lock) return;
+        var card = g.cards[idx];
+        if (!card) return;
+        if (g.flipped.indexOf(idx) >= 0 || g.matched[card.id]) return;
         g.flipped.push(idx);
+        g.trapNote = null;
         if (g.flipped.length < 2) return;
         g.moves++;
         var c1 = g.cards[g.flipped[0]], c2 = g.cards[g.flipped[1]];
-        if (c1 === c2) {
-          g.matched[c1] = true; g.flipped = [];
-          SAL.speak(byId(cfg, c1).ttsText);
-          if (Object.keys(g.matched).length >= g.cards.length / 2) g.finished = true;
+        var duo = players(cfg) === 2;
+        var trapCard = c1.kind === 'trap' ? c1 : (c2.kind === 'trap' ? c2 : null);
+        if (!trapCard && c1.kind !== c2.kind && c1.id === c2.id) {
+          g.matched[c1.id] = true; g.score++; g.flipped = [];
+          K.duoAward(g, g.turn || 0);
+          SAL.speak(K.byId(cfg, c1.id).ttsText);
         } else {
-          K.noteWrong(cfg, c1);
-          g.flipped = [];
-          if (players(cfg) === 2) swapTurn(g);
+          if (trapCard) g.trapNote = trapCard.trap;
+          if (c1.kind !== 'trap') {
+            if (g.seen[c1.id]) g.failed[c1.id] = true;
+            g.seen[c1.id] = true;
+            K.noteWrong(cfg, c1.id);
+          }
+          if (c2.kind !== 'trap') g.seen[c2.id] = true;
+          if (duo) K.duoSwap(g);
+          g.wrong = g.flipped.slice(); g.lock = true;
+          var waitMs = K.memoryPauseSec(g) * 1000;
+          g.missUntil = Date.now() + waitMs;
+          setTimeout(function () { K.memoryCloseMiss(cfg, g, 'coopmemory'); }, waitMs);
         }
-        if (g.moves >= g.limit && !g.finished) {
-          if (Object.keys(g.matched).length < g.cards.length / 2) g.finished = true;
+      },
+      /* «Слова: с окончаниями / только основа» — как memoryBare в игре 7 */
+      coopBare: function (cfg, st, a) {
+        var g = K.gst(cfg, 'coopmemory');
+        var want = a === '1';
+        if (!!g.bare === want) return;
+        var size = g.size, traps = g.traps !== false, limit = g.limit;
+        st.g.coopmemory = K.gameInit('coopmemory', cfg, st);
+        st.g.coopmemory.size = Math.min(size, cfg.words.length);
+        st.g.coopmemory.traps = traps;
+        st.g.coopmemory.bare = want;
+        st.g.coopmemory.limit = limit;
+      },
+      /* «Ловушки: с / без» — как memoryTraps в игре 7 */
+      coopTraps: function (cfg, st, a) {
+        var g = K.gst(cfg, 'coopmemory');
+        var want = a === '1';
+        if ((g.traps !== false) === want) return;
+        var size = g.size, bare = !!g.bare, limit = g.limit;
+        st.g.coopmemory = K.gameInit('coopmemory', cfg, st);
+        st.g.coopmemory.size = Math.min(size, cfg.words.length);
+        st.g.coopmemory.bare = bare;
+        st.g.coopmemory.traps = want;
+        st.g.coopmemory.limit = limit;
+      },
+      /* «Пауза на промах» — как memoryPause в игре 7, включая продление на ходу */
+      coopPause: function (cfg, st, a) {
+        var g = K.gst(cfg, 'coopmemory');
+        var sec = parseInt(a, 10);
+        if (K.MEMORY_PAUSE_OPTIONS.indexOf(sec) < 0) return;
+        g.pause = sec * 1000;
+        try { if (window.localStorage) window.localStorage.setItem('sal-memory-pause', String(sec)); } catch (e) { }
+        if (g.lock) {
+          g.missUntil = Date.now() + g.pause;
+          setTimeout(function () { K.memoryCloseMiss(cfg, g, 'coopmemory'); }, g.pause);
         }
+      },
+      /* размер поля — как memorySize в игре 7 */
+      coopSize: function (cfg, st, a) {
+        var g = K.gst(cfg, 'coopmemory');
+        var size = parseInt(a, 10) || cfg.words.length;
+        var traps = g.traps !== false, bare = !!g.bare, limit = g.limit;
+        st.g.coopmemory = K.gameInit('coopmemory', cfg, st);
+        st.g.coopmemory.size = Math.min(size, cfg.words.length);
+        st.g.coopmemory.traps = traps;
+        st.g.coopmemory.bare = bare;
+        st.g.coopmemory.limit = limit;
+      },
+      /* лимит ходов 12 / 16 / 20 / 25 / 30 / 40 / 50; запоминается на весь сайт */
+      coopLimit: function (cfg, st, a) {
+        var g = K.gst(cfg, 'coopmemory');
+        var n = parseInt(a, 10);
+        if (COOP_LIMITS.indexOf(n) < 0) return;
+        g.limit = n;
+        saveCoopLimit(n);
       }
     }
   });
@@ -2769,12 +2959,16 @@
     coopmemory: {
       aim: { ru: 'Не друг против друга, а вместе: очистить поле за ограниченное число ходов.',
              en: 'Not against each other but together: clear the board within a limited number of moves.' },
-      how: { ru: ['Открывайте по две карточки, как в обычном мемори.',
+      how: { ru: ['Всё как в игре 7 «Классическое Мемори»: пары «картинка + слово», те же клетки (a1, b2), та же пауза на промахе, ловушки рода, режим «🙈 только основа» и два размера поля.',
+                  'Открывайте по две карточки; не совпало — обе ненадолго остаются открытыми, поле в это время заперто.',
+                  'Лимит ходов выбирается сверху: 12, 16, 20, 25, 30, 40 или 50. Выбор запоминается на весь сайт.',
                   'Каждое обсуждение — вслух: «в a1 было то‑то», и только потом нажимайте.',
-                  'Лимит ходов показан сверху; если исчерпан — поле не очищено, начните заново.'],
-             en: ['Open two cards at a time, as in ordinary memory.',
+                  'Если лимит исчерпан, а пары остались — поле не очищено, начните заново. Ходы считаются парами: два переворота — один ход.'],
+             en: ['Everything works as in game 7 “Classic Memory”: picture + word pairs, the same squares (a1, b2), the same miss pause, gender traps, the “🙈 stem only” mode and two board sizes.',
+                  'Open two cards; on a miss both stay open for a moment and the board is locked meanwhile.',
+                  'The move limit is chosen at the top: 12, 16, 20, 25, 30, 40 or 50. The choice is remembered for the whole site.',
                   'Discuss every move out loud — “a1 was …” — and only then press.',
-                  'The move limit is shown at the top; when it runs out the board is not cleared and you start over.'] },
+                  'If the limit runs out with pairs still face down, the board is not cleared and you start over. A move is one pair of flips.'] },
       score: { ru: 'Счёт общий: сколько пар закрыто. Отдельного счёта по игрокам здесь нет — это намеренно.',
                en: 'The score is shared: how many pairs are cleared. There is no per-player score, on purpose.' },
       pair: { ru: 'Ход обозначается для порядка, но выигрывают или проигрывают вдвоём.',

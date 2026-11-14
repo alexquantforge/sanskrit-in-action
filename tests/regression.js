@@ -1660,13 +1660,15 @@ const backsOf = (gm) => {
   SAL.do('L4', 'restart', gm);
   const a = arenaOf('L4');
   const emblems = [...a.querySelectorAll('.memory-card-back-emblem')];
-  const bare = emblems.filter(e => !e.closest('.card-back'));
+  /* «рубашка» — либо клетка .card-back (морской бой, слепое поле),
+     либо карточка .memory-card.face-down (игра 7 и мемори вдвоём) */
+  const bare = emblems.filter(e => !e.closest('.card-back') && !e.closest('.face-down'));
   return { total: emblems.length, bare: bare.length, a: a };
 };
 const mem = backsOf('coopmemory');
 ck(mem.total === 10 && mem.bare === 0,
   'мемори вдвоём: у всех закрытых карточек есть тёмная рубашка (без неё — белый экран)');
-ck([...mem.a.querySelectorAll('.card-back')].every(c => /^[a-c][1-4]$/.test(c.textContent.trim())),
+ck([...mem.a.querySelectorAll('.memory-card.face-down')].every(c => /^[a-c][1-4]$/.test(c.textContent.trim())),
   'мемори вдвоём: на рубашке читается координата (a1 … c4)');
 const bat = backsOf('battleship');
 ck(bat.total === 10 && bat.bare === 0, 'морской бой: закрытые клетки тоже под рубашкой');
@@ -1682,8 +1684,8 @@ ck(bbBare.length === 0 && arenaOf('L4').querySelectorAll('.wcell.card-back').len
 SAL.do('L4', 'restart', 'blindboard');
 SAL.do('L4', 'restart', 'coopmemory');
 SAL.do('L4', 'coopFlip', '0');
-ck(arenaOf('L4').querySelectorAll('.bcell.card-back').length === 9 &&
-   !arenaOf('L4').querySelectorAll('.bcell')[0].classList.contains('card-back'),
+ck(arenaOf('L4').querySelectorAll('.memory-card.face-down').length === 9 &&
+   !arenaOf('L4').querySelectorAll('.memory-card')[0].classList.contains('face-down'),
   'мемори вдвоём: открытая карточка рубашку теряет, остальные остаются закрытыми');
 SAL.do('L4', 'restart', 'coopmemory');
 
@@ -2008,6 +2010,99 @@ SAL.do('L2', 'restart', 'orderrelay');
 SAL.do('L2', 'relayTap', SAL.lessons.L2.words[0].id);
 ck(gst('L2', 'orderrelay').placed.length === 1,
   'урок без чисел: эстафета работает как раньше — по порядку слов урока');
+/* ---------- 27c. мемори вдвоём: копия игры 7 + лимит ходов ----------
+   Требование: «всё абсолютно всё то же самое, что и в 7. Классическое
+   Мемори», плюс переключаемый лимит 12/16/20/25/30/40/50.
+   Поэтому проверяем не по списку «что должно быть», а сравнением с игрой 7
+   в том же уроке: поле, карточки и все ряды настроек должны совпасть. */
+const coopRows = k => [...arenaOf(k).querySelectorAll('.game-ver-row')]
+  .map(r => r.textContent.replace(/\s+/g, ' ').trim());
+const coopOpen = (k, gm) => { SAL.openLesson(k); SAL.do(k, 'setGame', gm); SAL.do(k, 'restart', gm); };
+['L4', 'LV', 'LG'].forEach(k => {
+  coopOpen(k, 'memory');
+  const row7 = coopRows(k).filter(r => !/Лимит ходов/.test(r));
+  const n7 = arenaOf(k).querySelectorAll('.memory-card').length;
+  coopOpen(k, 'coopmemory');
+  const row28 = coopRows(k).filter(r => !/Лимит ходов/.test(r));
+  const n28 = arenaOf(k).querySelectorAll('.memory-card').length;
+  ck(n7 === n28 && n28 > 0,
+    'мемори вдвоём (' + k + '): поле такое же, как в игре 7 — ' + n7 + ' карточек');
+  ck(JSON.stringify(row7) === JSON.stringify(row28),
+    'мемори вдвоём (' + k + '): ряды настроек те же, что в игре 7' +
+    (JSON.stringify(row7) === JSON.stringify(row28) ? '' :
+      ' — 7: ' + JSON.stringify(row7) + ' / 28: ' + JSON.stringify(row28)));
+});
+/* ловушки в уроке с ловушками действительно попадают на поле — как в игре 7 */
+coopOpen('LG', 'coopmemory');
+const coopTraps = gst('LG', 'coopmemory').cards.filter(c => c.kind === 'trap').length;
+coopOpen('LG', 'memory');
+const memTraps = gst('LG', 'memory').cards.filter(c => c.kind === 'trap').length;
+ck(coopTraps === memTraps && coopTraps > 0,
+  'мемори вдвоём: ловушек на поле столько же, сколько в игре 7 (' + coopTraps + ')');
+/* ровно семь разрешённых лимитов, свой ряд */
+coopOpen('L4', 'coopmemory');
+const limitRow = [...arenaOf('L4').querySelectorAll('.game-ver-row')]
+  .filter(r => /Лимит ходов/.test(r.textContent))[0];
+ck(!!limitRow, 'мемори вдвоём: есть отдельный ряд «Лимит ходов»');
+const limitChips = limitRow ? [...limitRow.querySelectorAll('button')].map(b => b.textContent.trim()) : [];
+ck(limitChips.join(',') === '12,16,20,25,30,40,50',
+  'мемори вдвоём: лимит — ровно 12/16/20/25/30/40/50 (' + limitChips.join('/') + ')');
+/* выбор лимита запоминается и переживает перезапуск */
+SAL.do('L4', 'coopLimit', '30');
+ck(gst('L4', 'coopmemory').limit === 30 && win.localStorage.getItem('sal-coop-moves') === '30',
+  'мемори вдвоём: выбранный лимит 30 сохраняется в настройках сайта');
+SAL.do('L4', 'restart', 'coopmemory');
+ck(gst('L4', 'coopmemory').limit === 30,
+  'мемори вдвоём: после перезапуска лимит остаётся 30, а не сбрасывается');
+SAL.do('L4', 'coopLimit', '99');
+ck(gst('L4', 'coopmemory').limit === 30, 'мемори вдвоём: чужое число в лимит не попадает');
+SAL.do('L4', 'coopLimit', '20');
+/* после смены лимита поле обязано остаться на экране: ряд кнопок не исчезает */
+ck([...arenaOf('L4').querySelectorAll('.game-ver-row')].some(r => /Лимит ходов/.test(r.textContent)),
+  'мемори вдвоём: смена лимита не ломает поле и ряды настроек');
+SAL.do('L4', 'coopLimit', '50');
+SAL.do('L4', 'coopLimit', '20');
+/* ход = пара переворотов; верная пара закрывается */
+const coopWord = id => gst('L4', 'coopmemory').cards.findIndex(c => c.kind === 'word' && c.id === id);
+const coopPic = id => gst('L4', 'coopmemory').cards.findIndex(c => c.kind === 'pic' && c.id === id);
+const cid = gst('L4', 'coopmemory').cards.filter(c => c.kind === 'word')[0].id;
+SAL.do('L4', 'coopFlip', String(coopPic(cid)));
+SAL.do('L4', 'coopFlip', String(coopWord(cid)));
+ck(Object.keys(gst('L4', 'coopmemory').matched).length === 1 && gst('L4', 'coopmemory').moves >= 1,
+  'мемори вдвоём: верная пара закрывается, ход засчитан');
+/* промах запирает поле на выбранную паузу — как в игре 7 */
+coopOpen('L4', 'coopmemory');
+SAL.do('L4', 'coopPause', '2');
+const failW = gst('L4', 'coopmemory').cards.filter(c => c.kind === 'word' && !gst('L4', 'coopmemory').matched[c.id])[0];
+const failP = gst('L4', 'coopmemory').cards.filter(c => c.kind === 'pic' && c.id !== failW.id)[0];
+const movesBefore = gst('L4', 'coopmemory').moves;
+SAL.do('L4', 'coopFlip', String(gst('L4', 'coopmemory').cards.indexOf(failW)));
+SAL.do('L4', 'coopFlip', String(gst('L4', 'coopmemory').cards.indexOf(failP)));
+ck(!!gst('L4', 'coopmemory').lock &&
+   gst('L4', 'coopmemory').moves === movesBefore + 1 &&
+   gst('L4', 'coopmemory').missUntil - Date.now() > 1000,
+  'мемори вдвоём: промах тратит ровно один ход и запирает поле на паузу, как в игре 7');
+/* не уложились в ходы — честный проигрыш */
+coopOpen('L4', 'coopmemory');
+SAL.do('L4', 'coopLimit', '12');
+gst('L4', 'coopmemory').moves = 12;
+SAL.refresh();
+ck(/Не уложились в ходы/.test(arenaOf('L4').textContent),
+  'мемори вдвоём: когда ходы кончились, поле честно закрывается «не уложились»');
+/* поле очищено — общая победа */
+coopOpen('L4', 'coopmemory');
+const coopRealST = win.setTimeout;
+win.setTimeout = function () { return 0; };
+SAL.lessons.L4.words.forEach(w => {
+  SAL.do('L4', 'coopFlip', String(coopPic(w.id)));
+  SAL.do('L4', 'coopFlip', String(coopWord(w.id)));
+});
+win.setTimeout = coopRealST;
+SAL.refresh();
+ck(/Поле очищено вместе/.test(arenaOf('L4').textContent),
+  'мемори вдвоём: очищенное поле — общая победа, а не чей-то счёт');
+SAL.do('L4', 'coopLimit', '20');
+
 /* возвращаемся в урок 4: следующие проверки ждут открытой арену L4 */
 SAL.openLesson('L4');
 

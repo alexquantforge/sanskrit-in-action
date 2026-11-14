@@ -2120,11 +2120,12 @@ var SAL = (window.SAL = window.SAL || {});
   }
   /* закрыть пару после промаха: ждём до missUntil, а если паузу успели
      удлинить кнопкой — ждём ещё. Несколько таймеров не мешают друг другу. */
-  function memoryCloseMiss(cfg, g) {
+  function memoryCloseMiss(cfg, g, gameName) {
     if (!g || !g.lock) return;
     var left = (g.missUntil || 0) - Date.now();
-    if (left > 30) { setTimeout(function () { memoryCloseMiss(cfg, g); }, left); return; }
-    var gg = gst(cfg, 'memory');
+    if (left > 30) { setTimeout(function () { memoryCloseMiss(cfg, g, gameName); }, left); return; }
+    /* поле могло быть у другой игры с таким же поведением: «Мемори вдвоём» (28) */
+    var gg = gst(cfg, gameName || 'memory');
     if (gg !== g) return;          /* поле уже пересобрали (↺ / размер / режим) */
     gg.flipped = []; gg.wrong = null; gg.lock = false; gg.missUntil = 0;
     SAL.refresh();
@@ -3377,7 +3378,7 @@ var SAL = (window.SAL = window.SAL || {});
              вторую успевают прочитать. Поле в это время заперто. */
           var waitMs = memoryPauseSec(g) * 1000;
           g.missUntil = Date.now() + waitMs;
-          setTimeout(function () { memoryCloseMiss(cfg, g); }, waitMs);
+          setTimeout(function () { memoryCloseMiss(cfg, g, 'memory'); }, waitMs);
         }
       }
     },
@@ -3418,7 +3419,7 @@ var SAL = (window.SAL = window.SAL || {});
          иначе кнопка выглядит неработающей */
       if (g.lock) {
         g.missUntil = Date.now() + g.pause;
-        setTimeout(function () { memoryCloseMiss(cfg, g); }, g.pause);
+        setTimeout(function () { memoryCloseMiss(cfg, g, 'memory'); }, g.pause);
       }
     },
     /* «только основа / с окончаниями»: слово на карточке без окончания —
@@ -4102,6 +4103,19 @@ var SAL = (window.SAL = window.SAL || {});
     centerCard: centerCard, svgBox: svgBox, finalScreen: finalScreen, optGrid: optGrid,
     wordBtn: wordBtn, letterBadge: letterBadge, LETTERS: LETTERS,
     cellName: cellName, memoryCols: memoryCols,
+    /* «Мемори вдвоём» повторяет игру 7 один в один: те же карточки, ловушки,
+       режим основы, пауза на промах и размер поля */
+    WORD_CARD_HTML: WORD_CARD_HTML, memoryStemDeva: memoryStemDeva,
+    memoryTrapNote: memoryTrapNote, memoryTrapsFor: memoryTrapsFor,
+    memoryTrapCount: memoryTrapCount, memoryBareOn: memoryBareOn,
+    canBareWords: canBareWords, canMemoryTraps: canMemoryTraps,
+    memoryPauseSec: memoryPauseSec, MEMORY_PAUSE_OPTIONS: MEMORY_PAUSE_OPTIONS,
+    memoryCloseMiss: memoryCloseMiss, duoScorePills: duoScorePills,
+    duoAward: duoAward, duoSwap: duoSwap,
+    /* пересобрать состояние игры по её же init (нужно кнопкам размера/режимов) */
+    gameInit: function (name, cfg, st) {
+      return (GAME_INIT[name] || function () { return {}; })(cfg, st);
+    },
     gst: gst, state: state, iastOn: iastOn,
     maskedMarkup: maskedMarkup, devaLabel: devaLabel, iastSpan: iastSpan,
     answerFeedback: answerFeedback, restartRow: restartRow,
@@ -4135,6 +4149,9 @@ var SAL = (window.SAL = window.SAL || {});
       action === 'rcGame' || action === 'rcProd';
     var isRestart = action === 'restart' || /Restart$/.test(action) || action === 'memorySize' ||
       action === 'memoryBare' || action === 'memoryTraps' || action === 'memoryPause' ||
+      /* игра 28 «Мемори вдвоём»: те же настройки, что у игры 7, плюс лимит ходов */
+      action === 'coopSize' || action === 'coopBare' || action === 'coopTraps' ||
+      action === 'coopPause' || action === 'coopLimit' ||
       action === 'matchNext' || action === 'blindSec';
     var id = stageIdFor(cfg, action);
     /* Прокрутка нужна ТОЛЬКО при переключении игры/режима (вкладки могут быть
