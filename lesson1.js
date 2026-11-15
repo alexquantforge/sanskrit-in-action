@@ -2425,11 +2425,12 @@ function prepareTypoRound() {
   const correct1 = bodyPartsVocab[(typoIndex + 3) % n];
   const correct2 = bodyPartsVocab[(typoIndex + 7) % n];
 
+  /* IAST здесь не показываем ни на одной карточке: латиница была только
+     у двух верных карточек, и по ней ответ находился, не читая деванагари */
   const rawCards = [
-    /* у испорченной карточки латиницы нет: IAST выдаёт ошибку сразу */
-    { item: typoItem, displayedDeva: typoItem.typoDeva, displayedIast: '', hasTypo: true },
-    { item: correct1, displayedDeva: correct1.deva, displayedIast: correct1.iast, hasTypo: false },
-    { item: correct2, displayedDeva: correct2.deva, displayedIast: correct2.iast, hasTypo: false }
+    { item: typoItem, displayedDeva: typoItem.typoDeva, hasTypo: true },
+    { item: correct1, displayedDeva: correct1.deva, hasTypo: false },
+    { item: correct2, displayedDeva: correct2.deva, hasTypo: false }
   ];
 
   const shift = (typoIndex * 7 + 2) % 3;
@@ -2458,13 +2459,9 @@ function renderTypoGame(arena) {
         <div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">${c.item.svg}</div>
         ${!showCorrection ? `
           <div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">${c.displayedDeva}</div>
-          ${c.displayedIast
-            ? `<div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:var(--accent-saffron);">${c.displayedIast}</div>`
-            : `<div style="font-size:0.78rem;color:var(--text-secondary);letter-spacing:0.08em;">IAST 🙈</div>`}
         ` : `
           <div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">${c.displayedDeva}</div>
           <div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ${c.item.deva}</div>
-          <div class="vocab-iast" style="font-family:var(--font-mono);font-size:0.85rem;color:#15803d;">${c.item.iast}</div>
         `}
       </button>
     `;

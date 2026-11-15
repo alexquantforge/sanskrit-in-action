@@ -5180,8 +5180,11 @@ console.log('\n===== Игры 8 и 9: ошибки по всем урокам ==
   ck(nearBad.length === 0, 'игра 8: ошибка — та же основа с одной буквой, а не другое слово' +
     (nearBad.length ? ' — ' + nearBad.slice(0, 4).join('; ') : ''));
 
-  /* 4. игра 9: у испорченной карточки IAST скрыт, у двух других — на месте */
+  /* 4. игра 9: на карточках ТОЛЬКО деванагари — никакой латиницы, по которой
+        ответ находился, не читая букв. Раньше IAST стоял у двух верных
+        карточек, а у испорченной его не было: одна латиница выдавала ответ. */
   const typoBad = [];
+  const LATIN = /[āīūṛṝśṣṇṭḍḥṃṅñĀĪŪṚŚṢṆṬḌḤṂ]/;
   Object.keys(SAL.lessons).forEach(key => {
     const L = SAL.lessons[key];
     if (!L.words || L.words.length < 3) return;
@@ -5193,18 +5196,121 @@ console.log('\n===== Игры 8 и 9: ошибки по всем урокам ==
     const arena = win.document.getElementById(key + '-practice-arena');
     const cards = [...arena.querySelectorAll('.quiz-opt-btn')];
     if (cards.length !== 3) { typoBad.push(key + ': карточек ' + cards.length); return; }
+    const typoCard = cards[g.round.wrongIdx];
+    const typoText = typoCard ? typoCard.textContent.replace(/\s+/g, ' ').trim() : '';
     g.round.trio.forEach((id, i) => {
       const w = L.words.filter(x => x.id === id)[0];
       const text = cards[i].textContent.replace(/\s+/g, ' ');
       if (i === g.round.wrongIdx) {
-        if (text.indexOf(w.typoDeva) < 0) typoBad.push(key + ': нет опечатки ' + w.typoDeva);
-        if (text.indexOf(w.iast) >= 0) typoBad.push(key + ': IAST выдаёт опечатку');
-      } else if (text.indexOf(w.iast) < 0) typoBad.push(key + ': у верной карточки нет IAST');
+        if (text.indexOf(g.round.typo) < 0) typoBad.push(key + ': нет опечатки ' + g.round.typo);
+      }
+      /* ни IAST, ни пометки-заглушки: наличие латиницы только у «хороших»
+         карточек и было подсказкой */
+      if (text.indexOf(w.iast) >= 0) typoBad.push(key + ': IAST на карточке ' + w.deva);
+      if (LATIN.test(text)) typoBad.push(key + ': латиница на карточке ' + text.slice(0, 24));
+      if (/IAST/.test(text)) typoBad.push(key + ': пометка IAST на карточке');
     });
-    if (g.round.wrongIdx < 3 && !/IAST 🙈/.test(arena.textContent)) typoBad.push(key + ': нет пометки IAST 🙈');
+    /* у верных карточек — само слово, а не испорченное написание */
+    g.round.trio.forEach((id, i) => {
+      if (i === g.round.wrongIdx) return;
+      const w = L.words.filter(x => x.id === id)[0];
+      if (cards[i].textContent.indexOf(w.deva) < 0) typoBad.push(key + ': верная карточка без ' + w.deva);
+    });
+    if (!typoText) typoBad.push(key + ': пустая карточка с опечаткой');
   });
-  ck(typoBad.length === 0, 'игра 9: опечатка показана, её IAST скрыт — ответ не подсмотреть' +
+  ck(typoBad.length === 0, 'игра 9: на всех трёх карточках только деванагари — IAST нет ни у верных, ни у испорченной' +
     (typoBad.length ? ' — ' + typoBad.slice(0, 4).join('; ') : ''));
+
+  /* 4b. игра 9: ошибки не повторяются — ни в проходе, ни между проходами */
+  const typoRepeat = [];
+  ['L7', 'L11', 'LG', 'LT', 'L4'].forEach(key => {
+    const L = SAL.lessons[key];
+    SAL.openLesson(key);
+    SAL.do(key, 'setGame', 'typo');
+    SAL.do(key, 'restart', 'typo');
+    /* свой ключ памяти — иначе тест зависит от прошлых прогонов */
+    try { win.localStorage.removeItem('sal-typo-used-' + key); } catch (e) { }
+    const G = () => L._st.g.typo;
+    G().usedTypo = null;
+    const seen = [];
+    let guard = 0;
+    /* два полных прохода подряд: повторов быть не должно (у уроков десятки
+       вариантов, исчерпание начинается гораздо позже) */
+    const target = L.words.length * 2;
+    while (seen.length < target && guard++ < 200) {
+      const g = G();
+      if (g.finished) { SAL.do(key, 'restart', 'typo'); continue; }
+      seen.push(g.round.typo);
+      SAL.do(key, 'pick3', String(g.round.wrongIdx));
+      SAL.do(key, 'typoNext', '');
+    }
+    const dup = seen.filter((t, i) => seen.indexOf(t) !== i);
+    if (dup.length) typoRepeat.push(key + ': повтор ' + dup.slice(0, 3).join(', '));
+    /* и карточка с ошибкой действительно показывает её, а не слово урока */
+    const g2 = G();
+    if (g2.round && g2.round.typo === g2.round.targetDeva) typoRepeat.push(key + ': опечатка совпала со словом');
+    console.log('  ..  игра 9 (' + key + '): ' + seen.length + ' раундов, разных написаний ' +
+      new Set(seen).size);
+  });
+  ck(typoRepeat.length === 0, 'игра 9: ошибки не повторяются — два прохода подряд без единого повтора' +
+    (typoRepeat.length ? ' — ' + typoRepeat.slice(0, 4).join('; ') : ''));
+
+  /* 4c. «Начать сначала» НЕ обнуляет память: иначе после каждого перезапуска
+        снова шли те же пять ошибок — на это и жаловались */
+  SAL.openLesson('L11');
+  SAL.do('L11', 'setGame', 'typo');
+  SAL.do('L11', 'restart', 'typo');
+  try { win.localStorage.removeItem('sal-typo-used-L11'); } catch (e) { }
+  SAL.do('L11', 'restart', 'typo');
+  const memG = () => SAL.lessons.L11._st.g.typo;
+  memG().usedTypo = null;
+  SAL.do('L11', 'restart', 'typo');
+  const shownFirst = [];
+  for (let k = 0; k < SAL.lessons.L11.words.length; k++) {
+    const gg = memG();
+    if (gg.finished || !gg.round) break;
+    shownFirst.push(gg.round.typo);
+    SAL.do('L11', 'pick3', String(gg.round.wrongIdx));
+    SAL.do('L11', 'typoNext', '');
+  }
+  SAL.do('L11', 'restart', 'typo');
+  const memAfter = Object.keys(memG().usedTypo || {});
+  const kept = shownFirst.every(t => memAfter.indexOf(t) >= 0);
+  ck(kept && memAfter.length >= shownFirst.length,
+    'игра 9: после «Начать сначала» показанные ошибки помнятся (' + memAfter.length + ' из ' + shownFirst.length + ')');
+  /* в localStorage тоже записано — значит, переживёт и перезагрузку страницы */
+  let storedOk = false;
+  try {
+    const raw = JSON.parse(win.localStorage.getItem('sal-typo-used-L11') || '{}');
+    storedOk = shownFirst.every(t => raw[t]);
+  } catch (e) { storedOk = false; }
+  ck(storedOk, 'игра 9: память показанных ошибок лежит в localStorage — повторов нет и после перезагрузки');
+  /* новый старт не должен сразу выдать одну из уже показанных ошибок */
+  let freshDup = 0;
+  for (let k = 0; k < 6; k++) {
+    const gg = memG();
+    if (gg.finished) { SAL.do('L11', 'restart', 'typo'); continue; }
+    if (shownFirst.indexOf(gg.round.typo) >= 0) freshDup++;
+    SAL.do('L11', 'pick3', String(gg.round.wrongIdx));
+    SAL.do('L11', 'typoNext', '');
+  }
+  ck(freshDup === 0, 'игра 9: после перезапуска идут новые ошибки, а не те же пять' +
+    (freshDup ? ' — повторилось ' + freshDup : ''));
+
+  /* 4d. своя игра 9 на странице урока 1: тоже без латиницы */
+  win.eval("currentView='practice'; currentPracticeGame='typo'; typoCards=[]; typoIndex=0; typoScore=0; typoFinished=false; renderPracticeArena();");
+  const l1arena = win.document.getElementById('lesson1-practice-arena');
+  const l1cards = [...l1arena.querySelectorAll('.quiz-opt-btn')];
+  ck(l1cards.length === 3 && l1cards.every(c => !LATIN.test(c.textContent) && !/IAST/.test(c.textContent)),
+    'урок 1, игра 9: на карточках только деванагари, латиницы нет');
+  const l1seen = [];
+  for (let k = 0; k < 12; k++) {
+    l1seen.push(win.eval("typoCards.filter(function(c){return c.hasTypo;})[0].displayedDeva"));
+    const wi2 = win.eval("typoCards.findIndex(function(c){return c.hasTypo;})");
+    win.eval('checkTypoCard(' + wi2 + ')');
+    win.eval('nextTypoRound()');
+  }
+  ck(l1seen.length === new Set(l1seen).size, 'урок 1, игра 9: двенадцать опечаток подряд без повторов');
 
   /* 5. после ответа объяснение называет ровно ту букву, что исправлена */
   SAL.openLesson('L3');

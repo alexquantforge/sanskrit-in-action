@@ -1770,7 +1770,13 @@ var SAL = (window.SAL = window.SAL || {});
     match: function (cfg) { return { stage: 0, sel: null, matched: {}, wrong: null, failed: {}, score: 0, done: false, tiles: null, scores: [0, 0], turn: 0 }; },
     memory: function (cfg) { return { cards: null, flipped: [], matched: {}, wrong: null, lock: false, moves: 0, score: 0, seen: {}, failed: {}, size: cfg.words.length, scores: [0, 0], turn: 0, traps: true, bare: false, pause: 0, missUntil: 0 }; },
     wronglabel: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
-    typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redIdx: null, round: null, finished: false }; },
+    /* очередь раундов и already-показанные ошибки живут в состоянии игры:
+       так повтор случается только после того, как кончились все написания */
+    typo: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, firstTry: true,
+      redIdx: null, round: null, finished: false, queue: null,
+      /* usedTypo и queue восстанавливаются из localStorage в prepareTypo:
+         память показанных ошибок живёт дольше одной сессии */
+      usedTypo: null, roundNo: 0 }; },
     categories: function () { return { i: 0, score: 0, sel: {}, wrong: {}, firstTry: true, checked: false, finished: false, bare: false }; },
     spelling: function () { return { i: 0, score: 0, answered: false, picked: null, firstTry: true, redPick: null, finished: false }; },
     truefalse: function (cfg) { return { i: 0, score: 0, answered: false, picked: null, isTrue: true, otherId: null, finished: false }; }
@@ -2399,61 +2405,200 @@ var SAL = (window.SAL = window.SAL || {});
       explain;
   }
 
-  /* 9. Spot the 1-Letter Typo --------------------------------------------- */
-  function prepareTypo(cfg) {
-    var trio = shuffle(cfg.words).slice(0, 3);
-    var wrongIdx = Math.floor(Math.random() * 3);
-    return { trio: trio.map(function (w) { return w.id; }), wrongIdx: wrongIdx };
+  /* 9. Spot the 1-Letter Typo ---------------------------------------------
+     Два правила, без которых задание «угадывается», а не читается:
+     1) карточки — только деванагари. IAST висел лишь у правильных карточек
+        (у испорченной его нет), и латиница сама выдавала верный ответ;
+     2) ошибки не повторяются. Своих опечаток у слова ровно одна, поэтому
+        берём и «свою» ошибку слова (w.typoDeva), и чужие: правильное слово
+        с ошибкой-написанием другого слова урока. Годятся те, что отличаются
+        от правильного ровно на одну букву замены — тогда все три карточки
+        показывают ОДНО И ТО ЖЕ слово, и лишняя буква — единственная улика.
+     Раунды идут очередью без повторов: перемешанные слова и перемешанные
+     варианты ошибки к каждому. Ошибка показывается не больше одного раза
+     за проход. */
+  /* алфавит для замен — тремя классами, чтобы знак менялся на знак своего
+     класса и получалось правдоподобное написание, а не мусор:
+       согласные по варгам (क↔ख↔ग↔घ), шипящие (श↔ष↔स), носовые, плавные;
+       огласовки по долготе и качеству (ि↔ी, ु↔ू, े↔ै, ो↔ौ, ऋ↔रि);
+       знаки ं / ँ / ः.
+     Замена одной буквы на такую же «похожую» и есть неочевидная ошибка:
+     गौर → गौल, नयन → नयम, शीर्ष → शीर्श. */
+  var EDIT_GROUPS = [
+    'कखगघङ', 'चछजझञ', 'टठडढण', 'तथदधन', 'पफबभम',   /* варги: подмена внутри ряда */
+    'यरलव',                                        /* плавные и полугласные */
+    'शषस',                                         /* шипящие */
+    'ंँः'                                          /* носовой, анусвара, висарга */
+  ];
+  /* огласовки — не «все на все»: путают долготу и соседний подъём (द्वे → द्वै,
+     कपिश → कपेश), а ि ↔ ू или ि → ृ ученик не напишет никогда — это уже не
+     ошибка, а случайные буквы. */
+  var EDIT_MATRA_PAIRS = {
+    'ि': 'ीे', 'ी': 'ि', 'ु': 'ूो', 'ू': 'ु', 'ृ': 'ि', 'े': 'िै', 'ै': 'े',
+    'ो': 'ुौ', 'ौ': 'ो', 'ा': 'ि'
+  };
+  /* сверх варги — самая частая путаница у ученика: ретрофлексный и зубной
+     ряд (ट↔त, ड↔द, ण↔न). Такая подмена незаметна именно потому, что звучит
+     «почти так же»; без неё набор вариантов кончается слишком быстро. */
+  var EDIT_EXTRA = {
+    'ट': 'त', 'त': 'ट', 'ड': 'द', 'द': 'ड', 'ण': 'न', 'न': 'ण',
+    'ष': 'स', 'स': 'ष', 'श': 'स', 'स': 'श'
+  };
+  function editPoolFor(ch) {
+    if (EDIT_MATRA_PAIRS[ch]) return Array.from(EDIT_MATRA_PAIRS[ch]);
+    for (var g = 0; g < EDIT_GROUPS.length; g++) {
+      if (EDIT_GROUPS[g].indexOf(ch) >= 0) return Array.from(EDIT_GROUPS[g]);
+    }
+    if (EDIT_EXTRA[ch]) return Array.from(EDIT_EXTRA[ch]);
+    return [];
+  }
+  function oneLetterSwaps(deva) {
+    var ch = Array.from(String(deva || ''));
+    var out = [];
+    for (var i = 0; i < ch.length; i++) {
+      var pool = editPoolFor(ch[i]);
+      /* согласная перед вирамой держит следующий слог: सप्ततिः → सद्ततिः,
+         शतम् → शतज् — так не пишут даже с ошибкой, и ошибка перестаёт быть
+         незаметной. Такие позиции пропускаем. */
+      if (ch[i + 1] === '\u094D') continue;
+      for (var j = 0; j < pool.length; j++) {
+        if (pool[j] === ch[i]) continue;
+        var copy = ch.slice();
+        copy[i] = pool[j];
+        out.push(copy.join(''));
+      }
+    }
+    return out;
+  }
+  /* варианты ошибки для одного слова — те, что ещё не показывались */
+  function typoVariantsFor(cfg, w, used, others) {
+    /* «чужое» написание не должно случайно оказаться настоящим словом урока
+       или подписью соседней карточки — иначе на доске две одинаковые надписи */
+    var realSet = {};
+    (others || []).forEach(function (other) { realSet[other] = true; });
+    var ok = function (t) { return !used[t] && !realSet[t]; };
+    var own = w.typoDeva && w.typoDeva !== w.deva ? w.typoDeva : null;
+    var out = own && ok(own) ? [own] : [];
+    oneLetterSwaps(w.deva).forEach(function (t) {
+      if (!ok(t) || out.indexOf(t) >= 0) return;
+      out.push(t);
+    });
+    return out;
+  }
+  /* Память показанных написаний сквозная: одно и то же написание не вернётся,
+     пока не кончатся ВСЕ варианты этого урока (а их десятки). Только тогда
+     начинается новый круг, и это единственный момент, где возможен повтор.
+     Хранится в localStorage: закрыл страницу и вернулся — повторов всё равно нет. */
+  function typoMemoryKey(cfg) { return 'sal-typo-used-' + (cfg && cfg.key ? cfg.key : 'x'); }
+  function loadTypoUsed(cfg) {
+    try {
+      if (!window.localStorage) return {};
+      var raw = window.localStorage.getItem(typoMemoryKey(cfg));
+      var obj = raw ? JSON.parse(raw) : {};
+      return obj && typeof obj === 'object' ? obj : {};
+    } catch (e) { return {}; }
+  }
+  function saveTypoUsed(cfg, used) {
+    try {
+      if (!window.localStorage) return;
+      /* держим не больше 400 написаний: десятки уроков × десятки букв — этого
+         хватает с большим запасом, а ключ не растёт бесконечно */
+      var keys = Object.keys(used);
+      if (keys.length > 400) {
+        var trimmed = {};
+        keys.slice(keys.length - 400).forEach(function (k) { trimmed[k] = 1; });
+        used = trimmed;
+      }
+      window.localStorage.setItem(typoMemoryKey(cfg), JSON.stringify(used));
+    } catch (e) { /* storage unavailable */ }
+  }
+  function prepareTypo(cfg, g) {
+    var ids = cfg.words.map(function (w) { return w.id; });
+    var used = (g && g.usedTypo) || {};
+    if (g && !g.usedTypo) { used = loadTypoUsed(cfg); g.usedTypo = used; }
+    var queue = (g && g.queue) || [];
+    var pool = queue.filter(function (id) { return ids.indexOf(id) >= 0; });
+    if (!pool.length) pool = shuffle(ids);
+    var variantsOf = function (rid) {
+      var rw = byId(cfg, rid);
+      if (!rw) return [];
+      var restIds = ids.filter(function (x) { return x !== rid; })
+        .map(function (x) { return (byId(cfg, x) || {}).deva; });
+      return typoVariantsFor(cfg, rw, used, restIds);
+    };
+    var pick = null;
+    pool.some(function (rid) { if (variantsOf(rid).length) { pick = rid; return true; } return false; });
+    if (!pick) {
+      /* У этого урока кончились новые написания — единственный случай, когда
+         ошибка может повториться. Память чистим ЦЕЛИКОМ и только здесь;
+         новый проход (после «Начать сначала») память НЕ трогает. */
+      Object.keys(used).forEach(function (k2) { delete used[k2]; });
+      if (g) { g.usedTypo = used; g.queue = []; g.resetCount = (g.resetCount || 0) + 1; }
+      saveTypoUsed(cfg, used);
+      return prepareTypo(cfg, g);
+    }
+    if (g) g.queue = pool.filter(function (x) { return x !== pick; });
+    var target = byId(cfg, pick);
+    var typo = shuffle(variantsOf(pick))[0];
+    used[typo] = 1;
+    if (g) g.usedTypo = used;
+    saveTypoUsed(cfg, used);
+    var others = shuffle(ids.filter(function (x) { return x !== pick; })).slice(0, 2);
+    var trio = shuffle([pick].concat(others));
+    var wrongIdx = trio.indexOf(pick);
+    return { trio: trio, wrongIdx: wrongIdx, targetId: pick, typo: typo,
+             iast: target.iast, targetDeva: target.deva };
   }
   function renderTypo(cfg, st) {
     var g = gst(cfg, 'typo');
     var N = cfg.words.length;
     var title = ru('9. 3 🖼 → 1 आ/अ ✕ — Spot the 1-Letter Typo', '9. Ошибка в 1 букве (3 картинки)');
     if (g.finished || g.i >= N) return finalScreen(cfg, 'typo', title, g.score, N);
-    if (!g.round) g.round = prepareTypo(cfg);
+    if (!g.round) g.round = prepareTypo(cfg, g);
 
     var targetId = g.round.trio[g.round.wrongIdx];
     var target = byId(cfg, targetId);
+    /* правильное написание — то, что записано в раунде: ошибка может быть
+       и «своя» (w.typoDeva), и чужая, лишь бы отличалась одной буквой */
+    var goodDeva = g.round.targetDeva || (target && target.deva) || '';
+    var shownTypo = g.round.typo || (target && target.typoDeva) || goodDeva;
 
     var cards = g.round.trio.map(function (id, idx) {
       var w = byId(cfg, id);
       var isTarget = idx === g.round.wrongIdx;
-      var shownDeva = isTarget ? w.typoDeva : w.deva;
-      /* IAST у испорченной карточки НЕ показываем: латиница выдаёт ошибку
-         (śirṣa против śīrṣa видно сразу), а всё задание — про деванагари */
-      var shownIast = isTarget ? '' : w.iast;
+      var shownDeva = isTarget ? shownTypo : w.deva;
       var showCorrection = g.answered && isTarget;
       var cls = '';
       if (g.answered && isTarget) cls = 'correct';
       if (!g.answered && g.redIdx === idx) cls = 'wrong';
+      /* На карточках только деванагари: IAST висел лишь у двух правильных
+         карточек (у испорченной его нет) — по одной латинице и находился
+         ответ, не читая букв. Всё задание проверяет именно чтение деванагари. */
       return '<button type="button" class="quiz-opt-btn ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'pick3\',\'' + idx + '\')"' +
         ' style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">' +
         letterBadge(idx) +
         '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">' + w.svg + '</div>' +
         (showCorrection
           ? '<div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">' + shownDeva + '</div>' +
-            '<div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ' + w.deva + '</div>' +
-            '<div class="vocab-iast" style="font-size:0.85rem;color:#15803d;">' + w.iast + '</div>'
-          : '<div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">' + shownDeva + '</div>' +
-            (shownIast
-              ? '<div class="vocab-iast" style="font-size:0.85rem;color:var(--accent-saffron);">' + shownIast + '</div>'
-              : '<div style="font-size:0.78rem;color:var(--text-secondary);letter-spacing:0.08em;">IAST 🙈</div>')) +
+            '<div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ' + goodDeva + '</div>'
+          : '<div style="font-family:var(--font-deva);font-size:1.75rem;font-weight:700;color:var(--text-primary);">' + shownDeva + '</div>') +
         '</button>';
     }).join('');
 
     var explain = '';
     if (g.answered) {
-      var d = diffSegments(target.typoDeva, target.deva);
+      var d = diffSegments(shownTypo, goodDeva);
       var kind = mistakeKind(d.from + d.to);
+      var goodIast = (g.round.iast !== undefined ? g.round.iast : (target && target.iast)) || '';
       explain = '<div style="margin-top:1.15rem;background:#f0fdf4;border:1.5px solid #16a34a;border-radius:12px;padding:0.9rem 1.15rem;text-align:center;">' +
         '<div style="font-size:0.98rem;line-height:1.6;">' +
         (L() === 'ru'
-          ? 'Опечатка в слове <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + target.deva + '</strong> (' + target.iast + '): написано ' +
-            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + target.typoDeva + '</span>, верно ' +
-            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#15803d;">' + target.deva + '</span>.'
-          : 'The typo is in <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + target.deva + '</strong> (' + target.iast + '): it read ' +
-            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + target.typoDeva + '</span>, correct is ' +
-            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#15803d;">' + target.deva + '</span>.') +
+          ? 'Опечатка в слове <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + goodDeva + '</strong> (' + goodIast + '): написано ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + shownTypo + '</span>, верно ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#15803d;">' + goodDeva + '</span>.'
+          : 'The typo is in <strong style="font-family:var(--font-deva);font-size:1.2rem;">' + goodDeva + '</strong> (' + goodIast + '): it read ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#dc2626;text-decoration:line-through;">' + shownTypo + '</span>, correct is ' +
+            '<span style="font-family:var(--font-deva);font-size:1.15rem;color:#15803d;">' + goodDeva + '</span>.') +
         '</div>' +
         '<div style="margin-top:0.5rem;font-size:0.92rem;font-weight:700;color:var(--accent-cambridge);">' +
         ru('Difference', 'Разница') + ': <span style="font-family:var(--font-deva);color:#dc2626;text-decoration:line-through;">' + (d.from || '—') + '</span> ✕ → ' +
@@ -3470,6 +3615,8 @@ var SAL = (window.SAL = window.SAL || {});
       g.i++; g.answered = false; g.picked = null; g.round = null;
       g.firstTry = true; g.redIdx = null;
       if (g.i >= cfg.words.length) g.finished = true;
+      /* следующий раунд готовим сразу: очередь помнит, какие ошибки уже были */
+      else g.round = prepareTypo(cfg, g);
     },
 
     /* 10 categories */
@@ -3973,10 +4120,14 @@ var SAL = (window.SAL = window.SAL || {});
       aim: { ru: 'Зоркость к одной букве: долгота, качество гласной, носовой, ретрофлексный звук.',
              en: 'Keenness for a single letter: vowel length, vowel quality, the nasal, a retroflex.' },
       how: { ru: ['На трёх карточках одно слово написано с ошибкой в одной букве.',
-                  'Найдите его (A, B или C).',
+                  'На карточках только деванагари: латиницы нет ни у одной из трёх, иначе она выдавала бы верный ответ.',
+                  'Найдите ошибку (A, B или C).',
+                  'Ошибки не повторяются: каждое новое написание — новое.',
                   'В разборе игра зачёркивает неверную форму, показывает верную и называет тип ошибки.'],
              en: ['One of three cards has a one-letter spelling mistake.',
-                  'Find it (A, B or C).',
+                  'The cards show Devanagari only: no Latin on any of the three, or it would give the answer away.',
+                  'Find the mistake (A, B or C).',
+                  'Mistakes never repeat: every new spelling is a new one.',
                   'The feedback strikes the wrong form through, shows the right one and names the kind of error.'] },
       score: { ru: 'Очко с первой попытки.',
                en: 'A point for the first try.' },
