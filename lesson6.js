@@ -141,7 +141,7 @@ var L6_WORDS = [
       /* женский род: -ा у एका, -े у द्वे, -ः у तिस्रः / चतस्रः, पञ्च не меняется */
       grammaticalNumber: "pl",
       syll: ["चत", "स्रः"],
-      typoDeva: "चतसरः", typoIast: "catasaraḥ",
+      typoDeva: "चतस्वः", typoIast: "catasvaḥ",
       maskedPrefix: "चतस्र", maskedHidden: "ः",
       gapDeva: "चतस्र_", gapIast: "catasra_", gapAnswer: "ः",
       gapChoices: [

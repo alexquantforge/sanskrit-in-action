@@ -60,7 +60,7 @@ var LG2_WORDS = [
   {
     id: 'lalata', deva: 'कपिशं ललाटम्', iast: 'kapiśaṃ lalāṭam', ttsText: 'कपिशं ललाटम्',
     gender: 'n',
-    typoDeva: 'कपिश ललाटम्', typoIast: 'kapiśa lalāṭam',
+    typoDeva: 'कपिशं ललाडम्', typoIast: 'kapiśaṃ lalāḍam',
     syll: ['क', 'पि', 'शं', 'ल', 'ला', 'टम्'],
     maskedPrefix: 'कपिशं लला', maskedHidden: 'टम्',
     gapDeva: 'कपिशं ललाट_', gapIast: 'kapiśaṃ lalāṭa_', gapAnswer: 'म्',
@@ -96,7 +96,7 @@ var LG2_WORDS = [
   {
     id: 'danta', deva: 'धूसरः दन्तः', iast: 'dhūsaraḥ dantaḥ', ttsText: 'धूसरः दन्तः',
     gender: 'm',
-    typoDeva: 'धूसर दन्तः', typoIast: 'dhūsara dantaḥ',
+    typoDeva: 'धूसरः दन्दः', typoIast: 'dhūsaraḥ dandaḥ',
     syll: ['धू', 'स', 'रः', 'द', 'न्तः'],
     maskedPrefix: 'धूसरः द', maskedHidden: 'न्तः',
     gapDeva: 'धूसरः दन्त_', gapIast: 'dhūsaraḥ danta_', gapAnswer: 'ः',
@@ -108,7 +108,7 @@ var LG2_WORDS = [
   {
     id: 'jihva', deva: 'नारङ्गा जिह्वा', iast: 'nāraṅgā jihvā', ttsText: 'नारङ्गा जिह्वा',
     gender: 'f',
-    typoDeva: 'नरङ्गा जिह्वा', typoIast: 'naraṅgā jihvā',
+    typoDeva: "नारङ्खा जिह्वा", typoIast: "nāraṅkhā jihvā",
     syll: ['ना', 'र', 'ङ्गा', 'जि', 'ह्वा'],
     maskedPrefix: 'नारङ्गा जि', maskedHidden: 'ह्वा',
     gapDeva: 'नारङ्गा जिह्व_', gapIast: 'nāraṅgā jihvā_', gapAnswer: 'ा',
@@ -120,7 +120,7 @@ var LG2_WORDS = [
   {
     id: 'nayana', deva: 'धूसरं नयनम्', iast: 'dhūsaraṃ nayanam', ttsText: 'धूसरं नयनम्',
     gender: 'n',
-    typoDeva: 'धूसर नयनम्', typoIast: 'dhūsara nayanam',
+    typoDeva: 'धूसरं नयमम्', typoIast: 'dhūsaraṃ nayamam',
     syll: ['धू', 'स', 'रं', 'न', 'य', 'नम्'],
     maskedPrefix: 'धूसरं नय', maskedHidden: 'नम्',
     gapDeva: 'धूसरं नयन_', gapIast: 'dhūsaraṃ nayana_', gapAnswer: 'म्',
@@ -132,7 +132,7 @@ var LG2_WORDS = [
   {
     id: 'pada', deva: 'हरितः पादः', iast: 'haritaḥ pādaḥ', ttsText: 'हरितः पादः',
     gender: 'm',
-    typoDeva: 'हरित पादः', typoIast: 'harita pādaḥ',
+    typoDeva: 'हरितः पाडः', typoIast: 'haritaḥ pāḍaḥ',
     syll: ['ह', 'रि', 'तः', 'पा', 'दः'],
     maskedPrefix: 'हरितः पा', maskedHidden: 'दः',
     gapDeva: 'हरितः पाद_', gapIast: 'haritaḥ pāda_', gapAnswer: 'ः',

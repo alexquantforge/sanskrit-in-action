@@ -163,7 +163,7 @@ var LV_WORDS = [
     grammaticalNumber: "sg", gender: "n", count: 1, kind: "eye", fill: "#2563EB",
     syll: lvChunks("एकं नीलं नयनम्"),
     /* потерянная вирама: नयनम् → नयनम — самая частая ошибка письма */
-    typoDeva: "एकं नीलं नयनम", typoIast: "ekaṃ nīlaṃ nayanama",
+    typoDeva: "एकं नीरं नयनम्", typoIast: "ekaṃ nīraṃ nayanam",
     maskedPrefix: "एकं नीलं नयन", maskedHidden: "म्",
     gapDeva: "एकं नीलं नयन_", gapIast: "ekaṃ nīlaṃ nayana_", gapAnswer: "म्",
     gapChoices: [
@@ -291,7 +291,7 @@ var LV_WORDS = [
     grammaticalNumber: "pl", gender: "m", count: 3, kind: "hand", fill: "#F2C46B",
     syll: lvChunks("त्रयः गौराः हस्ताः"),
     /* हस्ताः → हस्तः: множественное число стало единственным */
-    typoDeva: "त्रयः गौरः हस्ताः", typoIast: "trayaḥ gauraḥ hastāḥ",
+    typoDeva: "त्रयः गौलाः हस्ताः", typoIast: "trayaḥ gaulāḥ hastāḥ",
     maskedPrefix: "त्रयः गौराः हस्त", maskedHidden: "ाः",
     gapDeva: "त्रयः गौराः हस्त_", gapIast: "trayaḥ gaurāḥ hasta_", gapAnswer: "ाः",
     gapChoices: [
@@ -313,7 +313,7 @@ var LV_WORDS = [
     grammaticalNumber: "pl", gender: "m", count: 4, kind: "tooth", fill: "#1F3A5F",
     syll: lvChunks("चत्वारः श्यामाः दन्ताः"),
     /* दन्ताः → दन्तः: та же ошибка числа, но на другом слове */
-    typoDeva: "चत्वारः श्यामः दन्ताः", typoIast: "catvāraḥ śyāmaḥ dantāḥ",
+    typoDeva: "चत्वारः श्यामाः दन्दाः", typoIast: "catvāraḥ śyāmāḥ dandāḥ",
     maskedPrefix: "चत्वारः श्यामाः दन्त", maskedHidden: "ाः",
     gapDeva: "चत्वारः श्यामाः दन्त_", gapIast: "catvāraḥ śyāmāḥ danta_", gapAnswer: "ाः",
     gapChoices: [

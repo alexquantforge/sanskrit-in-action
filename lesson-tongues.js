@@ -119,7 +119,7 @@ var LT_WORDS = [
     grammaticalNumber: "sg", gender: "f", count: 1, fill: "#EC4899",
     syll: ltChunks("एका पाटला जिह्वा"),
     /* цвет потерял женское окончание -ा: पाटला → पाटल */
-    typoDeva: "एका पाटल जिह्वा", typoIast: "ekā pāṭala jihvā",
+    typoDeva: "एका पाटरा जिह्वा", typoIast: "ekā pāṭarā jihvā",
     maskedPrefix: "एका पाटला जिह्व", maskedHidden: "ा",
     gapDeva: "एका पाटला जिह्व_", gapIast: "ekā pāṭalā jihv_", gapAnswer: "ा",
     gapChoices: [
@@ -161,7 +161,7 @@ var LT_WORDS = [
     grammaticalNumber: "pl", gender: "f", count: 3, fill: "#FFEE58",
     syll: ltChunks("तिस्रः पीताः जिह्वाः"),
     /* множественное число потеряло висаргу: पीताः → पीता */
-    typoDeva: "तिस्रः पीतः जिह्वाः", typoIast: "tisraḥ pītaḥ jihvāḥ",
+    typoDeva: "तिस्रः पीताः जिह्माः", typoIast: "tisraḥ pītāḥ jihmāḥ",
     maskedPrefix: "तिस्रः पीताः जिह्व", maskedHidden: "ाः",
     gapDeva: "तिस्रः पीताः जिह्व_", gapIast: "tisraḥ pītāḥ jihv_", gapAnswer: "ाः",
     gapChoices: [
@@ -183,7 +183,7 @@ var LT_WORDS = [
     grammaticalNumber: "pl", gender: "f", count: 4, fill: "#16A34A",
     syll: ltChunks("चतस्रः हरिताः जिह्वाः"),
     /* हरिता — форма без висарги, которой в этом числе нет */
-    typoDeva: "चतस्रः हरितः जिह्वाः", typoIast: "catasraḥ haritaḥ jihvāḥ",
+    typoDeva: "चतस्रः हरिताः जिह्लाः", typoIast: "catasraḥ haritāḥ jihlāḥ",
     maskedPrefix: "चतस्रः हरिताः जिह्व", maskedHidden: "ाः",
     gapDeva: "चतस्रः हरिताः जिह्व_", gapIast: "catasraḥ haritāḥ jihv_", gapAnswer: "ाः",
     gapChoices: [

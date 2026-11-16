@@ -116,7 +116,7 @@ SAL.registerLesson({
     },
     {
       id: "danta", deva: "दन्त", iast: "danta", ttsText: "दन्ता",
-      typoDeva: "दनत", typoIast: "danata",
+      typoDeva: "दन्द", typoIast: "danda",
       maskedPrefix: "द", maskedHidden: "न्त",
       gapDeva: "_न्त", gapIast: "_nta", gapAnswer: "द",
       gapChoices: [

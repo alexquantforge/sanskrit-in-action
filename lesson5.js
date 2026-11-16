@@ -135,7 +135,7 @@ var L5_WORDS = [
       /* мужской род: -ः у एकः / त्रयः / चत्वारः и -ौ у द्वौ; पञ्च не меняется */
       grammaticalNumber: "pl",
       syll: ["च", "त्वा", "रः"],
-      typoDeva: "चत्वाः", typoIast: "catvāḥ",
+      typoDeva: "चत्वाथः", typoIast: "catvāthaḥ",
       maskedPrefix: "चत्वा", maskedHidden: "रः",
       gapDeva: "चत्वार_", gapIast: "catvāra_", gapAnswer: "ः",
       gapChoices: [

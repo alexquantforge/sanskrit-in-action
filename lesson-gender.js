@@ -127,7 +127,7 @@ var LG_WORDS = [
   {
     id: 'lalata', deva: 'श्यामं ललाटम्', iast: 'śyāmaṃ lalāṭam', ttsText: 'श्यामं ललाटम्',
     gender: 'n',
-    typoDeva: 'श्याम ललाटम्', typoIast: 'śyāma lalāṭam',
+    typoDeva: 'श्यामं ललाडम्', typoIast: 'śyāmaṃ lalāḍam',
     syll: ['श्या', 'मं', 'ल', 'ला', 'टम्'],
     maskedPrefix: 'श्यामं लला', maskedHidden: 'टम्',
     gapDeva: 'श्यामं ललाट_', gapIast: 'śyāmaṃ lalāṭa_', gapAnswer: 'म्',
@@ -163,7 +163,7 @@ var LG_WORDS = [
   {
     id: 'danta', deva: 'श्वेतः दन्तः', iast: 'śvetaḥ dantaḥ', ttsText: 'श्वेतः दन्तः',
     gender: 'm',
-    typoDeva: 'श्वेत दन्तः', typoIast: 'śveta dantaḥ',
+    typoDeva: 'श्वेतः दन्दः', typoIast: 'śvetaḥ dandaḥ',
     syll: ['श्वे', 'तः', 'द', 'न्तः'],
     maskedPrefix: 'श्वेतः द', maskedHidden: 'न्तः',
     gapDeva: 'श्वेतः दन्त_', gapIast: 'śvetaḥ danta_', gapAnswer: 'ः',
@@ -175,7 +175,7 @@ var LG_WORDS = [
   {
     id: 'jihva', deva: 'पाटला जिह्वा', iast: 'pāṭalā jihvā', ttsText: 'पाटला जिह्वा',
     gender: 'f',
-    typoDeva: 'पटला जिह्वा', typoIast: 'paṭalā jihvā',
+    typoDeva: "पाटला जिह्ला", typoIast: "pāṭalā jihlā",
     syll: ['पा', 'ट', 'ला', 'जि', 'ह्वा'],
     maskedPrefix: 'पाटला जि', maskedHidden: 'ह्वा',
     gapDeva: 'पाटला जिह्व_', gapIast: 'pāṭalā jihvā_', gapAnswer: 'ा',
@@ -199,7 +199,7 @@ var LG_WORDS = [
   {
     id: 'pada', deva: 'श्यामः पादः', iast: 'śyāmaḥ pādaḥ', ttsText: 'श्यामः पादः',
     gender: 'm',
-    typoDeva: 'श्याम पादः', typoIast: 'śyāma pādaḥ',
+    typoDeva: 'श्यामः पाडः', typoIast: 'śyāmaḥ pāḍaḥ',
     syll: ['श्या', 'मः', 'पा', 'दः'],
     maskedPrefix: 'श्यामः पा', maskedHidden: 'दः',
     gapDeva: 'श्यामः पाद_', gapIast: 'śyāmaḥ pāda_', gapAnswer: 'ः',

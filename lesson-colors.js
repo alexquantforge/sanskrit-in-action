@@ -62,7 +62,7 @@ var RC_ICON = {
 var RC_COMPOUNDS = [
   {
     id: "gaurashirsha", deva: "गौर-शीर्ष", iast: "gaura-śīrṣa", ttsText: "गौर-शीर्ष",
-    typoDeva: "गौर-शीर्श", typoIast: "gaura-śīrśa",
+    typoDeva: "गौर-शीर्म", typoIast: "gaura-śīrma",
     maskedPrefix: "गौर-", maskedHidden: "शीर्ष",
     gapDeva: "गौर-_", gapIast: "gaura-_", gapAnswer: "शीर्ष",
     gapChoices: [
@@ -78,7 +78,7 @@ var RC_COMPOUNDS = [
   },
   {
     id: "nilanayana", deva: "नील-नयन", iast: "nīla-nayana", ttsText: "नील-नयन",
-    typoDeva: "निल-नयन", typoIast: "nila-nayana",
+    typoDeva: "नील-नयम", typoIast: "nīla-nayama",
     maskedPrefix: "नील-", maskedHidden: "नयन",
     gapDeva: "नील-_", gapIast: "nīla-_", gapAnswer: "नयन",
     gapChoices: [
@@ -94,7 +94,7 @@ var RC_COMPOUNDS = [
   },
   {
     id: "shvetadanta", deva: "श्वेत-दन्त", iast: "śveta-danta", ttsText: "श्वेत-दन्त",
-    typoDeva: "श्वेट-दन्त", typoIast: "śveṭa-danta",
+    typoDeva: "श्वेत-दन्थ", typoIast: "śveta-dantha",
     maskedPrefix: "श्वेत-", maskedHidden: "दन्त",
     gapDeva: "श्वेत-_", gapIast: "śveta-_", gapAnswer: "दन्त",
     gapChoices: [
@@ -110,7 +110,7 @@ var RC_COMPOUNDS = [
   },
   {
     id: "krishnapada", deva: "कृष्ण-पाद", iast: "kṛṣṇa-pāda", ttsText: "कृष्ण-पाद",
-    typoDeva: "कृश्ण-पाद", typoIast: "kṛśṇa-pāda",
+    typoDeva: "कृष्ण-पाठ", typoIast: "kṛṣṇa-pāṭha",
     maskedPrefix: "कृष्ण-", maskedHidden: "पाद",
     gapDeva: "कृष्ण-_", gapIast: "kṛṣṇa-_", gapAnswer: "पाद",
     gapChoices: [
@@ -126,7 +126,7 @@ var RC_COMPOUNDS = [
   },
   {
     id: "raktamukha", deva: "रक्त-मुख", iast: "rakta-mukha", ttsText: "रक्त-मुख",
-    typoDeva: "रक्त-मुक", typoIast: "rakta-muka",
+    typoDeva: "रक्त-मुग", typoIast: "rakta-muga",
     maskedPrefix: "रक्त-", maskedHidden: "मुख",
     gapDeva: "रक्त-_", gapIast: "rakta-_", gapAnswer: "मुख",
     gapChoices: [
@@ -142,7 +142,7 @@ var RC_COMPOUNDS = [
   },
   {
     id: "shyamaudara", deva: "श्याम-उदर", iast: "śyāma-udara", ttsText: "श्याम-उदर",
-    typoDeva: "स्याम-उदर", typoIast: "syāma-udara",
+    typoDeva: "श्याम-उलर", typoIast: "śyāma-ulara",
     maskedPrefix: "श्याम-", maskedHidden: "उदर",
     gapDeva: "श्याम-_", gapIast: "śyāma-_", gapAnswer: "उदर",
     gapChoices: [
@@ -286,7 +286,7 @@ SAL.registerLesson({
     },
     {
       id: "shyama", deva: "श्याम", iast: "śyāma", ttsText: "श्याम",
-      typoDeva: "श्यम", typoIast: "śyama",
+      typoDeva: "श्याप", typoIast: "śyāpa",
       maskedPrefix: "श्या", maskedHidden: "म",
       gapDeva: "_म", gapIast: "_ma", gapAnswer: "श्या",
       gapChoices: [

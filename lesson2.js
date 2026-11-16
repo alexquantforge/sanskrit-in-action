@@ -101,7 +101,7 @@ SAL.registerLesson({
     },
     {
       id: "janu", deva: "जानु", iast: "jānu", ttsText: "जानु",
-      typoDeva: "जनु", typoIast: "janu",
+      typoDeva: "जातु", typoIast: "jātu",
       maskedPrefix: "जा", maskedHidden: "नु",
       gapDeva: "_नु", gapIast: "_nu", gapAnswer: "जा",
       gapChoices: [
@@ -116,7 +116,7 @@ SAL.registerLesson({
     },
     {
       id: "pada", deva: "पाद", iast: "pāda", ttsText: "पादा",
-      typoDeva: "पद", typoIast: "pada",
+      typoDeva: "पाठ", typoIast: "pāṭha",
       maskedPrefix: "पा", maskedHidden: "द",
       gapDeva: "_द", gapIast: "_da", gapAnswer: "पा",
       gapChoices: [

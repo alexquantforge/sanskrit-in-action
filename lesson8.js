@@ -94,7 +94,7 @@ SAL.registerLesson({
     {
       id: "caturdasa", deva: "चतुर्दश", iast: "caturdaśa", ttsText: "चतुर्दश", value: 14,
       syll: ["चतुर्", "द", "श"],
-      typoDeva: "चतुरदश", typoIast: "caturadaśa",
+      typoDeva: "चतुर्दष", typoIast: "caturdaṣa",
       maskedPrefix: "चतुर्", maskedHidden: "दश",
       gapDeva: "च _ र्दश", gapIast: "ca _ rdaśa", gapAnswer: "तु",
       gapChoices: [

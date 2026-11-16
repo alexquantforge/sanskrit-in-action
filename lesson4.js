@@ -95,7 +95,7 @@ SAL.registerLesson({
     {
       id: "catvari", deva: "चत्वारि", iast: "catvāri", ttsText: "चत्वारि", value: 4,
       syll: ["च", "त्वा", "रि"],
-      typoDeva: "चत्वरि", typoIast: "catvari",
+      typoDeva: "चत्वालि", typoIast: "catvāli",
       maskedPrefix: "च", maskedHidden: "त्वारि",
       gapDeva: "च _ रि", gapIast: "ca _ ri", gapAnswer: "त्वा",
       gapChoices: [
