@@ -931,7 +931,7 @@ function setPratyaya(pratyayaKey) {
 const ROUTE_VIEWS = ['home', 'details', 'lesson1', 'lesson2', 'lesson3', 'lesson4',
                      'lesson5', 'lesson6', 'lesson7', 'lesson8', 'lesson9', 'lesson10',
                      'lesson11', 'lesson12', 'lesson13', 'lesson14', 'lesson15', 'lesson16',
-                     'lesson17'];
+                     'lesson17', 'lesson18'];
 let activeView = 'home';
 let routeLock = false;          // URL применяется — обратно не пишем
 
@@ -1161,6 +1161,7 @@ function switchView(viewName, targetSectionId = null) {
     lesson15: document.getElementById('view-lesson15'),
     lesson16: document.getElementById('view-lesson16'),
     lesson17: document.getElementById('view-lesson17'),
+    lesson18: document.getElementById('view-lesson18'),
     details: document.getElementById('view-details')
   };
   const buttons = {

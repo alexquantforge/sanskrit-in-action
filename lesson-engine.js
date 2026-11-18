@@ -845,7 +845,8 @@ var SAL = (window.SAL = window.SAL || {});
     L8: { ru: 'Урок 14: Цифры 11–15', en: 'Lesson 14: Numbers 11–15' },
     L9: { ru: 'Урок 15: Цифры 16–20', en: 'Lesson 15: Numbers 16–20' },
     L10: { ru: 'Урок 16: Десятки 10–50', en: 'Lesson 16: Tens 10–50' },
-    L11: { ru: 'Урок 17: Десятки 60–100', en: 'Lesson 17: Tens 60–100' }
+    L11: { ru: 'Урок 17: Десятки 60–100', en: 'Lesson 17: Tens 60–100' },
+    LAN: { ru: 'Урок 18: Животные Бхагаватам', en: 'Lesson 18: Beasts of the Bhāgavata' }
   };
   /* every lesson of the site in one list: the engine lessons + the standalone 12-word one */
   function navRows() {
@@ -2529,8 +2530,15 @@ var SAL = (window.SAL = window.SAL || {});
   }
   function prepareTypo(cfg, g) {
     var ids = cfg.words.map(function (w) { return w.id; });
-    var used = (g && g.usedTypo) || {};
-    if (g && !g.usedTypo) { used = loadTypoUsed(cfg); g.usedTypo = used; }
+    /* Память показанных ошибок читается из localStorage перед КАЖДЫМ раундом,
+       а не один раз за сессию: страницу могли открыть в двух вкладках, и
+       написание, израсходованное в одной, не должно вернуться в другой.
+       Внутри вкладки объект тот же — дополняем его, а не заменяем, чтобы
+       ссылки, взятые в тестах, оставались живыми. */
+    var stored = loadTypoUsed(cfg);
+    var used = (g && g.usedTypo) || stored;
+    Object.keys(stored).forEach(function (k) { used[k] = 1; });
+    if (g) g.usedTypo = used;
     var queue = (g && g.queue) || [];
     var pool = queue.filter(function (id) { return ids.indexOf(id) >= 0; });
     if (!pool.length) pool = shuffle(ids);
