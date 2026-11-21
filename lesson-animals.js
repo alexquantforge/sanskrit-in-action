@@ -67,20 +67,21 @@ function anBull(fill) {
    на хвосте — не заяц, потому что уши длиннее головы и морда вытянута. */
 function anDonkey(fill) {
   var d = AN_INK;
-  return /* хвост */ '<path d="M22 58c-6 3-7 10-5 16" fill="none" stroke="' + d + '" stroke-width="2.6" stroke-linecap="round"/>' +
-    '<path d="M17 75c-2 3-2 5 0 7" fill="none" stroke="' + d + '" stroke-width="2.4" stroke-linecap="round"/>' +
-    /* ноги */ '<path d="M36 70v14M49 71v13M62 71v13M72 70v14" stroke="' + d + '" stroke-width="4.6" stroke-linecap="round"/>' +
-    '<path d="M33 85h7M46 85h7M59 85h7M69 85h7" stroke="' + d + '" stroke-width="3" stroke-linecap="round"/>' +
-    /* туловище */ '<path d="M22 62c0-8 6-14 15-14h16c8 0 13 4 15 10 1 6-2 11-8 12H32c-6 0-10-3-10-8Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
-    /* шея к голове */ '<path d="M62 52c4-6 8-9 12-9" fill="none" stroke="' + fill + '" stroke-width="9" stroke-linecap="round"/>' +
-    '<path d="M62 52c4-6 8-9 12-9" fill="none" stroke="' + d + '" stroke-width="3"/>' +
-    /* голова и вытянутая морда */ '<path d="M70 40c6-2 12 1 15 6 2 4 1 8-3 9-4 1-6-1-7-4l-5-2c-3-1-3-7 0-9Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
-    /* длинные уши */ '<path d="M72 39c-2-6-1-11 2-13 3-1 5 3 5 10" fill="' + fill + '" stroke="' + d + '" stroke-width="2.8" stroke-linejoin="round"/>' +
-    '<path d="M82 37c0-6 2-10 5-10 3 0 3 5 1 11" fill="' + fill + '" stroke="' + d + '" stroke-width="2.8" stroke-linejoin="round"/>' +
-    /* глаз, ноздря, грива */ '<circle cx="77" cy="45" r="1.8" fill="' + d + '"/>' +
-    '<circle cx="84" cy="49" r="1.2" fill="' + d + '"/>' +
-    '<path d="M68 41c-1 5 0 9 2 12" stroke="' + d + '" stroke-width="2.4" stroke-linecap="round" opacity="0.7" fill="none"/>' +
-    /* блик */ '<path d="M30 57c4-5 9-7 15-7" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity="0.35" fill="none"/>';
+  return '' +
+    '<path d="M21 58c-6 3-8 10-7 16" fill="none" stroke="' + d + '" stroke-width="2.8" stroke-linecap="round"/>' +
+    '<path d="M14 75c-2 4-1 7 2 8" fill="none" stroke="' + d + '" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M31 68v19M43 70v17M57 70v17M67 66v21" stroke="' + d + '" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M28 87h7M40 87h7M54 87h7M64 87h7" stroke="' + d + '" stroke-width="3.2" stroke-linecap="round"/>' +
+    '<path d="M21 64c0-8 6-14 15-14h17c7 0 11 4 12 10 1 6-2 10-8 11H31c-6 0-10-3-10-7Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    /* шея — клин от корпуса к голове (заливка, без обводки: стыки не видны) */ '<path d="M55 60c1-10 6-18 13-21" fill="none" stroke="' + fill + '" stroke-width="15" stroke-linecap="round"/>' +
+    /* уши (основания спрячутся под головой) */ '<path d="M69 33c-3-7-3-13 0-16 3-2 6 3 6 11" fill="' + fill + '" stroke="' + d + '" stroke-width="2.8" stroke-linejoin="round"/>' +
+    '<path d="M79 30c1-8 4-13 7-12 3 1 3 6 1 12" fill="' + fill + '" stroke="' + d + '" stroke-width="2.8" stroke-linejoin="round"/>' +
+    /* голова-яйцо: узкая часть — морда, широкая — лоб */ '<path d="M64 38c0-7 4-12 10-12 5 0 8 3 10 7l6 5c3 2 3 6 0 8-3 2-6 1-8-1l-4-2c-3 2-7 2-10 0-3-1-4-3-4-5Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    /* глаз, ноздря, рот */ '<circle cx="74" cy="36" r="2" fill="' + d + '"/>' +
+    '<circle cx="89" cy="41" r="1.4" fill="' + d + '"/>' +
+    '<path d="M85 46c2 1 4 0 5-1" stroke="' + d + '" stroke-width="1.8" stroke-linecap="round" fill="none"/>' +
+    /* чёлка */ '<path d="M69 28c2-2 5-2 7 0" stroke="' + d + '" stroke-width="2.2" stroke-linecap="round" fill="none"/>' +
+    '<path d="M30 59c4-5 9-7 15-7" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity="0.35" fill="none"/>';
 }
 
 /* цапля: тонкие ноги, длинная шея, клюв */
