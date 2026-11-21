@@ -1514,7 +1514,9 @@ var SAL = (window.SAL = window.SAL || {});
     return '<div class="vocab-item-card" style="' + (large ? 'padding:1.65rem 1.25rem;' : '') +
       '" onclick="SAL.do(\'' + cfg.key + '\',\'posterClick\',\'' + w.id + '\')">' +
       '<button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); SAL.speak(\'' + w.ttsText + '\')">🔊</button>' +
-      '<div class="vocab-svg-box"' + (large ? ' style="width:118px;height:118px;"' : '') + '>' + w.svg + '</div>' +
+      /* Карточка слова: картинка вдвое крупнее прежних 110 px — на маленькой
+       картинке животное не узнавалось. */
+      '<div class="vocab-svg-box"' + (large ? ' style="width:200px;height:200px;"' : ' style="width:180px;height:180px;"') + '>' + w.svg + '</div>' +
       word +
       '<div class="vocab-iast"' + (large ? ' style="font-size:0.98rem;"' : '') + '>' + w.iast + '</div>' +
       '</div>';
@@ -1540,7 +1542,7 @@ var SAL = (window.SAL = window.SAL || {});
     return '<div style="background:var(--bg-card);border:1.5px solid var(--border-strong);border-radius:18px;padding:1.5rem;margin-bottom:2rem;box-shadow:var(--shadow-sm);">' +
       '<div class="game-top-bar"><div>' + pill(ru('Step', 'Шаг') + ' ' + (idx + 1) + ' / ' + steps.length) + '</div>' +
       '<div><button type="button" class="chip-btn" onclick="SAL.speak(\'' + tts + '\')">🔊 ' + ru('Listen to Both', 'Прослушать оба слова') + '</button></div></div>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px,1fr));gap:1.5rem;justify-items:center;margin:1.25rem 0;">' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px,1fr));gap:1.5rem;justify-items:center;margin:1.25rem 0;">' +
       words.map(function (w) { return cardHtml(cfg, st, w, true); }).join('') + '</div>' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">' +
       chip(cfg, 'setStep', String(Math.max(0, idx - 1)), '← ' + ru('Previous', 'Предыдущие'), idx === 0) +
@@ -1613,7 +1615,7 @@ var SAL = (window.SAL = window.SAL || {});
         '<div class="vocab-item-card" onclick="SAL.do(\'' + cfg.key + '\',\'posterClick\',\'' + w.id + '\')" style="padding:1.35rem 1rem;margin-bottom:0.85rem;">' +
         '<span class="game-score-pill" style="position:absolute;top:0.65rem;left:0.65rem;">#' + activePin.num + ' / ' + allPins.length + '</span>' +
         '<button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); SAL.speak(\'' + w.ttsText + '\')">🔊</button>' +
-        '<div class="vocab-svg-box" style="width:112px;height:112px;margin-bottom:0.5rem;">' + w.svg + '</div>' +
+        '<div class="vocab-svg-box" style="width:200px;height:200px;margin-bottom:0.5rem;">' + w.svg + '</div>' +
         wordHtml + '<div class="vocab-iast" style="font-size:1rem;">' + w.iast + '</div>' +
         '<div style="display:flex;justify-content:center;gap:0.6rem;margin-top:0.75rem;" onclick="event.stopPropagation();">' +
         chip(cfg, 'hotspotStep', '-1', '←') +
@@ -1843,7 +1845,7 @@ var SAL = (window.SAL = window.SAL || {});
           '<button type="button" class="vocab-audio-btn" title="🔊" onclick="event.stopPropagation(); SAL.speak(\'' + w.ttsText + '\')">🔊</button>' +
           maskedMarkup(w, rev, '1.6rem', both) +
           '<div class="vocab-iast">' + w.iast + '</div>' +
-          '<div style="margin-top:0.5rem;">' + svgBox(w, 92) + '</div></div>';
+          '<div style="margin-top:0.5rem;">' + svgBox(w, 180) + '</div></div>';
       }).join('');
       return topBar(
         chip(cfg, 'maskedView', 'card', '1 / ' + N, false) + chip(cfg, 'maskedView', 'grid', N + ' / ' + N + ' ■', true),
@@ -1863,7 +1865,7 @@ var SAL = (window.SAL = window.SAL || {});
       vRow +
       centerCard(
         '<div class="flashcard-box" onclick="SAL.do(\'' + cfg.key + '\',\'maskedFlip\')">' +
-          svgBox(w, 140) +
+          svgBox(w, 260) +
           maskedMarkup(w, g.shown, '2.45rem', both) +
           '<div class="iast-text" style="font-size:1.1rem;margin-top:0.25rem;">' + (g.shown ? w.iast : '&nbsp;') + '</div>' +
         '</div>' +
@@ -1896,7 +1898,7 @@ var SAL = (window.SAL = window.SAL || {});
         (g.flipped
           ? '<div style="font-family:var(--font-deva);font-size:2.6rem;font-weight:700;color:var(--text-primary);">' + w.deva + '</div>' +
             '<div class="vocab-iast" style="font-size:1.05rem;">' + w.iast + '</div>'
-          : svgBox(w, 150)) +
+          : svgBox(w, 280)) +
         '</div>' +
         '<div style="display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin-top:1rem;">' +
         '<button type="button" class="chip-btn" onclick="SAL.speak(\'' + w.ttsText + '\')">🔊 ' + ru('Listen', 'Послушать') + '</button>' +
@@ -1937,7 +1939,7 @@ var SAL = (window.SAL = window.SAL || {});
       chip(cfg, 'restart', 'gaps', '↺')) +
       vRow +
       centerCard(
-        '<div style="margin-bottom:0.5rem;">' + svgBox(w, 120) + '</div>' +
+        '<div style="margin-bottom:0.5rem;">' + svgBox(w, 230) + '</div>' +
         '<div style="font-family:var(--font-deva);font-size:2.6rem;font-weight:700;letter-spacing:0.05em;">' + gapDeva + '</div>' +
         '<div class="iast-text" style="margin-bottom:1rem;">' + gapIast + '</div>' +
         optGrid(btns) +
@@ -1965,7 +1967,7 @@ var SAL = (window.SAL = window.SAL || {});
     return topBar(pill(ru('Picture', 'Картинка') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'picquiz', '↺')) +
       centerCard(
-        '<div style="margin-bottom:1rem;">' + svgBox(w, 170) + '</div>' +
+        '<div style="margin-bottom:1rem;">' + svgBox(w, 300) + '</div>' +
         '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
         ru('Which word is it?', 'Какое это слово?') + '</div>' +
         optGrid(btns) +
@@ -1986,7 +1988,7 @@ var SAL = (window.SAL = window.SAL || {});
       if (g.answered && id === w.id) cls = 'correct';
       if (id === g.redPick) cls = 'wrong';
       return optBtn(cfg, 'quizPick', id, '<div style="display:flex;flex-direction:column;align-items:center;gap:0.35rem;">' +
-        svgBox(o, 92) + '</div>', cls, idx);
+        svgBox(o, 180) + '</div>', cls, idx);
     }).join('');
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'wordquiz', '↺')) +
@@ -2035,7 +2037,7 @@ var SAL = (window.SAL = window.SAL || {});
       var cls = '';
       if (g.matched[t.id]) cls = 'matched';
       if (g.sel === idx) cls += ' selected';
-      var inner = t.kind === 'pic' ? svgBox(w, 74) :
+      var inner = t.kind === 'pic' ? svgBox(w, 190) :
         '<div style="font-family:var(--font-deva);font-size:1.35rem;font-weight:700;">' + w.deva + '</div>' +
         '<div class="iast-text">' + w.iast + '</div>';
       return '<button type="button" class="match-tile ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'tile\',\'' + idx + '\')">' +
@@ -2212,7 +2214,7 @@ var SAL = (window.SAL = window.SAL || {});
       cls += flipped ? ' flipped' : ' face-down';
       if (g.wrong && g.wrong.indexOf(idx) >= 0) cls += ' mismatch';
       var inner;
-      if (c.kind === 'pic') inner = svgBox(w, 62);
+      if (c.kind === 'pic') inner = svgBox(w, 175);
       else if (c.kind === 'trap') inner = WORD_CARD_HTML(c.trap.deva);
       else inner = WORD_CARD_HTML(bareOn ? memoryStemDeva(w) : w.deva);
       var back = '<span class="memory-card-back-emblem memory-coord">' + cellName(idx, cols) + '</span>';
@@ -2357,7 +2359,7 @@ var SAL = (window.SAL = window.SAL || {});
       return '<button type="button" class="quiz-opt-btn ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'pick3\',\'' + idx + '\')"' +
         ' style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">' +
         letterBadge(idx) +
-        '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">' + w.svg + '</div>' +
+        '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:190px;height:190px;">' + w.svg + '</div>' +
         (showCorrection
           ? '<div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.8;">' + label.deva + '</div>' +
             '<div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ' + w.deva + '</div>' +
@@ -2474,6 +2476,17 @@ var SAL = (window.SAL = window.SAL || {});
         continue;             /* согласную перед вирамой больше не трогаем */
       }
       var pool = editPoolFor(ch[i]);
+      /* согласная перед вирамой у нас неприкосновенна (см. ниже), но саму
+         вираму иногда теряют и на последней согласной: षट् → षट. Это та же
+         ошибка «забыл вираму», что и в середине слова (सप्त → सपत), просто
+         на конце; без неё у коротких числительных остаётся 2–3 варианта,
+         и игра 9 начинает повторяться. */
+      if (ch[i + 1] === EDIT_VIRAMA) {
+        var endNoVir = ch.slice();
+        endNoVir.splice(i + 1, 1);
+        var endWord = endNoVir.join('');
+        if (out.indexOf(endWord) < 0) out.push(endWord);
+      }
       /* согласная перед вирамой держит следующий слог: सप्ततिः → सद्ततिः,
          शतम् → शतज् — так не пишут даже с ошибкой, и ошибка перестаёт быть
          незаметной. Такие позиции пропускаем. */
@@ -2552,13 +2565,24 @@ var SAL = (window.SAL = window.SAL || {});
     var pick = null;
     pool.some(function (rid) { if (variantsOf(rid).length) { pick = rid; return true; } return false; });
     if (!pick) {
-      /* У этого урока кончились новые написания — единственный случай, когда
-         ошибка может повториться. Память чистим ЦЕЛИКОМ и только здесь;
-         новый проход (после «Начать сначала») память НЕ трогает. */
-      Object.keys(used).forEach(function (k2) { delete used[k2]; });
-      if (g) { g.usedTypo = used; g.queue = []; g.resetCount = (g.resetCount || 0) + 1; }
-      saveTypoUsed(cfg, used);
-      return prepareTypo(cfg, g);
+      /* У одного-двух слов написания кончились, у остальных — ещё нет.
+         Раньше здесь чистилась ВСЯ память урока, и сразу после этого
+         возвращались уже показанные ошибки — та самая жалоба «повторяются».
+         Теперь сначала пробуем слова, которых нет в текущей очереди, и только
+         если КАЖДОЕ слово урока исчерпано — начинаем новый круг. */
+      var outsideQueue = ids.filter(function (id) { return pool.indexOf(id) < 0; });
+      var spare = shuffle(outsideQueue).filter(function (rid) { return variantsOf(rid).length; });
+      if (spare.length) {
+        pick = spare[0];
+        if (g) g.queue = outsideQueue.filter(function (x) { return x !== pick; });
+      } else {
+        /* действительно всё кончилось: это единственный случай, когда
+           ошибка может повториться, и новый проход память не трогает */
+        Object.keys(used).forEach(function (k2) { delete used[k2]; });
+        if (g) { g.usedTypo = used; g.queue = []; g.resetCount = (g.resetCount || 0) + 1; }
+        saveTypoUsed(cfg, used);
+        return prepareTypo(cfg, g);
+      }
     }
     if (g) g.queue = pool.filter(function (x) { return x !== pick; });
     var target = byId(cfg, pick);
@@ -2600,7 +2624,7 @@ var SAL = (window.SAL = window.SAL || {});
       return '<button type="button" class="quiz-opt-btn ' + cls + '" onclick="SAL.do(\'' + cfg.key + '\',\'pick3\',\'' + idx + '\')"' +
         ' style="display:flex;flex-direction:column;align-items:center;padding:1.25rem 0.85rem;">' +
         letterBadge(idx) +
-        '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:110px;height:110px;">' + w.svg + '</div>' +
+        '<div class="vocab-svg-box" style="margin:0 auto 0.75rem;width:190px;height:190px;">' + w.svg + '</div>' +
         (showCorrection
           ? '<div style="font-family:var(--font-deva);font-size:1.3rem;color:#dc2626;text-decoration:line-through;opacity:0.85;">' + shownDeva + '</div>' +
             '<div style="font-family:var(--font-deva);font-size:1.85rem;font-weight:700;color:#15803d;">✓ ' + goodDeva + '</div>'
@@ -2734,7 +2758,7 @@ var SAL = (window.SAL = window.SAL || {});
     return topBar(pill(ru('Word', 'Слово') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'spelling', '↺')) +
       centerCard(
-        '<div style="margin-bottom:0.5rem;">' + svgBox(w, 120) + '</div>' +
+        '<div style="margin-bottom:0.5rem;">' + svgBox(w, 230) + '</div>' +
         '<div style="font-family:var(--font-deva);font-size:2.4rem;font-weight:700;letter-spacing:0.06em;">' + w.missingDisplay + '</div>' +
         '<div class="iast-text" style="margin-bottom:1rem;">' + w.iast + '</div>' +
         optGrid(btns) +
@@ -2775,7 +2799,7 @@ var SAL = (window.SAL = window.SAL || {});
     return topBar(pill(ru('Round', 'Раунд') + ' ' + (g.i + 1) + '/' + N) + ' ' + pill(ru('Score', 'Счёт') + ': ' + g.score),
       chip(cfg, 'restart', 'truefalse', '↺')) +
       centerCard(
-        '<div style="margin-bottom:0.75rem;">' + svgBox(w, 150) + '</div>' +
+        '<div style="margin-bottom:0.75rem;">' + svgBox(w, 280) + '</div>' +
         '<div style="font-family:var(--font-deva);font-size:2.4rem;font-weight:700;">' + shown.deva + '</div>' +
         '<div class="iast-text" style="margin-bottom:1rem;">' + shown.iast + '</div>' +
         '<div style="font-size:0.9rem;font-weight:700;color:var(--text-secondary);margin-bottom:0.75rem;">' +
@@ -2936,7 +2960,7 @@ var SAL = (window.SAL = window.SAL || {});
     var revealText = ru('🔊 I Said It! Check Answer', '🔊 Я назвал вслух! Проверить');
     var visualHtml = p.visual === 'arrow'
       ? sprintArrowHtml(item.cfg, w.id)
-      : '<div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">' + w.svg + '</div>';
+      : '<div class="vocab-svg-box" style="width:270px;height:270px;margin-bottom:0.75rem;">' + w.svg + '</div>';
 
     var rows = '<div class="game-top-bar" style="margin-bottom:0.6rem;">' +
       '<div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">' +
@@ -3082,7 +3106,7 @@ var SAL = (window.SAL = window.SAL || {});
                'Назовите слово вслух ДО окончания таймера:'));
     var visualHtml = p.visual === 'arrow'
       ? sprintArrowHtml(cfg, w.id)
-      : '<div class="vocab-svg-box" style="width:142px;height:142px;margin-bottom:0.75rem;">' + w.svg + '</div>';
+      : '<div class="vocab-svg-box" style="width:270px;height:270px;margin-bottom:0.75rem;">' + w.svg + '</div>';
     var counter = p.subMode === 'slideshow'
       ? (p.i + 1) + ' / ' + N
       : p.score + ' / ' + N + ' · (' + (p.i + 1) + '/' + N + ')';
@@ -3173,7 +3197,7 @@ var SAL = (window.SAL = window.SAL || {});
       pill(m.score + ' / ' + N + ' · (' + (m.i + 1) + '/' + N + ')') +
       '</div></div>' +
       '<div class="flashcard-box" style="cursor:default;">' +
-      '<div class="vocab-svg-box" style="width:138px;height:138px;margin-bottom:0.75rem;">' + w.svg + '</div>' +
+      '<div class="vocab-svg-box" style="width:260px;height:260px;margin-bottom:0.75rem;">' + w.svg + '</div>' +
       '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;margin-bottom:0.75rem;">' +
       '<button type="button" class="chip-btn active" onclick="SAL.do(\'' + cfg.key + '\',\'' +
         (m.listening ? 'micStop' : 'micStart') + '\')">' +
@@ -3240,7 +3264,7 @@ var SAL = (window.SAL = window.SAL || {});
       '<svg viewBox="' + cur.fig.viewBox + '" style="width:100%;max-width:320px;height:auto;display:block;margin:0 auto;" fill="none"' +
       ' xmlns="http://www.w3.org/2000/svg">' + cur.fig.art + erase + marker + '</svg>' +
       (m.revealed
-        ? '<div style="margin-top:0.75rem;" class="vocab-svg-box" style="width:96px;height:96px;margin:0.75rem auto 0.25rem;">' + w.svg + '</div>' +
+        ? '<div style="margin-top:0.75rem;" class="vocab-svg-box" style="width:190px;height:190px;margin:0.75rem auto 0.25rem;">' + w.svg + '</div>' +
           '<div class="vocab-deva" style="font-size:2.2rem;color:#15803d;margin-bottom:0.15rem;">' + w.deva + '</div>' +
           '<div class="vocab-iast" style="font-size:1.05rem;margin-bottom:0.8rem;">' + w.iast + '</div>' +
           '<div style="display:flex;gap:0.65rem;flex-wrap:wrap;justify-content:center;">' +
@@ -3288,7 +3312,7 @@ var SAL = (window.SAL = window.SAL || {});
           'Нажмите «Авто-ритм»: карточки переключаются каждые 1,6 сек — успевайте в ритм!') + '</div>' +
         '<div><strong>3.</strong> ' + ru('Mark ✓ every word you can say from memory.',
           'Отмечайте ✓ каждое слово, которое вы назвали по памяти.') + '</div></div>' +
-        '<div style="margin-bottom:0.75rem;">' + svgBox(w, 130) + '</div>' +
+        '<div style="margin-bottom:0.75rem;">' + svgBox(w, 250) + '</div>' +
         '<div style="font-family:var(--font-deva);font-size:2.1rem;font-weight:700;">' + w.deva + '</div>' +
         '<div class="iast-text">' + w.iast + '</div>' +
         '<div style="display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;margin:1rem 0 0.5rem;">' +

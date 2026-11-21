@@ -1485,8 +1485,9 @@ body.hide-iast .level-sample-iast {
 }
 
 .vocab-svg-box {
-  width: 110px;
-  height: 110px;
+  /* базовый размер карточки с картинкой — вдвое крупнее прежних 110 px */
+  width: 180px;
+  height: 180px;
   margin: 0 auto 0.75rem;
   border-radius: 12px;
   background: var(--bg-primary);
@@ -1498,8 +1499,9 @@ body.hide-iast .level-sample-iast {
 }
 
 .vocab-svg-box svg {
-  width: 92px;
-  height: 92px;
+  /* картинка заполняет коробку: размер задаёт сама коробка */
+  width: 100%;
+  height: 100%;
 }
 
 .vocab-deva {
@@ -1879,7 +1881,7 @@ body.hide-iast .level-sample-iast {
   border: 1.5px solid var(--border-strong);
   border-radius: var(--radius-sm);
   padding: 0.75rem 0.5rem;
-  min-height: 92px;
+  min-height: 150px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1911,7 +1913,7 @@ body.hide-iast .level-sample-iast {
 
 .memory-card {
   border-radius: var(--radius-md);
-  min-height: 108px;
+  min-height: 165px;
   padding: 0.65rem 0.45rem;
   display: flex;
   flex-direction: column;

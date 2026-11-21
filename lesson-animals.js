@@ -37,26 +37,50 @@ function anCard(inner, tint) {
     '</svg>';
 }
 
-/* бык: массивное тело, рога, копыта */
+/* бык: корпус-«бочонок» на крепких ногах, голова по оси шеи, рога
+   толстыми дугами в стороны и вверх, ухо, широкая морда и хвост
+   с кисточкой. Порядок рисования: шея → голова по её оси → морда сверху →
+   рога. Так стык не виден, а голова не съезжает в сторону. */
 function anBull(fill) {
-  return '<ellipse cx="52" cy="62" rx="24" ry="15" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="3"/>' +
-    '<path d="M66 52c1-8 4-11 9-11s9 4 9 10-4 9-9 9-8-3-9-8Z" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="3"/>' +
-    '<path d="M74 42c-3-5-2-8 1-9 3-1 5 2 5 7" fill="none" stroke="' + AN_INK + '" stroke-width="3" stroke-linecap="round"/>' +
-    '<path d="M84 42c3-5 5-6 7-4" fill="none" stroke="' + AN_INK + '" stroke-width="3" stroke-linecap="round"/>' +
-    '<circle cx="78" cy="50" r="2" fill="' + AN_INK + '"/>' +
-    '<path d="M36 76v8M46 77v7M60 77v7M68 76v8" stroke="' + AN_INK + '" stroke-width="3.4" stroke-linecap="round"/>' +
-    '<path d="M29 58c-4 2-6 5-6 8" stroke="' + AN_INK + '" stroke-width="3" stroke-linecap="round"/>';
+  var d = AN_INK;
+  return '' +
+    '<path d="M22 60c-7 4-8 12-6 18" fill="none" stroke="' + d + '" stroke-width="3" stroke-linecap="round"/>' +
+    /* кисточка на конце хвоста */ '<path d="M16 78c-2 3-2 6 0 8 2 2 5 1 5-2 0-2-2-2-3-1" fill="' + fill + '" stroke="' + d + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+    '<path d="M29 71v14M41 73v12M55 73v12M63 71v14" stroke="' + d + '" stroke-width="5" stroke-linecap="round"/>' +
+    '<path d="M26 87h8M38 87h8M52 87h8M60 87h8" stroke="' + d + '" stroke-width="3.2" stroke-linecap="round"/>' +
+    /* корпус */ '<path d="M22 68c-2-9 4-15 13-15h16c7 0 11 3 12 8 1 4-1 8-6 8l-24 1c-6 0-10 1-11-2Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    /* шея: короткая и толстая, уходит вправо-вверх */ '<path d="M58 60c4-10 10-15 16-15" fill="none" stroke="' + fill + '" stroke-width="14" stroke-linecap="round"/>' +
+    /* голова ровно на оси шеи; рисуется ПОВЕРХ шеи, чтобы стык был чистым */ '<circle cx="78" cy="44" r="11" fill="' + fill + '" stroke="' + d + '" stroke-width="3"/>' +
+    /* тёмная перемычка шеи — только по нижнему краю, без светлого шва */ '<path d="M60 62c3-9 9-14 15-14" fill="none" stroke="' + d + '" stroke-width="2.6" stroke-linecap="round" opacity="0.55"/>' +
+    /* морда сверху головы, широкая, с ноздрёй и ртом */ '<path d="M85 39c7 1 10 6 8 11-2 5-7 7-11 5-3-1-3-5-2-8" fill="' + fill + '" stroke="' + d + '" stroke-width="2.6" stroke-linejoin="round"/>' +
+    '<circle cx="90" cy="46" r="1.5" fill="' + d + '"/>' +
+    '<path d="M87 52c2 1 4 1 6-1" stroke="' + d + '" stroke-width="1.9" stroke-linecap="round" fill="none"/>' +
+    /* ухо */ '<path d="M69 35c-4-1-6-3-5-5 1-2 4-1 5 2" fill="' + fill + '" stroke="' + d + '" stroke-width="2.4" stroke-linejoin="round"/>' +
+    /* рога: дуги в стороны и вверх, концы внутрь */ '<path d="M71 36C64 33 61 26 64 20" fill="none" stroke="' + d + '" stroke-width="6" stroke-linecap="round"/>' +
+    '<path d="M84 34C91 32 95 26 95 20" fill="none" stroke="' + d + '" stroke-width="6" stroke-linecap="round"/>' +
+    '<path d="M64 20c1-3 3-4 5-4M95 20c0-3-1-4-3-5" fill="none" stroke="' + d + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<circle cx="79" cy="42" r="1.9" fill="' + d + '"/>' +
+    '<path d="M32 61c4-4 9-7 14-7" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity="0.35" fill="none"/>';
 }
 
-/* осёл: длинные уши, вытянутая морда */
+/* осёл: длинные прямостоячие уши, большая голова, тонкие ноги и кисточка
+   на хвосте — не заяц, потому что уши длиннее головы и морда вытянута. */
 function anDonkey(fill) {
-  return '<ellipse cx="46" cy="64" rx="22" ry="13" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="3"/>' +
-    '<path d="M56 56c1-9 5-13 11-13 6 0 9 4 9 9 0 5-4 8-9 8s-9-1-11-4Z" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="3"/>' +
-    '<path d="M62 46c-2-8-1-11 2-12 2-1 4 2 4 9" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-    '<path d="M72 45c1-7 3-10 5-10 2 0 3 3 2 9" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-    '<circle cx="72" cy="55" r="2" fill="' + AN_INK + '"/>' +
-    '<path d="M32 75v8M42 76v7M54 76v7M62 75v8" stroke="' + AN_INK + '" stroke-width="3.2" stroke-linecap="round"/>' +
-    '<path d="M26 60c-4 3-6 6-5 10" stroke="' + AN_INK + '" stroke-width="3" stroke-linecap="round"/>';
+  var d = AN_INK;
+  return /* хвост */ '<path d="M22 58c-6 3-7 10-5 16" fill="none" stroke="' + d + '" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="M17 75c-2 3-2 5 0 7" fill="none" stroke="' + d + '" stroke-width="2.4" stroke-linecap="round"/>' +
+    /* ноги */ '<path d="M36 70v14M49 71v13M62 71v13M72 70v14" stroke="' + d + '" stroke-width="4.6" stroke-linecap="round"/>' +
+    '<path d="M33 85h7M46 85h7M59 85h7M69 85h7" stroke="' + d + '" stroke-width="3" stroke-linecap="round"/>' +
+    /* туловище */ '<path d="M22 62c0-8 6-14 15-14h16c8 0 13 4 15 10 1 6-2 11-8 12H32c-6 0-10-3-10-8Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    /* шея к голове */ '<path d="M62 52c4-6 8-9 12-9" fill="none" stroke="' + fill + '" stroke-width="9" stroke-linecap="round"/>' +
+    '<path d="M62 52c4-6 8-9 12-9" fill="none" stroke="' + d + '" stroke-width="3"/>' +
+    /* голова и вытянутая морда */ '<path d="M70 40c6-2 12 1 15 6 2 4 1 8-3 9-4 1-6-1-7-4l-5-2c-3-1-3-7 0-9Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    /* длинные уши */ '<path d="M72 39c-2-6-1-11 2-13 3-1 5 3 5 10" fill="' + fill + '" stroke="' + d + '" stroke-width="2.8" stroke-linejoin="round"/>' +
+    '<path d="M82 37c0-6 2-10 5-10 3 0 3 5 1 11" fill="' + fill + '" stroke="' + d + '" stroke-width="2.8" stroke-linejoin="round"/>' +
+    /* глаз, ноздря, грива */ '<circle cx="77" cy="45" r="1.8" fill="' + d + '"/>' +
+    '<circle cx="84" cy="49" r="1.2" fill="' + d + '"/>' +
+    '<path d="M68 41c-1 5 0 9 2 12" stroke="' + d + '" stroke-width="2.4" stroke-linecap="round" opacity="0.7" fill="none"/>' +
+    /* блик */ '<path d="M30 57c4-5 9-7 15-7" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity="0.35" fill="none"/>';
 }
 
 /* цапля: тонкие ноги, длинная шея, клюв */
@@ -82,15 +106,23 @@ function anPython(fill) {
     '<path d="M71 40l6 3" stroke="#DC2626" stroke-width="2.4" stroke-linecap="round"/>';
 }
 
-/* ящерица: приземистое тело, длинный хвост, лапки */
+/* хамелеон: голова с высоким гребнем-шлемом, крупный навыкате глаз,
+   спиральный хвост — и всё это на прямой линии, без «динозавровой» дуги.
+   Лапки короткие и прямые, как у ящерицы на ветке. */
 function anLizard(fill) {
-  return '<ellipse cx="48" cy="54" rx="18" ry="10" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="3"/>' +
-    '<circle cx="66" cy="50" r="8" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="3"/>' +
-    '<path d="M32 54c-7 3-12 8-15 14" fill="none" stroke="' + AN_INK + '" stroke-width="6" stroke-linecap="round"/>' +
-    '<path d="M32 54c-7 3-12 8-15 14" fill="none" stroke="' + fill + '" stroke-width="3.4" stroke-linecap="round"/>' +
-    '<circle cx="68" cy="47" r="1.8" fill="' + AN_INK + '"/>' +
-    '<path d="M40 63l-3 11M50 63l1 11M57 60l5 10" stroke="' + AN_INK + '" stroke-width="3.2" stroke-linecap="round"/>' +
-    '<path d="M42 46c3-4 9-5 13-4" stroke="' + AN_INK + '" stroke-width="2" stroke-linecap="round" opacity="0.45"/>';
+  var d = AN_INK;
+  return '' +
+    /* спиральный хвост */ '<path d="M32 60c-9 1-13 7-11 11 2 3 7 2 7-1 0-2-2-2-3-1" fill="none" stroke="' + d + '" stroke-width="5" stroke-linecap="round"/>' +
+    /* лапки */ '<path d="M42 66v12M56 66v12" stroke="' + d + '" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<path d="M38 78h8M52 78h8" stroke="' + d + '" stroke-width="3" stroke-linecap="round"/>' +
+    /* туловище — приплюснутый овал */ '<path d="M31 62c1-8 8-12 15-12h12c7 0 12 4 13 9 1 5-3 8-8 8H38c-4 0-7-2-7-5Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    /* гребень: частые треугольные зубцы по спине */ '<path d="M40 51l3-4 3 4 3-4 3 4 3-4 3 4 3-4 3 4" fill="' + fill + '" stroke="' + d + '" stroke-width="2.1" stroke-linejoin="round"/>' +
+    /* голова справа, шлем вверх */ '<path d="M70 62c0-7 4-11 10-11 5 0 8 3 8 7 0 5-3 8-8 8h-5c-3 0-5-1-5-4Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    '<path d="M72 54c2-7 6-11 11-11 4 0 6 3 6 6" fill="' + fill + '" stroke="' + d + '" stroke-width="2.8" stroke-linejoin="round"/>' +
+    /* рот */ '<path d="M87 60c3 1 4 3 2 5-2 1-4 0-4-2" fill="' + fill + '" stroke="' + d + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+    /* глаз */ '<circle cx="80" cy="55" r="4.6" fill="#FFFFFF" stroke="' + d + '" stroke-width="2.3"/>' +
+    '<circle cx="81" cy="55" r="1.9" fill="' + d + '"/>' +
+    '<circle cx="80" cy="53.8" r="0.7" fill="#FFFFFF"/>';
 }
 
 /* черепаха: панцирь с ячейками, голова и лапы */
@@ -103,17 +135,27 @@ function anTortoise(fill) {
     '<path d="M20 66h60" stroke="' + AN_INK + '" stroke-width="3" stroke-linecap="round"/>';
 }
 
-/* краб: панцирь, две клешни, глаза на стебельках, ноги */
+/* краб: овальный панцирь с двумя глазами на стебельках, две большие
+   клешни с вырезами и по три ноги с каждой стороны. Раньше «клешни»
+   были просто рожками — теперь у них настоящий клюв и зубцы. */
 function anCrab(fill) {
-  return '<ellipse cx="50" cy="58" rx="20" ry="14" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="3"/>' +
-    '<path d="M32 52c-7-2-11 0-12 4 5 1 7 4 7 7-1 4 3 7 7 4" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-    '<path d="M68 52c7-2 11 0 12 4-5 1-7 4-7 7 1 4-3 7-7 4" fill="' + fill + '" stroke="' + AN_INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
-    '<path d="M42 45v-7M58 45v-7" stroke="' + AN_INK + '" stroke-width="2.6" stroke-linecap="round"/>' +
-    '<circle cx="42" cy="35" r="4" fill="#FFFFFF" stroke="' + AN_INK + '" stroke-width="2.2"/>' +
-    '<circle cx="58" cy="35" r="4" fill="#FFFFFF" stroke="' + AN_INK + '" stroke-width="2.2"/>' +
-    '<circle cx="42" cy="35" r="1.5" fill="' + AN_INK + '"/>' +
-    '<circle cx="58" cy="35" r="1.5" fill="' + AN_INK + '"/>' +
-    '<path d="M36 69l-7 8M45 71l-3 9M55 71l3 9M64 69l7 8" stroke="' + AN_INK + '" stroke-width="3" stroke-linecap="round"/>';
+  var d = AN_INK;
+  return '' /* ноги — по три с каждой стороны, изогнутые */ +
+    '<path d="M30 66c-6 1-10 4-12 8M33 71c-5 2-8 5-9 9M38 75c-4 2-6 5-6 8" fill="none" stroke="' + d + '" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M70 66c6 1 10 4 12 8M67 71c5 2 8 5 9 9M62 75c4 2 6 5 6 8" fill="none" stroke="' + d + '" stroke-width="3" stroke-linecap="round"/>' +
+    /* клешни: плечо + клешня с вырезом */ 
+    '<path d="M34 58c-6-3-11-2-13 2" fill="none" stroke="' + d + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<path d="M66 58c6-3 11-2 13 2" fill="none" stroke="' + d + '" stroke-width="4" stroke-linecap="round"/>' +
+    '<path d="M21 60c-5-2-9 0-10 4 4 0 6 2 5 4 2 2 5 1 6-1M15 68c-1 3 1 5 4 5l3-3" fill="' + fill + '" stroke="' + d + '" stroke-width="2.6" stroke-linejoin="round"/>' +
+    '<path d="M79 60c5-2 9 0 10 4-4 0-6 2-5 4-2 2-5 1-6-1M85 68c1 3-1 5-4 5l-3-3" fill="' + fill + '" stroke="' + d + '" stroke-width="2.6" stroke-linejoin="round"/>' +
+    /* стебельки глаз */ '<path d="M44 50v-9M56 50v-9" stroke="' + d + '" stroke-width="2.8" stroke-linecap="round"/>' +
+    '<circle cx="44" cy="39" r="4.4" fill="#FFFFFF" stroke="' + d + '" stroke-width="2.4"/>' +
+    '<circle cx="56" cy="39" r="4.4" fill="#FFFFFF" stroke="' + d + '" stroke-width="2.4"/>' +
+    '<circle cx="45" cy="39" r="1.8" fill="' + d + '"/>' +
+    '<circle cx="55" cy="39" r="1.8" fill="' + d + '"/>' +
+    /* панцирь поверх ног */ '<path d="M30 62c0-9 9-16 20-16s20 7 20 16c0 5-4 8-9 8H39c-5 0-9-3-9-8Z" fill="' + fill + '" stroke="' + d + '" stroke-width="3" stroke-linejoin="round"/>' +
+    /* пара пятен на панцире */ '<path d="M38 56c2-3 5-5 9-5M50 51c4 0 7 2 9 5" stroke="' + d + '" stroke-width="2" stroke-linecap="round" opacity="0.5" fill="none"/>' +
+    /* рот */ '<path d="M45 66c3 2 7 2 10 0" stroke="' + d + '" stroke-width="2.2" stroke-linecap="round" fill="none"/>';
 }
 
 /* ============================================================================
